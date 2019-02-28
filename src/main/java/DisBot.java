@@ -1,50 +1,39 @@
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
+import config.Config;
+import config.ConfigInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import discord4j.core.DiscordClient;
 import discord4j.core.DiscordClientBuilder;
+import discord4j.core.event.domain.lifecycle.ReadyEvent;
+import discord4j.core.event.domain.message.MessageCreateEvent;
+import discord4j.core.object.entity.Message;
+import discord4j.core.object.entity.User;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
 
 public class DisBot {
-    private Config config;
-    private final Gson gson = new Gson();
+    private static final Logger logger = LoggerFactory.getLogger(DisBot.class);
 
     private DisBot() {
-        try {
-            readConfig();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        DiscordClientBuilder builder = new DiscordClientBuilder("TOKEN HERE");
+        Config config = new ConfigInitializer().init();
+        DiscordClientBuilder builder = new DiscordClientBuilder(config.getToken());
         DiscordClient client = builder.build();
-        client.login().block();
-    }
 
-    private void readConfig() throws IOException {
-        File confFile = new File("config.json");
-        if (!confFile.exists()) {
-            this.config = new Config();
-            JsonWriter writer = new JsonWriter(new FileWriter(confFile));
-            writer.setIndent("  ");
-            writer.setHtmlSafe(false);
-            gson.toJson(config, Config.class, writer);
-            writer.close();
-            System.out.println("Created config.json");
-            System.exit(0);
-        } else {
-            this.config = gson.fromJson(
-                    Files.readAllLines(confFile.toPath()).stream()
-                            .map(String::trim)
-                            .filter(s -> !s.startsWith("#") && !s.isEmpty())
-                            .reduce((a, b) -> a += b)
-                            .orElse(""),
-                    Config.class
-            );
-        }
+        client.getEventDispatcher().on(ReadyEvent.class)
+                .subscribe(event -> {
+                    User self = event.getSelf();
+                    logger.info(String.format("Logged in as %s#%s", self.getUsername(), self.getDiscriminator()));
+                });
+
+        client.getEventDispatcher().on(MessageCreateEvent.class)
+                .map(MessageCreateEvent::getMessage)
+                .filter(message -> message.getAuthor().map(user -> !user.isBot()).orElse(false))
+                .filter(message -> message.getContent().orElse("").equalsIgnoreCase("!ping"))
+                .flatMap(Message::getChannel)
+                .flatMap(channel -> channel.createMessage("Pong!"))
+                .subscribe();
+
+        client.login().block();
     }
 
     public static void main(String[] args) {

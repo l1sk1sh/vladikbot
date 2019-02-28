@@ -4,3 +4,4 @@ So, here is what you can check:
 - https://github.com/Discord4J/Discord4J/wiki/Making-a-bot
 - https://github.com/Discord4J/Discord4J/wiki/Getting-Started
 - https://github.com/xtrafrancyz/Degustator/blob/master/src/main/java/net/xtrafrancyz/degustator/Degustator.java
+- https://discord4j.readthedocs.io/en/latest/Basic-bot/
