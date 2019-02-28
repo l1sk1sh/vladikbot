@@ -1,0 +1,30 @@
+# System files
+.DS_Store
+*.*~
+*~
+
+# .idea files
+*.iml
+*.ipr
+*.iws
+.idea/*
+
+# Build and compile directories
+nbproject/
+out/
+build/
+logs/
+
+# Generated config files
+build.xml
+manifest.mf
+
+# Packages
+*.jar
+*.war
+
+# Gradle wrapper for compilation without Gradle installation
+gradlew
+gradlew.bat
+.gradle/
+gradle/
