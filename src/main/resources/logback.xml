@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true">
-<<<<<<< HEAD
-=======
-    <!-- You can configure per-logger level at this point -->
-    <!-- This set of preconfigured loggers is good if you want to have a DEBUG level as baseline -->
-    <logger name="io.netty" level="INFO"/>
-    <logger name="reactor" level="INFO"/>
-    <!-- Use this if you want to reduce the logging produced by websocket/etc data -->
-    <logger name="discord4j.gateway" level="INFO"/>
-    <logger name="discord4j.core" level="INFO"/>
-
->>>>>>> 0a27a8e566e3ba4a706cb2db60d25e4842c01ef2
     <!-- Display the logs in your console with the following format -->
     <!-- You can learn more about this here: https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
