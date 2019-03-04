@@ -1,6 +1,6 @@
 package com.multiheaded.disbot.command;
 
-import com.sun.deploy.util.StringUtils;
+import com.multiheaded.disbot.util.StringUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.PrivateChannel;
@@ -102,7 +102,7 @@ public class HelpCommand extends AbstractCommand {
 
     @Override
     public String getDescription() {
-        return "Command that helps use all other commands!";
+        return "Command that helps to use all other commands.";
     }
 
     @Override
@@ -115,6 +115,6 @@ public class HelpCommand extends AbstractCommand {
         return Collections.singletonList(
                 BOT_PREFIX + "help  **OR**  " + BOT_PREFIX + "help *<command>*\n"
                         + BOT_PREFIX + "help - returns the list of commands along with a simple description of each.\n"
-                        + BOT_PREFIX + "help <command> - returns the name, description, aliases and usage information of a command.\n");
+                        + BOT_PREFIX + "help <command> - returns the name, description, aliases and usage information of a command.");
     }
 }

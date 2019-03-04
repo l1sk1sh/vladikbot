@@ -2,18 +2,45 @@ group 'com.multiheaded'
 version '0.1'
 
 apply plugin: 'java'
-
-sourceCompatibility = 1.8
-
-repositories {
-    jcenter()
-    mavenLocal()
-}
+apply plugin: 'com.bmuschko.docker-remote-api'
 
 buildscript {
     repositories {
         jcenter()
     }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:4.6.0'
+    }
+}
+
+repositories {
+    jcenter()
+}
+
+sourceCompatibility = 1.8
+
+import org.apache.tools.ant.taskdefs.condition.Os
+import com.bmuschko.gradle.docker.tasks.image.*
+
+docker {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        docker.url = 'tcp://127.0.0.1:2375' //Enable "Expose daemon :2735 without TSL" in Docker for Windows
+    } else {
+        docker.url = 'unix:///var/run/docker.sock'
+    }
+
+    task pullDiscordChatBackup(type: DockerPullImage) {
+        repository='tyrrrz/discordchatexporter'
+    }
+
+    registryCredentials { //Not needed at that point, but might be required in the future
+        registryCredentials.url = 'https://index.docker.io/v1/'
+        username = dockerLogin
+        password = dockerPassword
+        email = dockerEmail
+    }
+
+
 }
 
 dependencies {

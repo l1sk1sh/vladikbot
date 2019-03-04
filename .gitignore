@@ -5,12 +5,9 @@
 
 # .idea files
 *.iml
-*.ipr
-*.iws
 .idea/*
 
 # Build and compile directories
-nbproject/
 out/
 build/
 logs/
@@ -23,11 +20,8 @@ manifest.mf
 *.jar
 *.war
 
-# Gradle wrapper for compilation without Gradle installation
-gradlew
-gradlew.bat
+# Gradle compilation output
 .gradle/
-gradle/
 
 # Security ignore
-config.json
+settings.json
