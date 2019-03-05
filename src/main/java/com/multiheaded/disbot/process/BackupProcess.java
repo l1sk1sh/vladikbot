@@ -8,13 +8,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class BackupProcess extends AbstractProcess implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(BackupProcess.class);
+
     private String token;
     private String channelId;
     private String containerName;
+    private String format;
 
-    private static final Logger logger = LoggerFactory.getLogger(BackupProcess.class);
-
-    public BackupProcess(String token, String channelId, String containerName) {
+    public BackupProcess(String token, String channelId, String containerName, String format) {
         if (!running) {
             thread = new Thread(this, "DOCKER_CLI_STREAM");
             pb = new ProcessBuilder();
@@ -22,6 +23,7 @@ public class BackupProcess extends AbstractProcess implements Runnable {
             this.token = token;
             this.channelId = channelId;
             this.containerName = containerName;
+            this.format = format;
             thread.start();
         } else {
             logger.warn("Thread is already running.");
@@ -33,7 +35,7 @@ public class BackupProcess extends AbstractProcess implements Runnable {
         running = true;
         try {
             pb.command("docker", "run", "--name", containerName,"tyrrrz/discordchatexporter", "export",
-                    "--channel", channelId, "--token", token, "--bot", "true");
+                    "-f", format, "--channel", channelId, "--token", token, "--bot", "true");
 
             final Process process = pb.start();
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));

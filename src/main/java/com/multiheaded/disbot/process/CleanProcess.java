@@ -9,9 +9,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class CleanProcess extends AbstractProcess implements Runnable {
-    private String containerName;
-
     private static final Logger logger = LoggerFactory.getLogger(CleanProcess.class);
+
+    private String containerName;
 
     public CleanProcess(String containerName) {
         if (!running) {

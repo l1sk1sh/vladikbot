@@ -9,10 +9,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class CopyProcess extends AbstractProcess implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(CopyProcess.class);
+
     private String pathToDockerFile;
     private String pathToLocalFile;
-
-    private static final Logger logger = LoggerFactory.getLogger(CopyProcess.class);
 
     public CopyProcess(String containerName, String pathToDockerFile, String pathToLocalFile) {
         if (!running) {

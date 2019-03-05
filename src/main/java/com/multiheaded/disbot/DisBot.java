@@ -1,6 +1,7 @@
 package com.multiheaded.disbot;
 
 import com.multiheaded.disbot.command.BackupCommand;
+import com.multiheaded.disbot.command.EmojiStatsCommand;
 import com.multiheaded.disbot.command.HelpCommand;
 import com.multiheaded.disbot.settings.Constants;
 import com.multiheaded.disbot.settings.Settings;
@@ -15,6 +16,7 @@ import javax.security.auth.login.LoginException;
 
 public class DisBot {
     private static final Logger logger = LoggerFactory.getLogger(DisBot.class);
+
     private static JDA api;
     public static Settings settings;
 
@@ -26,9 +28,11 @@ public class DisBot {
 
             HelpCommand help = new HelpCommand();
             BackupCommand backup = new BackupCommand();
+            EmojiStatsCommand emoji = new EmojiStatsCommand();
 
             jdaBuilder.addEventListener(help.registerCommand(help));
             jdaBuilder.addEventListener(help.registerCommand(backup));
+            jdaBuilder.addEventListener(help.registerCommand(emoji));
 
             api = jdaBuilder.build();
 
@@ -40,5 +44,9 @@ public class DisBot {
 
     public static void main(String[] args) {
         setupBot();
+    }
+
+    public static JDA getApi() {
+        return api;
     }
 }
