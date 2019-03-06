@@ -7,18 +7,19 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class CleanProcess extends AbstractProcess implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(CleanProcess.class);
 
-    private String containerName;
+    private List<String> command;
 
-    public CleanProcess(String containerName) {
+    public CleanProcess(List<String> command) {
         if (!running) {
             thread = new Thread(this, "DOCKER_CLEAN_STREAM");
             pb = new ProcessBuilder();
             pb.redirectErrorStream(true);
-            this.containerName = containerName;
+            this.command = command;
             thread.start();
         } else {
             logger.warn("Thread is already running.");
@@ -29,7 +30,7 @@ public class CleanProcess extends AbstractProcess implements Runnable {
     public void run() {
         running = true;
         try {
-            pb.command("docker", "rm", containerName);
+            pb.command(command);
 
             final Process process = pb.start();
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));

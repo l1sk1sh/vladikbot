@@ -113,7 +113,7 @@ public class HelpCommand extends AbstractCommand {
     @Override
     public List<String> getUsageInstructions() {
         return Collections.singletonList(
-                BOT_PREFIX + "help  **OR**  " + BOT_PREFIX + "help *<command>*\n"
+                BOT_PREFIX + "help **OR** " + BOT_PREFIX + "help *<command>*\n"
                         + BOT_PREFIX + "help - returns the list of commands along with a simple description of each.\n"
                         + BOT_PREFIX + "help <command> - returns the name, description, aliases and usage information of a command.");
     }

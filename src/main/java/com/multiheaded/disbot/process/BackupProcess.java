@@ -6,24 +6,19 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class BackupProcess extends AbstractProcess implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(BackupProcess.class);
 
-    private String token;
-    private String channelId;
-    private String containerName;
-    private String format;
+    private List<String> command;
 
-    public BackupProcess(String token, String channelId, String containerName, String format) {
+    public BackupProcess(List<String> command) {
         if (!running) {
             thread = new Thread(this, "DOCKER_CLI_STREAM");
             pb = new ProcessBuilder();
             pb.redirectErrorStream(true);
-            this.token = token;
-            this.channelId = channelId;
-            this.containerName = containerName;
-            this.format = format;
+            this.command = command;
             thread.start();
         } else {
             logger.warn("Thread is already running.");
@@ -34,8 +29,7 @@ public class BackupProcess extends AbstractProcess implements Runnable {
     public void run() {
         running = true;
         try {
-            pb.command("docker", "run", "--name", containerName,"tyrrrz/discordchatexporter", "export",
-                    "-f", format, "--channel", channelId, "--token", token, "--bot", "true");
+            pb.command(command);
 
             final Process process = pb.start();
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));

@@ -1,16 +1,14 @@
 package com.multiheaded.disbot.service;
 
 import com.multiheaded.disbot.util.FileUtils;
+import net.dv8tion.jda.core.entities.Emote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,23 +19,39 @@ public class EmojiStatsService {
 
     private Map<String, Integer> emojiList = new HashMap<>();
 
-    public EmojiStatsService(File exportedFile) {
+    private String[] args;
+    private List<Emote> emotes;
+    private boolean ignoreUnicodeEmoji = false;
+    private boolean ignoreUnknownEmoji = false;
+
+    public EmojiStatsService(File exportedFile, List<Emote> emotes, String[] args) {
+        this.args = args;
+        this.emotes = emotes;
+
+        processArguments();
         try {
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
 
             // Custom :emoji: matcher
             Matcher customEmojiMatcher =
-                    Pattern.compile(":(::|[^:\\n\\s])+:").matcher(input);
+                    Pattern.compile(":(::|[^:\\n\\s/()])+:").matcher(input);
             while (customEmojiMatcher.find()) {
-                addElementToList(customEmojiMatcher.group());
+                if (ignoreUnknownEmoji) {
+                    if (isEmojiInList(customEmojiMatcher.group()))
+                        addElementToList(customEmojiMatcher.group());
+                } else {
+                    addElementToList(customEmojiMatcher.group());
+                }
             }
 
-            // Unicode \ud83c\udc00 matcher
-            Matcher unicodeEmojiMathcer =
-                    Pattern.compile("[\ud83c\udc00-\ud83c\udfff]|[\ud83d\udc00-\ud83d\udfff]|[\u2600-\u27ff]",
-                    Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE).matcher(input);
-            while (unicodeEmojiMathcer.find()) {
-                addElementToList(unicodeEmojiMathcer.group());
+            if (!ignoreUnicodeEmoji) {
+                // Unicode \ud83c\udc00 matcher
+                Matcher unicodeEmojiMathcer =
+                        Pattern.compile("[\ud83c\udc00-\ud83c\udfff]|[\ud83d\udc00-\ud83d\udfff]|[\u2600-\u27ff]",
+                                Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE).matcher(input);
+                while (unicodeEmojiMathcer.find()) {
+                    addElementToList(unicodeEmojiMathcer.group());
+                }
             }
 
             // Sort Descending using Stream API
@@ -46,9 +60,23 @@ public class EmojiStatsService {
                     .stream()
                     .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
                     .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
-                                    LinkedHashMap::new));
+                            LinkedHashMap::new));
         } catch (IOException e) {
-           logger.error("Failed to read exportedFile.", e.getMessage(), e.getCause());
+            logger.error("Failed to read exportedFile.", e.getMessage(), e.getCause());
+        }
+    }
+
+    private void processArguments() {
+        if (args.length > 0) {
+            for (String arg : args) {
+                switch (arg) {
+                    case "-iu":
+                        ignoreUnknownEmoji = true;
+                    case "-i":
+                        ignoreUnicodeEmoji = true;
+                        break;
+                }
+            }
         }
     }
 
@@ -58,6 +86,17 @@ public class EmojiStatsService {
         } else {
             emojiList.put(element, 1);
         }
+    }
+
+    private boolean isEmojiInList(String emoji) {
+        boolean present = false;
+
+        for (Emote emote : emotes) {
+            if (emote.getName().equals(emoji.replaceAll(":", "")))
+                present = true;
+        }
+
+        return present;
     }
 
     public Map<String, Integer> getEmojiList() {

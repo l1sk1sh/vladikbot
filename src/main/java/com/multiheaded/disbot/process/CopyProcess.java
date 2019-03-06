@@ -7,20 +7,19 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.List;
 
 public class CopyProcess extends AbstractProcess implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(CopyProcess.class);
 
-    private String pathToDockerFile;
-    private String pathToLocalFile;
+    private List<String> command;
 
-    public CopyProcess(String containerName, String pathToDockerFile, String pathToLocalFile) {
+    public CopyProcess(List<String> command) {
         if (!running) {
             thread = new Thread(this, "DOCKER_COPY_STREAM");
             pb = new ProcessBuilder();
             pb.redirectErrorStream(true);
-            this.pathToDockerFile = containerName + ":" + pathToDockerFile;
-            this.pathToLocalFile = pathToLocalFile;
+            this.command = command;
             thread.start();
         } else {
             logger.warn("Thread is already running.");
@@ -31,7 +30,7 @@ public class CopyProcess extends AbstractProcess implements Runnable {
     public void run() {
         running = true;
         try {
-            pb.command("docker", "cp", pathToDockerFile, pathToLocalFile);
+            pb.command(command);
 
             final Process process = pb.start();
             BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -41,7 +40,7 @@ public class CopyProcess extends AbstractProcess implements Runnable {
                 logger.info(line);
                 if (line.contains("No such container:path")) {
                     throw new FileNotFoundException();
-                } else if(line.contains("Error")) {
+                } else if (line.contains("Error")) {
                     throw new IOException();
                 }
             }

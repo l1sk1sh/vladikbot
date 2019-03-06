@@ -1,5 +1,8 @@
 package com.multiheaded.disbot.settings;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Constants {
     //Non error, no action exit codes
     public static final int NORMAL_SHUTDOWN = 10;
@@ -18,4 +21,14 @@ public class Constants {
     public static String BOT_PREFIX = "!";
 
     static final String CONFIG_NAME = "settings.json";
+
+    public static final Integer DAY_IN_MILISECONDS = 86400000;
+
+    public static Map<String, String> FORMAT_EXTENSION;
+
+    static {
+        FORMAT_EXTENSION = new HashMap<>();
+        FORMAT_EXTENSION.put("HtmlDark", ".html");
+        FORMAT_EXTENSION.put("PlainText", ".txt");
+    }
 }

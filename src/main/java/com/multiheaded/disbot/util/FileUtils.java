@@ -8,19 +8,37 @@ import java.util.Objects;
 
 public class FileUtils {
     public static String getFileNameByIdAndExtension(String pathToDir, String id, String extension) {
-        File f = new File(pathToDir);
-        File[] paths = f.listFiles();
+        File folder = new File(pathToDir);
+        File[] paths = folder.listFiles();
+        File file = null;
 
-        for(File path : Objects.requireNonNull(paths)) {
-            if (path.toString().contains(id) && path.toString().contains(extension))
-                return path.toString();
+        for (File path : Objects.requireNonNull(paths)) {
+            if (path.toString().contains(id) && path.toString().contains(extension)) {
+                if (file != null) {
+                    file = (file.lastModified() > path.lastModified()) ? file : path;
+                } else {
+                    file = path;
+                }
+            }
         }
 
-        return null;
+        return (file != null) ? file.toPath().toString() : null;
     }
 
     public static String readFile(File file, Charset encoding) throws IOException {
         byte[] encoded = Files.readAllBytes(file.toPath());
         return new String(encoded, encoding);
+    }
+
+    public static void deleteFilesByIdAndExtension(String pathToDir, String id, String extension) {
+        File f = new File(pathToDir);
+        File[] paths = f.listFiles();
+
+        for(File path : Objects.requireNonNull(paths)) {
+            if (path.toString().contains(id) && path.toString().contains(extension))
+                if (!path.delete()) {
+                    throw new SecurityException();
+                }
+        }
     }
 }
