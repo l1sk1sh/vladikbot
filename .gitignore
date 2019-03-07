@@ -25,4 +25,3 @@ manifest.mf
 
 # Security ignore
 settings.json
-gradle.properties

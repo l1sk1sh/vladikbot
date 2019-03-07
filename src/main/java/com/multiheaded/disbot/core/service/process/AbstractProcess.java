@@ -4,10 +4,10 @@ public abstract class AbstractProcess {
     ProcessBuilder pb;
     Thread thread;
     boolean running = false;
-    boolean completed = false;
+    boolean failed = true;
 
-    public synchronized boolean isCompleted() {
-        return completed;
+    public synchronized boolean isFailed() {
+        return failed;
     }
 
     public synchronized Thread getThread() {

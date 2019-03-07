@@ -38,7 +38,7 @@ public class BackupService {
 
             BackupProcess backupProcess = new BackupProcess(constructBackupCommand());
             backupProcess.getThread().join();
-            if (!backupProcess.isCompleted()) throw new InterruptedException("BackupProcess failed!");
+            if (backupProcess.isFailed()) throw new InterruptedException("BackupProcess failed!");
 
             FileUtils.deleteFilesByIdAndExtension(
                     settings.localPathToExport + settings.dockerPathToExport,
@@ -46,12 +46,12 @@ public class BackupService {
                     extension);
             CopyProcess copyProcess = new CopyProcess(constructCopyCommand());
             copyProcess.getThread().join();
-            if (!copyProcess.isCompleted()) throw new InterruptedException("CopyProcess failed!");
+            if (copyProcess.isFailed()) throw new InterruptedException("CopyProcess failed!");
 
             String pathToFile = settings.localPathToExport + settings.dockerPathToExport;
             exportedFile = FileUtils.getFileByIdAndExtension(pathToFile, channelId, extension);
         } catch (InterruptedException ie) {
-            String msg = String.format("Backup thread interrupted on service level [%s]", ie.getMessage());
+            String msg = String.format("Backup thread interrupted on service level `[%s]`", ie.getMessage());
             logger.error(msg);
             throw new InterruptedException(msg);
         } finally {
@@ -142,7 +142,7 @@ public class BackupService {
                 }
             }
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
-            String msg = String.format("*Failed* to process provided arguments: %s", Arrays.toString(args));
+            String msg = String.format("Failed to process provided arguments: %s", Arrays.toString(args));
             logger.error(msg);
             throw new InvalidParameterException(msg);
         }

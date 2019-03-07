@@ -46,7 +46,7 @@ public class CleanProcess extends AbstractProcess implements Runnable {
             }
 
             process.waitFor();
-            completed = true;
+            failed = false;
         } catch (NotFound nf) {
             logger.error("Specified container not found.", nf.getMessage(), nf.getMessage());
         } catch (IOException ioe) {

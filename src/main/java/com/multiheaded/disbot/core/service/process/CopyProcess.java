@@ -46,7 +46,7 @@ public class CopyProcess extends AbstractProcess implements Runnable {
             }
 
             process.waitFor();
-            completed = true;
+            failed = false;
         } catch (FileNotFoundException fnf) {
             logger.error("Specified file or directory wasn't found.", fnf.getMessage(), fnf.getCause());
         } catch (IOException ioe) {

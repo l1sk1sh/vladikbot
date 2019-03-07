@@ -1,44 +1,58 @@
 package com.multiheaded.disbot.command;
 
+import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.disbot.core.EmojiStatsConductor;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.io.FileNotFoundException;
 import java.security.InvalidParameterException;
 import java.util.*;
 
-import static com.multiheaded.disbot.settings.Constants.BOT_PREFIX;
+public class EmojiStatsCommand extends Command {
 
-public class EmojiStatsCommand extends AbstractCommand {
+    public EmojiStatsCommand() {
+        this.name = "emojistats";
+        this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\n"
+                + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done.\n"
+                + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which statics would be done.\n"
+                + "\t\t `-iu` - ignores unicode emoji and unknown emoji.\n"
+                + "\t\t `-f` - creates new backup despite existing one.\n"
+                + "\t\t `-i` - ignores unicode emoji.";
+        this.arguments = "-a, -b, -iu, -i, -f";
+        this.botPermissions = new Permission[]{Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY,
+                Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS};
+    }
 
     @Override
-    public void onCommand(MessageReceivedEvent event, String[] args) {
+    public void execute(CommandEvent event) {
 
         if (!event.isFromType(ChannelType.PRIVATE)) {
-            sendMessage(event, "Initializing emoji statistics calculation. Be patient...");
+            event.reply("Initializing emoji statistics calculation. Be patient...");
 
             new Thread(() -> {
                 try {
                     EmojiStatsConductor emojiStatsConductor =
-                            new EmojiStatsConductor(event.getChannel().getId(), args, event.getGuild().getEmotes());
+                            new EmojiStatsConductor(event.getChannel().getId(),
+                                    event.getArgs().split(" "), event.getGuild().getEmotes());
 
                     if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
                         throw new InternalRuntimeError("Emoji Statistics Service failed!");
                     sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
                 } catch (InterruptedException | FileNotFoundException e) {
-                    sendMessage(event, String.format("Backup **has failed**! [%s]", e.getMessage()));
+                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
                 } catch (InvalidParameterException ipe) {
-                    sendMessage(event, ipe.getMessage());
+                    event.replyError(ipe.getMessage());
                 } catch (InternalRuntimeError ire) {
-                    sendMessage(event, String.format("Calculation failed! [%s]", ire.getMessage()));
+                    event.replyError(String.format("Calculation failed! `[%s]`", ire.getMessage()));
                 }
             }).start();
         }
     }
 
-    private void sendStatisticsMessage(MessageReceivedEvent event, Map<String, Integer> emojiMap) {
+    private void sendStatisticsMessage(CommandEvent event, Map<String, Integer> emojiMap) {
         StringBuilder message = new StringBuilder();
         message.append("Emoji statistics for current channel:\n");
 
@@ -79,40 +93,12 @@ public class EmojiStatsCommand extends AbstractCommand {
                         sb.append(s);
                         sb.append("\n");
                     }
-                    sendMessage(event, sb.toString());
+                    event.reply(sb.toString());
                     butchMessage.clear();
                 }
             }
         } else {
-            sendMessage(event, message.toString());
+            event.reply(message.toString());
         }
-    }
-
-    @Override
-    public List<String> getAliases() {
-        return Arrays.asList(BOT_PREFIX + "emojistats", BOT_PREFIX + "emoji_stats");
-    }
-
-    @Override
-    public String getDescription() {
-        return "Calculate emoji usage statics without reactions";
-    }
-
-    @Override
-    public String getName() {
-        return "Emoji Statistics Command";
-    }
-
-    @Override
-    public List<String> getUsageInstructions() {
-        return Collections.singletonList(BOT_PREFIX + "emojistats **OR** " + BOT_PREFIX + "emojistats *<arguments>*\n"
-                + BOT_PREFIX + "emojistats - returns full statistics **(once in 24h)** of emoji usage in the current channel.\n"
-                + BOT_PREFIX + "emojistats <arguments> - " +
-                "returns full statistics of emoji usage in the current channel within specified period.\n"
-                + "\t\t -b, --before <mm/dd/yyyy> - specifies date till which statics would be done.\n"
-                + "\t\t -a, --after  <mm/dd/yyyy> - specifies date from which statics would be done.\n"
-                + BOT_PREFIX + "emojistats -i - ignores unicode emoji.\n"
-                + BOT_PREFIX + "emojistats -iu - ignores unicode emoji and unknown emoji.\n"
-                + BOT_PREFIX + "emojistats -f - creates new backup despite existing one.");
     }
 }

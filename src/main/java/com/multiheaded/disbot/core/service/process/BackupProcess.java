@@ -38,7 +38,7 @@ public class BackupProcess extends AbstractProcess implements Runnable {
             while ((line = br.readLine()) != null) {
                 logger.info(line);
                 if (line.contains("Completed ✓")) {
-                    completed = true;
+                    failed = false;
                 }
             }
 
