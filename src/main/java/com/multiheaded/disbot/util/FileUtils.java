@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.util.Objects;
 
 public class FileUtils {
-    public static String getFileNameByIdAndExtension(String pathToDir, String id, String extension) {
+    public static File getFileByIdAndExtension(String pathToDir, String id, String extension) {
         File folder = new File(pathToDir);
         File[] paths = folder.listFiles();
         File file = null;
@@ -22,7 +22,7 @@ public class FileUtils {
             }
         }
 
-        return (file != null) ? file.toPath().toString() : null;
+        return file;
     }
 
     public static String readFile(File file, Charset encoding) throws IOException {

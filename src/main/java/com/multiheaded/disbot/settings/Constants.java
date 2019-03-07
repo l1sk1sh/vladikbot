@@ -22,7 +22,7 @@ public class Constants {
 
     static final String CONFIG_NAME = "settings.json";
 
-    public static final Integer DAY_IN_MILISECONDS = 86400000;
+    public static final Integer DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
     public static Map<String, String> FORMAT_EXTENSION;
 

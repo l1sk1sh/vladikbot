@@ -1,69 +1,44 @@
 package com.multiheaded.disbot.command;
 
-import com.multiheaded.disbot.service.BackupService;
-import com.multiheaded.disbot.service.EmojiStatsService;
-import com.multiheaded.disbot.settings.Constants;
-import com.multiheaded.disbot.util.FileUtils;
+import com.multiheaded.disbot.core.EmojiStatsConductor;
+import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.io.File;
+import java.io.FileNotFoundException;
+import java.security.InvalidParameterException;
 import java.util.*;
 
-import static com.multiheaded.disbot.DisBot.settings;
 import static com.multiheaded.disbot.settings.Constants.BOT_PREFIX;
-import static com.multiheaded.disbot.settings.Constants.FORMAT_EXTENSION;
 
 public class EmojiStatsCommand extends AbstractCommand {
 
     @Override
-    public void onCommand(MessageReceivedEvent e, String[] args) {
-        String format = "PlainText";
-        String extension = FORMAT_EXTENSION.get(format);
+    public void onCommand(MessageReceivedEvent event, String[] args) {
 
-        if (!e.isFromType(ChannelType.PRIVATE)) {
-            sendMessage(e, "Initializing emoji statistics calculation. Be patient...");
+        if (!event.isFromType(ChannelType.PRIVATE)) {
+            sendMessage(event, "Initializing emoji statistics calculation. Be patient...");
 
             new Thread(() -> {
-                String exportedFilePath = prepareFilePath(e.getChannel().getId(), extension, format, args);
+                try {
+                    EmojiStatsConductor emojiStatsConductor =
+                            new EmojiStatsConductor(event.getChannel().getId(), args, event.getGuild().getEmotes());
 
-                if (exportedFilePath != null) {
-                    EmojiStatsService ess = new EmojiStatsService(
-                            new File(Objects.requireNonNull(exportedFilePath)), e.getGuild().getEmotes(), args);
-
-                    if (ess.getEmojiList() != null) {
-                        sendStatisticsMessage(e, ess.getEmojiList());
-                    } else {
-                        sendMessage(e, "Oooops! **Stats calculation failed!** Read logs.");
-                    }
-                } else {
-                    sendMessage(e, "Oooops! **Backup failed!** Read logs.");
+                    if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
+                        throw new InternalRuntimeError("Emoji Statistics Service failed!");
+                    sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
+                } catch (InterruptedException | FileNotFoundException e) {
+                    sendMessage(event, String.format("Backup **has failed**! [%s]", e.getMessage()));
+                } catch (InvalidParameterException ipe) {
+                    sendMessage(event, ipe.getMessage());
+                } catch (InternalRuntimeError ire) {
+                    sendMessage(event, String.format("Calculation failed! [%s]", ire.getMessage()));
                 }
             }).start();
         }
     }
 
-    private String prepareFilePath(String channelId, String extension, String format, String[] args) {
-        String exportedFilePath = FileUtils.getFileNameByIdAndExtension(
-                settings.localPathToExport + settings.dockerPathToExport,
-                channelId, extension);
-
-        // If file is absent or was made more than 24 hours ago - create new backup
-        if (exportedFilePath == null
-                || (System.currentTimeMillis() - new File(exportedFilePath).lastModified()) > Constants.DAY_IN_MILISECONDS) {
-            BackupService bs = new BackupService(channelId, format, args);
-
-            if (bs.isCompleted()) {
-                exportedFilePath = FileUtils.getFileNameByIdAndExtension(
-                        settings.localPathToExport + settings.dockerPathToExport,
-                        channelId, extension);
-            }
-        }
-
-        return exportedFilePath;
-    }
-
-    private void sendStatisticsMessage(MessageReceivedEvent e, Map<String, Integer> emojiMap) {
+    private void sendStatisticsMessage(MessageReceivedEvent event, Map<String, Integer> emojiMap) {
         StringBuilder message = new StringBuilder();
         message.append("Emoji statistics for current channel:\n");
 
@@ -74,7 +49,7 @@ public class EmojiStatsCommand extends AbstractCommand {
             if (entry.getKey().contains(":")) {
                 String emojiName = entry.getKey().replaceAll(":", "");
                 try {
-                    String emojiId = e.getGuild().getEmotesByName(emojiName, true).get(0).getId();
+                    String emojiId = event.getGuild().getEmotesByName(emojiName, true).get(0).getId();
                     markupEmoji = "<:" + emojiName + ":" + emojiId + ">";
                 } catch (IndexOutOfBoundsException iobe) {
                     markupEmoji = entry.getKey();
@@ -104,12 +79,12 @@ public class EmojiStatsCommand extends AbstractCommand {
                         sb.append(s);
                         sb.append("\n");
                     }
-                    sendMessage(e, sb.toString());
+                    sendMessage(event, sb.toString());
                     butchMessage.clear();
                 }
             }
         } else {
-            sendMessage(e, message.toString());
+            sendMessage(event, message.toString());
         }
     }
 
@@ -137,6 +112,7 @@ public class EmojiStatsCommand extends AbstractCommand {
                 + "\t\t -b, --before <mm/dd/yyyy> - specifies date till which statics would be done.\n"
                 + "\t\t -a, --after  <mm/dd/yyyy> - specifies date from which statics would be done.\n"
                 + BOT_PREFIX + "emojistats -i - ignores unicode emoji.\n"
-                + BOT_PREFIX + "emojistats -iu - ignores unicode emoji and unknown emoji.");
+                + BOT_PREFIX + "emojistats -iu - ignores unicode emoji and unknown emoji.\n"
+                + BOT_PREFIX + "emojistats -f - creates new backup despite existing one.");
     }
 }

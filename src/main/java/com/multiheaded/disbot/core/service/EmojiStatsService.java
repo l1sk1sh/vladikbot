@@ -1,4 +1,4 @@
-package com.multiheaded.disbot.service;
+package com.multiheaded.disbot.core.service;
 
 import com.multiheaded.disbot.util.FileUtils;
 import net.dv8tion.jda.core.entities.Emote;
@@ -20,21 +20,20 @@ public class EmojiStatsService {
     private Map<String, Integer> emojiList = new HashMap<>();
 
     private String[] args;
-    private List<Emote> emotes;
+    private List<Emote> serverEmojiList;
     private boolean ignoreUnicodeEmoji = false;
     private boolean ignoreUnknownEmoji = false;
 
-    public EmojiStatsService(File exportedFile, List<Emote> emotes, String[] args) {
+    public EmojiStatsService(File exportedFile, List<Emote> serverEmojiList, String[] args) {
         this.args = args;
-        this.emotes = emotes;
+        this.serverEmojiList = serverEmojiList;
 
-        processArguments();
         try {
+            processArguments();
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
 
             // Custom :emoji: matcher
-            Matcher customEmojiMatcher =
-                    Pattern.compile(":(::|[^:\\n\\s/()])+:").matcher(input);
+            Matcher customEmojiMatcher = Pattern.compile(":(::|[^:\\n\\s/()])+:").matcher(input);
             while (customEmojiMatcher.find()) {
                 if (ignoreUnknownEmoji) {
                     if (isEmojiInList(customEmojiMatcher.group()))
@@ -81,18 +80,15 @@ public class EmojiStatsService {
     }
 
     private void addElementToList(String element) {
-        if (emojiList.get(element) != null) {
-            emojiList.put(element, emojiList.get(element) + 1);
-        } else {
-            emojiList.put(element, 1);
-        }
+        // If not null - increase counter. If null - add element
+        emojiList.merge(element, 1, (a, b) -> a + b);
     }
 
     private boolean isEmojiInList(String emoji) {
         boolean present = false;
 
-        for (Emote emote : emotes) {
-            if (emote.getName().equals(emoji.replaceAll(":", "")))
+        for (Emote serverEmoji : serverEmojiList) {
+            if (serverEmoji.getName().equals(emoji.replaceAll(":", "")))
                 present = true;
         }
 

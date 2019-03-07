@@ -1,45 +1,34 @@
 package com.multiheaded.disbot.command;
 
-import com.multiheaded.disbot.service.BackupService;
-import com.multiheaded.disbot.util.FileUtils;
+import com.multiheaded.disbot.core.BackupConductor;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
-import java.io.File;
+import java.security.InvalidParameterException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static com.multiheaded.disbot.settings.Constants.BOT_PREFIX;
-import static com.multiheaded.disbot.settings.Constants.FORMAT_EXTENSION;
-import static com.multiheaded.disbot.DisBot.settings;
 
 public class BackupCommand extends AbstractCommand {
 
     @Override
-    public void onCommand(MessageReceivedEvent e, String[] args) {
-        String format = "HtmlDark";
-        String extension = FORMAT_EXTENSION.get(format);
+    public void onCommand(MessageReceivedEvent event, String[] args) {
 
-        if (!e.isFromType(ChannelType.PRIVATE)) {
-            sendMessage(e, "Initializing backup process. Be patient...");
+        if (!event.isFromType(ChannelType.PRIVATE)) {
+            sendMessage(event, "Initializing backup process. Be patient...");
 
             new Thread(() -> {
-                BackupService bs = new BackupService(e.getChannel().getId(), format, args);
+                try {
+                    BackupConductor backupConductor = new BackupConductor(event.getChannel().getId(), args);
 
-                if (bs.isCompleted()) {
-                    String pathToFile = settings.localPathToExport + settings.dockerPathToExport;
-                    String exportedFile = FileUtils.getFileNameByIdAndExtension(
-                            pathToFile,
-                            e.getChannel().getId(),
-                            extension);
-                    File exportedHtml = new File(Objects.requireNonNull(exportedFile));
-
-                    e.getTextChannel().sendFile(exportedHtml,
-                            e.getChannel().getName() + extension).queue();
-                } else {
-                    sendMessage(e, "Oooops! **Backup failed!** Read logs.");
+                    event.getTextChannel().sendFile(backupConductor.getBackupService().getExportedFile(),
+                            backupConductor.getBackupService().getExportedFile().getName()).queue();
+                } catch (InterruptedException ie) {
+                    sendMessage(event, String.format("Backup **has failed**! [%s]", ie.getMessage()));
+                } catch (InvalidParameterException ipe) {
+                    sendMessage(event, ipe.getMessage());
                 }
             }).start();
         }

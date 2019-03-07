@@ -14,9 +14,9 @@ import java.util.TreeMap;
 import static com.multiheaded.disbot.settings.Constants.BOT_PREFIX;
 
 public class HelpCommand extends AbstractCommand {
-    private static final String NO_NAME = "No name provided for this command. Sorry!";
-    private static final String NO_DESCRIPTION = "No description has been provided for this command. Sorry!";
-    private static final String NO_USAGE = "No usage instructions have been provided for this command. Sorry!";
+    private static final String NO_NAME = "No name provided for this command.";
+    private static final String NO_DESCRIPTION = "No description has been provided for this command.";
+    private static final String NO_USAGE = "No usage instructions have been provided for this command.";
 
     private TreeMap<String, AbstractCommand> commands;
 

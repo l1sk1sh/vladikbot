@@ -1,22 +1,22 @@
-package com.multiheaded.disbot.process;
+package com.multiheaded.disbot.core.service.process;
 
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class CleanProcess extends AbstractProcess implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(CleanProcess.class);
+public class CopyProcess extends AbstractProcess implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(CopyProcess.class);
 
     private List<String> command;
 
-    public CleanProcess(List<String> command) {
+    public CopyProcess(List<String> command) {
         if (!running) {
-            thread = new Thread(this, "DOCKER_CLEAN_STREAM");
+            thread = new Thread(this, "DOCKER_COPY_STREAM");
             pb = new ProcessBuilder();
             pb.redirectErrorStream(true);
             this.command = command;
@@ -38,8 +38,8 @@ public class CleanProcess extends AbstractProcess implements Runnable {
             String line;
             while ((line = br.readLine()) != null) {
                 logger.info(line);
-                if (line.contains("No such container")) {
-                    throw new NotFound();
+                if (line.contains("No such container:path")) {
+                    throw new FileNotFoundException();
                 } else if (line.contains("Error")) {
                     throw new IOException();
                 }
@@ -47,8 +47,8 @@ public class CleanProcess extends AbstractProcess implements Runnable {
 
             process.waitFor();
             completed = true;
-        } catch (NotFound nf) {
-            logger.error("Specified container not found.", nf.getMessage(), nf.getMessage());
+        } catch (FileNotFoundException fnf) {
+            logger.error("Specified file or directory wasn't found.", fnf.getMessage(), fnf.getCause());
         } catch (IOException ioe) {
             logger.error("Failed to read output.", ioe.getMessage(), ioe.getCause());
         } catch (InterruptedException ie) {

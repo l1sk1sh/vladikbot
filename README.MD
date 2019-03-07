@@ -1,13 +1,14 @@
-### Nothing yet to say about this bot
-However, bot is using JDA API wrapper for official node.js Discord bot API.
-
-Add to credits:
-- https://github.com/Tyrrrz/DiscordChatExporter/releases
-- https://github.com/DV8FromTheWorld/JDA
-
-Add license (probably, Apache 2.0)
-
-TODO: 
-- date separation for backup and export
-- send emoji response as smart message (bot specific)
-- add flag to ignore unicode symbols
+### Light-weight scalable Discord bot
+Bot is written using JDA library and common sense.
+#### Credits
+- [JDA](https://github.com/Tyrrrz/DiscordChatExporter/releases) for flexible and intuitive Discord API Java wrapper
+- [Yui-bot](https://github.com/DV8FromTheWorld/Yui) for basic idea of how discord bot should work
+#### ToDo List
+1. Add [JDA-Utilities](https://github.com/JDA-Applications/JDA-Utilities) to use compact menus for bot's response
+2. Add Bot permissions to each command (net.dv8tion.jda.core.Permissions)
+3. Add Administration permission handling (for Shut Down command only)
+4. Add Music Player:
+* [LavaPlayer](https://github.com/sedmelluq/lavaplayer) that is fully compatible with JDA
+* [implementation](https://github.com/sedmelluq/lavaplayer#usage) in the bot
+* [demo](https://github.com/sedmelluq/lavaplayer/tree/master/demo-jda) that has full implementation
+* [JMusic](https://github.com/jagrosh/MusicBot) for fully functional music bot with menus, etc

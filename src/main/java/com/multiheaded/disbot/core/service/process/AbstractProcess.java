@@ -1,4 +1,4 @@
-package com.multiheaded.disbot.process;
+package com.multiheaded.disbot.core.service.process;
 
 public abstract class AbstractProcess {
     ProcessBuilder pb;
