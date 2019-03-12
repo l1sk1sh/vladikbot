@@ -26,6 +26,7 @@ public class DisBot {
     private static void setupBot() {
         try {
             settings = SettingsManager.getInstance().getSettings();
+            EventWaiter waiter = new EventWaiter();
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                     .setEmojis("\uD83D\uDC4C", "\uD83D\uDD95", "\uD83D\uDCA2")
@@ -35,12 +36,10 @@ public class DisBot {
                     .setOwnerId(settings.ownerId)
                     .addCommands(
                             new BackupCommand(),
-                            new EmojiStatsCommand(),
+                            new EmojiStatsCommand(waiter),
                             new ShutdownCommand(),
                             new PingCommand()
                     );
-
-            EventWaiter waiter = new EventWaiter();
 
             new JDABuilder(AccountType.BOT)
                     .setToken(settings.token)

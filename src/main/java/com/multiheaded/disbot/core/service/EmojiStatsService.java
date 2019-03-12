@@ -53,13 +53,6 @@ public class EmojiStatsService {
                 }
             }
 
-            // Sort Descending using Stream API
-            emojiList = emojiList
-                    .entrySet()
-                    .stream()
-                    .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
-                    .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
-                            LinkedHashMap::new));
         } catch (IOException e) {
             logger.error("Failed to read exportedFile.", e.getMessage(), e.getCause());
         }

@@ -2,18 +2,28 @@ package com.multiheaded.disbot.command;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import com.jagrosh.jdautilities.menu.Paginator;
 import com.multiheaded.disbot.core.EmojiStatsConductor;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.core.entities.Emote;
+import net.dv8tion.jda.core.exceptions.PermissionException;
 
+import java.awt.*;
 import java.io.FileNotFoundException;
 import java.security.InvalidParameterException;
 import java.util.*;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static java.util.stream.Collectors.toMap;
 
 public class EmojiStatsCommand extends Command {
+    private final Paginator.Builder pbuilder;
 
-    public EmojiStatsCommand() {
+    public EmojiStatsCommand(EventWaiter waiter) {
         this.name = "emojistats";
         this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done.\n"
@@ -24,6 +34,21 @@ public class EmojiStatsCommand extends Command {
         this.arguments = "-a, -b, -iu, -i, -f";
         this.botPermissions = new Permission[]{Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY,
                 Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS};
+
+        pbuilder = new Paginator.Builder().setColumns(1)
+                .setItemsPerPage(10)
+                .showPageNumbers(true)
+                .waitOnSinglePage(false)
+                .useNumberedItems(false)
+                .setFinalAction(m -> {
+                    try {
+                        m.clearReactions().queue();
+                    } catch (PermissionException ex) {
+                        m.delete().queue();
+                    }
+                })
+                .setEventWaiter(waiter)
+                .setTimeout(1, TimeUnit.MINUTES);
     }
 
     @Override
@@ -53,52 +78,50 @@ public class EmojiStatsCommand extends Command {
     }
 
     private void sendStatisticsMessage(CommandEvent event, Map<String, Integer> emojiMap) {
-        StringBuilder message = new StringBuilder();
-        message.append("Emoji statistics for current channel:\n");
+        int startPageNumber = 1;
 
+        Map<String, Integer> preparedEmojiMap = new HashMap<>(emojiMap);
+
+        // Prepare server emojis for displaying <:emoji:id>
         for (Map.Entry<String, Integer> entry : emojiMap.entrySet()) {
-            String markupEmoji;
-
-            // Prepare server emojis for displaying <:emoji:id>
             if (entry.getKey().contains(":")) {
                 String emojiName = entry.getKey().replaceAll(":", "");
-                try {
-                    String emojiId = event.getGuild().getEmotesByName(emojiName, true).get(0).getId();
-                    markupEmoji = "<:" + emojiName + ":" + emojiId + ">";
-                } catch (IndexOutOfBoundsException iobe) {
-                    markupEmoji = entry.getKey();
-                }
-            } else {
-                markupEmoji = entry.getKey();
-            }
+                List<Emote> emojiIdList = event.getGuild().getEmotesByName(emojiName, true);
 
-            message.append(markupEmoji)
-                    .append("\t --> \t")
-                    .append(entry.getValue())
-                    .append("\n");
-        }
-
-        if (message.capacity() >= 2000) {
-            String[] explodedMessage = message.toString().split("\n");
-            List<String> butchMessage = new ArrayList<>();
-            int butchSize = 50;
-
-            for (int i = 0; i < explodedMessage.length; i++) {
-                butchMessage.add(explodedMessage[i]);
-
-                if (butchMessage.size() == butchSize |
-                        i == explodedMessage.length - 1) {
-                    StringBuilder sb = new StringBuilder();
-                    for (String s : butchMessage) {
-                        sb.append(s);
-                        sb.append("\n");
-                    }
-                    event.reply(sb.toString());
-                    butchMessage.clear();
+                if (emojiIdList.size() != 0) {
+                    preparedEmojiMap.put("<:" + emojiName + ":" + emojiIdList.get(0).getId() + ">",
+                            preparedEmojiMap.remove(entry.getKey()));
                 }
             }
-        } else {
-            event.reply(message.toString());
         }
+
+        // Sort Descending using Stream API
+        preparedEmojiMap = preparedEmojiMap
+                .entrySet()
+                .stream()
+                .sorted(Collections.reverseOrder(Map.Entry.comparingByValue()))
+                .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
+                        LinkedHashMap::new));
+
+        // Form String[] for PageBuilder addItems(String... input) method
+        String[] keys = preparedEmojiMap.keySet().toArray(new String[0]);
+        String[] values = Arrays.stream(preparedEmojiMap.values().toArray(new Integer[0]))
+                .map(String::valueOf)
+                .toArray(String[]::new);
+        String[] resultSet = new String[preparedEmojiMap.size()];
+
+        for (int i = 0; i < preparedEmojiMap.size(); i++) {
+            resultSet[i] = keys[i] + "=" + values[i];
+        }
+
+        pbuilder.addItems(resultSet);
+
+        Paginator paginator = pbuilder
+                .setColor(event.isFromType(ChannelType.TEXT) ? event.getSelfMember().getColor() : Color.black)
+                .setText("Emoji usage statistics for current channel:")
+                .setUsers(event.getAuthor())
+                .build();
+
+        paginator.paginate(event.getChannel(), startPageNumber);
     }
 }

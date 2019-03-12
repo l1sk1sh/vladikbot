@@ -19,21 +19,12 @@ repositories {
 
 sourceCompatibility = 1.8
 
-import org.apache.tools.ant.taskdefs.condition.Os
-import com.bmuschko.gradle.docker.tasks.image.*
+import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
 
 docker {
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        //noinspection GroovyAssignabilityCheck
-        docker.url = 'tcp://127.0.0.1:2375' //Enable "Expose daemon :2735 without TSL" in Docker for Windows
-    } else {
-        //noinspection GroovyAssignabilityCheck
-        docker.url = 'unix:///var/run/docker.sock'
-    }
-
     task pullDiscordChatBackup(type: DockerPullImage) {
         //noinspection GroovyAssignabilityCheck
-        repository='tyrrrz/discordchatexporter'
+        repository = 'tyrrrz/discordchatexporter'
     }
 }
 
