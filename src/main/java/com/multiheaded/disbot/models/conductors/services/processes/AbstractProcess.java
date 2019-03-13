@@ -1,5 +1,8 @@
-package com.multiheaded.disbot.core.service.process;
+package com.multiheaded.disbot.models.conductors.services.processes;
 
+/**
+ * @author Oliver Johnson
+ */
 public abstract class AbstractProcess {
     ProcessBuilder pb;
     Thread thread;

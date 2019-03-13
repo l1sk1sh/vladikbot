@@ -1,10 +1,10 @@
-package com.multiheaded.disbot.command;
+package com.multiheaded.disbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.multiheaded.disbot.core.EmojiStatsConductor;
+import com.multiheaded.disbot.models.conductors.EmojiStatsConductor;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -20,6 +20,9 @@ import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toMap;
 
+/**
+ * @author Oliver Johnson
+ */
 public class EmojiStatsCommand extends Command {
     private final Paginator.Builder pbuilder;
 
@@ -34,9 +37,10 @@ public class EmojiStatsCommand extends Command {
         this.arguments = "-a, -b, -iu, -i, -f";
         this.botPermissions = new Permission[]{Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY,
                 Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS};
+        this.guildOnly = true;
 
         pbuilder = new Paginator.Builder().setColumns(1)
-                .setItemsPerPage(10)
+                .setItemsPerPage(20)
                 .showPageNumbers(true)
                 .waitOnSinglePage(false)
                 .useNumberedItems(false)
@@ -53,28 +57,25 @@ public class EmojiStatsCommand extends Command {
 
     @Override
     public void execute(CommandEvent event) {
+        event.reply("Initializing emoji statistics calculation. Be patient...");
 
-        if (!event.isFromType(ChannelType.PRIVATE)) {
-            event.reply("Initializing emoji statistics calculation. Be patient...");
+        new Thread(() -> {
+            try {
+                EmojiStatsConductor emojiStatsConductor =
+                        new EmojiStatsConductor(event.getChannel().getId(),
+                                event.getArgs().split(" "), event.getGuild().getEmotes());
 
-            new Thread(() -> {
-                try {
-                    EmojiStatsConductor emojiStatsConductor =
-                            new EmojiStatsConductor(event.getChannel().getId(),
-                                    event.getArgs().split(" "), event.getGuild().getEmotes());
-
-                    if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
-                        throw new InternalRuntimeError("Emoji Statistics Service failed!");
-                    sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
-                } catch (InterruptedException | FileNotFoundException e) {
-                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
-                } catch (InvalidParameterException ipe) {
-                    event.replyError(ipe.getMessage());
-                } catch (InternalRuntimeError ire) {
-                    event.replyError(String.format("Calculation failed! `[%s]`", ire.getMessage()));
-                }
-            }).start();
-        }
+                if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
+                    throw new InternalRuntimeError("Emoji Statistics Service failed!");
+                sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
+            } catch (InterruptedException | FileNotFoundException e) {
+                event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
+            } catch (InvalidParameterException ipe) {
+                event.replyError(ipe.getMessage());
+            } catch (InternalRuntimeError ire) {
+                event.replyError(String.format("Calculation failed! `[%s]`", ire.getMessage()));
+            }
+        }).start();
     }
 
     private void sendStatisticsMessage(CommandEvent event, Map<String, Integer> emojiMap) {

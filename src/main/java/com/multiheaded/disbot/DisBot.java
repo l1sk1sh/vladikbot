@@ -3,10 +3,10 @@ package com.multiheaded.disbot;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
-import com.jagrosh.jdautilities.examples.command.ShutdownCommand;
-import com.multiheaded.disbot.command.BackupCommand;
-import com.multiheaded.disbot.command.EmojiStatsCommand;
-import com.multiheaded.disbot.settings.Constants;
+import com.multiheaded.disbot.commands.everyone.SettingsCommand;
+import com.multiheaded.disbot.commands.owner.ShutdownCommand;
+import com.multiheaded.disbot.commands.admin.BackupCommand;
+import com.multiheaded.disbot.commands.admin.EmojiStatsCommand;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
 import net.dv8tion.jda.core.AccountType;
@@ -18,44 +18,50 @@ import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
 
+/**
+ * @author Oliver Johnson
+ */
 public class DisBot {
     private static final Logger logger = LoggerFactory.getLogger(DisBot.class);
 
-    public static Settings settings;
-
-    private static void setupBot() {
+    public static void main(String[] args) {
         try {
-            settings = SettingsManager.getInstance().getSettings();
+            Settings settings = SettingsManager.getInstance().getSettings();
             EventWaiter waiter = new EventWaiter();
+            Bot bot = new Bot(waiter);
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
-                    .setEmojis("\uD83D\uDC4C", "\uD83D\uDD95", "\uD83D\uDCA2")
-                    .setPrefix(Constants.BOT_PREFIX)
-                    .setStatus(OnlineStatus.DO_NOT_DISTURB)
-                    .setGame(Game.watching("Goblin Slayer"))
-                    .setOwnerId(settings.ownerId)
+                    .setPrefix(settings.getPrefix())
+                    .setOwnerId(Long.toString(settings.getOwnerId()))
+                    .setEmojis(settings.getSuccessEmoji(), settings.getWarningEmoji(), settings.getErrorEmoji())
+                    .setHelpWord(settings.getHelpWord())
+                    .setStatus((settings.getOnlineStatus() != OnlineStatus.UNKNOWN)
+                            ? settings.getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB)
+                    .setGame((settings.getGame() != null)
+                            ? settings.getGame() : Game.playing("with your mom"))
+                    .setLinkedCacheSize(200)
                     .addCommands(
+                            new PingCommand(),
+                            new SettingsCommand(),
+
                             new BackupCommand(),
                             new EmojiStatsCommand(waiter),
-                            new ShutdownCommand(),
-                            new PingCommand()
+
+
+                            new ShutdownCommand(bot)
                     );
 
             new JDABuilder(AccountType.BOT)
-                    .setToken(settings.token)
+                    .setToken(settings.getToken())
                     .addEventListener(
                             waiter,
                             commandClientBuilder.build()
                     )
                     .build();
-
+        } catch (ExceptionInInitializerError e) {
+            logger.error("Problematic settings input");
         } catch (LoginException le) {
             logger.error("Invalid username and/or password.");
-            System.exit(Constants.BAD_USERNAME_PASS_COMBO);
         }
-    }
-
-    public static void main(String[] args) {
-        setupBot();
     }
 }

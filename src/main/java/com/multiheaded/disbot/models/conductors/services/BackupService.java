@@ -1,9 +1,9 @@
-package com.multiheaded.disbot.core.service;
+package com.multiheaded.disbot.models.conductors.services;
 
-import com.multiheaded.disbot.core.service.process.BackupProcess;
-import com.multiheaded.disbot.core.service.process.CleanProcess;
-import com.multiheaded.disbot.core.service.process.CopyProcess;
-import com.multiheaded.disbot.util.FileUtils;
+import com.multiheaded.disbot.models.conductors.services.processes.BackupProcess;
+import com.multiheaded.disbot.models.conductors.services.processes.CleanProcess;
+import com.multiheaded.disbot.models.conductors.services.processes.CopyProcess;
+import com.multiheaded.disbot.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,9 +13,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static com.multiheaded.disbot.DisBot.settings;
 import static com.multiheaded.disbot.settings.Constants.FORMAT_EXTENSION;
 
+/**
+ * @author Oliver Johnson
+ */
 public class BackupService {
     private static final Logger logger = LoggerFactory.getLogger(BackupService.class);
 
@@ -25,33 +27,39 @@ public class BackupService {
     private String beforeDate;
     private String afterDate;
     private String[] args;
+    private String localPathToExport;
+    private String dockerPathToExport;
+    private String dockerContainerName;
+    private String token;
 
-    public BackupService(String channelId, String format, String[] args)
+    public BackupService(String channelId, String format, String[] args,
+                         String localPathToExport, String dockerPathToExport, String dockerContainerName, String token)
             throws InvalidParameterException, InterruptedException {
         this.channelId = channelId;
         this.format = format;
         this.args = args;
+        this.localPathToExport = localPathToExport;
+        this.dockerPathToExport = dockerPathToExport;
+        this.dockerContainerName = dockerContainerName;
+        this.token = token;
         String extension = FORMAT_EXTENSION.get(format);
 
         try {
+            String pathToFile = localPathToExport + dockerPathToExport;
             processArguments();
 
             BackupProcess backupProcess = new BackupProcess(constructBackupCommand());
             backupProcess.getThread().join();
             if (backupProcess.isFailed()) throw new InterruptedException("BackupProcess failed!");
 
-            FileUtils.deleteFilesByIdAndExtension(
-                    settings.localPathToExport + settings.dockerPathToExport,
-                    channelId,
-                    extension);
+            FileUtils.deleteFilesByIdAndExtension(pathToFile, channelId, extension);
             CopyProcess copyProcess = new CopyProcess(constructCopyCommand());
             copyProcess.getThread().join();
             if (copyProcess.isFailed()) throw new InterruptedException("CopyProcess failed!");
 
-            String pathToFile = settings.localPathToExport + settings.dockerPathToExport;
             exportedFile = FileUtils.getFileByIdAndExtension(pathToFile, channelId, extension);
         } catch (InterruptedException ie) {
-            String msg = String.format("Backup thread interrupted on service level `[%s]`", ie.getMessage());
+            String msg = String.format("Backup thread interrupted on services level `[%s]`", ie.getMessage());
             logger.error(msg);
             throw new InterruptedException(msg);
         } finally {
@@ -64,7 +72,7 @@ public class BackupService {
         command.add("docker");
         command.add("run");
         command.add("--name");
-        command.add(settings.dockerContainerName);
+        command.add(dockerContainerName);
         command.add("tyrrrz/discordchatexporter");
         command.add("export");
         command.add("-f");
@@ -80,7 +88,7 @@ public class BackupService {
         command.add("--channel");
         command.add(channelId);
         command.add("--token");
-        command.add(settings.token);
+        command.add(token);
         command.add("--bot");
         command.add("true");
 
@@ -91,8 +99,8 @@ public class BackupService {
         List<String> command = new ArrayList<>();
         command.add("docker");
         command.add("cp");
-        command.add(settings.dockerContainerName + ":" + settings.dockerPathToExport);
-        command.add(settings.localPathToExport);
+        command.add(dockerContainerName + ":" + dockerPathToExport);
+        command.add(localPathToExport);
 
         return command;
     }
@@ -101,7 +109,7 @@ public class BackupService {
         List<String> command = new ArrayList<>();
         command.add("docker");
         command.add("rm");
-        command.add(settings.dockerContainerName);
+        command.add(dockerContainerName);
 
         return command;
     }
@@ -142,7 +150,7 @@ public class BackupService {
                 }
             }
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
-            String msg = String.format("Failed to process provided arguments: %s", Arrays.toString(args));
+            String msg = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
             logger.error(msg);
             throw new InvalidParameterException(msg);
         }

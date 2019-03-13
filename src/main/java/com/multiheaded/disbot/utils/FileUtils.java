@@ -1,4 +1,4 @@
-package com.multiheaded.disbot.util;
+package com.multiheaded.disbot.utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,6 +6,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Objects;
 
+/**
+ * @author Oliver Johnson
+ */
 public class FileUtils {
     public static File getFileByIdAndExtension(String pathToDir, String id, String extension) {
         File folder = new File(pathToDir);

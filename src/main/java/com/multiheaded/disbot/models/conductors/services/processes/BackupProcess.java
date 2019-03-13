@@ -1,22 +1,24 @@
-package com.multiheaded.disbot.core.service.process;
+package com.multiheaded.disbot.models.conductors.services.processes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
-public class CopyProcess extends AbstractProcess implements Runnable {
-    private static final Logger logger = LoggerFactory.getLogger(CopyProcess.class);
+/**
+ * @author Oliver Johnson
+ */
+public class BackupProcess extends AbstractProcess implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(BackupProcess.class);
 
     private List<String> command;
 
-    public CopyProcess(List<String> command) {
+    public BackupProcess(List<String> command) {
         if (!running) {
-            thread = new Thread(this, "DOCKER_COPY_STREAM");
+            thread = new Thread(this, "DOCKER_CLI_STREAM");
             pb = new ProcessBuilder();
             pb.redirectErrorStream(true);
             this.command = command;
@@ -38,17 +40,12 @@ public class CopyProcess extends AbstractProcess implements Runnable {
             String line;
             while ((line = br.readLine()) != null) {
                 logger.info(line);
-                if (line.contains("No such container:path")) {
-                    throw new FileNotFoundException();
-                } else if (line.contains("Error")) {
-                    throw new IOException();
+                if (line.contains("Completed ✓")) {
+                    failed = false;
                 }
             }
 
             process.waitFor();
-            failed = false;
-        } catch (FileNotFoundException fnf) {
-            logger.error("Specified file or directory wasn't found.", fnf.getMessage(), fnf.getCause());
         } catch (IOException ioe) {
             logger.error("Failed to read output.", ioe.getMessage(), ioe.getCause());
         } catch (InterruptedException ie) {

@@ -1,9 +1,11 @@
-package com.multiheaded.disbot.core;
+package com.multiheaded.disbot.models.conductors;
 
-import com.multiheaded.disbot.core.service.BackupService;
-import com.multiheaded.disbot.core.service.EmojiStatsService;
+import com.multiheaded.disbot.models.conductors.services.BackupService;
+import com.multiheaded.disbot.models.conductors.services.EmojiStatsService;
 import com.multiheaded.disbot.settings.Constants;
-import com.multiheaded.disbot.util.FileUtils;
+import com.multiheaded.disbot.settings.Settings;
+import com.multiheaded.disbot.settings.SettingsManager;
+import com.multiheaded.disbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Emote;
 
 import java.io.File;
@@ -11,12 +13,14 @@ import java.io.FileNotFoundException;
 import java.security.InvalidParameterException;
 import java.util.List;
 
-import static com.multiheaded.disbot.DisBot.settings;
 import static com.multiheaded.disbot.settings.Constants.FORMAT_EXTENSION;
 
+/**
+ * @author Oliver Johnson
+ */
 public class EmojiStatsConductor {
     private static final String format = "PlainText";
-
+    private Settings settings = SettingsManager.getInstance().getSettings();
     private EmojiStatsService emojiStatsService;
     private boolean forceBackup;
     private String[] args;
@@ -35,14 +39,15 @@ public class EmojiStatsConductor {
     private File prepareFile(String channelId, String extension, String format, String[] args)
             throws InterruptedException, InvalidParameterException, FileNotFoundException {
         File exportedFile = FileUtils.getFileByIdAndExtension(
-                settings.localPathToExport + settings.dockerPathToExport, channelId, extension);
+                settings.getLocalPathToExport() + settings.getDockerPathToExport(), channelId, extension);
 
         // If file is absent or was made more than 24 hours ago - create new backup
         if (exportedFile == null
                 || (System.currentTimeMillis() - exportedFile.lastModified()) > Constants.DAY_IN_MILLISECONDS
                 || forceBackup) {
 
-            BackupService backupService = new BackupService(channelId, format, args);
+            BackupService backupService = new BackupService(channelId, format, args, settings.getLocalPathToExport(),
+                    settings.getDockerPathToExport(), settings.getDockerContainerName(), settings.getToken());
             exportedFile = backupService.getExportedFile();
             if (exportedFile == null) throw new FileNotFoundException("Failed to find\\create backup of a channel");
         }

@@ -1,6 +1,6 @@
-package com.multiheaded.disbot.core.service;
+package com.multiheaded.disbot.models.conductors.services;
 
-import com.multiheaded.disbot.util.FileUtils;
+import com.multiheaded.disbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Emote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +12,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static java.util.stream.Collectors.*;
-
+/**
+ * @author Oliver Johnson
+ */
 public class EmojiStatsService {
     private static final Logger logger = LoggerFactory.getLogger(EmojiStatsService.class);
 
