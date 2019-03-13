@@ -1,7 +1,8 @@
 package com.multiheaded.disbot;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.multiheaded.disbot.audio.NowplayingHandler;
+import com.multiheaded.disbot.audio.AudioHandler;
+import com.multiheaded.disbot.audio.NowPlayingHandler;
 import com.multiheaded.disbot.audio.PlayerManager;
 import com.multiheaded.disbot.models.playlist.PlaylistLoader;
 import com.multiheaded.disbot.settings.Settings;
@@ -38,7 +39,7 @@ public class Bot {
         this.playlists = new PlaylistLoader();
         this.players = new PlayerManager(this);
         this.players.init();
-        this.nowPlaying = new NowplayingHandler(this);
+        this.nowPlaying = new NowPlayingHandler(this);
         this.nowPlaying.init();
     }
 
@@ -88,15 +89,13 @@ public class Bot {
         shuttingDown = true;
         threadpool.shutdownNow();
         if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
-            jda.getGuilds().stream().forEach(g -> {
-            });
-            {
+            jda.getGuilds().forEach(g -> {
                 g.getAudioManager().closeAudioConnection();
-                AudioHandler ah = (AudioHandler) g.getAudioManager().getSendingHandler();
-                if (ah != null) {
-                    ah.stopAndClear();
-                    ah.getPlayer().destroy();
-                    nowplaying.updateTopic(g.getIdLong(), ah, true);
+                AudioHandler audioHandler = (AudioHandler) g.getAudioManager().getSendingHandler();
+                if (audioHandler != null) {
+                    audioHandler.stopAndClear();
+                    audioHandler.getPlayer().destroy();
+                    nowPlaying.updateTopic(g.getIdLong(), audioHandler, true);
                 }
             });
 
@@ -105,7 +104,7 @@ public class Bot {
         System.exit(0);
     }
 
-    public void setJDA(JDA jda) {
+    void setJDA(JDA jda) {
         this.jda = jda;
     }
 }

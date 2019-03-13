@@ -3,12 +3,9 @@ package com.multiheaded.disbot.settings;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
-import com.jagrosh.jdautilities.command.GuildSettingsManager;
-import net.dv8tion.jda.core.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.file.Files;
 
@@ -21,8 +18,8 @@ public class SettingsManager {
     private static final Logger logger = LoggerFactory.getLogger(SettingsManager.class);
     private static final SettingsManager instance = new SettingsManager();
     private Settings settings;
-    private File confFile;
-    private Gson gson;
+    private final File confFile;
+    private final Gson gson;
 
     private SettingsManager() {
         confFile = new File(SETTINGS_JSON);

@@ -6,6 +6,9 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.entities.User;
 
 /**
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
  * @author John Grosh
  */
 public class QueuedTrack implements Queueable {
@@ -15,7 +18,7 @@ public class QueuedTrack implements Queueable {
         this(track, owner.getIdLong());
     }
 
-    public QueuedTrack(AudioTrack track, long owner) {
+    QueuedTrack(AudioTrack track, long owner) {
         this.track = track;
         this.track.setUserData(owner);
     }
@@ -31,6 +34,7 @@ public class QueuedTrack implements Queueable {
 
     @Override
     public String toString() {
-        return "`[" + FormatUtil.formatTime(track.getDuration()) + "]` **" + track.getInfo().title + "** - <@" + track.getUserData(Long.class) + ">";
+        return "`[" + FormatUtil.formatTime(track.getDuration())
+                + "]` **" + track.getInfo().title + "** - <@" + track.getUserData(Long.class) + ">";
     }
 }

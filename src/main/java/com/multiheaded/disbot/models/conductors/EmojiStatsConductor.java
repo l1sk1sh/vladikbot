@@ -20,10 +20,10 @@ import static com.multiheaded.disbot.settings.Constants.FORMAT_EXTENSION;
  */
 public class EmojiStatsConductor {
     private static final String format = "PlainText";
-    private Settings settings = SettingsManager.getInstance().getSettings();
+    private final Settings settings = SettingsManager.getInstance().getSettings();
     private EmojiStatsService emojiStatsService;
     private boolean forceBackup;
-    private String[] args;
+    private final String[] args;
 
     public EmojiStatsConductor(String channelId, String[] args, List<Emote> serverEmojiList)
             throws InterruptedException, FileNotFoundException {
@@ -31,12 +31,12 @@ public class EmojiStatsConductor {
 
         processArguments();
         emojiStatsService = new EmojiStatsService(
-                prepareFile(channelId, FORMAT_EXTENSION.get(format), format, args),
+                prepareFile(channelId, FORMAT_EXTENSION.get(format), args),
                 serverEmojiList,
                 args);
     }
 
-    private File prepareFile(String channelId, String extension, String format, String[] args)
+    private File prepareFile(String channelId, String extension, String[] args)
             throws InterruptedException, InvalidParameterException, FileNotFoundException {
         File exportedFile = FileUtils.getFileByIdAndExtension(
                 settings.getLocalPathToExport() + settings.getDockerPathToExport(), channelId, extension);

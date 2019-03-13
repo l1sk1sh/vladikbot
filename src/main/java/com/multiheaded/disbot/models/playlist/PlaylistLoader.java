@@ -17,21 +17,24 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
  * @author John Grosh
  */
+@SuppressWarnings("unchecked")
 public class PlaylistLoader {
-    Settings settings = SettingsManager.getInstance().getSettings();
+    private final Settings settings;
 
     public PlaylistLoader() {
-        this.settings = settings;
+        this.settings = SettingsManager.getInstance().getSettings();
     }
 
-    public List getPlaylistNames() {
+    public List<String> getPlaylistNames() {
         if (folderExists()) {
             File folder = new File(settings.getPlaylistsFolder());
             return Arrays.stream(
-                    Objects.requireNonNull(
-                            folder.listFiles((pathname) -> pathname.getName().endsWith(".txt")))
+                    Objects.requireNonNull(folder.listFiles((pathname) -> pathname.getName().endsWith(".txt")))
             ).map(f -> f.getName().substring(0, f.getName().length() - 4)).collect(Collectors.toList());
         } else {
             createFolder();
@@ -59,7 +62,8 @@ public class PlaylistLoader {
     }
 
     public void writePlaylist(String name, String text) throws IOException {
-        Files.write(Paths.get(settings.getPlaylistsFolder() + File.separator + name + ".txt"), text.trim().getBytes());
+        Files.write(Paths.get(settings.getPlaylistsFolder() + File.separator + name + ".txt"),
+                text.trim().getBytes());
     }
 
     public Playlist getPlaylist(String name) {
@@ -69,7 +73,8 @@ public class PlaylistLoader {
             if (folderExists()) {
                 boolean[] shuffle = {false};
                 List<String> list = new ArrayList<>();
-                Files.readAllLines(Paths.get(settings.getPlaylistsFolder() + File.separator + name + ".txt")).forEach(str ->
+                Files.readAllLines(Paths.get(settings.getPlaylistsFolder()
+                        + File.separator + name + ".txt")).forEach(str ->
                 {
                     String s = str.trim();
                     if (s.isEmpty())
@@ -128,7 +133,8 @@ public class PlaylistLoader {
                         @Override
                         public void trackLoaded(AudioTrack at) {
                             if (settings.isTooLong(at))
-                                errors.add(new PlaylistLoadError(index, items.get(index), "This track is longer than the allowed maximum"));
+                                errors.add(new PlaylistLoadError(index, items.get(index),
+                                        "This track is longer than the allowed maximum"));
                             else {
                                 at.setUserData(0L);
                                 tracks.add(at);
@@ -142,7 +148,8 @@ public class PlaylistLoader {
                         public void playlistLoaded(AudioPlaylist ap) {
                             if (ap.isSearchResult()) {
                                 if (settings.isTooLong(ap.getTracks().get(0)))
-                                    errors.add(new PlaylistLoadError(index, items.get(index), "This track is longer than the allowed maximum"));
+                                    errors.add(new PlaylistLoadError(index, items.get(index),
+                                            "This track is longer than the allowed maximum"));
                                 else {
                                     ap.getTracks().get(0).setUserData(0L);
                                     tracks.add(ap.getTracks().get(0));
@@ -150,7 +157,8 @@ public class PlaylistLoader {
                                 }
                             } else if (ap.getSelectedTrack() != null) {
                                 if (settings.isTooLong(ap.getSelectedTrack()))
-                                    errors.add(new PlaylistLoadError(index, items.get(index), "This track is longer than the allowed maximum"));
+                                    errors.add(new PlaylistLoadError(index, items.get(index),
+                                            "This track is longer than the allowed maximum"));
                                 else {
                                     ap.getSelectedTrack().setUserData(0L);
                                     tracks.add(ap.getSelectedTrack());
@@ -165,10 +173,10 @@ public class PlaylistLoader {
                                         loaded.set(first, loaded.get(second));
                                         loaded.set(second, tmp);
                                     }
-                                loaded.removeIf(track -> settings.isTooLong(track));
+                                loaded.removeIf(settings::isTooLong);
                                 loaded.forEach(at -> at.setUserData(0L));
                                 tracks.addAll(loaded);
-                                loaded.forEach(at -> consumer.accept(at));
+                                loaded.forEach(consumer);
                             }
                             if (last && callback != null)
                                 callback.run();
@@ -194,13 +202,8 @@ public class PlaylistLoader {
                 shuffleTracks();
         }
 
-        public void shuffleTracks() {
-            if (tracks != null)
-                shuffle(tracks);
-        }
-
-        public String getName() {
-            return name;
+        void shuffleTracks() {
+            shuffle(tracks);
         }
 
         public List<String> getItems() {

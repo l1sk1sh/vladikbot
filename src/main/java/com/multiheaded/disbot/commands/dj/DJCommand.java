@@ -1,31 +1,20 @@
-/*
- * Copyright 2018 John Grosh <john.a.grosh@gmail.com>.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.multiheaded.disbot.commands.dj;
 
-import com.jagrosh.jmusicbot.Bot;
-import com.jagrosh.jmusicbot.settings.Settings;
+import com.multiheaded.disbot.Bot;
 import com.multiheaded.disbot.commands.music.MusicCommand;
+import com.multiheaded.disbot.settings.Settings;
+import com.multiheaded.disbot.settings.SettingsManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
 
 /**
- * @author John Grosh (john.a.grosh@gmail.com)
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
+ * @author John Grosh
  */
-public abstract class DJCommand extends MusicCommand {
-    public DJCommand(Bot bot) {
+abstract class DJCommand extends MusicCommand {
+    DJCommand(Bot bot) {
         super(bot);
         this.category = new Category("DJ", event ->
         {
@@ -35,9 +24,10 @@ public abstract class DJCommand extends MusicCommand {
                 return true;
             if (event.getMember().hasPermission(Permission.MANAGE_SERVER))
                 return true;
-            Settings settings = event.getClient().getSettingsFor(event.getGuild());
-            Role dj = settings.getRole(event.getGuild());
-            return dj != null && (event.getMember().getRoles().contains(dj) || dj.getIdLong() == event.getGuild().getIdLong());
+            Settings settings = SettingsManager.getInstance().getSettings();
+            Role dj = settings.getDjRole(event.getGuild());
+            return dj != null &&
+                    (event.getMember().getRoles().contains(dj) || dj.getIdLong() == event.getGuild().getIdLong());
         });
     }
 }

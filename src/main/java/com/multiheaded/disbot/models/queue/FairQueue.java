@@ -59,8 +59,8 @@ public class FairQueue<T extends Queueable> {
         return list.get(index);
     }
 
-    public T remove(int index) {
-        return list.remove(index);
+    public void remove(int index) {
+        list.remove(index);
     }
 
     public int removeAll(long identifier) {

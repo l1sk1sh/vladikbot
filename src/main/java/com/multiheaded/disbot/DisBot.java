@@ -1,15 +1,18 @@
 package com.multiheaded.disbot;
 
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
+import com.multiheaded.disbot.commands.admin.*;
+import com.multiheaded.disbot.commands.dj.*;
 import com.multiheaded.disbot.commands.everyone.SettingsCommand;
-import com.multiheaded.disbot.commands.owner.ShutdownCommand;
-import com.multiheaded.disbot.commands.admin.BackupCommand;
-import com.multiheaded.disbot.commands.admin.EmojiStatsCommand;
+import com.multiheaded.disbot.commands.music.*;
+import com.multiheaded.disbot.commands.owner.*;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
 import net.dv8tion.jda.core.AccountType;
+import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
@@ -21,7 +24,7 @@ import javax.security.auth.login.LoginException;
 /**
  * @author Oliver Johnson
  */
-public class DisBot {
+class DisBot {
     private static final Logger logger = LoggerFactory.getLogger(DisBot.class);
 
     public static void main(String[] args) {
@@ -44,24 +47,59 @@ public class DisBot {
                             new PingCommand(),
                             new SettingsCommand(),
 
+                            new SetDjCommand(),
+                            new SetTextChannelCommand(),
+                            new SetVoiceChannelCommand(),
                             new BackupCommand(),
                             new EmojiStatsCommand(waiter),
 
+                            new ForceskipCommand(bot),
+                            new PauseCommand(bot),
+                            new PlayNextCommand(bot, settings.getLoadingEmoji()),
+                            new RepeatCommand(bot),
+                            new SkipToCommand(bot),
+                            new StopCommand(bot),
+                            new VolumeCommand(bot),
+
+                            new AutoPlaylistCommand(bot),
+                            new PlaylistCommand(bot),
+                            new SetAvatarCommand(),
+                            new SetGameCommand(),
+                            new SetNameCommand(),
+                            new SetStatusCommand(),
+
+                            new LyricsCommand(bot),
+                            new NowPlayingCommand(bot),
+                            new PlayCommand(bot, settings.getLoadingEmoji()),
+                            new PlaylistsCommand(bot),
+                            new QueueCommand(bot),
+                            new RemoveCommand(bot),
+                            new SearchCommand(bot, settings.getLoadingEmoji()),
+                            new ShuffleCommand(bot),
+                            new SkipCommand(bot),
+                            new SoundCloudSearchCommand(bot, settings.getSearchingEmoji()),
 
                             new ShutdownCommand(bot)
                     );
+            CommandClient commandClient = commandClientBuilder.build();
 
-            new JDABuilder(AccountType.BOT)
+            JDA jda = new JDABuilder(AccountType.BOT)
                     .setToken(settings.getToken())
+                    .setAudioEnabled(true)
                     .addEventListener(
                             waiter,
-                            commandClientBuilder.build()
+                            commandClient,
+                            new Listener(bot)
                     )
+                    .setBulkDeleteSplittingEnabled(true)
                     .build();
+            bot.setJDA(jda);
         } catch (ExceptionInInitializerError e) {
             logger.error("Problematic settings input");
+            System.exit(1);
         } catch (LoginException le) {
             logger.error("Invalid username and/or password.");
+            System.exit(1);
         }
     }
 }

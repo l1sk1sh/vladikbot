@@ -1,5 +1,9 @@
 package com.multiheaded.disbot.audio;
 
+import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.models.entities.Pair;
+import com.multiheaded.disbot.settings.Settings;
+import com.multiheaded.disbot.settings.SettingsManager;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
@@ -14,19 +18,24 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author John Grosh (john.a.grosh@gmail.com)
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
+ * @author John Grosh
  */
-public class NowplayingHandler {
+public class NowPlayingHandler {
     private final Bot bot;
-    private final HashMap<Long, Pair<Long, Long>> lastNP; // guild -> channel,message
+    private final HashMap<Long, Pair<Long, Long>> lastNP; // guild -> channel, message
+    private final Settings settings;
 
-    public NowplayingHandler(Bot bot) {
+    public NowPlayingHandler(Bot bot) {
         this.bot = bot;
         this.lastNP = new HashMap<>();
+        settings = SettingsManager.getInstance().getSettings();
     }
 
     public void init() {
-        bot.getThreadpool().scheduleWithFixedDelay(() -> updateAll(), 0, 5, TimeUnit.SECONDS);
+        bot.getThreadpool().scheduleWithFixedDelay(this::updateAll, 0, 5, TimeUnit.SECONDS);
     }
 
     public void setLastNPMessage(Message m) {
@@ -64,30 +73,34 @@ public class NowplayingHandler {
                 toRemove.add(guildId);
             }
         }
-        toRemove.forEach(id -> lastNP.remove(id));
+        toRemove.forEach(lastNP::remove);
     }
 
     public void updateTopic(long guildId, AudioHandler handler, boolean wait) {
         Guild guild = bot.getJDA().getGuildById(guildId);
-        if (guild == null)
+        if (guild == null) {
             return;
-        Settings settings = bot.getSettingsManager().getSettings(guildId);
-        TextChannel tchan = settings.getTextChannel(guild);
-        if (tchan != null && guild.getSelfMember().hasPermission(tchan, Permission.MANAGE_CHANNEL)) {
+        }
+
+        TextChannel textChannel = settings.getTextChannel(guild);
+        if (textChannel != null && guild.getSelfMember().hasPermission(textChannel, Permission.MANAGE_CHANNEL)) {
             String otherText;
-            if (tchan.getTopic() == null || tchan.getTopic().isEmpty())
+            if (textChannel.getTopic() == null || textChannel.getTopic().isEmpty()) {
                 otherText = "\u200B";
-            else if (tchan.getTopic().contains("\u200B"))
-                otherText = tchan.getTopic().substring(tchan.getTopic().lastIndexOf("\u200B"));
-            else
-                otherText = "\u200B\n " + tchan.getTopic();
+            } else if (textChannel.getTopic().contains("\u200B")) {
+                otherText = textChannel.getTopic().substring(textChannel.getTopic().lastIndexOf("\u200B"));
+            } else {
+                otherText = "\u200B\n " + textChannel.getTopic();
+            }
+
             String text = handler.getTopicFormat(bot.getJDA()) + otherText;
-            if (!text.equals(tchan.getTopic())) {
+            if (!text.equals(textChannel.getTopic())) {
                 try {
-                    if (wait)
-                        tchan.getManager().setTopic(text).complete();
-                    else
-                        tchan.getManager().setTopic(text).queue();
+                    if (wait) {
+                        textChannel.getManager().setTopic(text).complete();
+                    } else {
+                        textChannel.getManager().setTopic(text).queue();
+                    }
                 } catch (PermissionException ignore) {
                 }
             }
@@ -95,13 +108,15 @@ public class NowplayingHandler {
     }
 
     // "event"-based methods
-    public void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler) {
+    void onTrackUpdate(long guildId, AudioTrack track, AudioHandler handler) {
         // update bot status if applicable
-        if (bot.getConfig().getSongInStatus()) {
-            if (track != null && bot.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count() <= 1)
+        if (settings.shouldSongBeInStatus()) {
+            if (track != null && bot.getJDA().getGuilds().stream()
+                    .filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count() <= 1) {
                 bot.getJDA().getPresence().setGame(Game.listening(track.getInfo().title));
-            else
+            } else {
                 bot.resetGame();
+            }
         }
 
         // update channel topic if applicable
@@ -110,9 +125,11 @@ public class NowplayingHandler {
 
     public void onMessageDelete(Guild guild, long messageId) {
         Pair<Long, Long> pair = lastNP.get(guild.getIdLong());
-        if (pair == null)
+        if (pair == null) {
             return;
-        if (pair.getValue() == messageId)
+        }
+        if (pair.getValue() == messageId) {
             lastNP.remove(guild.getIdLong());
+        }
     }
 }

@@ -18,10 +18,10 @@ import java.util.regex.Pattern;
 public class EmojiStatsService {
     private static final Logger logger = LoggerFactory.getLogger(EmojiStatsService.class);
 
-    private Map<String, Integer> emojiList = new HashMap<>();
+    private final Map<String, Integer> emojiList = new HashMap<>();
 
-    private String[] args;
-    private List<Emote> serverEmojiList;
+    private final String[] args;
+    private final List<Emote> serverEmojiList;
     private boolean ignoreUnicodeEmoji = false;
     private boolean ignoreUnknownEmoji = false;
 

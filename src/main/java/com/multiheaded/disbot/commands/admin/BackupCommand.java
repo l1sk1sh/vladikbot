@@ -1,20 +1,16 @@
 package com.multiheaded.disbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.disbot.models.conductors.BackupConductor;
-import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
 
 import java.security.InvalidParameterException;
-import java.util.Set;
 
 /**
  * @author Oliver Johnson
  */
-public class BackupCommand extends Command {
+public class BackupCommand extends AdminCommand {
 
     public BackupCommand() {
         this.name = "backup";

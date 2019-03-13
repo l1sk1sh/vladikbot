@@ -22,15 +22,15 @@ public class BackupService {
     private static final Logger logger = LoggerFactory.getLogger(BackupService.class);
 
     private File exportedFile;
-    private String channelId;
-    private String format;
+    private final String channelId;
+    private final String format;
     private String beforeDate;
     private String afterDate;
-    private String[] args;
-    private String localPathToExport;
-    private String dockerPathToExport;
-    private String dockerContainerName;
-    private String token;
+    private final String[] args;
+    private final String localPathToExport;
+    private final String dockerPathToExport;
+    private final String dockerContainerName;
+    private final String token;
 
     public BackupService(String channelId, String format, String[] args,
                          String localPathToExport, String dockerPathToExport, String dockerContainerName, String token)

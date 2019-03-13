@@ -12,6 +12,9 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
 /**
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
  * @author John Grosh
  */
 public abstract class MusicCommand extends Command {
@@ -19,7 +22,7 @@ public abstract class MusicCommand extends Command {
     protected boolean bePlaying;
     protected boolean beListening;
 
-    public MusicCommand(Bot bot) {
+    protected MusicCommand(Bot bot) {
         this.bot = bot;
         this.guildOnly = true;
         this.category = new Category("Music");
@@ -35,11 +38,14 @@ public abstract class MusicCommand extends Command {
                 event.getMessage().delete().queue();
             } catch (PermissionException ignore) {
             }
-            event.replyInDm(event.getClient().getError() + " You can only use that command in " + tchannel.getAsMention() + "!");
+            event.replyInDm(event.getClient().getError()
+                    + " You can only use that command in " + tchannel.getAsMention() + "!");
             return;
         }
+
         bot.getPlayerManager().setUpHandler(event.getGuild()); // no point constantly checking for this later
-        if (bePlaying && !((AudioHandler) event.getGuild().getAudioManager().getSendingHandler()).isMusicPlaying(event.getJDA())) {
+        if (bePlaying && !((AudioHandler) event.getGuild().getAudioManager().getSendingHandler())
+                .isMusicPlaying(event.getJDA())) {
             event.reply(event.getClient().getError() + " There must be music playing to use that!");
             return;
         }
@@ -71,5 +77,5 @@ public abstract class MusicCommand extends Command {
         doCommand(event);
     }
 
-    public abstract void doCommand(CommandEvent event);
+    protected abstract void doCommand(CommandEvent event);
 }

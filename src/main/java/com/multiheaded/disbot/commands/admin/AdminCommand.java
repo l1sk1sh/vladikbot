@@ -4,18 +4,18 @@ import com.jagrosh.jdautilities.command.Command;
 import net.dv8tion.jda.core.Permission;
 
 /**
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
  * @author John Grosh
  */
-public abstract class AdminCommand extends Command {
-    public AdminCommand() {
+abstract class AdminCommand extends Command {
+    AdminCommand() {
         this.category = new Category("Admin", event ->
-        {
-            if (event.getAuthor().getId().equals(event.getClient().getOwnerId()))
-                return true;
-            if (event.getGuild() == null)
-                return true;
-            return event.getMember().hasPermission(Permission.MANAGE_SERVER);
-        });
+                event.getAuthor().getId()
+                        .equals(event.getClient().getOwnerId())
+                        || event.getGuild() == null
+                        || event.getMember().hasPermission(Permission.MANAGE_CHANNEL));
         this.guildOnly = true;
     }
 }

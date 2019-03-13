@@ -1,6 +1,5 @@
 package com.multiheaded.disbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
@@ -23,7 +22,7 @@ import static java.util.stream.Collectors.toMap;
 /**
  * @author Oliver Johnson
  */
-public class EmojiStatsCommand extends Command {
+public class EmojiStatsCommand extends AdminCommand {
     private final Paginator.Builder pbuilder;
 
     public EmojiStatsCommand(EventWaiter waiter) {

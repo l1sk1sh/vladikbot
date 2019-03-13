@@ -13,6 +13,8 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 
 /**
  * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
  * @author John Grosh
  */
 public class SettingsCommand extends Command {
