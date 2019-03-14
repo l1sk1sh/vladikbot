@@ -24,11 +24,11 @@ public class PlaylistCommand extends OwnerCommand {
         this.arguments = "<append|delete|make|setdefault>";
         this.help = "playlist management";
         this.children = new OwnerCommand[]{
-                new ListCmd(),
-                new AppendlistCmd(),
-                new DeletelistCmd(),
-                new MakelistCmd(),
-                new DefaultlistCommand(bot)
+                new ListCommand(),
+                new AppendListCommand(),
+                new DeleteListCommand(),
+                new MakeListCommand(),
+                new DefaultListCommand(bot)
         };
     }
 
@@ -42,8 +42,8 @@ public class PlaylistCommand extends OwnerCommand {
         event.reply(builder.toString());
     }
 
-    public class MakelistCmd extends OwnerCommand {
-        MakelistCmd() {
+    class MakeListCommand extends OwnerCommand {
+        MakeListCommand() {
             this.name = "make";
             this.aliases = new String[]{"create"};
             this.help = "makes a new playlist";
@@ -68,8 +68,8 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    public class DeletelistCmd extends OwnerCommand {
-        DeletelistCmd() {
+    class DeleteListCommand extends OwnerCommand {
+        DeleteListCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};
             this.help = "deletes an existing playlist";
@@ -95,8 +95,8 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    public class AppendlistCmd extends OwnerCommand {
-        AppendlistCmd() {
+    class AppendListCommand extends OwnerCommand {
+        AppendListCommand() {
             this.name = "append";
             this.aliases = new String[]{"add"};
             this.help = "appends songs to an existing playlist";
@@ -137,8 +137,8 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    public class DefaultlistCommand extends AutoPlaylistCommand {
-        DefaultlistCommand(Bot bot) {
+    class DefaultListCommand extends AutoPlaylistCommand {
+        DefaultListCommand(Bot bot) {
             super(bot);
             this.name = "setdefault";
             this.aliases = new String[]{"default"};
@@ -147,8 +147,8 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    public class ListCmd extends OwnerCommand {
-        ListCmd() {
+    class ListCommand extends OwnerCommand {
+        ListCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list"};
             this.help = "lists all available playlists";

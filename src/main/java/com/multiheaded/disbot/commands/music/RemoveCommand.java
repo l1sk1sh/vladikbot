@@ -28,49 +28,55 @@ public class RemoveCommand extends MusicCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        if (handler.getQueue().isEmpty()) {
+        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        if (audioHandler.getQueue().isEmpty()) {
             event.replyError("There is nothing in the queue!");
             return;
         }
+
         if (event.getArgs().equalsIgnoreCase("all")) {
-            int count = handler.getQueue().removeAll(event.getAuthor().getIdLong());
+            int count = audioHandler.getQueue().removeAll(event.getAuthor().getIdLong());
             if (count == 0)
                 event.replyWarning("You don't have any songs in the queue!");
             else
                 event.replySuccess("Successfully removed your " + count + " entries.");
             return;
         }
+
         int pos;
         try {
             pos = Integer.parseInt(event.getArgs());
         } catch (NumberFormatException e) {
             pos = 0;
         }
-        if (pos < 1 || pos > handler.getQueue().size()) {
-            event.replyError("Position must be a valid integer between 1 and " + handler.getQueue().size() + "!");
+
+        if (pos < 1 || pos > audioHandler.getQueue().size()) {
+            event.replyError("Position must be a valid integer between 1 and " + audioHandler.getQueue().size() + "!");
             return;
         }
+
         Settings settings = SettingsManager.getInstance().getSettings();
         boolean isDJ = event.getMember().hasPermission(Permission.MANAGE_SERVER);
-        if (!isDJ)
+        if (!isDJ) {
             isDJ = event.getMember().getRoles().contains(settings.getDjRole(event.getGuild()));
-        QueuedTrack qt = handler.getQueue().get(pos - 1);
-        if (qt.getIdentifier() == event.getAuthor().getIdLong()) {
-            handler.getQueue().remove(pos - 1);
-            event.replySuccess("Removed **" + qt.getTrack().getInfo().title + "** from the queue");
+        }
+
+        QueuedTrack queuedTrack = audioHandler.getQueue().get(pos - 1);
+        if (queuedTrack.getIdentifier() == event.getAuthor().getIdLong()) {
+            audioHandler.getQueue().remove(pos - 1);
+            event.replySuccess("Removed **" + queuedTrack.getTrack().getInfo().title + "** from the queue");
         } else if (isDJ) {
-            handler.getQueue().remove(pos - 1);
+            audioHandler.getQueue().remove(pos - 1);
             User user;
             try {
-                user = event.getJDA().getUserById(qt.getIdentifier());
+                user = event.getJDA().getUserById(queuedTrack.getIdentifier());
             } catch (Exception e) {
                 user = null;
             }
-            event.replySuccess("Removed **" + qt.getTrack().getInfo().title
+            event.replySuccess("Removed **" + queuedTrack.getTrack().getInfo().title
                     + "** from the queue (requested by " + (user == null ? "someone" : "**" + user.getName() + "**") + ")");
         } else {
-            event.replyError("You cannot remove **" + qt.getTrack().getInfo().title + "** because you didn't add it!");
+            event.replyError("You cannot remove **" + queuedTrack.getTrack().getInfo().title + "** because you didn't add it!");
         }
     }
 }

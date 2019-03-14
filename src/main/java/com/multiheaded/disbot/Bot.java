@@ -24,7 +24,7 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class Bot {
     private final EventWaiter waiter;
-    private final ScheduledExecutorService threadpool;
+    private final ScheduledExecutorService threadPool;
     private final Settings settings = SettingsManager.getInstance().getSettings();
     private final PlayerManager players;
     private final PlaylistLoader playlists;
@@ -34,7 +34,7 @@ public class Bot {
     private JDA jda;
 
     Bot(EventWaiter waiter) {
-        this.threadpool = Executors.newSingleThreadScheduledExecutor();
+        this.threadPool = Executors.newSingleThreadScheduledExecutor();
         this.waiter = waiter;
         this.playlists = new PlaylistLoader();
         this.players = new PlayerManager(this);
@@ -47,8 +47,8 @@ public class Bot {
         return waiter;
     }
 
-    public ScheduledExecutorService getThreadpool() {
-        return threadpool;
+    public ScheduledExecutorService getThreadPool() {
+        return threadPool;
     }
 
     public PlayerManager getPlayerManager() {
@@ -70,7 +70,7 @@ public class Bot {
     public void closeAudioConnection(long guildId) {
         Guild guild = jda.getGuildById(guildId);
         if (guild != null) {
-            threadpool.submit(() -> guild.getAudioManager().closeAudioConnection());
+            threadPool.submit(() -> guild.getAudioManager().closeAudioConnection());
         }
     }
 
@@ -87,7 +87,7 @@ public class Bot {
             return;
         }
         shuttingDown = true;
-        threadpool.shutdownNow();
+        threadPool.shutdownNow();
         if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
             jda.getGuilds().forEach(g -> {
                 g.getAudioManager().closeAudioConnection();

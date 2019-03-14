@@ -24,13 +24,16 @@ public class SetAvatarCommand extends OwnerCommand {
     @Override
     protected void execute(CommandEvent event) {
         String url;
-        if (event.getArgs().isEmpty())
-            if (!event.getMessage().getAttachments().isEmpty() && event.getMessage().getAttachments().get(0).isImage())
+        if (event.getArgs().isEmpty()) {
+            if (!event.getMessage().getAttachments().isEmpty() && event.getMessage().getAttachments().get(0).isImage()) {
                 url = event.getMessage().getAttachments().get(0).getUrl();
-            else
+            } else {
                 url = null;
-        else
+            }
+        } else {
             url = event.getArgs();
+        }
+
         InputStream inputStream = OtherUtil.imageFromUrl(url);
         if (inputStream == null) {
             event.reply(event.getClient().getError() + " Invalid or missing URL");

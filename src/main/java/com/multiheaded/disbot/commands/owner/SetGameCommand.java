@@ -50,6 +50,7 @@ public class SetGameCommand extends OwnerCommand {
                 event.replyError("Please include a twitch username and the name of the game to 'stream'");
                 return;
             }
+
             try {
                 event.getJDA().getPresence().setGame(Game.streaming(parts[1], "https://twitch.tv/" + parts[0]));
                 event.replySuccess("**" + event.getSelfUser().getName()
@@ -75,6 +76,7 @@ public class SetGameCommand extends OwnerCommand {
                 event.replyError("Please include a title to listen to!");
                 return;
             }
+
             String title = event.getArgs().toLowerCase().startsWith("to")
                     ? event.getArgs().substring(2).trim() : event.getArgs();
             try {
@@ -101,6 +103,7 @@ public class SetGameCommand extends OwnerCommand {
                 event.replyError("Please include a title to watch!");
                 return;
             }
+
             String title = event.getArgs();
             try {
                 event.getJDA().getPresence().setGame(Game.watching(title));

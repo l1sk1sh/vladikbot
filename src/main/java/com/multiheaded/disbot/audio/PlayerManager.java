@@ -32,16 +32,16 @@ public class PlayerManager extends DefaultAudioPlayerManager {
     }
 
     public AudioHandler setUpHandler(Guild guild) {
-        AudioHandler handler;
+        AudioHandler audioHandler;
         if (guild.getAudioManager().getSendingHandler() == null) {
             AudioPlayer player = createPlayer();
             player.setVolume(SettingsManager.getInstance().getSettings().getVolume());
-            handler = new AudioHandler(this, guild, player);
-            player.addListener(handler);
-            guild.getAudioManager().setSendingHandler(handler);
+            audioHandler = new AudioHandler(this, guild, player);
+            player.addListener(audioHandler);
+            guild.getAudioManager().setSendingHandler(audioHandler);
         } else {
-            handler = (AudioHandler) guild.getAudioManager().getSendingHandler();
+            audioHandler = (AudioHandler) guild.getAudioManager().getSendingHandler();
         }
-        return handler;
+        return audioHandler;
     }
 }

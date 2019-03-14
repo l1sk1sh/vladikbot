@@ -3,7 +3,6 @@ package com.multiheaded.disbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.disbot.models.conductors.BackupConductor;
 import com.multiheaded.disbot.settings.SettingsManager;
-import net.dv8tion.jda.core.Permission;
 
 import java.security.InvalidParameterException;
 
@@ -18,9 +17,6 @@ public class BackupCommand extends AdminCommand {
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which backup would be done\n"
                 + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which backup would be done";
         this.arguments = "-a, -b";
-        this.requiredRole = "furer";
-        this.botPermissions = new Permission[]{Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY,
-                Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES};
         this.guildOnly = true;
     }
 

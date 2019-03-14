@@ -22,7 +22,8 @@ public class OtherUtil {
         try {
             URL u = new URL(url);
             URLConnection urlConnection = u.openConnection();
-            urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36");
+            urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36");
             return urlConnection.getInputStream();
         } catch (IOException | IllegalArgumentException ignore) {
         }
@@ -59,7 +60,7 @@ public class OtherUtil {
         if (status == null || status.trim().isEmpty()) {
             return OnlineStatus.ONLINE;
         }
-        OnlineStatus st = OnlineStatus.fromKey(status);
-        return st == null ? OnlineStatus.ONLINE : st;
+        OnlineStatus onlineStatus = OnlineStatus.fromKey(status);
+        return onlineStatus == null ? OnlineStatus.ONLINE : onlineStatus;
     }
 }

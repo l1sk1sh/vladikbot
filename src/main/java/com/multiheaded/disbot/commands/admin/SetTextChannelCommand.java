@@ -27,6 +27,7 @@ public class SetTextChannelCommand extends AdminCommand {
             event.reply(event.getClient().getError() + " Please include a text channel or NONE");
             return;
         }
+
         Settings settings = event.getClient().getSettingsFor(event.getGuild());
         if (event.getArgs().equalsIgnoreCase("none")) {
             settings.setTextChannelId(null);

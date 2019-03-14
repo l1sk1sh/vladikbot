@@ -22,11 +22,11 @@ public class ForceskipCommand extends DJCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        User u = event.getJDA().getUserById(handler.getRequester());
+        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        User user = event.getJDA().getUserById(audioHandler.getRequester());
         event.reply(event.getClient().getSuccess()
-                + " Skipped **" + handler.getPlayer().getPlayingTrack().getInfo().title
-                + "** (requested by " + (u == null ? "someone" : "**" + u.getName() + "**") + ")");
-        handler.getPlayer().stopTrack();
+                + " Skipped **" + audioHandler.getPlayer().getPlayingTrack().getInfo().title
+                + "** (requested by " + (user == null ? "someone" : "**" + user.getName() + "**") + ")");
+        audioHandler.getPlayer().stopTrack();
     }
 }

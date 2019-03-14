@@ -21,9 +21,9 @@ public class ShuffleCommand extends MusicCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        int s = handler.getQueue().shuffle(event.getAuthor().getIdLong());
-        switch (s) {
+        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        int shuffle = audioHandler.getQueue().shuffle(event.getAuthor().getIdLong());
+        switch (shuffle) {
             case 0:
                 event.replyError("You don't have any music in the queue to shuffle!");
                 break;
@@ -31,7 +31,7 @@ public class ShuffleCommand extends MusicCommand {
                 event.replyWarning("You only have one song in the queue!");
                 break;
             default:
-                event.replySuccess("You successfully shuffled your " + s + " entries.");
+                event.replySuccess("You successfully shuffled your " + shuffle + " entries.");
                 break;
         }
     }

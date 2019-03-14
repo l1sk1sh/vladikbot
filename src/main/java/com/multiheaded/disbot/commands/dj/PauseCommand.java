@@ -20,14 +20,14 @@ public class PauseCommand extends DJCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        if (handler.getPlayer().isPaused()) {
+        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        if (audioHandler.getPlayer().isPaused()) {
             event.replyWarning("The player is already paused! Use `"
                     + event.getClient().getPrefix() + "play` to unpause!");
             return;
         }
-        handler.getPlayer().setPaused(true);
-        event.replySuccess("Paused **" + handler.getPlayer().getPlayingTrack().getInfo().title
+        audioHandler.getPlayer().setPaused(true);
+        event.replySuccess("Paused **" + audioHandler.getPlayer().getPlayingTrack().getInfo().title
                 + "**. Type `" + event.getClient().getPrefix() + "play` to unpause!");
     }
 }

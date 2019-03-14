@@ -66,13 +66,13 @@ public class PlayNextCommand extends DJCommand {
                         + "` > `" + FormatUtil.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
                 return;
             }
-            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            int pos = handler.addTrackToFront(new QueuedTrack(track, event.getAuthor())) + 1;
-            String addMsg = FormatUtil.filter(event.getClient().getSuccess()
+            AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+            int pos = audioHandler.addTrackToFront(new QueuedTrack(track, event.getAuthor())) + 1;
+            String addMessage = FormatUtil.filter(event.getClient().getSuccess()
                     + " Added **" + track.getInfo().title
                     + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) "
                     + (pos == 0 ? "to begin playing" : " to the queue at position " + pos));
-            message.editMessage(addMsg).queue();
+            message.editMessage(addMessage).queue();
         }
 
         @Override
@@ -96,12 +96,13 @@ public class PlayNextCommand extends DJCommand {
 
         @Override
         public void noMatches() {
-            if (ytsearch)
+            if (ytsearch) {
                 message.editMessage(FormatUtil.filter(event.getClient().getWarning()
                         + " No results found for `" + event.getArgs() + "`.")).queue();
-            else
+            } else {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(),
                         "ytsearch:" + event.getArgs(), new ResultHandler(message, event, true));
+            }
         }
 
         @Override

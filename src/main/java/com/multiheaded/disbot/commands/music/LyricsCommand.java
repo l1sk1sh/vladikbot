@@ -29,11 +29,13 @@ public class LyricsCommand extends MusicCommand {
     public void doCommand(CommandEvent event) {
         event.getChannel().sendTyping().queue();
         String title;
-        if (event.getArgs().isEmpty())
+        if (event.getArgs().isEmpty()) {
             title = ((AudioHandler) event.getGuild().getAudioManager().getSendingHandler())
                     .getPlayer().getPlayingTrack().getInfo().title;
-        else
+        } else {
             title = event.getArgs();
+        }
+
         client.getLyrics(title).thenAccept(lyrics ->
         {
             if (lyrics == null) {
@@ -51,19 +53,23 @@ public class LyricsCommand extends MusicCommand {
                 String content = lyrics.getContent().trim();
                 while (content.length() > 2000) {
                     int index = content.lastIndexOf("\n\n", 2000);
-                    if (index == -1)
+                    if (index == -1) {
                         index = content.lastIndexOf("\n", 2000);
-                    if (index == -1)
+                    }
+                    if (index == -1) {
                         index = content.lastIndexOf(" ", 2000);
-                    if (index == -1)
+                    }
+                    if (index == -1) {
                         index = 2000;
+                    }
                     event.reply(eb.setDescription(content.substring(0, index).trim()).build());
                     content = content.substring(index).trim();
                     eb.setAuthor(null).setTitle(null, null);
                 }
                 event.reply(eb.setDescription(content).build());
-            } else
+            } else {
                 event.reply(eb.setDescription(lyrics.getContent()).build());
+            }
         });
     }
 }

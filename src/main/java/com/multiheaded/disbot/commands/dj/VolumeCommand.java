@@ -24,24 +24,24 @@ public class VolumeCommand extends DJCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         Settings settings = SettingsManager.getInstance().getSettings();
-        int volume = handler.getPlayer().getVolume();
+        int volume = audioHandler.getPlayer().getVolume();
         if (event.getArgs().isEmpty()) {
             event.reply(FormatUtil.volumeIcon(volume) + " Current volume is `" + volume + "`");
         } else {
-            int nvolume;
+            int nVolume;
             try {
-                nvolume = Integer.parseInt(event.getArgs());
+                nVolume = Integer.parseInt(event.getArgs());
             } catch (NumberFormatException e) {
-                nvolume = -1;
+                nVolume = -1;
             }
-            if (nvolume < 0 || nvolume > 150)
+            if (nVolume < 0 || nVolume > 150) {
                 event.reply(event.getClient().getError() + " Volume must be a valid integer between 0 and 150!");
-            else {
-                handler.getPlayer().setVolume(nvolume);
-                settings.setVolume(nvolume);
-                event.reply(FormatUtil.volumeIcon(nvolume) + " Volume changed from `" + volume + "` to `" + nvolume + "`");
+            } else {
+                audioHandler.getPlayer().setVolume(nVolume);
+                settings.setVolume(nVolume);
+                event.reply(FormatUtil.volumeIcon(nVolume) + " Volume changed from `" + volume + "` to `" + nVolume + "`");
             }
         }
     }

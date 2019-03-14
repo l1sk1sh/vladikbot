@@ -56,6 +56,7 @@ public class SearchCommand extends MusicCommand {
             event.replyError("Please include a query.");
             return;
         }
+
         event.reply(searchingEmoji + " Searching... `[" + event.getArgs() + "]`",
                 m -> bot.getPlayerManager().loadItemOrdered(
                         event.getGuild(), searchPrefix + event.getArgs(), new ResultHandler(m, event)));
@@ -79,8 +80,8 @@ public class SearchCommand extends MusicCommand {
                         + settings.getMaxTime() + "`")).queue();
                 return;
             }
-            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            int pos = handler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
+            AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+            int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
             message.editMessage(FormatUtil.filter(event.getClient().getSuccess()
                     + " Added **" + track.getInfo().title
                     + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) " + (pos == 0 ? "to begin playing"
@@ -103,8 +104,8 @@ public class SearchCommand extends MusicCommand {
                                     + settings.getMaxTime() + "`");
                             return;
                         }
-                        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-                        int pos = handler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
+                        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+                        int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
                         event.replySuccess("Added **" + track.getInfo().title
                                 + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) "
                                 + (pos == 0 ? "to begin playing"

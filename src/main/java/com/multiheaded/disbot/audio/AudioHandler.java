@@ -61,12 +61,13 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         }
     }
 
-    public int addTrack(QueuedTrack qtrack) {
+    public int addTrack(QueuedTrack queuedTrack) {
         if (audioPlayer.getPlayingTrack() == null) {
-            audioPlayer.playTrack(qtrack.getTrack());
+            audioPlayer.playTrack(queuedTrack.getTrack());
             return -1;
-        } else
-            return queue.add(qtrack);
+        } else {
+            return queue.add(queuedTrack);
+        }
     }
 
     public FairQueue<QueuedTrack> getQueue() {
@@ -93,8 +94,9 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     }
 
     public long getRequester() {
-        if (audioPlayer.getPlayingTrack() == null || audioPlayer.getPlayingTrack().getUserData(Long.class) == null)
+        if (audioPlayer.getPlayingTrack() == null || audioPlayer.getPlayingTrack().getUserData(Long.class) == null) {
             return 0;
+        }
         return audioPlayer.getPlayingTrack().getUserData(Long.class);
     }
 
@@ -113,16 +115,18 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             return false;
         }
 
-        playlist.loadTracks(manager, (at) ->
+        playlist.loadTracks(manager, (audioTrack) ->
         {
-            if (audioPlayer.getPlayingTrack() == null)
-                audioPlayer.playTrack(at);
-            else
-                defaultQueue.add(at);
+            if (audioPlayer.getPlayingTrack() == null) {
+                audioPlayer.playTrack(audioTrack);
+            } else {
+                defaultQueue.add(audioTrack);
+            }
         }, () ->
         {
-            if (playlist.getTracks().isEmpty() && settings.shouldLeaveChannel())
+            if (playlist.getTracks().isEmpty() && settings.shouldLeaveChannel()) {
                 manager.getBot().closeAudioConnection(guildId);
+            }
         });
         return true;
     }
@@ -189,17 +193,21 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                 embedBuilder.setThumbnail("https://img.youtube.com/vi/" + track.getIdentifier() + "/mqdefault.jpg");
             }
 
-            if (track.getInfo().author != null && !track.getInfo().author.isEmpty())
+            if (track.getInfo().author != null && !track.getInfo().author.isEmpty()) {
                 embedBuilder.setFooter("Source: " + track.getInfo().author, null);
+            }
 
             double progress = (double) audioPlayer.getPlayingTrack().getPosition() / track.getDuration();
             embedBuilder.setDescription((audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI)
                     + " " + FormatUtil.progressBar(progress)
-                    + " `[" + FormatUtil.formatTime(track.getPosition()) + "/" + FormatUtil.formatTime(track.getDuration()) + "]` "
+                    + " `[" + FormatUtil.formatTime(track.getPosition()) + "/"
+                    + FormatUtil.formatTime(track.getDuration()) + "]` "
                     + FormatUtil.volumeIcon(audioPlayer.getVolume()));
 
             return messageBuilder.setEmbed(embedBuilder.build()).build();
-        } else return null;
+        } else {
+            return null;
+        }
     }
 
     public Message getNoMusicPlaying(JDA jda) {
@@ -220,14 +228,18 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             long userid = getRequester();
             AudioTrack track = audioPlayer.getPlayingTrack();
             String title = track.getInfo().title;
-            if (title == null || title.equals("Unknown Title"))
+
+            if (title == null || title.equals("Unknown Title")) {
                 title = track.getInfo().uri;
+            }
             return "**" + title + "** [" + (userid == 0 ? "autoplay" : "<@" + userid + ">") + "]"
                     + "\n" + (audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI) + " "
                     + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
                     + FormatUtil.volumeIcon(audioPlayer.getVolume());
-        } else return "No music playing " + Constants.STOP_EMOJI + " "
-                + FormatUtil.volumeIcon(audioPlayer.getVolume());
+        } else {
+            return "No music playing " + Constants.STOP_EMOJI + " "
+                    + FormatUtil.volumeIcon(audioPlayer.getVolume());
+        }
     }
 
     // Audio Send Handler methods
@@ -257,8 +269,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         return true;
     }
 
-
-    // Private methods
     private Guild guild(JDA jda) {
         return jda.getGuildById(guildId);
     }

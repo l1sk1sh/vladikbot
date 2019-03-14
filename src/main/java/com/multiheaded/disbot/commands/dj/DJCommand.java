@@ -25,9 +25,9 @@ abstract class DJCommand extends MusicCommand {
             if (event.getMember().hasPermission(Permission.MANAGE_SERVER))
                 return true;
             Settings settings = SettingsManager.getInstance().getSettings();
-            Role dj = settings.getDjRole(event.getGuild());
-            return dj != null &&
-                    (event.getMember().getRoles().contains(dj) || dj.getIdLong() == event.getGuild().getIdLong());
+            Role djRole = settings.getDjRole(event.getGuild());
+            return djRole != null &&
+                    (event.getMember().getRoles().contains(djRole) || djRole.getIdLong() == event.getGuild().getIdLong());
         });
     }
 }

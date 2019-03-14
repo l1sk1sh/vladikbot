@@ -57,6 +57,7 @@ public class QueueCommand extends MusicCommand {
             pagenum = Integer.parseInt(event.getArgs());
         } catch (NumberFormatException ignore) {
         }
+
         AudioHandler ah = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         List<QueuedTrack> list = ah.getQueue().getList();
         if (list.isEmpty()) {
@@ -72,12 +73,14 @@ public class QueueCommand extends MusicCommand {
             });
             return;
         }
+
         String[] songs = new String[list.size()];
         long total = 0;
         for (int i = 0; i < list.size(); i++) {
             total += list.get(i).getTrack().getDuration();
             songs[i] = list.get(i).toString();
         }
+
         Settings settings = SettingsManager.getInstance().getSettings();
         long fintotal = total;
         builder.setText((i1, i2) -> getQueueTitle(ah, event.getClient().getSuccess(), songs.length, fintotal,
@@ -89,13 +92,15 @@ public class QueueCommand extends MusicCommand {
         builder.build().paginate(event.getChannel(), pagenum);
     }
 
-    private String getQueueTitle(AudioHandler ah, String success, int songslength, long total, boolean repeatmode) {
-        StringBuilder sb = new StringBuilder();
-        if (ah.getPlayer().getPlayingTrack() != null) {
-            sb.append(ah.getPlayer().isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI).append(" **")
-                    .append(ah.getPlayer().getPlayingTrack().getInfo().title).append("**\n");
+    private String getQueueTitle(AudioHandler audioPlayer, String success, int songslength, long total, boolean repeatmode) {
+        StringBuilder stringBuilder = new StringBuilder();
+        if (audioPlayer.getPlayer().getPlayingTrack() != null) {
+            stringBuilder.append(audioPlayer.getPlayer().isPaused()
+                    ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI).append(" **")
+                    .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\n");
         }
-        return FormatUtil.filter(sb.append(success).append(" Current Queue | ").append(songslength)
+
+        return FormatUtil.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)
                 .append(" entries | `").append(FormatUtil.formatTime(total)).append("` ")
                 .append(repeatmode ? "| " + Constants.REPEAT_EMOJI : "").toString());
     }

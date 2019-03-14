@@ -28,14 +28,14 @@ public class FormatUtil {
     }
 
     public static String progressBar(double percent) {
-        StringBuilder str = new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < 12; i++)
             if (i == (int) (percent * 12)) {
-                str.append(Constants.PROGRESS_EMOJI);
+                stringBuilder.append(Constants.PROGRESS_EMOJI);
             } else {
-                str.append("▬");
+                stringBuilder.append("▬");
             }
-        return str.toString();
+        return stringBuilder.toString();
     }
 
     public static String volumeIcon(int volume) {

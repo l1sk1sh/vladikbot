@@ -29,15 +29,15 @@ public class SkipToCommand extends DJCommand {
             event.reply(event.getClient().getError() + " `" + event.getArgs() + "` is not a valid integer!");
             return;
         }
-        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        if (index < 1 || index > handler.getQueue().size()) {
+        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        if (index < 1 || index > audioHandler.getQueue().size()) {
             event.reply(event.getClient().getError()
-                    + " Position must be a valid integer between 1 and " + handler.getQueue().size() + "!");
+                    + " Position must be a valid integer between 1 and " + audioHandler.getQueue().size() + "!");
             return;
         }
-        handler.getQueue().skip(index - 1);
+        audioHandler.getQueue().skip(index - 1);
         event.reply(event.getClient().getSuccess()
-                + " Skipped to **" + handler.getQueue().get(0).getTrack().getInfo().title + "**");
-        handler.getPlayer().stopTrack();
+                + " Skipped to **" + audioHandler.getQueue().get(0).getTrack().getInfo().title + "**");
+        audioHandler.getPlayer().stopTrack();
     }
 }

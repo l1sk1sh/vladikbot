@@ -23,10 +23,10 @@ public class NowPlayingCommand extends MusicCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        Message message = handler.getNowPlaying(event.getJDA());
+        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        Message message = audioHandler.getNowPlaying(event.getJDA());
         if (message == null) {
-            event.reply(handler.getNoMusicPlaying(event.getJDA()));
+            event.reply(audioHandler.getNoMusicPlaying(event.getJDA()));
             bot.getNowPlayingHandler().clearLastNPMessage(event.getGuild());
         } else {
             event.reply(message, msg -> bot.getNowPlayingHandler().setLastNPMessage(msg));

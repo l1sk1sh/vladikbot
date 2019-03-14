@@ -77,17 +77,22 @@ public class PlaylistLoader {
                         + File.separator + name + ".txt")).forEach(str ->
                 {
                     String s = str.trim();
-                    if (s.isEmpty())
+                    if (s.isEmpty()) {
                         return;
+                    }
                     if (s.startsWith("#") || s.startsWith("//")) {
                         s = s.replaceAll("\\s+", "");
-                        if (s.equalsIgnoreCase("#shuffle") || s.equalsIgnoreCase("//shuffle"))
+                        if (s.equalsIgnoreCase("#shuffle") || s.equalsIgnoreCase("//shuffle")) {
                             shuffle[0] = true;
-                    } else
+                        }
+                    } else {
                         list.add(s);
+                    }
                 });
-                if (shuffle[0])
+
+                if (shuffle[0]) {
                     shuffle(list);
+                }
                 return new Playlist(name, list, shuffle[0]);
             } else {
                 createFolder();
@@ -126,80 +131,88 @@ public class PlaylistLoader {
         public void loadTracks(AudioPlayerManager manager, Consumer<AudioTrack> consumer, Runnable callback) {
             if (!loaded) {
                 loaded = true;
+
                 for (int i = 0; i < items.size(); i++) {
                     boolean last = i + 1 == items.size();
                     int index = i;
                     manager.loadItemOrdered(name, items.get(i), new AudioLoadResultHandler() {
                         @Override
                         public void trackLoaded(AudioTrack at) {
-                            if (settings.isTooLong(at))
+                            if (settings.isTooLong(at)) {
                                 errors.add(new PlaylistLoadError(index, items.get(index),
                                         "This track is longer than the allowed maximum"));
-                            else {
+                            } else {
                                 at.setUserData(0L);
                                 tracks.add(at);
                                 consumer.accept(at);
                             }
-                            if (last && callback != null)
+                            if (last && callback != null) {
                                 callback.run();
+                            }
                         }
 
                         @Override
-                        public void playlistLoaded(AudioPlaylist ap) {
-                            if (ap.isSearchResult()) {
-                                if (settings.isTooLong(ap.getTracks().get(0)))
+                        public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                            if (audioPlaylist.isSearchResult()) {
+                                if (settings.isTooLong(audioPlaylist.getTracks().get(0))) {
                                     errors.add(new PlaylistLoadError(index, items.get(index),
                                             "This track is longer than the allowed maximum"));
-                                else {
-                                    ap.getTracks().get(0).setUserData(0L);
-                                    tracks.add(ap.getTracks().get(0));
-                                    consumer.accept(ap.getTracks().get(0));
+                                } else {
+                                    audioPlaylist.getTracks().get(0).setUserData(0L);
+                                    tracks.add(audioPlaylist.getTracks().get(0));
+                                    consumer.accept(audioPlaylist.getTracks().get(0));
                                 }
-                            } else if (ap.getSelectedTrack() != null) {
-                                if (settings.isTooLong(ap.getSelectedTrack()))
+                            } else if (audioPlaylist.getSelectedTrack() != null) {
+                                if (settings.isTooLong(audioPlaylist.getSelectedTrack())) {
                                     errors.add(new PlaylistLoadError(index, items.get(index),
                                             "This track is longer than the allowed maximum"));
-                                else {
-                                    ap.getSelectedTrack().setUserData(0L);
-                                    tracks.add(ap.getSelectedTrack());
-                                    consumer.accept(ap.getSelectedTrack());
+                                } else {
+                                    audioPlaylist.getSelectedTrack().setUserData(0L);
+                                    tracks.add(audioPlaylist.getSelectedTrack());
+                                    consumer.accept(audioPlaylist.getSelectedTrack());
                                 }
                             } else {
-                                List<AudioTrack> loaded = new ArrayList<>(ap.getTracks());
-                                if (shuffle)
+                                List<AudioTrack> loaded = new ArrayList<>(audioPlaylist.getTracks());
+                                if (shuffle) {
                                     for (int first = 0; first < loaded.size(); first++) {
                                         int second = (int) (Math.random() * loaded.size());
                                         AudioTrack tmp = loaded.get(first);
                                         loaded.set(first, loaded.get(second));
                                         loaded.set(second, tmp);
                                     }
+                                }
                                 loaded.removeIf(settings::isTooLong);
                                 loaded.forEach(at -> at.setUserData(0L));
                                 tracks.addAll(loaded);
                                 loaded.forEach(consumer);
                             }
-                            if (last && callback != null)
+                            if (last && callback != null) {
                                 callback.run();
+                            }
                         }
 
                         @Override
                         public void noMatches() {
                             errors.add(new PlaylistLoadError(index, items.get(index), "No matches found."));
-                            if (last && callback != null)
+                            if (last && callback != null) {
                                 callback.run();
+                            }
                         }
 
                         @Override
                         public void loadFailed(FriendlyException fe) {
-                            errors.add(new PlaylistLoadError(index, items.get(index), "Failed to load track: " + fe.getLocalizedMessage()));
-                            if (last && callback != null)
+                            errors.add(new PlaylistLoadError(index, items.get(index), "Failed to load track: "
+                                    + fe.getLocalizedMessage()));
+                            if (last && callback != null) {
                                 callback.run();
+                            }
                         }
                     });
                 }
             }
-            if (shuffle)
+            if (shuffle) {
                 shuffleTracks();
+            }
         }
 
         void shuffleTracks() {

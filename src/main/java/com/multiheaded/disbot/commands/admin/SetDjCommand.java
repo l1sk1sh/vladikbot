@@ -28,6 +28,7 @@ public class SetDjCommand extends AdminCommand {
             event.reply(event.getClient().getError() + " Please include a role name or NONE");
             return;
         }
+
         Settings settings = SettingsManager.getInstance().getSettings();
         if (event.getArgs().equalsIgnoreCase("none")) {
             settings.setDjRoleId(null);

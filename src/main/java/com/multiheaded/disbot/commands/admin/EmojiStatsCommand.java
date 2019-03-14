@@ -5,7 +5,6 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.multiheaded.disbot.models.conductors.EmojiStatsConductor;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
-import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -34,8 +33,6 @@ public class EmojiStatsCommand extends AdminCommand {
                 + "\t\t `-f` - creates new backup despite existing one.\n"
                 + "\t\t `-i` - ignores unicode emoji.";
         this.arguments = "-a, -b, -iu, -i, -f";
-        this.botPermissions = new Permission[]{Permission.MESSAGE_READ, Permission.MESSAGE_HISTORY,
-                Permission.MESSAGE_WRITE, Permission.MESSAGE_ATTACH_FILES, Permission.MESSAGE_EMBED_LINKS};
         this.guildOnly = true;
 
         pbuilder = new Paginator.Builder().setColumns(1)

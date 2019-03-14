@@ -35,6 +35,7 @@ public class AutoPlaylistCommand extends OwnerCommand {
                     + " Cleared the default playlist for **" + event.getGuild().getName() + "**");
             return;
         }
+
         String pname = event.getArgs().replaceAll("\\s+", "_");
         if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
             event.reply(event.getClient().getError() + " Could not find `" + pname + ".txt`!");
