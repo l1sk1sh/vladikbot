@@ -50,8 +50,8 @@ public class PlayCommand extends MusicCommand {
     @Override
     public void doCommand(CommandEvent event) {
         if (event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty()) {
-            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            if (handler.getPlayer().getPlayingTrack() != null && handler.getPlayer().isPaused()) {
+            AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+            if (audioHandler.getPlayer().getPlayingTrack() != null && audioHandler.getPlayer().isPaused()) {
                 boolean isDJ = event.getMember().hasPermission(Permission.MANAGE_SERVER);
                 if (!isDJ)
                     isDJ = event.isOwner();
@@ -61,8 +61,8 @@ public class PlayCommand extends MusicCommand {
                 if (!isDJ)
                     event.replyError("Only DJs can unpause the player!");
                 else {
-                    handler.getPlayer().setPaused(false);
-                    event.replySuccess("Resumed **" + handler.getPlayer().getPlayingTrack().getInfo().title + "**.");
+                    audioHandler.getPlayer().setPaused(false);
+                    event.replySuccess("Resumed **" + audioHandler.getPlayer().getPlayingTrack().getInfo().title + "**.");
                 }
                 return;
             }
@@ -104,8 +104,8 @@ public class PlayCommand extends MusicCommand {
                         + FormatUtil.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
                 return;
             }
-            AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            int pos = handler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
+            AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+            int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
             String addMsg = FormatUtil.filter(event.getClient().getSuccess()
                     + " Added **" + track.getInfo().title
                     + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) "
@@ -143,8 +143,8 @@ public class PlayCommand extends MusicCommand {
             int[] count = {0};
             playlist.getTracks().forEach((track) -> {
                 if (!settings.isTooLong(track) && !track.equals(exclude)) {
-                    AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-                    handler.addTrack(new QueuedTrack(track, event.getAuthor()));
+                    AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+                    audioHandler.addTrack(new QueuedTrack(track, event.getAuthor()));
                     count[0]++;
                 }
             });
@@ -206,7 +206,7 @@ public class PlayCommand extends MusicCommand {
         }
     }
 
-    public class PlaylistCmd extends MusicCommand {
+    protected class PlaylistCmd extends MusicCommand {
         PlaylistCmd(Bot bot) {
             super(bot);
             this.name = "playlist";
@@ -223,16 +223,19 @@ public class PlayCommand extends MusicCommand {
                 event.reply(event.getClient().getError() + " Please include a playlist name.");
                 return;
             }
+
             Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getArgs());
             if (playlist == null) {
                 event.replyError("I could not find `" + event.getArgs() + ".txt` in the Playlists folder.");
                 return;
             }
+
             event.getChannel().sendMessage(loadingEmoji + " Loading playlist **"
                     + event.getArgs() + "**... (" + playlist.getItems().size() + " items)").queue(m ->
             {
-                AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-                playlist.loadTracks(bot.getPlayerManager(), (at) -> handler.addTrack(new QueuedTrack(at, event.getAuthor())), () -> {
+                AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+                playlist.loadTracks(bot.getPlayerManager(),
+                        (audioTrack) -> audioHandler.addTrack(new QueuedTrack(audioTrack, event.getAuthor())), () -> {
                     StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty()
                             ? event.getClient().getWarning() + " No tracks were loaded!"
                             : event.getClient().getSuccess() + " Loaded **" + playlist.getTracks().size() + "** tracks!");
