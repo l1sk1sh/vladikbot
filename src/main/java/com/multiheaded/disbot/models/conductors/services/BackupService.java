@@ -49,20 +49,23 @@ public class BackupService {
             processArguments();
 
             BackupProcess backupProcess = new BackupProcess(constructBackupCommand());
+            logger.info("Waiting for backup to finish...");
             backupProcess.getThread().join();
             if (backupProcess.isFailed()) throw new InterruptedException("BackupProcess failed!");
 
             FileUtils.deleteFilesByIdAndExtension(pathToFile, channelId, extension);
             CopyProcess copyProcess = new CopyProcess(constructCopyCommand());
+            logger.info("Copying received file...");
             copyProcess.getThread().join();
             if (copyProcess.isFailed()) throw new InterruptedException("CopyProcess failed!");
 
             exportedFile = FileUtils.getFileByIdAndExtension(pathToFile, channelId, extension);
         } catch (InterruptedException ie) {
-            String msg = String.format("Backup thread interrupted on services level `[%s]`", ie.getMessage());
+            String msg = String.format("Backup thread interrupted on services level **[%s]**", ie.getMessage());
             logger.error(msg);
             throw new InterruptedException(msg);
         } finally {
+            logger.info("Cleaning docker container...");
             new CleanProcess(constructCleanCommand());
         }
     }

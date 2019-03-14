@@ -81,6 +81,7 @@ class DisBot {
 
                             new ShutdownCommand(bot)
                     );
+
             CommandClient commandClient = commandClientBuilder.build();
 
             JDA jda = new JDABuilder(AccountType.BOT)

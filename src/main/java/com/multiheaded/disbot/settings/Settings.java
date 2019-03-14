@@ -9,27 +9,27 @@ import net.dv8tion.jda.core.entities.*;
 /**
  * @author Oliver Johnson
  */
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
 public class Settings {
-    private final String token = "MY_BOT_TOKEN";
-    private final Long ownerId = 0L;
-    private final String dockerContainerName = "disbackup";
-    private final String dockerPathToExport = "/a/";
-    private final String localPathToExport = "/var/tmp/";
-    private final String prefix = "!";
-    private final String helpWord = "help";
-    private final String successEmoji = "\uD83D\uDC4C"; //👌
-    private final String warningEmoji = "\uD83D\uDD95"; //🖕
-    private final String errorEmoji = "\uD83D\uDCA2"; //💢
-    private final String loadingEmoji = "\uD83E\uDDF6"; //🧶
-    private final String searchingEmoji = "\uD83D\uDD0E"; //🔎
-    private final String game = "watching Ubisoft conference";
-    private final String onlineStatus = "ONLINE";
-    private final boolean leaveChannel = true;
-    private final boolean songInGame = false;
-    private final boolean npImages = true;
-    private final Long maxSeconds = 0L;
-    private final String playlistsFolder = "playlists/";
+    private String token = "MY_BOT_TOKEN";
+    private Long ownerId = 0L;
+    private String dockerContainerName = "disbackup";
+    private String dockerPathToExport = "/a/";
+    private String localPathToExport = "/var/tmp/";
+    private String prefix = "!";
+    private String helpWord = "help";
+    private String successEmoji = "\uD83D\uDC4C"; //👌
+    private String warningEmoji = "\uD83D\uDD95"; //🖕
+    private String errorEmoji = "\uD83D\uDCA2"; //💢
+    private String loadingEmoji = "\uD83E\uDDF6"; //🧶
+    private String searchingEmoji = "\uD83D\uDD0E"; //🔎
+    private String game = "watching Ubisoft conference";
+    private String onlineStatus = "ONLINE";
+    private boolean leaveChannel = true;
+    private boolean songInGame = false;
+    private boolean npImages = true;
+    private Long maxSeconds = 0L;
+    private String playlistsFolder = "playlists/";
     private Long textChannelId = 0L;
     private Long voiceChannelId = 0L;
     private Long djRoleId = 0L;

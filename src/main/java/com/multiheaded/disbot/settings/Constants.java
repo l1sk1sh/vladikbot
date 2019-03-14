@@ -20,6 +20,7 @@ public class Constants {
     static final String SETTINGS_JSON = "settings.json";
 
     public static final Integer DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+    public static final Integer EIGHT_MEGABYTES_IN_BYTES = 8388608;
 
     public static final Map<String, String> FORMAT_EXTENSION;
 
