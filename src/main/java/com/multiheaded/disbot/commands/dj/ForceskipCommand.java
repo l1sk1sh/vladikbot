@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import net.dv8tion.jda.core.entities.User;
 
@@ -12,7 +12,7 @@ import net.dv8tion.jda.core.entities.User;
  * @author John Grosh
  */
 public class ForceskipCommand extends DJCommand {
-    public ForceskipCommand(Bot bot) {
+    public ForceskipCommand(VladikBot bot) {
         super(bot);
         this.name = "forceskip";
         this.help = "skips the current song";

@@ -2,7 +2,7 @@ package com.multiheaded.disbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.models.playlist.PlaylistLoader.Playlist;
 
 import java.io.IOException;
@@ -15,9 +15,9 @@ import java.util.List;
  * @author John Grosh
  */
 public class PlaylistCommand extends OwnerCommand {
-    private final Bot bot;
+    private final VladikBot bot;
 
-    public PlaylistCommand(Bot bot) {
+    public PlaylistCommand(VladikBot bot) {
         this.bot = bot;
         this.guildOnly = false;
         this.name = "playlist";
@@ -138,7 +138,7 @@ public class PlaylistCommand extends OwnerCommand {
     }
 
     class DefaultListCommand extends AutoPlaylistCommand {
-        DefaultListCommand(Bot bot) {
+        DefaultListCommand(VladikBot bot) {
             super(bot);
             this.name = "setdefault";
             this.aliases = new String[]{"default"};

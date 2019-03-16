@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import net.dv8tion.jda.core.entities.User;
 
@@ -12,7 +12,7 @@ import net.dv8tion.jda.core.entities.User;
  * @author John Grosh
  */
 public class SkipCommand extends MusicCommand {
-    public SkipCommand(Bot bot) {
+    public SkipCommand(VladikBot bot) {
         super(bot);
         this.name = "skip";
         this.help = "votes to skip the current song";

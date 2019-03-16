@@ -1,6 +1,6 @@
 package com.multiheaded.disbot.audio;
 
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.models.entities.Pair;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
@@ -24,11 +24,11 @@ import java.util.concurrent.TimeUnit;
  * @author John Grosh
  */
 public class NowPlayingHandler {
-    private final Bot bot;
+    private final VladikBot bot;
     private final HashMap<Long, Pair<Long, Long>> lastNP; // guild -> channel, message
     private final Settings settings;
 
-    public NowPlayingHandler(Bot bot) {
+    public NowPlayingHandler(VladikBot bot) {
         this.bot = bot;
         this.lastNP = new HashMap<>();
         settings = SettingsManager.getInstance().getSettings();

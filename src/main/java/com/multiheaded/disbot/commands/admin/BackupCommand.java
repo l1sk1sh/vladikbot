@@ -35,7 +35,7 @@ public class BackupCommand extends AdminCommand {
                 if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
                     event.replyWarning(
                             "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\n" +
-                                    "Limit executed command with period: --before mm/dd/yy --after mm/dd/yy");
+                                    "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
                 } else {
                     event.getTextChannel().sendFile(exportedFile,
                             backupConductor.getBackupService().getExportedFile().getName()).queue();

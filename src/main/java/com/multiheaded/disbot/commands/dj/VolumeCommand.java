@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
@@ -14,7 +14,7 @@ import com.multiheaded.disbot.utils.FormatUtil;
  * @author John Grosh
  */
 public class VolumeCommand extends DJCommand {
-    public VolumeCommand(Bot bot) {
+    public VolumeCommand(VladikBot bot) {
         super(bot);
         this.name = "volume";
         this.aliases = new String[]{"vol"};

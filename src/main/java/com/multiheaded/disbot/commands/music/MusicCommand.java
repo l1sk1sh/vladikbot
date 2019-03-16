@@ -2,7 +2,7 @@ package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
@@ -18,11 +18,11 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
  * @author John Grosh
  */
 public abstract class MusicCommand extends Command {
-    protected final Bot bot;
+    protected final VladikBot bot;
     protected boolean bePlaying;
     protected boolean beListening;
 
-    protected MusicCommand(Bot bot) {
+    protected MusicCommand(VladikBot bot) {
         this.bot = bot;
         this.guildOnly = true;
         this.category = new Category("Music");

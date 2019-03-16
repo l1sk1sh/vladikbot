@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
 
@@ -12,7 +12,7 @@ import com.multiheaded.disbot.settings.SettingsManager;
  * @author John Grosh
  */
 public class RepeatCommand extends DJCommand {
-    public RepeatCommand(Bot bot) {
+    public RepeatCommand(VladikBot bot) {
         super(bot);
         this.name = "repeat";
         this.help = "re-adds music to the queue when finished";

@@ -1,6 +1,6 @@
 package com.multiheaded.disbot.audio;
 
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.settings.SettingsManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -15,9 +15,9 @@ import net.dv8tion.jda.core.entities.Guild;
  * @author John Grosh
  */
 public class PlayerManager extends DefaultAudioPlayerManager {
-    private final Bot bot;
+    private final VladikBot bot;
 
-    public PlayerManager(Bot bot) {
+    public PlayerManager(VladikBot bot) {
         this.bot = bot;
     }
 
@@ -27,7 +27,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
         source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
     }
 
-    public Bot getBot() {
+    public VladikBot getBot() {
         return bot;
     }
 

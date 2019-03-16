@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 
 /**
@@ -11,7 +11,7 @@ import com.multiheaded.disbot.audio.AudioHandler;
  * @author John Grosh
  */
 public class SkipToCommand extends DJCommand {
-    public SkipToCommand(Bot bot) {
+    public SkipToCommand(VladikBot bot) {
         super(bot);
         this.name = "skipto";
         this.help = "skips to the specified song";

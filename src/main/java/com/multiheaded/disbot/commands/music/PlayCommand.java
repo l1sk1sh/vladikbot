@@ -3,7 +3,7 @@ package com.multiheaded.disbot.commands.music;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import com.multiheaded.disbot.audio.QueuedTrack;
 import com.multiheaded.disbot.models.playlist.PlaylistLoader.Playlist;
@@ -34,7 +34,7 @@ public class PlayCommand extends MusicCommand {
     private final Settings settings;
     private final String loadingEmoji;
 
-    public PlayCommand(Bot bot, String loadingEmoji) {
+    public PlayCommand(VladikBot bot, String loadingEmoji) {
         super(bot);
         this.loadingEmoji = loadingEmoji;
         this.name = "play";
@@ -207,7 +207,7 @@ public class PlayCommand extends MusicCommand {
     }
 
     protected class PlaylistCmd extends MusicCommand {
-        PlaylistCmd(Bot bot) {
+        PlaylistCmd(VladikBot bot) {
             super(bot);
             this.name = "playlist";
             this.aliases = new String[]{"pl"};

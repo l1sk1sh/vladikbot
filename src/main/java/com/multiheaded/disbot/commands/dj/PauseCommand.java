@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 
 /**
@@ -11,7 +11,7 @@ import com.multiheaded.disbot.audio.AudioHandler;
  * @author John Grosh
  */
 public class PauseCommand extends DJCommand {
-    public PauseCommand(Bot bot) {
+    public PauseCommand(VladikBot bot) {
         super(bot);
         this.name = "pause";
         this.help = "pauses the current song";

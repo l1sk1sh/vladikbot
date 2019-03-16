@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import com.multiheaded.disbot.audio.QueuedTrack;
 import com.multiheaded.disbot.settings.Settings;
@@ -23,7 +23,7 @@ public class PlayNextCommand extends DJCommand {
     private final String loadingEmoji;
     private final Settings settings;
 
-    public PlayNextCommand(Bot bot, String loadingEmoji) {
+    public PlayNextCommand(VladikBot bot, String loadingEmoji) {
         super(bot);
         this.loadingEmoji = loadingEmoji;
         this.name = "playnext";

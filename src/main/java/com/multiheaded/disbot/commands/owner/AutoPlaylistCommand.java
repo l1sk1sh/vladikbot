@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
 
@@ -12,9 +12,9 @@ import com.multiheaded.disbot.settings.SettingsManager;
  * @author John Grosh
  */
 public class AutoPlaylistCommand extends OwnerCommand {
-    private final Bot bot;
+    private final VladikBot bot;
 
-    public AutoPlaylistCommand(Bot bot) {
+    public AutoPlaylistCommand(VladikBot bot) {
         this.bot = bot;
         this.guildOnly = true;
         this.name = "autoplaylist";

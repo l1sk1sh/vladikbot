@@ -2,7 +2,7 @@ package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import com.multiheaded.disbot.audio.QueuedTrack;
 import com.multiheaded.disbot.settings.Settings;
@@ -30,7 +30,7 @@ public class SearchCommand extends MusicCommand {
     private final Settings settings;
     String searchPrefix = "ytsearch:";
 
-    public SearchCommand(Bot bot, String searchingEmoji) {
+    public SearchCommand(VladikBot bot, String searchingEmoji) {
         super(bot);
         this.searchingEmoji = searchingEmoji;
         this.name = "search";

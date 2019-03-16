@@ -1,6 +1,6 @@
 package com.multiheaded.disbot.commands.music;
 
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 
 /**
  * @author Oliver Johnson
@@ -9,7 +9,7 @@ import com.multiheaded.disbot.Bot;
  * @author John Grosh
  */
 public class SoundCloudSearchCommand extends SearchCommand {
-    public SoundCloudSearchCommand(Bot bot, String searchingEmoji) {
+    public SoundCloudSearchCommand(VladikBot bot, String searchingEmoji) {
         super(bot, searchingEmoji);
         this.searchPrefix = "scsearch:";
         this.name = "scsearch";

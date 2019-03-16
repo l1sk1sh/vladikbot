@@ -1,6 +1,6 @@
 package com.multiheaded.disbot.commands.dj;
 
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.commands.music.MusicCommand;
 import com.multiheaded.disbot.settings.Settings;
 import com.multiheaded.disbot.settings.SettingsManager;
@@ -14,7 +14,7 @@ import net.dv8tion.jda.core.entities.Role;
  * @author John Grosh
  */
 abstract class DJCommand extends MusicCommand {
-    DJCommand(Bot bot) {
+    DJCommand(VladikBot bot) {
         super(bot);
         this.category = new Category("DJ", event ->
         {
@@ -22,7 +22,7 @@ abstract class DJCommand extends MusicCommand {
                 return true;
             if (event.getGuild() == null)
                 return true;
-            if (event.getMember().hasPermission(Permission.MANAGE_SERVER))
+            if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL))
                 return true;
             Settings settings = SettingsManager.getInstance().getSettings();
             Role djRole = settings.getDjRole(event.getGuild());

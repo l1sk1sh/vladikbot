@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
@@ -13,7 +13,7 @@ import net.dv8tion.jda.core.entities.Message;
  * @author John Grosh
  */
 public class NowPlayingCommand extends MusicCommand {
-    public NowPlayingCommand(Bot bot) {
+    public NowPlayingCommand(VladikBot bot) {
         super(bot);
         this.name = "nowplaying";
         this.help = "shows the song that is currently playing";

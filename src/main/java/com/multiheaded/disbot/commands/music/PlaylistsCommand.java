@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @author John Grosh
  */
 public class PlaylistsCommand extends MusicCommand {
-    public PlaylistsCommand(Bot bot) {
+    public PlaylistsCommand(VladikBot bot) {
         super(bot);
         this.name = "playlists";
         this.help = "shows the available playlists";

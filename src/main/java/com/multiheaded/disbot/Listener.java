@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 class Listener extends ListenerAdapter {
     private static final Logger log = LoggerFactory.getLogger(Listener.class);
 
-    private final Bot bot;
+    private final VladikBot bot;
     private final Settings settings;
 
-    Listener(Bot bot) {
+    Listener(VladikBot bot) {
         this.bot = bot;
         settings = SettingsManager.getInstance().getSettings();
     }

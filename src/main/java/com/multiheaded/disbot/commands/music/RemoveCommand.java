@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import com.multiheaded.disbot.audio.QueuedTrack;
 import com.multiheaded.disbot.settings.Settings;
@@ -16,7 +16,7 @@ import net.dv8tion.jda.core.entities.User;
  * @author John Grosh
  */
 public class RemoveCommand extends MusicCommand {
-    public RemoveCommand(Bot bot) {
+    public RemoveCommand(VladikBot bot) {
         super(bot);
         this.name = "remove";
         this.help = "removes a song from the queue";

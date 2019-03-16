@@ -2,7 +2,7 @@ package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 import com.multiheaded.disbot.audio.QueuedTrack;
 import com.multiheaded.disbot.settings.Constants;
@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class QueueCommand extends MusicCommand {
     private final Paginator.Builder builder;
 
-    public QueueCommand(Bot bot) {
+    public QueueCommand(VladikBot bot) {
         super(bot);
         this.name = "queue";
         this.help = "shows the current queue";

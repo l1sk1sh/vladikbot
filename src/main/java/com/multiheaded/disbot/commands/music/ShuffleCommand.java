@@ -1,7 +1,7 @@
 package com.multiheaded.disbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.disbot.Bot;
+import com.multiheaded.disbot.VladikBot;
 import com.multiheaded.disbot.audio.AudioHandler;
 
 /**
@@ -11,7 +11,7 @@ import com.multiheaded.disbot.audio.AudioHandler;
  * @author John Grosh
  */
 public class ShuffleCommand extends MusicCommand {
-    public ShuffleCommand(Bot bot) {
+    public ShuffleCommand(VladikBot bot) {
         super(bot);
         this.name = "shuffle";
         this.help = "shuffles songs you have added";
