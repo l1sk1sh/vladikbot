@@ -6,3 +6,4 @@ Bot is written using JDA library and common sense.
 - [JMusic](https://github.com/jagrosh/MusicBot) for wonderful and simple MusicBot, that has become a core of project
 #### ToDo List
 0. Add Media backup [discord-image-downloader-go](https://github.com/Seklfreak/discord-image-downloader-go) for GO written downloader
+1. Add words moderation, for example as [Vortex](https://github.com/jagrosh/Vortex)
