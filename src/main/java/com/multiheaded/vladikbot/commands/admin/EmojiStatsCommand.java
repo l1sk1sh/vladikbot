@@ -83,11 +83,14 @@ public class EmojiStatsCommand extends AdminCommand {
         for (Map.Entry<String, Integer> entry : emojiMap.entrySet()) {
             if (entry.getKey().contains(":")) {
                 String emojiName = entry.getKey().replaceAll(":", "");
-                List<Emote> emojiIdList = event.getGuild().getEmotesByName(emojiName, true);
+                try {
+                    List<Emote> emojiIdList = event.getGuild().getEmotesByName(emojiName, true);
 
-                if (emojiIdList.size() != 0) {
-                    preparedEmojiMap.put("<:" + emojiName + ":" + emojiIdList.get(0).getId() + ">",
-                            preparedEmojiMap.remove(entry.getKey()));
+                    if (emojiIdList.size() != 0) {
+                        preparedEmojiMap.put("<:" + emojiName + ":" + emojiIdList.get(0).getId() + ">",
+                                preparedEmojiMap.remove(entry.getKey()));
+                    }
+                } catch (IllegalArgumentException emptyName) { //
                 }
             }
         }
@@ -111,6 +114,7 @@ public class EmojiStatsCommand extends AdminCommand {
             resultSet[i] = keys[i] + "=" + values[i];
         }
 
+        pbuilder.clearItems();
         pbuilder.addItems(resultSet);
 
         Paginator paginator = pbuilder

@@ -61,7 +61,7 @@ public class BackupService {
 
             exportedFile = FileUtils.getFileByIdAndExtension(pathToFile, channelId, extension);
         } catch (InterruptedException ie) {
-            String msg = String.format("Backup thread interrupted on services level **[%s]**", ie.getMessage());
+            String msg = String.format("Backup thread interrupted on services level [%s]", ie.getMessage());
             logger.error(msg);
             throw new InterruptedException(msg);
         } finally {

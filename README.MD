@@ -7,3 +7,4 @@ Bot is written using JDA library and common sense.
 #### ToDo List
 0. Add Media backup [discord-image-downloader-go](https://github.com/Seklfreak/discord-image-downloader-go) for GO written downloader
 1. Add words moderation, for example as [Vortex](https://github.com/jagrosh/Vortex)
+2. Add bot's reaction to phrases and words in format Array[] triggerWords = Array[] responseWords. Response should be randomly selected and posted. Also, command to automatically adjust list of 

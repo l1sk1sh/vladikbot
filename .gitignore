@@ -25,3 +25,6 @@ manifest.mf
 
 # Security ignore
 settings.json
+
+# Local files
+playlists/
