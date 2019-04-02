@@ -77,7 +77,8 @@ public class VladikBot {
                             new SetDjCommand(),
                             new SetTextChannelCommand(),
                             new SetVoiceChannelCommand(),
-                            new BackupCommand(),
+                            new BackupMediaCommand(),
+                            new BackupChannelCommand(),
                             new EmojiStatsCommand(waiter),
 
                             new ForceskipCommand(this),
@@ -94,6 +95,7 @@ public class VladikBot {
                             new SetGameCommand(),
                             new SetNameCommand(),
                             new SetStatusCommand(),
+                            new ClearTmpCommand(),
 
                             new LyricsCommand(this),
                             new NowPlayingCommand(this),

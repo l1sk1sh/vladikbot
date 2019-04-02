@@ -55,7 +55,7 @@ public class EmojiStatsService {
             }
 
         } catch (IOException e) {
-            logger.error("Failed to read exportedFile.", e.getMessage(), e.getCause());
+            logger.error("Failed to read exportedFile. {}", e.getMessage());
         }
     }
 

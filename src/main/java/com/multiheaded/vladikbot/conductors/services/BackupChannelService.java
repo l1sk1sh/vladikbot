@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,8 +19,8 @@ import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
 /**
  * @author Oliver Johnson
  */
-public class BackupService {
-    private static final Logger logger = LoggerFactory.getLogger(BackupService.class);
+public class BackupChannelService {
+    private static final Logger logger = LoggerFactory.getLogger(BackupChannelService.class);
 
     private File exportedFile;
     private final String channelId;
@@ -32,9 +33,10 @@ public class BackupService {
     private final String dockerContainerName;
     private final String token;
 
-    public BackupService(String channelId, String format, String[] args,
-                         String localPathToExport, String dockerPathToExport, String dockerContainerName, String token)
-            throws InvalidParameterException, InterruptedException {
+    public BackupChannelService(String channelId, String format, String[] args,
+                                String localPathToExport, String dockerPathToExport,
+                                String dockerContainerName, String token)
+            throws InvalidParameterException, InterruptedException, IOException {
         this.channelId = channelId;
         this.format = format;
         this.args = args;
@@ -60,6 +62,10 @@ public class BackupService {
             if (copyProcess.isFailed()) throw new InterruptedException("CopyProcess failed!");
 
             exportedFile = FileUtils.getFileByIdAndExtension(pathToFile, channelId, extension);
+        } catch (IOException ioe) {
+            String msg = String.format("Failed to find exported file [%s]", ioe.getMessage());
+            logger.error(msg);
+            throw new IOException(msg);
         } catch (InterruptedException ie) {
             String msg = String.format("Backup thread interrupted on services level [%s]", ie.getMessage());
             logger.error(msg);

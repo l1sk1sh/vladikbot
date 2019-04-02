@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.awt.*;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.List;
@@ -64,7 +64,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
                     throw new InternalRuntimeError("Emoji Statistics Service failed!");
                 sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
-            } catch (InterruptedException | FileNotFoundException e) {
+            } catch (InterruptedException | IOException e) {
                 event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
             } catch (InvalidParameterException ipe) {
                 event.replyError(ipe.getMessage());

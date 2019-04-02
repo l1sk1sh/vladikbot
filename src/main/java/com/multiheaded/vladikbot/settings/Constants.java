@@ -18,11 +18,15 @@ public class Constants {
                     Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
 
     static final String SETTINGS_JSON = "settings.json";
+    public static final String TMP_MEDIA_FOLDER = "saved_media";
 
     public static final Integer DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
     public static final Integer EIGHT_MEGABYTES_IN_BYTES = 8388608;
 
     public static final Map<String, String> FORMAT_EXTENSION;
+
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
+    public static final String[] SUPPORTED_MEDIA_FORMATS = {".jpg", ".png", ".mp4"};
 
     static {
         FORMAT_EXTENSION = new HashMap<>();

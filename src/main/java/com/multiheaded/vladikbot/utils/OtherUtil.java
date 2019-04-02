@@ -1,5 +1,6 @@
 package com.multiheaded.vladikbot.utils;
 
+import com.multiheaded.vladikbot.settings.Constants;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
 
@@ -22,8 +23,7 @@ public class OtherUtil {
         try {
             URL u = new URL(url);
             URLConnection urlConnection = u.openConnection();
-            urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-                    "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.112 Safari/537.36");
+            urlConnection.setRequestProperty("User-Agent", Constants.USER_AGENT);
             return urlConnection.getInputStream();
         } catch (IOException | IllegalArgumentException ignore) {
         }
