@@ -1,5 +1,6 @@
 package com.multiheaded.vladikbot.conductors.services;
 
+import com.multiheaded.vladikbot.settings.SettingsManager;
 import com.multiheaded.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Emote;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ public class EmojiStatsService {
         this.serverEmojiList = serverEmojiList;
 
         try {
+            SettingsManager.getInstance().getSettings().setLockOnBackup(true);
             processArguments();
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
 
@@ -56,6 +58,8 @@ public class EmojiStatsService {
 
         } catch (IOException e) {
             logger.error("Failed to read exportedFile. {}", e.getMessage());
+        } finally {
+            SettingsManager.getInstance().getSettings().setLockOnBackup(false);
         }
     }
 

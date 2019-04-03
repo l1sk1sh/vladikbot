@@ -77,9 +77,9 @@ public class VladikBot {
                             new SetDjCommand(),
                             new SetTextChannelCommand(),
                             new SetVoiceChannelCommand(),
-                            new BackupMediaCommand(),
-                            new BackupChannelCommand(),
-                            new EmojiStatsCommand(waiter),
+                            new BackupMediaCommand(this),
+                            new BackupChannelCommand(this),
+                            new EmojiStatsCommand(waiter, this),
 
                             new ForceskipCommand(this),
                             new PauseCommand(this),
@@ -95,7 +95,7 @@ public class VladikBot {
                             new SetGameCommand(),
                             new SetNameCommand(),
                             new SetStatusCommand(),
-                            new ClearTmpCommand(),
+                            new ClearTmpCommand(this),
 
                             new LyricsCommand(this),
                             new NowPlayingCommand(this),
@@ -199,5 +199,9 @@ public class VladikBot {
             jda.shutdown();
         }
         System.exit(0);
+    }
+
+    public Settings getSettings() {
+        return settings;
     }
 }

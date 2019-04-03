@@ -1,6 +1,7 @@
 package com.multiheaded.vladikbot.conductors.services;
 
 import com.multiheaded.vladikbot.settings.Constants;
+import com.multiheaded.vladikbot.settings.LockdownInterface;
 import com.multiheaded.vladikbot.utils.FileUtils;
 import com.multiheaded.vladikbot.utils.StringUtils;
 import org.slf4j.Logger;
@@ -37,12 +38,13 @@ public class BackupMediaService {
     private boolean downloadComplete;
     private File txtFile;
 
-    public BackupMediaService(String channelId, File exportedFile,
-                              String localTmpPath, String genericFileName, String[] args)
+    public BackupMediaService(String channelId, File exportedFile, String localTmpPath, String genericFileName,
+                              String[] args, LockdownInterface lock)
             throws IOException {
         this.args = args;
 
         try {
+            lock.setLockdown(true);
             processArguments();
 
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
@@ -96,6 +98,8 @@ public class BackupMediaService {
         } catch (IOException e) {
             logger.error("Failed to read exported file, to write local file or to download media. {}", e.getMessage());
             throw e;
+        } finally {
+            lock.setLockdown(false);
         }
     }
 

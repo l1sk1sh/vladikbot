@@ -1,9 +1,11 @@
 package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.conductors.BackupMediaConductor;
 import com.multiheaded.vladikbot.conductors.services.BackupMediaService;
 import com.multiheaded.vladikbot.settings.Constants;
+import com.multiheaded.vladikbot.settings.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,8 +15,9 @@ import java.security.InvalidParameterException;
  * @author Oliver Johnson
  */
 public class BackupMediaCommand extends AdminCommand {
+    private VladikBot bot;
 
-    public BackupMediaCommand() {
+    public BackupMediaCommand(VladikBot bot) {
         this.name = "savemedia";
         this.help = "exports all attachments of the current channel\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which export would be done\n"
@@ -24,45 +27,59 @@ public class BackupMediaCommand extends AdminCommand {
                 + "\t\t `-z, --zip` - zip flag that creates local copy of files from media links.";
         this.arguments = "-a, -b, -f, -a, -z";
         this.guildOnly = true;
+        this.bot = bot;
     }
 
     @Override
     public void execute(CommandEvent event) {
-        event.reply("Getting attachments. Be patient...");
+        Settings settings = bot.getSettings();
 
-        new Thread(() -> {
-            try {
-                String fileName = String.format("%s - %s [%s] - media list",
-                        event.getGuild().getName(),
-                        event.getChannel().getName(),
-                        event.getChannel().getId());
+        if (!settings.isLockedOnBackup()) {
+            event.reply("Getting attachments. Be patient...");
 
-                BackupMediaConductor backupMediaConductor =
-                        new BackupMediaConductor(event.getChannel().getId(),
-                                fileName,
-                                event.getArgs().split(" "));
-                BackupMediaService service = backupMediaConductor.getBackupMediaService();
+            new Thread(() -> {
+                try {
+                    String fileName = String.format("%s - %s [%s] - media list",
+                            event.getGuild().getName(),
+                            event.getChannel().getName(),
+                            event.getChannel().getId());
 
-                File exportedFile = service.getTxtMediaSet();
-                if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
-                    event.replyWarning(
-                            "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\n" +
-                                    "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
-                } else {
-                    event.getTextChannel().sendFile(exportedFile, service.getTxtMediaSet().getName()).queue();
+                    BackupMediaConductor backupMediaConductor = new BackupMediaConductor(
+                            event.getChannel().getId(),
+                            fileName,
+                            "PlainText",
+                            settings.getLocalPathToExport(),
+                            settings.getDockerPathToExport(),
+                            settings.getDockerContainerName(),
+                            settings.getToken(),
+                            event.getArgs().split(" "),
+                            settings::setLockOnBackup);
+                    BackupMediaService service = backupMediaConductor.getBackupMediaService();
 
-                    if (service.doZip() && service.isDownloadComplete()) {
-                        event.replySuccess("Zip with uploaded media files could be downloaded from local storage.");
+                    File exportedFile = service.getTxtMediaSet();
+                    if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
+                        event.replyWarning(
+                                "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\n" +
+                                        "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
+                    } else {
+                        event.getTextChannel().sendFile(exportedFile, service.getTxtMediaSet().getName()).queue();
+
+                        if (service.doZip() && service.isDownloadComplete()) {
+                            event.replySuccess("Zip with uploaded media files could be downloaded from local storage.");
+                        }
                     }
-                }
 
-            } catch (InterruptedException e) {
-                event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
-            } catch (IOException ioe) {
-                event.replyError(String.format("**Failed** to properly *work* with files! `[%s]`", ioe.getMessage()));
-            } catch (InvalidParameterException ipe) {
-                event.replyError(ipe.getMessage());
-            }
-        }).start();
+
+                } catch (InterruptedException e) {
+                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
+                } catch (IOException ioe) {
+                    event.replyError(String.format("**Failed** to properly *work* with files! `[%s]`", ioe.getMessage()));
+                } catch (InvalidParameterException ipe) {
+                    event.replyError(ipe.getMessage());
+                }
+            }).start();
+        } else {
+            event.replyWarning("Can't backup media - another backup is in progress!");
+        }
     }
 }

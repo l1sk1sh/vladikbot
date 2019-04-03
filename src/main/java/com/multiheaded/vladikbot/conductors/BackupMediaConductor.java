@@ -1,6 +1,8 @@
 package com.multiheaded.vladikbot.conductors;
 
 import com.multiheaded.vladikbot.conductors.services.BackupMediaService;
+import com.multiheaded.vladikbot.settings.Constants;
+import com.multiheaded.vladikbot.settings.LockdownInterface;
 
 import java.io.IOException;
 
@@ -12,17 +14,20 @@ import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
 public class BackupMediaConductor extends AbstractBackupConductor {
     private BackupMediaService backupMediaService;
 
-    public BackupMediaConductor(String channelId, String fileName, String[] args)
+    public BackupMediaConductor(String channelId, String fileName, String format, String localPath, String dockerPath,
+                                String containerName, String token, String[] args, LockdownInterface lock)
             throws InterruptedException, IOException {
 
         this.args = args;
         processArguments();
 
-        backupMediaService = new BackupMediaService(channelId,
-                prepareFile(channelId, FORMAT_EXTENSION.get(format), args),
-                settings.getLocalPathToExport(),
+        backupMediaService = new BackupMediaService(
+                channelId,
+                prepareFile(channelId, format, localPath, dockerPath, containerName, token, args, lock),
+                localPath,
                 fileName,
-                args);
+                args,
+                lock);
     }
 
     public BackupMediaService getBackupMediaService() {

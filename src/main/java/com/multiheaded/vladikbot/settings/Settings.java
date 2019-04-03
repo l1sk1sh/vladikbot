@@ -36,6 +36,7 @@ public class Settings {
     private int volume = 50;
     private String defaultPlaylist = "default_playlist";
     private boolean repeat = true;
+    private boolean lockOnBackup = false;
 
     public String getToken() {
         return token;
@@ -173,5 +174,13 @@ public class Settings {
 
     public boolean isTooLong(AudioTrack track) {
         return (maxSeconds > 0) && (Math.round(track.getDuration() / 1000.0) > maxSeconds);
+    }
+
+    public boolean isLockedOnBackup() {
+        return lockOnBackup;
+    }
+
+    public void setLockOnBackup(boolean lockOnBackup) {
+        this.lockOnBackup = lockOnBackup;
     }
 }

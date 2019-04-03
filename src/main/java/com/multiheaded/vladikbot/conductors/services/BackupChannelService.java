@@ -3,6 +3,7 @@ package com.multiheaded.vladikbot.conductors.services;
 import com.multiheaded.vladikbot.conductors.services.processes.BackupProcess;
 import com.multiheaded.vladikbot.conductors.services.processes.CleanProcess;
 import com.multiheaded.vladikbot.conductors.services.processes.CopyProcess;
+import com.multiheaded.vladikbot.settings.LockdownInterface;
 import com.multiheaded.vladikbot.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +36,9 @@ public class BackupChannelService {
 
     public BackupChannelService(String channelId, String format, String[] args,
                                 String localPathToExport, String dockerPathToExport,
-                                String dockerContainerName, String token)
+                                String dockerContainerName, String token, LockdownInterface lock)
             throws InvalidParameterException, InterruptedException, IOException {
+
         this.channelId = channelId;
         this.format = format;
         this.args = args;
@@ -45,9 +47,10 @@ public class BackupChannelService {
         this.dockerContainerName = dockerContainerName;
         this.token = token;
         String extension = FORMAT_EXTENSION.get(format);
+        String pathToFile = localPathToExport + dockerPathToExport;
 
         try {
-            String pathToFile = localPathToExport + dockerPathToExport;
+            lock.setLockdown(true);
             processArguments();
 
             BackupProcess backupProcess = new BackupProcess(constructBackupCommand());
@@ -72,7 +75,11 @@ public class BackupChannelService {
             throw new InterruptedException(msg);
         } finally {
             logger.info("Cleaning docker container...");
-            new CleanProcess(constructCleanCommand());
+            try {
+                new CleanProcess(constructCleanCommand());
+            } finally {
+                lock.setLockdown(false);
+            }
         }
     }
 

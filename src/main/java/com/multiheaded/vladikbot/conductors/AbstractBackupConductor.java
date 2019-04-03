@@ -2,8 +2,7 @@ package com.multiheaded.vladikbot.conductors;
 
 import com.multiheaded.vladikbot.conductors.services.BackupChannelService;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.settings.LockdownInterface;
 import com.multiheaded.vladikbot.utils.FileUtils;
 
 import java.io.File;
@@ -12,8 +11,6 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 
 abstract class AbstractBackupConductor {
-    final Settings settings = SettingsManager.getInstance().getSettings();
-    static final String format = "PlainText";
     private boolean forceBackup;
     String[] args;
 
@@ -29,19 +26,20 @@ abstract class AbstractBackupConductor {
         }
     }
 
-    File prepareFile(String channelId, String extension, String[] args)
+    File prepareFile(String channelId, String format, String localPath, String dockerPath,
+                     String containerName, String token, String[] args, LockdownInterface lock)
             throws InterruptedException, InvalidParameterException, IOException {
-        File exportedFile = FileUtils.getFileByIdAndExtension(
-                settings.getLocalPathToExport() + settings.getDockerPathToExport(), channelId, extension);
+
+        File exportedFile = FileUtils.getFileByIdAndExtension(localPath + dockerPath, channelId,
+                Constants.FORMAT_EXTENSION.get(format));
 
         // If file is absent or was made more than 24 hours ago - create new backup
         if (exportedFile == null
                 || (System.currentTimeMillis() - exportedFile.lastModified()) > Constants.DAY_IN_MILLISECONDS
                 || forceBackup) {
 
-            BackupChannelService backupChannelService =
-                    new BackupChannelService(channelId, format, args, settings.getLocalPathToExport(),
-                            settings.getDockerPathToExport(), settings.getDockerContainerName(), settings.getToken());
+            BackupChannelService backupChannelService = new BackupChannelService(channelId, format, args, localPath,
+                    dockerPath, containerName, token, lock);
             exportedFile = backupChannelService.getExportedFile();
             if (exportedFile == null) throw new FileNotFoundException("Failed to find or create backup of a channel");
         }

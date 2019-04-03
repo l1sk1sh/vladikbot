@@ -8,4 +8,4 @@ Bot is written using JDA library and common sense.
 1. Add words moderation, for example as [Vortex](https://github.com/jagrosh/Vortex)
 2. Add bot's reaction to phrases and words in format Array[] triggerWords = Array[] responseWords. Response should be randomly selected and posted. Also, command to automatically adjust list of phrases
 3. Simulate life of the bot by Scheduler that changes activities and statuses
-4. Lock bot on `Service` command execution
+4. Check DYNO commands, and device what `trash` could be added

@@ -1,12 +1,11 @@
 package com.multiheaded.vladikbot.conductors;
 
 import com.multiheaded.vladikbot.conductors.services.EmojiStatsService;
+import com.multiheaded.vladikbot.settings.LockdownInterface;
 import net.dv8tion.jda.core.entities.Emote;
 
 import java.io.IOException;
 import java.util.List;
-
-import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
 
 /**
  * @author Oliver Johnson
@@ -14,13 +13,15 @@ import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
 public class EmojiStatsConductor extends AbstractBackupConductor {
     private EmojiStatsService emojiStatsService;
 
-    public EmojiStatsConductor(String channelId, String[] args, List<Emote> serverEmojiList)
+    public EmojiStatsConductor(String channelId, String format, String localPath, String dockerPath,
+                               String containerName, String token, String[] args, List<Emote> serverEmojiList,
+                               LockdownInterface lock)
             throws InterruptedException, IOException {
         this.args = args;
 
         processArguments();
         emojiStatsService = new EmojiStatsService(
-                prepareFile(channelId, FORMAT_EXTENSION.get(format), args),
+                prepareFile(channelId, format, localPath, dockerPath, containerName, token, args, lock),
                 serverEmojiList,
                 args);
     }

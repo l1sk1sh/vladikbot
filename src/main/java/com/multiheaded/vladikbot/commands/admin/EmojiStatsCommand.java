@@ -3,7 +3,9 @@ package com.multiheaded.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
+import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.conductors.EmojiStatsConductor;
+import com.multiheaded.vladikbot.settings.Settings;
 import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Emote;
@@ -23,8 +25,9 @@ import static java.util.stream.Collectors.toMap;
  */
 public class EmojiStatsCommand extends AdminCommand {
     private final Paginator.Builder pbuilder;
+    private final VladikBot bot;
 
-    public EmojiStatsCommand(EventWaiter waiter) {
+    public EmojiStatsCommand(EventWaiter waiter, VladikBot bot) {
         this.name = "emojistats";
         this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done.\n"
@@ -34,6 +37,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 + "\t\t `-i` - ignores unicode emoji.";
         this.arguments = "-a, -b, -iu, -i, -f";
         this.guildOnly = true;
+        this.bot = bot;
 
         pbuilder = new Paginator.Builder().setColumns(1)
                 .setItemsPerPage(20)
@@ -53,25 +57,38 @@ public class EmojiStatsCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        event.reply("Initializing emoji statistics calculation. Be patient...");
+        Settings settings = bot.getSettings();
 
-        new Thread(() -> {
-            try {
-                EmojiStatsConductor emojiStatsConductor =
-                        new EmojiStatsConductor(event.getChannel().getId(),
-                                event.getArgs().split(" "), event.getGuild().getEmotes());
+        if (settings.isLockedOnBackup()) {
+            event.reply("Initializing emoji statistics calculation. Be patient...");
 
-                if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
-                    throw new InternalRuntimeError("Emoji Statistics Service failed!");
-                sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
-            } catch (InterruptedException | IOException e) {
-                event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
-            } catch (InvalidParameterException ipe) {
-                event.replyError(ipe.getMessage());
-            } catch (InternalRuntimeError ire) {
-                event.replyError(String.format("Calculation failed! `[%s]`", ire.getMessage()));
-            }
-        }).start();
+            new Thread(() -> {
+                try {
+                    EmojiStatsConductor emojiStatsConductor = new EmojiStatsConductor(
+                            event.getChannel().getId(),
+                            "PlainText",
+                            settings.getLocalPathToExport(),
+                            settings.getDockerPathToExport(),
+                            settings.getDockerContainerName(),
+                            settings.getToken(),
+                            event.getArgs().split(" "),
+                            event.getGuild().getEmotes(),
+                            settings::setLockOnBackup);
+
+                    if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
+                        throw new InternalRuntimeError("Emoji Statistics Service failed!");
+                    sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
+                } catch (InterruptedException | IOException e) {
+                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
+                } catch (InvalidParameterException ipe) {
+                    event.replyError(ipe.getMessage());
+                } catch (InternalRuntimeError ire) {
+                    event.replyError(String.format("Calculation failed! `[%s]`", ire.getMessage()));
+                }
+            }).start();
+        } else {
+            event.replyWarning("Can't calculate emoji due to another backup in process!");
+        }
     }
 
     private void sendStatisticsMessage(CommandEvent event, Map<String, Integer> emojiMap) {
