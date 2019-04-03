@@ -10,10 +10,7 @@ public class AutoModeration {
     private static final String[] UBISOFT = new String[]{"ubisoft", "юбисофт"};
     private static final String[] MURKA = new String[]{"мурку", "мурка"};
 
-    private final VladikBot bot;
-
     public AutoModeration(VladikBot bot) {
-        this.bot = bot;
     }
 
     public void performAutomod(Message message) {

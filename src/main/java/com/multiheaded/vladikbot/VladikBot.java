@@ -44,6 +44,7 @@ public class VladikBot {
     private final NowPlayingHandler nowPlaying;
     private final AutoModeration autoModeration;
 
+    private boolean availableBackup = true;
     private boolean shuttingDown = false;
     private JDA jda;
 
@@ -199,6 +200,14 @@ public class VladikBot {
             jda.shutdown();
         }
         System.exit(0);
+    }
+
+    public boolean isBackupAvailable() {
+        return availableBackup;
+    }
+
+    public void setAvailableBackup(boolean availableBackup) {
+        this.availableBackup = availableBackup;
     }
 
     public Settings getSettings() {

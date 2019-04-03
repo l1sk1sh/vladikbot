@@ -1,12 +1,9 @@
 package com.multiheaded.vladikbot.conductors;
 
 import com.multiheaded.vladikbot.conductors.services.BackupMediaService;
-import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockdownInterface;
 
 import java.io.IOException;
-
-import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
 
 /**
  * @author Oliver Johnson

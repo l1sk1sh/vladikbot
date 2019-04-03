@@ -30,7 +30,7 @@ public class BackupChannelCommand extends AdminCommand {
     public void execute(CommandEvent event) {
         Settings settings = bot.getSettings();
 
-        if (!settings.isLockedOnBackup()) {
+        if (bot.isBackupAvailable()) {
             event.reply("Initializing backup processes. Be patient...");
 
             new Thread(() -> {
@@ -43,7 +43,7 @@ public class BackupChannelCommand extends AdminCommand {
                             settings.getDockerPathToExport(),
                             settings.getDockerContainerName(),
                             settings.getToken(),
-                            settings::setLockOnBackup);
+                            bot::setAvailableBackup);
 
                     File exportedFile = service.getExportedFile();
                     if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
@@ -54,13 +54,14 @@ public class BackupChannelCommand extends AdminCommand {
                         event.getTextChannel().sendFile(exportedFile, service.getExportedFile().getName()).queue();
                     }
 
-
                 } catch (IOException ioe) {
-                    event.replyWarning("Seems that local storage wasn't prepared. Try again and notify the owner.");
+                    event.replyWarning(String.format("Something with files gone mad! Ask owner for help! `[%s]`", ioe.getMessage()));
                 } catch (InterruptedException ie) {
                     event.replyError(String.format("Backup **has failed**! `[%s]`", ie.getMessage()));
                 } catch (InvalidParameterException ipe) {
                     event.replyError(ipe.getMessage());
+                } catch (Exception e) {
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getMessage()));
                 }
             }).start();
         } else {

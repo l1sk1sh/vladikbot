@@ -3,8 +3,6 @@ package com.multiheaded.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.conductors.services.ClearTmpService;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 
 import java.io.IOException;
 
@@ -27,9 +25,8 @@ public class ClearTmpCommand extends OwnerCommand {
         event.replyWarning("Clearing tmp folder, my master!");
 
         try {
-            Settings settings = bot.getSettings();
-            if (!settings.isLockedOnBackup()) {
-                new ClearTmpService(settings.getLocalPathToExport(), settings::setLockOnBackup).clear();
+            if (bot.isBackupAvailable()) {
+                new ClearTmpService(bot.getSettings().getLocalPathToExport(), bot::setAvailableBackup).clear();
             } else {
                 event.replyWarning("Can't clear tmp folder, as it is being used by other process!");
             }

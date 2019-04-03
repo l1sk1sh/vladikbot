@@ -3,8 +3,9 @@ package com.multiheaded.vladikbot.conductors.services;
 import com.multiheaded.vladikbot.conductors.services.processes.BackupProcess;
 import com.multiheaded.vladikbot.conductors.services.processes.CleanProcess;
 import com.multiheaded.vladikbot.conductors.services.processes.CopyProcess;
-import com.multiheaded.vladikbot.settings.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockdownInterface;
 import com.multiheaded.vladikbot.utils.FileUtils;
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,10 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
 
@@ -47,24 +51,21 @@ public class BackupChannelService {
         this.dockerContainerName = dockerContainerName;
         this.token = token;
         String extension = FORMAT_EXTENSION.get(format);
-        String pathToFile = localPathToExport + dockerPathToExport;
 
         try {
-            lock.setLockdown(true);
+            lock.setAvailable(false);
             processArguments();
 
-            BackupProcess backupProcess = new BackupProcess(constructBackupCommand());
+            new BackupProcess(constructBackupCommand());
             logger.info("Waiting for backup to finish...");
-            backupProcess.getThread().join();
-            if (backupProcess.isFailed()) throw new InterruptedException("BackupProcess failed!");
+            logger.debug("Passing command {}", constructBackupCommand());
 
-            FileUtils.deleteFilesByIdAndExtension(pathToFile, channelId, extension);
-            CopyProcess copyProcess = new CopyProcess(constructCopyCommand());
+            FileUtils.deleteFilesByIdAndExtension(localPathToExport, channelId, extension);
+            new CopyProcess(constructCopyCommand());
             logger.info("Copying received file...");
-            copyProcess.getThread().join();
-            if (copyProcess.isFailed()) throw new InterruptedException("CopyProcess failed!");
+            logger.debug("Passing command {}", constructCopyCommand());
 
-            exportedFile = FileUtils.getFileByIdAndExtension(pathToFile, channelId, extension);
+            exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
         } catch (IOException ioe) {
             String msg = String.format("Failed to find exported file [%s]", ioe.getMessage());
             logger.error(msg);
@@ -74,11 +75,16 @@ public class BackupChannelService {
             logger.error(msg);
             throw new InterruptedException(msg);
         } finally {
-            logger.info("Cleaning docker container...");
             try {
+                logger.info("Cleaning docker container...");
+                logger.debug("Passing command {}", constructCleanCommand());
                 new CleanProcess(constructCleanCommand());
+            } catch (InterruptedException ire) {
+                logger.error("Clean process thread was interrupted {}", ire.getMessage());
+            } catch (NotFound nf) {
+                logger.error("Container was not found");
             } finally {
-                lock.setLockdown(false);
+                lock.setAvailable(true);
             }
         }
     }

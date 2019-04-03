@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.conductors;
 
 import com.multiheaded.vladikbot.conductors.services.EmojiStatsService;
-import com.multiheaded.vladikbot.settings.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockdownInterface;
 import net.dv8tion.jda.core.entities.Emote;
 
 import java.io.IOException;
@@ -23,7 +23,8 @@ public class EmojiStatsConductor extends AbstractBackupConductor {
         emojiStatsService = new EmojiStatsService(
                 prepareFile(channelId, format, localPath, dockerPath, containerName, token, args, lock),
                 serverEmojiList,
-                args);
+                args,
+                lock);
     }
 
     public EmojiStatsService getEmojiStatsService() {

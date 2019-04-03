@@ -1,6 +1,6 @@
 package com.multiheaded.vladikbot.conductors.services;
 
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.models.LockdownInterface;
 import com.multiheaded.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Emote;
 import org.slf4j.Logger;
@@ -9,7 +9,9 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,12 +28,12 @@ public class EmojiStatsService {
     private boolean ignoreUnicodeEmoji = false;
     private boolean ignoreUnknownEmoji = false;
 
-    public EmojiStatsService(File exportedFile, List<Emote> serverEmojiList, String[] args) {
+    public EmojiStatsService(File exportedFile, List<Emote> serverEmojiList, String[] args, LockdownInterface lock) {
         this.args = args;
         this.serverEmojiList = serverEmojiList;
 
         try {
-            SettingsManager.getInstance().getSettings().setLockOnBackup(true);
+            lock.setAvailable(false);
             processArguments();
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
 
@@ -59,7 +61,7 @@ public class EmojiStatsService {
         } catch (IOException e) {
             logger.error("Failed to read exportedFile. {}", e.getMessage());
         } finally {
-            SettingsManager.getInstance().getSettings().setLockOnBackup(false);
+            lock.setAvailable(true);
         }
     }
 

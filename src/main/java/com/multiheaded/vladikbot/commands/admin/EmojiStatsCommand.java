@@ -59,7 +59,7 @@ public class EmojiStatsCommand extends AdminCommand {
     public void execute(CommandEvent event) {
         Settings settings = bot.getSettings();
 
-        if (settings.isLockedOnBackup()) {
+        if (!bot.isBackupAvailable()) {
             event.reply("Initializing emoji statistics calculation. Be patient...");
 
             new Thread(() -> {
@@ -73,7 +73,7 @@ public class EmojiStatsCommand extends AdminCommand {
                             settings.getToken(),
                             event.getArgs().split(" "),
                             event.getGuild().getEmotes(),
-                            settings::setLockOnBackup);
+                            bot::setAvailableBackup);
 
                     if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
                         throw new InternalRuntimeError("Emoji Statistics Service failed!");
@@ -84,6 +84,8 @@ public class EmojiStatsCommand extends AdminCommand {
                     event.replyError(ipe.getMessage());
                 } catch (InternalRuntimeError ire) {
                     event.replyError(String.format("Calculation failed! `[%s]`", ire.getMessage()));
+                } catch (Exception e) {
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getMessage()));
                 }
             }).start();
         } else {

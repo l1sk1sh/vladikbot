@@ -15,7 +15,7 @@ import java.security.InvalidParameterException;
  * @author Oliver Johnson
  */
 public class BackupMediaCommand extends AdminCommand {
-    private VladikBot bot;
+    private final VladikBot bot;
 
     public BackupMediaCommand(VladikBot bot) {
         this.name = "savemedia";
@@ -34,7 +34,7 @@ public class BackupMediaCommand extends AdminCommand {
     public void execute(CommandEvent event) {
         Settings settings = bot.getSettings();
 
-        if (!settings.isLockedOnBackup()) {
+        if (bot.isBackupAvailable()) {
             event.reply("Getting attachments. Be patient...");
 
             new Thread(() -> {
@@ -53,7 +53,7 @@ public class BackupMediaCommand extends AdminCommand {
                             settings.getDockerContainerName(),
                             settings.getToken(),
                             event.getArgs().split(" "),
-                            settings::setLockOnBackup);
+                            bot::setAvailableBackup);
                     BackupMediaService service = backupMediaConductor.getBackupMediaService();
 
                     File exportedFile = service.getTxtMediaSet();
@@ -69,13 +69,14 @@ public class BackupMediaCommand extends AdminCommand {
                         }
                     }
 
-
                 } catch (InterruptedException e) {
                     event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
                 } catch (IOException ioe) {
                     event.replyError(String.format("**Failed** to properly *work* with files! `[%s]`", ioe.getMessage()));
                 } catch (InvalidParameterException ipe) {
                     event.replyError(ipe.getMessage());
+                } catch (Exception e) {
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getMessage()));
                 }
             }).start();
         } else {

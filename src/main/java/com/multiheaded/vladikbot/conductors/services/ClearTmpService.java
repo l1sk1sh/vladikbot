@@ -1,13 +1,13 @@
 package com.multiheaded.vladikbot.conductors.services;
 
-import com.multiheaded.vladikbot.settings.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockdownInterface;
 
 import java.io.IOException;
 import java.nio.file.*;
 
 public class ClearTmpService {
     private final String localTmpPath;
-    private LockdownInterface lock;
+    private final LockdownInterface lock;
 
     public ClearTmpService(String localTmpPath, LockdownInterface lock) {
         this.localTmpPath = localTmpPath;
@@ -16,10 +16,10 @@ public class ClearTmpService {
 
     public void clear() throws IOException, NullPointerException {
         try {
-            lock.setLockdown(true);
+            lock.setAvailable(false);
             deleteDirectoryRecursion(Paths.get(localTmpPath));
         } finally {
-            lock.setLockdown(false);
+            lock.setAvailable(true);
         }
     }
 

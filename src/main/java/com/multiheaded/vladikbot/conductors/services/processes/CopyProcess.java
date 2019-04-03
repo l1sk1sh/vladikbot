@@ -12,52 +12,27 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class CopyProcess extends AbstractProcess implements Runnable {
+public class CopyProcess {
     private static final Logger logger = LoggerFactory.getLogger(CopyProcess.class);
 
-    private List<String> command;
+    public CopyProcess(List<String> command) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.redirectErrorStream(true);
+        pb.command(command);
 
-    public CopyProcess(List<String> command) {
-        if (!running) {
-            thread = new Thread(this, "DOCKER_COPY_STREAM");
-            pb = new ProcessBuilder();
-            pb.redirectErrorStream(true);
-            this.command = command;
-            thread.start();
-        } else {
-            logger.warn("Thread is already running.");
-        }
-    }
+        final Process process = pb.start();
+        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-    @Override
-    public void run() {
-        running = true;
-        try {
-            pb.command(command);
-
-            final Process process = pb.start();
-            BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                logger.info(line);
-                if (line.contains("No such container:path")) {
-                    throw new FileNotFoundException();
-                } else if (line.contains("Error")) {
-                    throw new IOException();
-                }
+        String line;
+        while ((line = br.readLine()) != null) {
+            logger.debug(line);
+            if (line.contains("No such container:path")) {
+                throw new FileNotFoundException(line);
+            } else if (line.contains("Error")) {
+                throw new IOException(line);
             }
-
-            process.waitFor();
-            failed = false;
-        } catch (FileNotFoundException fnf) {
-            logger.error("Specified file or directory wasn't found.", fnf.getMessage(), fnf.getCause());
-        } catch (IOException ioe) {
-            logger.error("Failed to read output.", ioe.getMessage(), ioe.getCause());
-        } catch (InterruptedException ie) {
-            logger.error("Thread was interrupted.", ie.getMessage(), ie.getCause());
-        } finally {
-            running = false;
         }
+
+        process.waitFor();
     }
 }

@@ -11,47 +11,29 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class BackupProcess extends AbstractProcess implements Runnable {
+public class BackupProcess {
     private static final Logger logger = LoggerFactory.getLogger(BackupProcess.class);
 
-    private List<String> command;
+    public BackupProcess(List<String> command) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.redirectErrorStream(true);
+        boolean failed = true;
+        pb.command(command);
 
-    public BackupProcess(List<String> command) {
-        if (!running) {
-            thread = new Thread(this, "DOCKER_CLI_STREAM");
-            pb = new ProcessBuilder();
-            pb.redirectErrorStream(true);
-            this.command = command;
-            thread.start();
-        } else {
-            logger.warn("Thread is already running.");
-        }
-    }
+        final Process process = pb.start();
+        BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
-    @Override
-    public void run() {
-        running = true;
-        try {
-            pb.command(command);
-
-            final Process process = pb.start();
-            BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                logger.info(line);
-                if (line.contains("Completed ✓")) {
-                    failed = false;
-                }
+        String line;
+        while ((line = br.readLine()) != null) {
+            logger.debug(line);
+            if (line.contains("Completed ✓")) {
+                failed = false;
+            } else if (line.contains("Error")) {
+                throw new IOException(line);
             }
-
-            process.waitFor();
-        } catch (IOException ioe) {
-            logger.error("Failed to read output.", ioe.getMessage(), ioe.getCause());
-        } catch (InterruptedException ie) {
-            logger.error("Thread was interrupted.", ie.getMessage(), ie.getCause());
-        } finally {
-            running = false;
         }
+        process.waitFor();
+
+        if (failed) throw new IOException("Backup has not been completed");
     }
 }

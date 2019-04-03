@@ -11,32 +11,31 @@ import net.dv8tion.jda.core.entities.*;
  */
 @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
 public class Settings {
-    private String token = "MY_BOT_TOKEN";
-    private Long ownerId = 0L;
-    private String dockerContainerName = "disbackup";
-    private String dockerPathToExport = "/a/";
-    private String localPathToExport = "/var/tmp/";
-    private String prefix = "!";
-    private String helpWord = "help";
+    private String token = "MY_BOT_TOKEN"; //Bot token taken from discord developer portal
+    private Long ownerId = 0L; //Id of the person, who is hosting the bot
+    private String dockerContainerName = "disbackup"; //Your container name
+    private String dockerPathToExport = "/app/out"; //Docker disbackup workdir (check repository if fails)
+    private String localPathToExport = "app/"; //Your local workdir
+    private String prefix = "~"; //Bot prefix
+    private String helpWord = "help"; //Help word used for help command
     private String successEmoji = "\uD83D\uDC4C"; //👌
     private String warningEmoji = "\uD83D\uDD95"; //🖕
     private String errorEmoji = "\uD83D\uDCA2"; //💢
     private String loadingEmoji = "\uD83E\uDDF6"; //🧶
     private String searchingEmoji = "\uD83D\uDD0E"; //🔎
     private String game = "watching Ubisoft conference";
-    private String onlineStatus = "ONLINE";
-    private boolean leaveChannel = true;
-    private boolean songInGame = false;
-    private boolean npImages = true;
-    private Long maxSeconds = 0L;
-    private String playlistsFolder = "playlists/";
-    private Long textChannelId = 0L;
-    private Long voiceChannelId = 0L;
-    private Long djRoleId = 0L;
-    private int volume = 50;
-    private String defaultPlaylist = "default_playlist";
-    private boolean repeat = true;
-    private boolean lockOnBackup = false;
+    private String onlineStatus = "ONLINE"; // "online", "idle", "dnd", "invisible", "offline", ""
+    private boolean leaveChannel = true; //Leave channel if no one is listening
+    private boolean songInGame = false; //Show song as status
+    private boolean npImages = true; //Display search images
+    private Long maxSeconds = 0L; //Maximum song length
+    private String playlistsFolder = "app/playlists/"; //Local folder for playlists to be store in .txt
+    private Long textChannelId = 0L; //Only one channel id for bot's texting
+    private Long voiceChannelId = 0L; //Only one voice id for bot's music
+    private Long djRoleId = 0L; //Sets who can use DJ commands
+    private int volume = 50; //Sets volume of the bot
+    private String defaultPlaylist = "default_playlist"; //Sets name of default playlist
+    private boolean repeat = true; //If repeat mode is available
 
     public String getToken() {
         return token;
@@ -174,13 +173,5 @@ public class Settings {
 
     public boolean isTooLong(AudioTrack track) {
         return (maxSeconds > 0) && (Math.round(track.getDuration() / 1000.0) > maxSeconds);
-    }
-
-    public boolean isLockedOnBackup() {
-        return lockOnBackup;
-    }
-
-    public void setLockOnBackup(boolean lockOnBackup) {
-        this.lockOnBackup = lockOnBackup;
     }
 }

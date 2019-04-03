@@ -1,8 +1,8 @@
 package com.multiheaded.vladikbot.conductors;
 
 import com.multiheaded.vladikbot.conductors.services.BackupChannelService;
+import com.multiheaded.vladikbot.models.LockdownInterface;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.LockdownInterface;
 import com.multiheaded.vladikbot.utils.FileUtils;
 
 import java.io.File;
