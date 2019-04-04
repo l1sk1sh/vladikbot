@@ -39,7 +39,7 @@ public class BackupMediaService {
     private boolean doZip = false;
     private boolean useSupportedMedia = true;
     private boolean downloadComplete;
-    private File txtFile;
+    private File resultFile;
 
     public BackupMediaService(String channelId, File exportedFile, String localTmpPath, String genericFileName,
                               String[] args, LockdownInterface lock)
@@ -56,13 +56,35 @@ public class BackupMediaService {
             Set<String> setOfMediaUrls = new HashSet<>();
 
             while (urlAttachmentsMatcher.find()) {
+                if (useSupportedMedia) {
+                    if (!StringUtils.containsStringFromArray(
+                            urlAttachmentsMatcher.group(), Constants.SUPPORTED_MEDIA_FORMATS)) {
+                        continue;
+                    }
+                }
                 setOfMediaUrls.add(urlAttachmentsMatcher.group());
             }
 
-            logger.info("Writing media URLs into .txt file.");
-            String pathToTxtFile = localTmpPath + genericFileName + ".txt";
-            FileUtils.writeSetToFile(pathToTxtFile, setOfMediaUrls);
-            txtFile = new File(pathToTxtFile);
+            logger.info("Writing media URLs into a file.");
+            if (useSupportedMedia) {
+                StringBuilder htmlContent = new StringBuilder();
+                htmlContent.append("<!doctype html><html lang=\"en\"><head>");
+                htmlContent.append(String.format("<title>%s</title>", genericFileName));
+                htmlContent.append("</head><style>img {border: 1px solid #ddd;border-radius: 4px;");
+                htmlContent.append("padding: 5px;width: 150px;}img:hover {");
+                htmlContent.append("box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);}</style><body>");
+                for (String url : setOfMediaUrls) {
+                    htmlContent.append(String.format("<a target=\"_blank\" href=\"%s\"><img src=\"%s\"></a>", url, url));
+                }
+                htmlContent.append("</body></html>");
+                String pathToHtmlFile = localTmpPath + genericFileName + Constants.HTML_EXTENSION;
+                Files.write(Paths.get(pathToHtmlFile), htmlContent.toString().getBytes());
+                resultFile = new File(pathToHtmlFile);
+            } else {
+                String pathToTxtFile = localTmpPath + genericFileName + Constants.TXT_EXTENSION;
+                FileUtils.writeSetToFile(pathToTxtFile, setOfMediaUrls);
+                resultFile = new File(pathToTxtFile);
+            }
 
             if (doZip) {
                 logger.info("Downloading media files from Discord CDN.");
@@ -172,7 +194,7 @@ public class BackupMediaService {
         return downloadComplete;
     }
 
-    public File getTxtMediaSet() {
-        return txtFile;
+    public File getMediaUrlsFile() {
+        return resultFile;
     }
 }

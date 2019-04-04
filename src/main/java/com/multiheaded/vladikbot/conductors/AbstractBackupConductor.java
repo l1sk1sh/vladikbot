@@ -30,7 +30,7 @@ abstract class AbstractBackupConductor {
                      String containerName, String token, String[] args, LockdownInterface lock)
             throws InterruptedException, InvalidParameterException, IOException {
 
-        File exportedFile = FileUtils.getFileByIdAndExtension(localPath + dockerPath, channelId,
+        File exportedFile = FileUtils.getFileByIdAndExtension(localPath, channelId,
                 Constants.FORMAT_EXTENSION.get(format));
 
         // If file is absent or was made more than 24 hours ago - create new backup

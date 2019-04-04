@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.audio;
 
 import com.multiheaded.vladikbot.models.queue.Queueable;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.entities.User;
 
@@ -34,7 +34,7 @@ public class QueuedTrack implements Queueable {
 
     @Override
     public String toString() {
-        return "`[" + FormatUtil.formatTime(track.getDuration())
+        return "`[" + FormatUtils.formatTime(track.getDuration())
                 + "]` **" + track.getInfo().title + "** - <@" + track.getUserData(Long.class) + ">";
     }
 }

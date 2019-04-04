@@ -121,7 +121,7 @@ public class BackupChannelService {
         List<String> command = new ArrayList<>();
         command.add("docker");
         command.add("cp");
-        command.add(dockerContainerName + ":" + dockerPathToExport);
+        command.add(dockerContainerName + ":" + dockerPathToExport + ".");
         command.add(localPathToExport);
 
         return command;

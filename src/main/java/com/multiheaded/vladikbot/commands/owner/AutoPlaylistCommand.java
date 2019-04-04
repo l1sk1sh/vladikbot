@@ -2,6 +2,7 @@ package com.multiheaded.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
 
@@ -38,7 +39,7 @@ public class AutoPlaylistCommand extends OwnerCommand {
 
         String pname = event.getArgs().replaceAll("\\s+", "_");
         if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
-            event.reply(event.getClient().getError() + " Could not find `" + pname + ".txt`!");
+            event.reply(event.getClient().getError() + " Could not find `" + pname + Constants.JSON_EXTENSION + "`!");
         } else {
             Settings settings = event.getClient().getSettingsFor(event.getGuild());
             settings.setDefaultPlaylist(pname);

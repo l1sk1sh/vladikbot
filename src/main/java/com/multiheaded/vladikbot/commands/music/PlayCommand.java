@@ -10,7 +10,7 @@ import com.multiheaded.vladikbot.models.playlist.PlaylistLoader.Playlist;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
@@ -42,7 +42,6 @@ public class PlayCommand extends MusicCommand {
         this.bePlaying = false;
         this.children = new Command[]{new PlaylistCommand(bot)};
         settings = SettingsManager.getInstance().getSettings();
-
     }
 
     @Override
@@ -96,17 +95,17 @@ public class PlayCommand extends MusicCommand {
 
         private void loadSingle(AudioTrack track, AudioPlaylist playlist) {
             if (settings.isTooLong(track)) {
-                message.editMessage(FormatUtil.filter(event.getClient().getWarning()
+                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
-                        + FormatUtil.formatTime(track.getDuration()) + "` > `"
-                        + FormatUtil.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
+                        + FormatUtils.formatTime(track.getDuration()) + "` > `"
+                        + FormatUtils.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
-            String addMsg = FormatUtil.filter(event.getClient().getSuccess()
+            String addMsg = FormatUtils.filter(event.getClient().getSuccess()
                     + " Added **" + track.getInfo().title
-                    + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) "
+                    + "** (`" + FormatUtils.formatTime(track.getDuration()) + "`) "
                     + (pos == 0 ? "to begin playing" : " to the queue at position " + pos));
             if (playlist == null
                     || !event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION)) {
@@ -166,13 +165,13 @@ public class PlayCommand extends MusicCommand {
             } else {
                 int count = loadPlaylist(playlist, null);
                 if (count == 0) {
-                    message.editMessage(FormatUtil.filter(event.getClient().getWarning()
+                    message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                             + " All entries in this playlist " +
                             (playlist.getName() == null ? "" : "(**" + playlist.getName()
                                     + "**) ") + "were longer than the allowed maximum (`"
                             + settings.getMaxTime() + "`)")).queue();
                 } else {
-                    message.editMessage(FormatUtil.filter(event.getClient().getSuccess() + " Found "
+                    message.editMessage(FormatUtils.filter(event.getClient().getSuccess() + " Found "
                             + (playlist.getName() == null ? "a playlist" : "playlist **"
                             + playlist.getName() + "**") + " with `"
                             + playlist.getTracks().size() + "` entries; added to the queue!"
@@ -186,7 +185,7 @@ public class PlayCommand extends MusicCommand {
         @Override
         public void noMatches() {
             if (ytsearch)
-                message.editMessage(FormatUtil.filter(event.getClient().getWarning()
+                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " No results found for `" + event.getArgs() + "`.")).queue();
             else
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(), "ytsearch:"
@@ -224,7 +223,8 @@ public class PlayCommand extends MusicCommand {
 
             Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getArgs());
             if (playlist == null) {
-                event.replyError("I could not find `" + event.getArgs() + ".txt` in the Playlists folder.");
+                event.replyError("I could not find `" + event.getArgs() + Constants.JSON_EXTENSION
+                        + "` in the Playlists folder.");
                 return;
             }
 
@@ -244,7 +244,7 @@ public class PlayCommand extends MusicCommand {
                     String str = builder.toString();
                     if (str.length() > 2000)
                         str = str.substring(0, 1994) + " (...)";
-                    m.editMessage(FormatUtil.filter(str)).queue();
+                            m.editMessage(FormatUtils.filter(str)).queue();
                 });
             });
         }

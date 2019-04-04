@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class SetVoiceChannelCommand extends AdminCommand {
                 event.reply(event.getClient().getWarning()
                         + " No Voice Channels found matching \"" + event.getArgs() + "\"");
             } else if (list.size() > 1) {
-                event.reply(event.getClient().getWarning() + FormatUtil.listOfVChannels(list, event.getArgs()));
+                event.reply(event.getClient().getWarning() + FormatUtils.listOfVChannels(list, event.getArgs()));
             } else {
                 settings.setVoiceChannelId(list.get(0));
                 event.reply(event.getClient().getSuccess()

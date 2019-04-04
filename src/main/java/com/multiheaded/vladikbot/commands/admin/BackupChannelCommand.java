@@ -37,7 +37,7 @@ public class BackupChannelCommand extends AdminCommand {
                 try {
                     BackupChannelService service = new BackupChannelService(
                             event.getChannel().getId(),
-                            "HtmlDark",
+                            Constants.BACKUP_HTML_DARK,
                             event.getArgs().split(" "),
                             settings.getLocalPathToExport(),
                             settings.getDockerPathToExport(),

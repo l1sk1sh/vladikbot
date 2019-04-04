@@ -8,7 +8,7 @@ import com.multiheaded.vladikbot.audio.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
@@ -100,8 +100,8 @@ public class QueueCommand extends MusicCommand {
                     .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\n");
         }
 
-        return FormatUtil.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)
-                .append(" entries | `").append(FormatUtil.formatTime(total)).append("` ")
+        return FormatUtils.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)
+                .append(" entries | `").append(FormatUtils.formatTime(total)).append("` ")
                 .append(repeatmode ? "| " + Constants.REPEAT_EMOJI : "").toString());
     }
 }

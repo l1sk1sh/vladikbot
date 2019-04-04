@@ -5,7 +5,7 @@ import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
 import com.multiheaded.vladikbot.models.playlist.PlaylistLoader.Playlist;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
@@ -166,7 +166,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             Guild guild = guild(jda);
             AudioTrack track = audioPlayer.getPlayingTrack();
             MessageBuilder messageBuilder = new MessageBuilder();
-            messageBuilder.append(FormatUtil.filter(settings.getSuccessEmoji() + " **Now Playing in "
+            messageBuilder.append(FormatUtils.filter(settings.getSuccessEmoji() + " **Now Playing in "
                     + guild.getSelfMember().getVoiceState().getChannel().getName() + "...**"));
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -199,10 +199,10 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
             double progress = (double) audioPlayer.getPlayingTrack().getPosition() / track.getDuration();
             embedBuilder.setDescription((audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI)
-                    + " " + FormatUtil.progressBar(progress)
-                    + " `[" + FormatUtil.formatTime(track.getPosition()) + "/"
-                    + FormatUtil.formatTime(track.getDuration()) + "]` "
-                    + FormatUtil.volumeIcon(audioPlayer.getVolume()));
+                    + " " + FormatUtils.progressBar(progress)
+                    + " `[" + FormatUtils.formatTime(track.getPosition()) + "/"
+                    + FormatUtils.formatTime(track.getDuration()) + "]` "
+                    + FormatUtils.volumeIcon(audioPlayer.getVolume()));
 
             return messageBuilder.setEmbed(embedBuilder.build()).build();
         } else {
@@ -213,12 +213,12 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     public Message getNoMusicPlaying(JDA jda) {
         Guild guild = guild(jda);
         return new MessageBuilder()
-                .setContent(FormatUtil.filter(settings.getSuccessEmoji() + " **Now Playing...**"))
+                .setContent(FormatUtils.filter(settings.getSuccessEmoji() + " **Now Playing...**"))
                 .setEmbed(new EmbedBuilder()
                         .setTitle("No music playing")
                         .setDescription(Constants.STOP_EMOJI + " "
-                                + FormatUtil.progressBar(-1) + " "
-                                + FormatUtil.volumeIcon(audioPlayer.getVolume()))
+                                + FormatUtils.progressBar(-1) + " "
+                                + FormatUtils.volumeIcon(audioPlayer.getVolume()))
                         .setColor(guild.getSelfMember().getColor())
                         .build()).build();
     }
@@ -234,11 +234,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             }
             return "**" + title + "** [" + (userid == 0 ? "autoplay" : "<@" + userid + ">") + "]"
                     + "\n" + (audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI) + " "
-                    + "[" + FormatUtil.formatTime(track.getDuration()) + "] "
-                    + FormatUtil.volumeIcon(audioPlayer.getVolume());
+                    + "[" + FormatUtils.formatTime(track.getDuration()) + "] "
+                    + FormatUtils.volumeIcon(audioPlayer.getVolume());
         } else {
             return "No music playing " + Constants.STOP_EMOJI + " "
-                    + FormatUtil.volumeIcon(audioPlayer.getVolume());
+                    + FormatUtils.volumeIcon(audioPlayer.getVolume());
         }
     }
 

@@ -13,6 +13,7 @@ import com.multiheaded.vladikbot.commands.dj.*;
 import com.multiheaded.vladikbot.commands.everyone.SettingsCommand;
 import com.multiheaded.vladikbot.commands.music.*;
 import com.multiheaded.vladikbot.commands.owner.*;
+import com.multiheaded.vladikbot.database.Database;
 import com.multiheaded.vladikbot.models.playlist.PlaylistLoader;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
@@ -26,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.sql.SQLException;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -46,6 +48,7 @@ public class VladikBot {
 
     private boolean availableBackup = true;
     private boolean shuttingDown = false;
+    private boolean databaseAvailable = false;
     private JDA jda;
 
     private VladikBot() {
@@ -60,6 +63,14 @@ public class VladikBot {
 
         try {
             Settings settings = SettingsManager.getInstance().getSettings();
+            Database database;
+
+            try {
+                database = new Database();
+                databaseAvailable = true;
+            } catch (SQLException | ClassNotFoundException e) {
+                logger.warn("Database is not properly configured. Some features will not be available. {}", e.getMessage());
+            }
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                     .setPrefix(settings.getPrefix())
@@ -208,6 +219,10 @@ public class VladikBot {
 
     public void setAvailableBackup(boolean availableBackup) {
         this.availableBackup = availableBackup;
+    }
+
+    public boolean isDatabaseAvailable() {
+        return databaseAvailable;
     }
 
     public Settings getSettings() {

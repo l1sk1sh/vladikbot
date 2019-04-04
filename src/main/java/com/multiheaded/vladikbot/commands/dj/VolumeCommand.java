@@ -5,7 +5,7 @@ import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.audio.AudioHandler;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 
 /**
  * @author Oliver Johnson
@@ -28,7 +28,7 @@ public class VolumeCommand extends DJCommand {
         Settings settings = SettingsManager.getInstance().getSettings();
         int volume = audioHandler.getPlayer().getVolume();
         if (event.getArgs().isEmpty()) {
-            event.reply(FormatUtil.volumeIcon(volume) + " Current volume is `" + volume + "`");
+            event.reply(FormatUtils.volumeIcon(volume) + " Current volume is `" + volume + "`");
         } else {
             int nVolume;
             try {
@@ -41,7 +41,7 @@ public class VolumeCommand extends DJCommand {
             } else {
                 audioHandler.getPlayer().setVolume(nVolume);
                 settings.setVolume(nVolume);
-                event.reply(FormatUtil.volumeIcon(nVolume) + " Volume changed from `" + volume + "` to `" + nVolume + "`");
+                event.reply(FormatUtils.volumeIcon(nVolume) + " Volume changed from `" + volume + "` to `" + nVolume + "`");
             }
         }
     }

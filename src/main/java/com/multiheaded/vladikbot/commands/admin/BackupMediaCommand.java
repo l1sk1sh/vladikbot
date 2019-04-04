@@ -47,7 +47,7 @@ public class BackupMediaCommand extends AdminCommand {
                     BackupMediaConductor backupMediaConductor = new BackupMediaConductor(
                             event.getChannel().getId(),
                             fileName,
-                            "PlainText",
+                            Constants.BACKUP_PLAIN_TEXT,
                             settings.getLocalPathToExport(),
                             settings.getDockerPathToExport(),
                             settings.getDockerContainerName(),
@@ -56,13 +56,13 @@ public class BackupMediaCommand extends AdminCommand {
                             bot::setAvailableBackup);
                     BackupMediaService service = backupMediaConductor.getBackupMediaService();
 
-                    File exportedFile = service.getTxtMediaSet();
+                    File exportedFile = service.getMediaUrlsFile();
                     if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
                         event.replyWarning(
                                 "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\n" +
                                         "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
                     } else {
-                        event.getTextChannel().sendFile(exportedFile, service.getTxtMediaSet().getName()).queue();
+                        event.getTextChannel().sendFile(exportedFile, service.getMediaUrlsFile().getName()).queue();
 
                         if (service.doZip() && service.isDownloadComplete()) {
                             event.replySuccess("Zip with uploaded media files could be downloaded from local storage.");

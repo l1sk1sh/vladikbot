@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.utils.OtherUtil;
+import com.multiheaded.vladikbot.utils.OtherUtils;
 import net.dv8tion.jda.core.entities.Icon;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class SetAvatarCommand extends OwnerCommand {
             url = event.getArgs();
         }
 
-        InputStream inputStream = OtherUtil.imageFromUrl(url);
+        InputStream inputStream = OtherUtils.imageFromUrl(url);
         if (inputStream == null) {
             event.reply(event.getClient().getError() + " Invalid or missing URL");
         } else {

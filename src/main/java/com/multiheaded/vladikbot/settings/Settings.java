@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.settings;
 
-import com.multiheaded.vladikbot.utils.FormatUtil;
-import com.multiheaded.vladikbot.utils.OtherUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
+import com.multiheaded.vladikbot.utils.OtherUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.*;
@@ -29,7 +29,7 @@ public class Settings {
     private boolean songInGame = false; //Show song as status
     private boolean npImages = true; //Display search images
     private Long maxSeconds = 0L; //Maximum song length
-    private String playlistsFolder = "app/playlists/"; //Local folder for playlists to be store in .txt
+    private String playlistsFolder = "app/playlists/"; //Local folder for playlists to be stored
     private Long textChannelId = 0L; //Only one channel id for bot's texting
     private Long voiceChannelId = 0L; //Only one voice id for bot's music
     private Long djRoleId = 0L; //Sets who can use DJ commands
@@ -86,11 +86,11 @@ public class Settings {
     }
 
     public Game getGame() {
-        return OtherUtil.parseGame(game);
+        return OtherUtils.parseGame(game);
     }
 
     public OnlineStatus getOnlineStatus() {
-        return OtherUtil.parseStatus(onlineStatus);
+        return OtherUtils.parseStatus(onlineStatus);
     }
 
     public boolean shouldLeaveChannel() {
@@ -168,7 +168,7 @@ public class Settings {
     }
 
     public String getMaxTime() {
-        return FormatUtil.formatTime(maxSeconds * 1000);
+        return FormatUtils.formatTime(maxSeconds * 1000);
     }
 
     public boolean isTooLong(AudioTrack track) {

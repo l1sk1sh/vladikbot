@@ -13,7 +13,7 @@ import java.util.List;
  * - Reformating code
  * @author John Grosh
  */
-public class FormatUtil {
+public class FormatUtils {
     public static String formatTime(long duration) {
         if (duration == Long.MAX_VALUE) {
             return "LIVE";

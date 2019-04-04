@@ -5,8 +5,8 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.conductors.EmojiStatsConductor;
+import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
-import com.sun.org.apache.xalan.internal.xsltc.runtime.InternalRuntimeError;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -66,7 +66,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 try {
                     EmojiStatsConductor emojiStatsConductor = new EmojiStatsConductor(
                             event.getChannel().getId(),
-                            "PlainText",
+                            Constants.BACKUP_PLAIN_TEXT,
                             settings.getLocalPathToExport(),
                             settings.getDockerPathToExport(),
                             settings.getDockerContainerName(),
@@ -76,14 +76,14 @@ public class EmojiStatsCommand extends AdminCommand {
                             bot::setAvailableBackup);
 
                     if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
-                        throw new InternalRuntimeError("Emoji Statistics Service failed!");
+                        throw new RuntimeException("Emoji Statistics Service failed!");
                     sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
                 } catch (InterruptedException | IOException e) {
                     event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
                 } catch (InvalidParameterException ipe) {
                     event.replyError(ipe.getMessage());
-                } catch (InternalRuntimeError ire) {
-                    event.replyError(String.format("Calculation failed! `[%s]`", ire.getMessage()));
+                } catch (RuntimeException re) {
+                    event.replyError(String.format("Calculation failed! `[%s]`", re.getMessage()));
                 } catch (Exception e) {
                     event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getMessage()));
                 }

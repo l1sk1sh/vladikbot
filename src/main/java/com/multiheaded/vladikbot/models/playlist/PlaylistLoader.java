@@ -1,5 +1,9 @@
 package com.multiheaded.vladikbot.models.playlist;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonWriter;
+import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -9,6 +13,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,11 +26,15 @@ import java.util.stream.Collectors;
  * @author Oliver Johnson
  * Changes from original source:
  * - Reformating code
+ * - Files changed to .json
+ * - Removed 'comment-shuffle' and added direct command to shuffle file itself
  * @author John Grosh
  */
 @SuppressWarnings("unchecked")
 public class PlaylistLoader {
     private final Settings settings;
+    private final String extension = Constants.JSON_EXTENSION;
+    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     public PlaylistLoader() {
         this.settings = SettingsManager.getInstance().getSettings();
@@ -34,8 +44,8 @@ public class PlaylistLoader {
         if (folderExists()) {
             File folder = new File(settings.getPlaylistsFolder());
             return Arrays.stream(
-                    Objects.requireNonNull(folder.listFiles((pathname) -> pathname.getName().endsWith(".txt")))
-            ).map(f -> f.getName().substring(0, f.getName().length() - 4)).collect(Collectors.toList());
+                    Objects.requireNonNull(folder.listFiles((pathname) -> pathname.getName().endsWith(extension)))
+            ).map(f -> f.getName().substring(0, f.getName().length() - extension.length())).collect(Collectors.toList());
         } else {
             createFolder();
             return Collections.EMPTY_LIST;
@@ -44,7 +54,7 @@ public class PlaylistLoader {
 
     public void createFolder() {
         try {
-            Files.createDirectory(Paths.get(settings.getPlaylistsFolder()));
+            Files.createDirectories(Paths.get(settings.getPlaylistsFolder()));
         } catch (IOException ignore) {
         }
     }
@@ -54,16 +64,20 @@ public class PlaylistLoader {
     }
 
     public void createPlaylist(String name) throws IOException {
-        Files.createFile(Paths.get(settings.getPlaylistsFolder() + File.separator + name + ".txt"));
+        Files.createFile(Paths.get(settings.getPlaylistsFolder() + File.separator + name + extension));
     }
 
     public void deletePlaylist(String name) throws IOException {
-        Files.delete(Paths.get(settings.getPlaylistsFolder() + File.separator + name + ".txt"));
+        Files.delete(Paths.get(settings.getPlaylistsFolder() + File.separator + name + extension));
     }
 
-    public void writePlaylist(String name, String text) throws IOException {
-        Files.write(Paths.get(settings.getPlaylistsFolder() + File.separator + name + ".txt"),
-                text.trim().getBytes());
+    public void writePlaylist(String name, List<String> listToWrite) throws IOException {
+        JsonWriter writer = new JsonWriter(
+                new FileWriter(settings.getPlaylistsFolder() + File.separator + name + extension));
+        writer.setIndent("  ");
+        writer.setHtmlSafe(false);
+        gson.toJson(listToWrite, listToWrite.getClass(), writer);
+        writer.close();
     }
 
     public Playlist getPlaylist(String name) {
@@ -71,29 +85,20 @@ public class PlaylistLoader {
             return null;
         try {
             if (folderExists()) {
-                boolean[] shuffle = {false};
-                List<String> list = new ArrayList<>();
-                Files.readAllLines(Paths.get(settings.getPlaylistsFolder()
-                        + File.separator + name + ".txt")).forEach(str ->
+                List<String> list = gson.fromJson(new FileReader(settings.getPlaylistsFolder()
+                        + File.separator + name + extension), ArrayList.class);
+
+                /*Files.readAllLines(Paths.get(settings.getPlaylistsFolder()
+                        + File.separator + name + extension)).forEach(str ->
                 {
                     String s = str.trim();
                     if (s.isEmpty()) {
                         return;
                     }
-                    if (s.startsWith("#") || s.startsWith("//")) {
-                        s = s.replaceAll("\\s+", "");
-                        if (s.equalsIgnoreCase("#shuffle") || s.equalsIgnoreCase("//shuffle")) {
-                            shuffle[0] = true;
-                        }
-                    } else {
-                        list.add(s);
-                    }
-                });
+                    list.add(s);
+                });*/
 
-                if (shuffle[0]) {
-                    shuffle(list);
-                }
-                return new Playlist(name, list, shuffle[0]);
+                return new Playlist(name, list);
             } else {
                 createFolder();
                 return null;
@@ -103,29 +108,27 @@ public class PlaylistLoader {
         }
     }
 
-
-    private static <T> void shuffle(List<T> list) {
-        for (int first = 0; first < list.size(); first++) {
-            int second = (int) (Math.random() * list.size());
-            T tmp = list.get(first);
-            list.set(first, list.get(second));
-            list.set(second, tmp);
+    public void shuffle(String name) throws IOException {
+        List<String> listToShuffle = getPlaylist(name).getItems();
+        for (int first = 0; first < listToShuffle.size(); first++) {
+            int second = (int) (Math.random() * listToShuffle.size());
+            String tmp = listToShuffle.get(first);
+            listToShuffle.set(first, listToShuffle.get(second));
+            listToShuffle.set(second, tmp);
         }
+        writePlaylist(name, listToShuffle);
     }
-
 
     public class Playlist {
         private final String name;
         private final List<String> items;
-        private final boolean shuffle;
         private final List<AudioTrack> tracks = new LinkedList<>();
         private final List<PlaylistLoadError> errors = new LinkedList<>();
         private boolean loaded = false;
 
-        private Playlist(String name, List<String> items, boolean shuffle) {
+        private Playlist(String name, List<String> items) {
             this.name = name;
             this.items = items;
-            this.shuffle = shuffle;
         }
 
         public void loadTracks(AudioPlayerManager manager, Consumer<AudioTrack> consumer, Runnable callback) {
@@ -173,14 +176,7 @@ public class PlaylistLoader {
                                 }
                             } else {
                                 List<AudioTrack> loaded = new ArrayList<>(audioPlaylist.getTracks());
-                                if (shuffle) {
-                                    for (int first = 0; first < loaded.size(); first++) {
-                                        int second = (int) (Math.random() * loaded.size());
-                                        AudioTrack tmp = loaded.get(first);
-                                        loaded.set(first, loaded.get(second));
-                                        loaded.set(second, tmp);
-                                    }
-                                }
+
                                 loaded.removeIf(settings::isTooLong);
                                 loaded.forEach(at -> at.setUserData(0L));
                                 tracks.addAll(loaded);
@@ -210,13 +206,6 @@ public class PlaylistLoader {
                     });
                 }
             }
-            if (shuffle) {
-                shuffleTracks();
-            }
-        }
-
-        void shuffleTracks() {
-            shuffle(tracks);
         }
 
         public List<String> getItems() {

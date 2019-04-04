@@ -6,7 +6,7 @@ import com.multiheaded.vladikbot.audio.AudioHandler;
 import com.multiheaded.vladikbot.audio.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
@@ -58,17 +58,17 @@ public class PlayNextCommand extends DJCommand {
 
         private void loadSingle(AudioTrack track) {
             if (settings.isTooLong(track)) {
-                message.editMessage(FormatUtil.filter(event.getClient().getWarning()
+                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
-                        + FormatUtil.formatTime(track.getDuration())
-                        + "` > `" + FormatUtil.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
+                        + FormatUtils.formatTime(track.getDuration())
+                        + "` > `" + FormatUtils.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             int pos = audioHandler.addTrackToFront(new QueuedTrack(track, event.getAuthor())) + 1;
-            String addMessage = FormatUtil.filter(event.getClient().getSuccess()
+            String addMessage = FormatUtils.filter(event.getClient().getSuccess()
                     + " Added **" + track.getInfo().title
-                    + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) "
+                    + "** (`" + FormatUtils.formatTime(track.getDuration()) + "`) "
                     + (pos == 0 ? "to begin playing" : " to the queue at position " + pos));
             message.editMessage(addMessage).queue();
         }
@@ -95,7 +95,7 @@ public class PlayNextCommand extends DJCommand {
         @Override
         public void noMatches() {
             if (ytsearch) {
-                message.editMessage(FormatUtil.filter(event.getClient().getWarning()
+                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " No results found for `" + event.getArgs() + "`.")).queue();
             } else {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(),

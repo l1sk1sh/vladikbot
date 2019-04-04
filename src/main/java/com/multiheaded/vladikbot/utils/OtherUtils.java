@@ -16,7 +16,7 @@ import java.net.URLConnection;
  * - Removal of update version methods
  * @author John Grosh
  */
-public class OtherUtil {
+public class OtherUtils {
     public static InputStream imageFromUrl(String url) {
         if (url == null)
             return null;

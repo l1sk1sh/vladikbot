@@ -7,7 +7,7 @@ import com.multiheaded.vladikbot.audio.AudioHandler;
 import com.multiheaded.vladikbot.audio.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
-import com.multiheaded.vladikbot.utils.FormatUtil;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
@@ -72,24 +72,24 @@ public class SearchCommand extends MusicCommand {
         @Override
         public void trackLoaded(AudioTrack track) {
             if (settings.isTooLong(track)) {
-                message.editMessage(FormatUtil.filter(event.getClient().getWarning()
+                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
-                        + FormatUtil.formatTime(track.getDuration()) + "` > `"
+                        + FormatUtils.formatTime(track.getDuration()) + "` > `"
                         + settings.getMaxTime() + "`")).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
-            message.editMessage(FormatUtil.filter(event.getClient().getSuccess()
+            message.editMessage(FormatUtils.filter(event.getClient().getSuccess()
                     + " Added **" + track.getInfo().title
-                    + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) " + (pos == 0 ? "to begin playing"
+                    + "** (`" + FormatUtils.formatTime(track.getDuration()) + "`) " + (pos == 0 ? "to begin playing"
                     : " to the queue at position " + pos))).queue();
         }
 
         @Override
         public void playlistLoaded(AudioPlaylist playlist) {
             builder.setColor(event.getSelfMember().getColor())
-                    .setText(FormatUtil.filter(event.getClient().getSuccess()
+                    .setText(FormatUtils.filter(event.getClient().getSuccess()
                             + " Search results for `" + event.getArgs() + "`:"))
                     .setChoices()
                     .setSelection((msg, i) ->
@@ -98,14 +98,14 @@ public class SearchCommand extends MusicCommand {
                         if (settings.isTooLong(track)) {
                             event.replyWarning("This track (**" + track.getInfo().title
                                     + "**) is longer than the allowed maximum: `"
-                                    + FormatUtil.formatTime(track.getDuration()) + "` > `"
+                                    + FormatUtils.formatTime(track.getDuration()) + "` > `"
                                     + settings.getMaxTime() + "`");
                             return;
                         }
                         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                         int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
                         event.replySuccess("Added **" + track.getInfo().title
-                                + "** (`" + FormatUtil.formatTime(track.getDuration()) + "`) "
+                                + "** (`" + FormatUtils.formatTime(track.getDuration()) + "`) "
                                 + (pos == 0 ? "to begin playing"
                                 : " to the queue at position " + pos));
                     })
@@ -115,7 +115,7 @@ public class SearchCommand extends MusicCommand {
             ;
             for (int i = 0; i < 4 && i < playlist.getTracks().size(); i++) {
                 AudioTrack track = playlist.getTracks().get(i);
-                builder.addChoices("`[" + FormatUtil.formatTime(track.getDuration()) + "]` [**"
+                builder.addChoices("`[" + FormatUtils.formatTime(track.getDuration()) + "]` [**"
                         + track.getInfo().title + "**](" + track.getInfo().uri + ")");
             }
             builder.build().display(message);
@@ -123,7 +123,7 @@ public class SearchCommand extends MusicCommand {
 
         @Override
         public void noMatches() {
-            message.editMessage(FormatUtil.filter(event.getClient().getWarning() + " No results found for `"
+            message.editMessage(FormatUtils.filter(event.getClient().getWarning() + " No results found for `"
                     + event.getArgs() + "`.")).queue();
         }
 
