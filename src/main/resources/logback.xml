@@ -6,7 +6,7 @@
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>true</withJansi>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%log{36}) - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -19,7 +19,7 @@
         </rollingPolicy>
         <encoder>
             <charset>UTF-8</charset>
-            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-40.40log{39} : %msg%n</Pattern>
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %-40.40logger{39} : %msg%n</Pattern>
         </encoder>
         <prudent>true</prudent>
     </appender>

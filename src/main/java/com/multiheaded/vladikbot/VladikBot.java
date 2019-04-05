@@ -7,13 +7,13 @@ import com.jagrosh.jdautilities.examples.command.PingCommand;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.services.audio.NowPlayingHandler;
 import com.multiheaded.vladikbot.services.audio.PlayerManager;
-import com.multiheaded.vladikbot.services.AutoModerationService;
+import com.multiheaded.vladikbot.services.AutoModeration;
 import com.multiheaded.vladikbot.commands.admin.*;
 import com.multiheaded.vladikbot.commands.dj.*;
 import com.multiheaded.vladikbot.commands.everyone.SettingsCommand;
 import com.multiheaded.vladikbot.commands.music.*;
 import com.multiheaded.vladikbot.commands.owner.*;
-import com.multiheaded.vladikbot.services.PlaylistLoaderService;
+import com.multiheaded.vladikbot.services.PlaylistLoader;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
 import net.dv8tion.jda.core.AccountType;
@@ -34,15 +34,15 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author Oliver Johnson
  */
 public class VladikBot {
-    private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
+    private static final Logger logger = LoggerFactory.getLogger(VladikBot.class);
 
     private final EventWaiter waiter;
     private final ScheduledExecutorService threadPool;
     private final Settings settings = SettingsManager.getInstance().getSettings();
     private final PlayerManager players;
-    private final PlaylistLoaderService playlists;
     private final NowPlayingHandler nowPlaying;
-    private final AutoModerationService autoModerationService;
+    private final PlaylistLoader playlists;
+    private final AutoModeration autoModeration;
 
     private boolean availableBackup = true;
     private boolean shuttingDown = false;
@@ -51,12 +51,12 @@ public class VladikBot {
     private VladikBot() {
         this.threadPool = Executors.newSingleThreadScheduledExecutor();
         this.waiter = new EventWaiter();
-        this.playlists = new PlaylistLoaderService(this);
+        this.playlists = new PlaylistLoader(this);
         this.players = new PlayerManager(this);
         this.players.init();
         this.nowPlaying = new NowPlayingHandler(this);
         this.nowPlaying.init();
-        this.autoModerationService = new AutoModerationService(this);
+        this.autoModeration = new AutoModeration(this);
 
         try {
             Settings settings = SettingsManager.getInstance().getSettings();
@@ -126,10 +126,10 @@ public class VladikBot {
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
         } catch (ExceptionInInitializerError e) {
-            log.error("Problematic settings input");
+            logger.error("Problematic settings input");
             System.exit(1);
         } catch (LoginException le) {
-            log.error("Invalid username and/or password.");
+            logger.error("Invalid username and/or password.");
             System.exit(1);
         }
     }
@@ -150,7 +150,7 @@ public class VladikBot {
         return players;
     }
 
-    public PlaylistLoaderService getPlaylistLoader() {
+    public PlaylistLoader getPlaylistLoader() {
         return playlists;
     }
 
@@ -158,8 +158,8 @@ public class VladikBot {
         return nowPlaying;
     }
 
-    public AutoModerationService getAutoModerationService() {
-        return autoModerationService;
+    public AutoModeration getAutoModerationService() {
+        return autoModeration;
     }
 
     public JDA getJDA() {

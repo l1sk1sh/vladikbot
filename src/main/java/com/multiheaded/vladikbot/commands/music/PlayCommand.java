@@ -6,7 +6,7 @@ import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
-import com.multiheaded.vladikbot.services.PlaylistLoaderService.Playlist;
+import com.multiheaded.vladikbot.services.PlaylistLoader.Playlist;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -191,7 +191,7 @@ public class PlayCommand extends MusicCommand {
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == Severity.COMMON)
                 message.editMessage(event.getClient().getError()
-                        + " Error loading: " + throwable.getMessage()).queue();
+                        + " Error loading: " + throwable.getLocalizedMessage()).queue();
             else
                 message.editMessage(event.getClient().getError()
                         + " Error loading track.").queue();
@@ -221,6 +221,10 @@ public class PlayCommand extends MusicCommand {
                 event.replyError("I could not find `" + event.getArgs() + Constants.JSON_EXTENSION
                         + "` in the Playlists folder.");
                 return;
+            }
+
+            if (playlist.getItems().isEmpty() || (playlist.getItems() == null)) {
+                event.replyWarning("Specified playlist is empty!");
             }
 
             event.getChannel().sendMessage(bot.getSettings().getLoadingEmoji() + " Loading playlist **"

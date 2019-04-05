@@ -32,7 +32,7 @@ public class ClearTmpCommand extends OwnerCommand {
             }
         } catch (IOException ioe) {
             event.replyError(String.format("Something went wrong during clearing of tmp folder! `[%s]`",
-                    ioe.getMessage()));
+                    ioe.getLocalizedMessage()));
         } catch (NullPointerException npe) {
             event.replyWarning("Nothing to clear - the directory is empty.");
         }

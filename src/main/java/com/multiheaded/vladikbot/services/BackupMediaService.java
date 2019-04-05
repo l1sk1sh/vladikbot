@@ -24,15 +24,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipOutputStream;
 
-import static com.multiheaded.vladikbot.utils.FileUtils.fileIsAbsent;
-import static com.multiheaded.vladikbot.utils.FileUtils.createFolder;
-import static com.multiheaded.vladikbot.utils.FileUtils.zipFile;
+import static com.multiheaded.vladikbot.utils.FileUtils.*;
 
 /**
  * @author Oliver Johnson
  */
 public class BackupMediaService {
-    private static final Logger log = LoggerFactory.getLogger(BackupMediaService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BackupMediaService.class);
 
     private boolean doZip = false;
     private boolean useSupportedMedia = true;
@@ -62,7 +60,7 @@ public class BackupMediaService {
                 setOfMediaUrls.add(urlAttachmentsMatcher.group());
             }
 
-            log.info("Writing media URLs into a file.");
+            logger.info("Writing media URLs into a file.");
             if (useSupportedMedia) {
                 StringBuilder htmlContent = new StringBuilder();
                 htmlContent.append("<!doctype html><html lang=\"en\"><head>");
@@ -84,11 +82,11 @@ public class BackupMediaService {
             }
 
             if (doZip) {
-                log.info("Downloading media files from Discord CDN.");
+                logger.info("Downloading media files from Discord CDN.");
                 String mediaFolderPath = localMediaPath + "/" + channelId + "/";
 
-                if (fileIsAbsent(mediaFolderPath)) {
-                    log.info("Creating [{}] directory.", mediaFolderPath);
+                if (fileOrFolderIsAbsent(mediaFolderPath)) {
+                    logger.info("Creating [{}] directory.", mediaFolderPath);
                     createFolder(mediaFolderPath);
                 }
 
@@ -118,7 +116,7 @@ public class BackupMediaService {
             }
 
         } catch (IOException e) {
-            log.error("Failed to read exported file, to write local file or to download media. {}", e.getMessage());
+            logger.error("Failed to read exported file, to write local file or to download media. {}", e.getLocalizedMessage());
             throw e;
         } finally {
             lock.setAvailable(true);
@@ -126,8 +124,8 @@ public class BackupMediaService {
     }
 
     private void downloadFile(URL url, String localFileNamePath) throws IOException {
-        if (fileIsAbsent(localFileNamePath)) {
-            log.info("Downloading file [{}]", localFileNamePath);
+        if (fileOrFolderIsAbsent(localFileNamePath)) {
+            logger.info("Downloading file [{}]", localFileNamePath);
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", Constants.USER_AGENT);
             ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());

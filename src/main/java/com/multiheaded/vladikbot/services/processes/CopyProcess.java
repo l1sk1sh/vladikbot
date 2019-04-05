@@ -13,7 +13,7 @@ import java.util.List;
  * @author Oliver Johnson
  */
 public class CopyProcess {
-    private static final Logger log = LoggerFactory.getLogger(CopyProcess.class);
+    private static final Logger logger = LoggerFactory.getLogger(CopyProcess.class);
 
     public CopyProcess(List<String> command) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
@@ -25,7 +25,7 @@ public class CopyProcess {
 
         String line;
         while ((line = br.readLine()) != null) {
-            log.debug(line);
+            logger.debug(line);
             if (line.contains("No such container:path")) {
                 throw new FileNotFoundException(line);
             } else if (line.contains("Error")) {

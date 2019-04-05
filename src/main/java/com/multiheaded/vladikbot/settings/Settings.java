@@ -11,13 +11,15 @@ import net.dv8tion.jda.core.entities.*;
  */
 @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
 public class Settings {
+
+    /* Finish all paths with file system separator! */
     private String token = "MY_BOT_TOKEN";                      // Bot token taken from discord developer portal
     private Long ownerId = 0L;                                  // Id of the person, who is hosting the bot
     private String dockerContainerName = "disbackup";           // Docker container name
-    private String dockerPathToExport = "/app/out";             // Docker disbackup workdir (check repository if fails)
+    private String dockerPathToExport = "/app/out/";            // Docker disbackup workdir (check repository if fails)
     private String localPathToExport = "app/";                  // Local workdir
-    private String localMediaFolder = "app/saved_media";        // Local storage for downloaded media
-    private String moderationRulesFolder = "app/mod_rules";     // Local storage for automoderation settings
+    private String localMediaFolder = "app/saved_media/";       // Local storage for downloaded media
+    private String moderationRulesFolder = "app/mod_rules/";    // Local storage for automoderation settings
     private String prefix = "~";                                // Bot prefix
     private String helpWord = "help";                           // Help word used for help command
     private String successEmoji = "\uD83D\uDC4C";               // 👌

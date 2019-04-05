@@ -57,7 +57,7 @@ public class EmojiStatsCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        if (!bot.isBackupAvailable()) {
+        if (bot.isBackupAvailable()) {
             event.reply("Initializing emoji statistics calculation. Be patient...");
 
             new Thread(() -> {
@@ -82,13 +82,13 @@ public class EmojiStatsCommand extends AdminCommand {
                         throw new RuntimeException("Emoji Statistics Service failed!");
                     sendStatisticsMessage(event, emojiStatsService.getEmojiList());
                 } catch (InterruptedException | IOException e) {
-                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
+                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getLocalizedMessage()));
                 } catch (InvalidParameterException ipe) {
-                    event.replyError(ipe.getMessage());
+                    event.replyError(ipe.getLocalizedMessage());
                 } catch (RuntimeException re) {
-                    event.replyError(String.format("Calculation failed! `[%s]`", re.getMessage()));
+                    event.replyError(String.format("Calculation failed! `[%s]`", re.getLocalizedMessage()));
                 } catch (Exception e) {
-                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getMessage()));
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getLocalizedMessage()));
                 }
             }).start();
         } else {

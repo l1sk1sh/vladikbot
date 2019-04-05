@@ -3,6 +3,7 @@ package com.multiheaded.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -24,16 +25,21 @@ public class PlaylistsCommand extends MusicCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        List<String> list = bot.getPlaylistLoader().getPlaylistNames();
-        if (list == null) {
-            event.reply(event.getClient().getError() + " Failed to load available playlists!");
-        } else if (list.isEmpty()) {
-            event.reply(event.getClient().getWarning() + " There are no playlists in the Playlists folder!");
-        } else {
-            StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\n");
-            list.forEach(str -> builder.append("`").append(str).append("` "));
-            builder.append("\nType `").append(event.getClient().getTextualPrefix()).append("play playlist <name>` to play a playlist");
-            event.reply(builder.toString());
+        try {
+            List<String> list = bot.getPlaylistLoader().getPlaylistNames();
+            if (list == null) {
+                event.replyError("Failed to load available playlists!");
+            } else if (list.isEmpty()) {
+                event.replyWarning("There are no playlists in the Playlists folder!");
+            } else {
+                StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\n");
+                list.forEach(str -> builder.append("`").append(str).append("` "));
+                builder.append("\nType `").append(event.getClient().getTextualPrefix())
+                        .append("play playlist <name>` to play a playlist");
+                event.reply(builder.toString());
+            }
+        } catch (IOException ioe) {
+            event.replyError(String.format("Local folder couldn't be processed! `[%s]`", ioe.getLocalizedMessage()));
         }
     }
 }

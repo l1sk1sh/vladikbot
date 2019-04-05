@@ -48,15 +48,20 @@ public class FileUtils {
         }
     }
 
-    public static void createFolder(String path) {
-        try {
-            Files.createDirectories(Paths.get(path));
-        } catch (IOException ignore) { /* Ignore */
-        }
+    public static boolean fileOrFolderIsAbsent(String path) {
+        return !Files.exists(Paths.get(path));
     }
 
-    public static boolean fileIsAbsent(String path) {
-        return !Files.exists(Paths.get(path));
+    public static void createFile(String path) throws IOException {
+        Files.createFile(Paths.get(path));
+    }
+
+    public static void createFolder(String path) throws IOException {
+        Files.createDirectories(Paths.get(path));
+    }
+
+    public static void deleteFile(String name) throws IOException {
+        Files.delete(Paths.get(name));
     }
 
     public static String readFile(File file, Charset encoding) throws IOException {

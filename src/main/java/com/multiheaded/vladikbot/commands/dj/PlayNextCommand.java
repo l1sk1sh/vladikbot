@@ -102,7 +102,7 @@ public class PlayNextCommand extends DJCommand {
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == FriendlyException.Severity.COMMON) {
                 message.editMessage(event.getClient().getError()
-                        + " Error loading: " + throwable.getMessage()).queue();
+                        + " Error loading: " + throwable.getLocalizedMessage()).queue();
             } else {
                 message.editMessage(event.getClient().getError()
                         + " Error loading track.").queue();

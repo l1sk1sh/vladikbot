@@ -19,12 +19,12 @@ import java.util.regex.Pattern;
  * @author Oliver Johnson
  */
 public class EmojiStatsService {
-    private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
+    private static final Logger logger = LoggerFactory.getLogger(EmojiStatsService.class);
 
     private final Map<String, Integer> emojiList = new HashMap<>();
 
     private final List<Emote> serverEmojiList;
-    private boolean ignoreUnicodeEmoji = false;
+    private boolean includeUnicodeEmoji = false;
     private boolean ignoreUnknownEmoji = false;
 
     public EmojiStatsService(File exportedFile, List<Emote> serverEmojiList, String[] args, LockService lock) {
@@ -46,7 +46,7 @@ public class EmojiStatsService {
                 }
             }
 
-            if (!ignoreUnicodeEmoji) {
+            if (!includeUnicodeEmoji) {
 
                 /* Unicode \ud83c\udc00 matcher */
                 Matcher unicodeEmojiMathcer =
@@ -58,7 +58,7 @@ public class EmojiStatsService {
             }
 
         } catch (IOException e) {
-            log.error("Failed to read exportedFile. {}", e.getMessage());
+            logger.error("Failed to read exportedFile. {}", e.getLocalizedMessage());
         } finally {
             lock.setAvailable(true);
         }
@@ -72,7 +72,7 @@ public class EmojiStatsService {
                         ignoreUnknownEmoji = true;
                         /* falls through */
                     case "-i":
-                        ignoreUnicodeEmoji = true;
+                        includeUnicodeEmoji = true;
                         break;
                 }
             }

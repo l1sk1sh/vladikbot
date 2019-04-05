@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.services.PlaylistLoaderService.Playlist;
+import com.multiheaded.vladikbot.services.PlaylistLoader.Playlist;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ public class PlaylistCommand extends OwnerCommand {
                     bot.getPlaylistLoader().createPlaylist(pname);
                     event.replySuccess("Successfully created playlist `" + pname + "`!");
                 } catch (IOException e) {
-                    event.replyError("I was unable to create the playlist: " + e.getLocalizedMessage());
+                    event.replyError("Unable to create the playlist: " + e.getLocalizedMessage());
                 }
             } else
                 event.replyError("Playlist `" + pname + "` already exists!");
@@ -89,7 +89,7 @@ public class PlaylistCommand extends OwnerCommand {
                     bot.getPlaylistLoader().deletePlaylist(pname);
                     event.replySuccess("Successfully deleted playlist `" + pname + "`!");
                 } catch (IOException e) {
-                    event.replyError("I was unable to delete the playlist: " + e.getLocalizedMessage());
+                    event.replyError("Unable to delete the playlist: " + e.getLocalizedMessage());
                 }
             }
         }
@@ -117,7 +117,11 @@ public class PlaylistCommand extends OwnerCommand {
             if (playlist == null) {
                 event.replyError("Playlist `" + pname + "` doesn't exist!");
             } else {
-                List<String> listOfUrlsToWrite = new ArrayList<>(playlist.getItems());
+                List<String> listOfUrlsToWrite = (
+                        playlist.getItems() == null)
+                        ? new ArrayList<>()
+                        : new ArrayList<>(playlist.getItems()
+                );
 
                 String[] urls = parts[1].split("\\|");
                 for (String url : urls) {
@@ -132,7 +136,7 @@ public class PlaylistCommand extends OwnerCommand {
                     bot.getPlaylistLoader().writePlaylist(pname, listOfUrlsToWrite);
                     event.replySuccess("Successfully added " + urls.length + " items to playlist `" + pname + "`!");
                 } catch (IOException e) {
-                    event.replyError("I was unable to append to the playlist: " + e.getLocalizedMessage());
+                    event.replyError("Unable to append to the playlist: " + e.getLocalizedMessage());
                 }
             }
         }
@@ -158,15 +162,19 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            List<String> list = bot.getPlaylistLoader().getPlaylistNames();
-            if (list == null) {
-                event.replyError("Failed to load available playlists!");
-            } else if (list.isEmpty()) {
-                event.replyWarning("There are no playlists in the Playlists folder!");
-            } else {
-                StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\n");
-                list.forEach(str -> builder.append("`").append(str).append("` "));
-                event.reply(builder.toString());
+            try {
+                List<String> list = bot.getPlaylistLoader().getPlaylistNames();
+                if (list == null) {
+                    event.replyError("Failed to load available playlists!");
+                } else if (list.isEmpty()) {
+                    event.replyWarning("There are no playlists in the Playlists folder!");
+                } else {
+                    StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\n");
+                    list.forEach(str -> builder.append("`").append(str).append("` "));
+                    event.reply(builder.toString());
+                }
+            } catch (IOException ioe) {
+                event.replyError(String.format("Local folder couldn't be processed! `[%s]`", ioe.getLocalizedMessage()));
             }
         }
     }
@@ -195,7 +203,7 @@ public class PlaylistCommand extends OwnerCommand {
                         event.replySuccess("Successfully shuffled playlist `" + pname + "`!");
                     }
                 } catch (IOException e) {
-                    event.replyError("I was unable to shuffle the playlist: " + e.getLocalizedMessage());
+                    event.replyError("Unable to shuffle the playlist: " + e.getLocalizedMessage());
                 }
             }
         }

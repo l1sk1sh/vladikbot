@@ -15,14 +15,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-import static com.multiheaded.vladikbot.utils.FileUtils.createFolder;
-import static com.multiheaded.vladikbot.utils.FileUtils.fileIsAbsent;
+import static com.multiheaded.vladikbot.utils.FileUtils.*;
 
 /**
  * @author Oliver Johnson
@@ -33,33 +30,32 @@ import static com.multiheaded.vladikbot.utils.FileUtils.fileIsAbsent;
  * @author John Grosh
  */
 @SuppressWarnings("unchecked")
-public class PlaylistLoaderService {
+public class PlaylistLoader {
     private final VladikBot bot;
     private final String extension = Constants.JSON_EXTENSION;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public PlaylistLoaderService(VladikBot bot) {
+    public PlaylistLoader(VladikBot bot) {
         this.bot = bot;
     }
 
-    public List<String> getPlaylistNames() {
-        if (fileIsAbsent(bot.getSettings().getPlaylistsFolder())) {
-            File folder = new File(bot.getSettings().getPlaylistsFolder());
-            return Arrays.stream(
-                    Objects.requireNonNull(folder.listFiles((pathname) -> pathname.getName().endsWith(extension)))
-            ).map(f -> f.getName().substring(0, f.getName().length() - extension.length())).collect(Collectors.toList());
-        } else {
+    public List<String> getPlaylistNames() throws IOException {
+        if (fileOrFolderIsAbsent(bot.getSettings().getPlaylistsFolder())) {
             createFolder(bot.getSettings().getPlaylistsFolder());
             return Collections.EMPTY_LIST;
+        } else {
+            File folder = new File(bot.getSettings().getPlaylistsFolder());
+            return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) -> pathname.getName().endsWith(extension)))
+            ).map(f -> f.getName().substring(0, f.getName().length() - extension.length())).collect(Collectors.toList());
         }
     }
 
     public void createPlaylist(String name) throws IOException {
-        Files.createFile(Paths.get(bot.getSettings().getPlaylistsFolder() + File.separator + name + extension));
+        createFile(bot.getSettings().getPlaylistsFolder() + name + extension);
     }
 
     public void deletePlaylist(String name) throws IOException {
-        Files.delete(Paths.get(bot.getSettings().getPlaylistsFolder() + File.separator + name + extension));
+        deleteFile(bot.getSettings().getPlaylistsFolder() + name + extension);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {
@@ -72,17 +68,18 @@ public class PlaylistLoaderService {
     }
 
     public Playlist getPlaylist(String name) {
-        if (!getPlaylistNames().contains(name))
-            return null;
         try {
-            if (fileIsAbsent(bot.getSettings().getPlaylistsFolder())) {
+            if (!getPlaylistNames().contains(name)) {
+                return null;
+            }
+            if (fileOrFolderIsAbsent(bot.getSettings().getPlaylistsFolder())) {
+                createFolder(bot.getSettings().getPlaylistsFolder());
+                return null;
+            } else {
                 List<String> list = gson.fromJson(new FileReader(bot.getSettings().getPlaylistsFolder()
                         + File.separator + name + extension), ArrayList.class);
 
                 return new Playlist(name, list);
-            } else {
-                createFolder(bot.getSettings().getPlaylistsFolder());
-                return null;
             }
         } catch (IOException e) {
             return null;
@@ -90,6 +87,10 @@ public class PlaylistLoaderService {
     }
 
     public void shuffle(String name) throws IOException {
+        if (getPlaylist(name).getItems().isEmpty() || (getPlaylist(name).getItems() == null)) {
+            throw new IOException("Playlist is empty and can't be shuffled");
+        }
+
         List<String> listToShuffle = getPlaylist(name).getItems();
         for (int first = 0; first < listToShuffle.size(); first++) {
             int second = (int) (Math.random() * listToShuffle.size());

@@ -33,7 +33,7 @@ public class Constants {
     public static final Map<String, String> FORMAT_EXTENSION;
     static {
         FORMAT_EXTENSION = new HashMap<>();
-        FORMAT_EXTENSION.put(BACKUP_HTML_DARK, JSON_EXTENSION);
+        FORMAT_EXTENSION.put(BACKUP_HTML_DARK, HTML_EXTENSION);
         FORMAT_EXTENSION.put(BACKUP_PLAIN_TEXT, TXT_EXTENSION);
     }
 

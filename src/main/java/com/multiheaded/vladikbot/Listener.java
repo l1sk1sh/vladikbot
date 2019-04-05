@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author John Grosh
  */
 class Listener extends ListenerAdapter {
-    private static final Logger log = LoggerFactory.getLogger(Listener.class);
+    private static final Logger logger = LoggerFactory.getLogger(Listener.class);
 
     private final VladikBot bot;
 
@@ -30,8 +30,8 @@ class Listener extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         if (event.getJDA().getGuilds().isEmpty()) {
-            log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
-            log.warn(event.getJDA().asBot().getInviteUrl(Constants.RECOMMENDED_PERMS));
+            logger.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
+            logger.warn(event.getJDA().asBot().getInviteUrl(Constants.RECOMMENDED_PERMS));
         }
 
         event.getJDA().getGuilds().forEach((guild) ->

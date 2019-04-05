@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.services.AutoModerationService;
+import com.multiheaded.vladikbot.services.AutoModeration;
 import com.multiheaded.vladikbot.models.entities.ReactionRule;
 
 import java.io.IOException;
@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class AutoModerationCommand extends AdminCommand {
     private final VladikBot bot;
-    private final AutoModerationService automod;
+    private final AutoModeration automod;
 
     public AutoModerationCommand(VladikBot bot) {
         this.bot = bot;
@@ -119,12 +119,16 @@ public class AutoModerationCommand extends AdminCommand {
             } catch (IllegalArgumentException iae) {
                 event.replyWarning(String.format("Input arguments were incorrect `[%s]`", event.getArgs()));
             } catch (IOException ioe) {
-                event.replyError(String.format("Failed to write new rule! `[%s]`", ioe.getMessage()));
+                event.replyError(String.format("Failed to write new rule! `[%s]`", ioe.getLocalizedMessage()));
             }
         }
     }
 
     class DeleteCommand extends AdminCommand {
+
+        DeleteCommand() {
+
+        }
 
         @Override
         protected void execute(CommandEvent event) {

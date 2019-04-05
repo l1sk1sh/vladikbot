@@ -12,18 +12,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import static com.multiheaded.vladikbot.utils.FileUtils.createFolder;
-import static com.multiheaded.vladikbot.utils.FileUtils.fileIsAbsent;
+import static com.multiheaded.vladikbot.utils.FileUtils.*;
 
 /**
  * @author Oliver Johnson
  */
-public class AutoModerationService {
+public class AutoModeration {
     private final VladikBot bot;
     private final String extension = Constants.JSON_EXTENSION;
     private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public AutoModerationService(VladikBot bot) {
+    public AutoModeration(VladikBot bot) {
         this.bot = bot;
     }
 
@@ -35,8 +34,16 @@ public class AutoModerationService {
         }
     }
 
+    public void createRule(String name) throws IOException {
+        createFile(bot.getSettings().getModerationRulesFolder() + name + extension);
+    }
+
+    public void deleteRule(String name) throws IOException {
+        deleteFile(bot.getSettings().getModerationRulesFolder() + name + extension);
+    }
+
     public void writeRule(ReactionRule rule) throws IOException {
-        if (fileIsAbsent(bot.getSettings().getModerationRulesFolder())) {
+        if (fileOrFolderIsAbsent(bot.getSettings().getModerationRulesFolder())) {
             createFolder(bot.getSettings().getModerationRulesFolder());
         }
 

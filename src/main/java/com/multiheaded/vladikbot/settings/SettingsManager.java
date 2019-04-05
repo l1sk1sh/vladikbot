@@ -15,7 +15,7 @@ import static com.multiheaded.vladikbot.settings.Constants.SETTINGS_JSON;
  * @author Oliver Johnson
  */
 public class SettingsManager {
-    private static final Logger log = LoggerFactory.getLogger(SettingsManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(SettingsManager.class);
     private static final SettingsManager instance = new SettingsManager();
     private Settings settings;
     private final File confFile;
@@ -28,7 +28,7 @@ public class SettingsManager {
         if (!confFile.exists()) {
             this.settings = new Settings();
             writeSettings();
-            log.warn(String.format("Created %s. You will have to setup it manually", SETTINGS_JSON));
+            logger.warn(String.format("Created %s. You will have to setup it manually", SETTINGS_JSON));
             System.exit(1);
         } else {
             try {
@@ -41,8 +41,8 @@ public class SettingsManager {
                         Settings.class
                 );
             } catch (IOException e) {
-                log.error(String.format("Error while reading %s file.", SETTINGS_JSON),
-                        e.getMessage(), e.getCause());
+                logger.error(String.format("Error while reading %s file.", SETTINGS_JSON),
+                        e.getLocalizedMessage(), e.getCause());
             }
         }
     }
@@ -55,8 +55,8 @@ public class SettingsManager {
             gson.toJson(settings, Settings.class, writer);
             writer.close();
         } catch (IOException e) {
-            log.error(String.format("Error while writing %s file.", SETTINGS_JSON),
-                    e.getMessage(), e.getCause());
+            logger.error(String.format("Error while writing %s file.", SETTINGS_JSON),
+                    e.getLocalizedMessage(), e.getCause());
         }
     }
 

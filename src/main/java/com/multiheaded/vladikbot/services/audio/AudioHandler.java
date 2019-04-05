@@ -4,7 +4,7 @@ import com.multiheaded.vladikbot.models.queue.FairQueue;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.services.PlaylistLoaderService.Playlist;
+import com.multiheaded.vladikbot.services.PlaylistLoader.Playlist;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -110,7 +110,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         }
 
         Playlist playlist = manager.getBot().getPlaylistLoader().getPlaylist(settings.getDefaultPlaylist());
-        if (playlist == null || playlist.getItems().isEmpty()) {
+        if (playlist == null || playlist.getItems().isEmpty() || (playlist.getItems() == null)) {
             return false;
         }
 

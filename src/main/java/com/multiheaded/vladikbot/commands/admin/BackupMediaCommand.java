@@ -72,13 +72,13 @@ public class BackupMediaCommand extends AdminCommand {
                     }
 
                 } catch (InterruptedException e) {
-                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
+                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getLocalizedMessage()));
                 } catch (IOException ioe) {
-                    event.replyError(String.format("**Failed** to properly *work* with files! `[%s]`", ioe.getMessage()));
+                    event.replyError(String.format("**Failed** to properly *work* with files! `[%s]`", ioe.getLocalizedMessage()));
                 } catch (InvalidParameterException ipe) {
-                    event.replyError(ipe.getMessage());
+                    event.replyError(ipe.getLocalizedMessage());
                 } catch (Exception e) {
-                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getMessage()));
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getLocalizedMessage()));
                 }
             }).start();
         } else {

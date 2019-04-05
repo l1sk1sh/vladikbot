@@ -27,7 +27,7 @@ import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
  * @author Oliver Johnson
  */
 public class BackupChannelService {
-    private static final Logger log = LoggerFactory.getLogger(BackupChannelService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BackupChannelService.class);
 
     private File exportedFile;
     private final String channelId;
@@ -65,13 +65,13 @@ public class BackupChannelService {
                     || forceBackup) {
 
                 new BackupProcess(constructBackupCommand());
-                log.info("Waiting for backup to finish...");
-                log.debug("Passing command {}", constructBackupCommand());
+                logger.info("Waiting for backup to finish...");
+                logger.debug("Passing command {}", constructBackupCommand());
 
                 FileUtils.deleteFilesByIdAndExtension(localPathToExport, channelId, extension);
                 new CopyProcess(constructCopyCommand());
-                log.info("Copying received file...");
-                log.debug("Passing command {}", constructCopyCommand());
+                logger.info("Copying received file...");
+                logger.debug("Passing command {}", constructCopyCommand());
 
                 exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
                 if (exportedFile == null) {
@@ -79,22 +79,22 @@ public class BackupChannelService {
                 }
             }
         } catch (IOException ioe) {
-            String msg = String.format("Failed to find exported file [%s]", ioe.getMessage());
-            log.error(msg);
+            String msg = String.format("Failed to find exported file [%s]", ioe.getLocalizedMessage());
+            logger.error(msg);
             throw new IOException(msg);
         } catch (InterruptedException ie) {
-            String msg = String.format("Backup thread interrupted on services level [%s]", ie.getMessage());
-            log.error(msg);
+            String msg = String.format("Backup thread interrupted on services level [%s]", ie.getLocalizedMessage());
+            logger.error(msg);
             throw new InterruptedException(msg);
         } finally {
             try {
-                log.info("Cleaning docker container...");
-                log.debug("Passing command {}", constructCleanCommand());
+                logger.info("Cleaning docker container...");
+                logger.debug("Passing command {}", constructCleanCommand());
                 new CleanProcess(constructCleanCommand());
             } catch (InterruptedException ire) {
-                log.error("Clean process thread was interrupted {}", ire.getMessage());
+                logger.error("Clean process thread was interrupted {}", ire.getLocalizedMessage());
             } catch (NotFound nf) {
-                log.error("Container was not found");
+                logger.error("Container was not found");
             } finally {
                 lock.setAvailable(true);
             }
@@ -189,7 +189,7 @@ public class BackupChannelService {
             }
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
             String msg = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
-            log.error(msg);
+            logger.error(msg);
             throw new InvalidParameterException(msg);
         }
     }

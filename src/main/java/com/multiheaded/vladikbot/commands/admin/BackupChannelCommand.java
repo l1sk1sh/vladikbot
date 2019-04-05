@@ -53,13 +53,13 @@ public class BackupChannelCommand extends AdminCommand {
                     }
 
                 } catch (IOException ioe) {
-                    event.replyWarning(String.format("Something with files gone mad! Ask owner for help! `[%s]`", ioe.getMessage()));
+                    event.replyWarning(String.format("Something with files gone mad! Ask owner for help! `[%s]`", ioe.getLocalizedMessage()));
                 } catch (InterruptedException ie) {
-                    event.replyError(String.format("Backup **has failed**! `[%s]`", ie.getMessage()));
+                    event.replyError(String.format("Backup **has failed**! `[%s]`", ie.getLocalizedMessage()));
                 } catch (InvalidParameterException ipe) {
-                    event.replyError(ipe.getMessage());
+                    event.replyError(ipe.getLocalizedMessage());
                 } catch (Exception e) {
-                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getMessage()));
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getLocalizedMessage()));
                 }
             }).start();
         } else {

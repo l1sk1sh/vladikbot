@@ -126,7 +126,7 @@ public class SearchCommand extends MusicCommand {
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == Severity.COMMON) {
                 message.editMessage(event.getClient().getError()
-                        + " Error loading: " + throwable.getMessage()).queue();
+                        + " Error loading: " + throwable.getLocalizedMessage()).queue();
             } else {
                 message.editMessage(event.getClient().getError()
                         + " Error loading track.").queue();
