@@ -2,10 +2,8 @@ package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.audio.QueuedTrack;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
+import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.User;
 
@@ -55,10 +53,9 @@ public class RemoveCommand extends MusicCommand {
             return;
         }
 
-        Settings settings = SettingsManager.getInstance().getSettings();
         boolean isDJ = event.getMember().hasPermission(Permission.MANAGE_SERVER);
         if (!isDJ) {
-            isDJ = event.getMember().getRoles().contains(settings.getDjRole(event.getGuild()));
+            isDJ = event.getMember().getRoles().contains(bot.getSettings().getDjRole(event.getGuild()));
         }
 
         QueuedTrack queuedTrack = audioHandler.getQueue().get(pos - 1);

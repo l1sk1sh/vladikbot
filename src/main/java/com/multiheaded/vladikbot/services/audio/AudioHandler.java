@@ -1,10 +1,10 @@
-package com.multiheaded.vladikbot.audio;
+package com.multiheaded.vladikbot.services.audio;
 
 import com.multiheaded.vladikbot.models.queue.FairQueue;
+import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
-import com.multiheaded.vladikbot.models.playlist.PlaylistLoader.Playlist;
+import com.multiheaded.vladikbot.services.PlaylistLoaderService.Playlist;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -44,11 +44,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
     private AudioFrame lastFrame;
 
-    AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player) {
+    AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player, Settings settings) {
         this.manager = manager;
         this.audioPlayer = player;
         this.guildId = guild.getIdLong();
-        settings = SettingsManager.getInstance().getSettings();
+        this.settings = settings;
     }
 
     public int addTrackToFront(QueuedTrack qtrack) {
@@ -78,7 +78,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         queue.clear();
         defaultQueue.clear();
         audioPlayer.stopTrack();
-        //current = null;
     }
 
     public boolean isMusicPlaying(JDA jda) {
@@ -131,10 +130,10 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         return true;
     }
 
-    // Audio Events
+    /* Audio Events */
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        // if the track ended normally, and we're in repeat mode, re-add it to the queue
+        /* If the track ended normally, and we're in repeat mode, re-add it to the queue */
         if (endReason == AudioTrackEndReason.FINISHED && settings.shouldRepeat()) {
             queue.add(new QueuedTrack(track.makeClone(),
                     track.getUserData(Long.class) == null ? 0L : track.getUserData(Long.class)));
@@ -160,7 +159,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     }
 
 
-    // Formatting
+    /* Formatting of the message */
     public Message getNowPlaying(JDA jda) {
         if (isMusicPlaying(jda)) {
             Guild guild = guild(jda);
@@ -242,7 +241,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         }
     }
 
-    // Audio Send Handler methods
+    /* Audio Send Handler methods */
     @Override
     public boolean canProvide() {
         if (lastFrame == null) {

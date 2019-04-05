@@ -2,8 +2,6 @@ package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 
 /**
  * @author Oliver Johnson
@@ -20,13 +18,12 @@ public class RepeatCommand extends DJCommand {
         this.guildOnly = true;
     }
 
-    // override musiccommand's execute because we don't actually care where this is used
+    /* Override musiccommand's execute because we don't actually care where this is used */
     @Override
     protected void execute(CommandEvent event) {
         boolean value;
-        Settings settings = SettingsManager.getInstance().getSettings();
         if (event.getArgs().isEmpty()) {
-            value = !settings.shouldRepeat();
+            value = !bot.getSettings().shouldRepeat();
         } else if (event.getArgs().equalsIgnoreCase("true") || event.getArgs().equalsIgnoreCase("on")) {
             value = true;
         } else if (event.getArgs().equalsIgnoreCase("false") || event.getArgs().equalsIgnoreCase("off")) {
@@ -35,10 +32,10 @@ public class RepeatCommand extends DJCommand {
             event.replyError("Valid options are `on` or `off` (or leave empty to toggle)");
             return;
         }
-        settings.setRepeat(value);
+        bot.getSettings().setRepeat(value);
         event.replySuccess("Repeat mode is now `" + (value ? "ON" : "OFF") + "`");
     }
 
     @Override
-    public void doCommand(CommandEvent event) { /* Intentionally Empty */ }
+    public void doCommand(CommandEvent event) { /* Intentionally empty */ }
 }

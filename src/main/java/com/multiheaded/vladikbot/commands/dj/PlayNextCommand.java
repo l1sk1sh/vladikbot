@@ -2,10 +2,8 @@ package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.audio.QueuedTrack;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
+import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -20,8 +18,6 @@ import net.dv8tion.jda.core.entities.Message;
  * @author John Grosh
  */
 public class PlayNextCommand extends DJCommand {
-    private final Settings settings;
-
     public PlayNextCommand(VladikBot bot) {
         super(bot);
         this.name = "playnext";
@@ -29,7 +25,6 @@ public class PlayNextCommand extends DJCommand {
         this.help = "plays a single song next";
         this.beListening = true;
         this.bePlaying = false;
-        settings = SettingsManager.getInstance().getSettings();
     }
 
     @Override
@@ -41,7 +36,7 @@ public class PlayNextCommand extends DJCommand {
         String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">")
                 ? event.getArgs().substring(1, event.getArgs().length() - 1)
                 : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(settings.getLoadingEmoji() + " Loading... `[" + args + "]`", m -> bot.getPlayerManager()
+        event.reply(bot.getSettings().getLoadingEmoji() + " Loading... `[" + args + "]`", m -> bot.getPlayerManager()
                 .loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
     }
 
@@ -57,11 +52,11 @@ public class PlayNextCommand extends DJCommand {
         }
 
         private void loadSingle(AudioTrack track) {
-            if (settings.isTooLong(track)) {
+            if (bot.getSettings().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
                         + FormatUtils.formatTime(track.getDuration())
-                        + "` > `" + FormatUtils.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
+                        + "` > `" + FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000) + "`")).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();

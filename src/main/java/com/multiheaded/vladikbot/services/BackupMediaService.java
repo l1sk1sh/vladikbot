@@ -1,6 +1,6 @@
-package com.multiheaded.vladikbot.conductors.services;
+package com.multiheaded.vladikbot.services;
 
-import com.multiheaded.vladikbot.models.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockService;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.utils.FileUtils;
 import com.multiheaded.vladikbot.utils.StringUtils;
@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -20,35 +19,33 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.multiheaded.vladikbot.settings.Constants.TMP_MEDIA_FOLDER;
+import static com.multiheaded.vladikbot.utils.FileUtils.fileIsAbsent;
+import static com.multiheaded.vladikbot.utils.FileUtils.createFolder;
+import static com.multiheaded.vladikbot.utils.FileUtils.zipFile;
 
 /**
  * @author Oliver Johnson
  */
 public class BackupMediaService {
-    private static final Logger logger = LoggerFactory.getLogger(BackupMediaService.class);
+    private static final Logger log = LoggerFactory.getLogger(BackupMediaService.class);
 
-    private final String[] args;
     private boolean doZip = false;
     private boolean useSupportedMedia = true;
     private boolean downloadComplete;
     private File resultFile;
 
-    public BackupMediaService(String channelId, File exportedFile, String localTmpPath, String genericFileName,
-                              String[] args, LockdownInterface lock)
+    public BackupMediaService(File exportedFile, String channelId, String localTmpPath, String localMediaPath,
+                              String genericFileName, String[] args, LockService lock)
             throws IOException {
-        this.args = args;
 
         try {
             lock.setAvailable(false);
-            processArguments();
+            processArguments(args);
 
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
 
@@ -57,7 +54,7 @@ public class BackupMediaService {
 
             while (urlAttachmentsMatcher.find()) {
                 if (useSupportedMedia) {
-                    if (!StringUtils.containsStringFromArray(
+                    if (StringUtils.notInArray(
                             urlAttachmentsMatcher.group(), Constants.SUPPORTED_MEDIA_FORMATS)) {
                         continue;
                     }
@@ -65,7 +62,7 @@ public class BackupMediaService {
                 setOfMediaUrls.add(urlAttachmentsMatcher.group());
             }
 
-            logger.info("Writing media URLs into a file.");
+            log.info("Writing media URLs into a file.");
             if (useSupportedMedia) {
                 StringBuilder htmlContent = new StringBuilder();
                 htmlContent.append("<!doctype html><html lang=\"en\"><head>");
@@ -87,21 +84,21 @@ public class BackupMediaService {
             }
 
             if (doZip) {
-                logger.info("Downloading media files from Discord CDN.");
-                String mediaFolderPath = localTmpPath + TMP_MEDIA_FOLDER + "/" + channelId + "/";
+                log.info("Downloading media files from Discord CDN.");
+                String mediaFolderPath = localMediaPath + "/" + channelId + "/";
 
-                if (!new File(mediaFolderPath).exists()) {
-                    logger.info("Creating [{}] directory.", mediaFolderPath);
-                    Files.createDirectories(Paths.get(mediaFolderPath));
+                if (fileIsAbsent(mediaFolderPath)) {
+                    log.info("Creating [{}] directory.", mediaFolderPath);
+                    createFolder(mediaFolderPath);
                 }
 
                 for (String mediaUrl : setOfMediaUrls) {
                     if (useSupportedMedia) {
-                        if (!StringUtils.containsStringFromArray(mediaUrl, Constants.SUPPORTED_MEDIA_FORMATS)) continue;
+                        if (StringUtils.notInArray(mediaUrl, Constants.SUPPORTED_MEDIA_FORMATS)) continue;
                     }
 
-                    String tempUrl = StringUtils.replaceLast(mediaUrl, "/", "_"); //Replacing last '/'
-                    Matcher urlNameMatcher = Pattern.compile("[^/]+$").matcher(tempUrl); //Getting exact file name
+                    String tempUrl = StringUtils.replaceLast(mediaUrl, "/", "_"); /* Replacing last '/' */
+                    Matcher urlNameMatcher = Pattern.compile("[^/]+$").matcher(tempUrl); /* Getting exact file name */
                     if (urlNameMatcher.find()) {
                         String remoteFileName = urlNameMatcher.group();
                         downloadFile(new URL(mediaUrl),
@@ -121,7 +118,7 @@ public class BackupMediaService {
             }
 
         } catch (IOException e) {
-            logger.error("Failed to read exported file, to write local file or to download media. {}", e.getMessage());
+            log.error("Failed to read exported file, to write local file or to download media. {}", e.getMessage());
             throw e;
         } finally {
             lock.setAvailable(true);
@@ -129,8 +126,8 @@ public class BackupMediaService {
     }
 
     private void downloadFile(URL url, String localFileNamePath) throws IOException {
-        if (!new File(localFileNamePath).exists()) {
-            logger.info("Downloading file [{}]", localFileNamePath);
+        if (fileIsAbsent(localFileNamePath)) {
+            log.info("Downloading file [{}]", localFileNamePath);
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", Constants.USER_AGENT);
             ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());
@@ -140,7 +137,7 @@ public class BackupMediaService {
         }
     }
 
-    private void processArguments() {
+    private void processArguments(String[] args) {
         if (args.length > 0) {
             for (String arg : args) {
                 switch (arg) {
@@ -155,35 +152,6 @@ public class BackupMediaService {
                 }
             }
         }
-    }
-
-    private void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
-        if (fileToZip.isHidden()) {
-            return;
-        }
-        if (fileToZip.isDirectory()) {
-            if (fileName.endsWith("/")) {
-                zipOut.putNextEntry(new ZipEntry(fileName));
-                zipOut.closeEntry();
-            } else {
-                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
-                zipOut.closeEntry();
-            }
-            File[] children = fileToZip.listFiles();
-            for (File childFile : Objects.requireNonNull(children)) {
-                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
-            }
-            return;
-        }
-        FileInputStream fis = new FileInputStream(fileToZip);
-        ZipEntry zipEntry = new ZipEntry(fileName);
-        zipOut.putNextEntry(zipEntry);
-        byte[] bytes = new byte[1024];
-        int length;
-        while ((length = fis.read(bytes)) >= 0) {
-            zipOut.write(bytes, 0, length);
-        }
-        fis.close();
     }
 
     public boolean doZip() {

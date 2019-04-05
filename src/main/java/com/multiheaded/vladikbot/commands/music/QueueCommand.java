@@ -3,11 +3,9 @@ package com.multiheaded.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.audio.QueuedTrack;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
+import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -81,10 +79,9 @@ public class QueueCommand extends MusicCommand {
             songs[i] = list.get(i).toString();
         }
 
-        Settings settings = SettingsManager.getInstance().getSettings();
         long fintotal = total;
         builder.setText((i1, i2) -> getQueueTitle(ah, event.getClient().getSuccess(), songs.length, fintotal,
-                settings.shouldRepeat()))
+                bot.getSettings().shouldRepeat()))
                 .setItems(songs)
                 .setUsers(event.getAuthor())
                 .setColor(event.getSelfMember().getColor())

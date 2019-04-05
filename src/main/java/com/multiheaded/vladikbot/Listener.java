@@ -1,8 +1,6 @@
 package com.multiheaded.vladikbot;
 
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -24,11 +22,9 @@ class Listener extends ListenerAdapter {
     private static final Logger log = LoggerFactory.getLogger(Listener.class);
 
     private final VladikBot bot;
-    private final Settings settings;
 
     Listener(VladikBot bot) {
         this.bot = bot;
-        settings = SettingsManager.getInstance().getSettings();
     }
 
     @Override
@@ -41,8 +37,8 @@ class Listener extends ListenerAdapter {
         event.getJDA().getGuilds().forEach((guild) ->
         {
             try {
-                String defpl = settings.getDefaultPlaylist();
-                VoiceChannel vc = settings.getVoiceChannel(guild);
+                String defpl = bot.getSettings().getDefaultPlaylist();
+                VoiceChannel vc = bot.getSettings().getVoiceChannel(guild);
                 if (defpl != null && vc != null && bot.getPlayerManager().setUpHandler(guild).playFromDefault()) {
                     guild.getAudioManager().openAudioConnection(vc);
                 }
@@ -61,7 +57,7 @@ class Listener extends ListenerAdapter {
         Message message = event.getMessage();
 
         if (!message.getAuthor().isBot()) {
-            bot.getAutoModeration().performAutomod(message);
+            bot.getAutoModerationService().performAutomod(message);
         }
     }
 

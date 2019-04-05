@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
-import com.multiheaded.vladikbot.settings.Settings;
+import com.multiheaded.vladikbot.models.SettingsFunction;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
@@ -15,10 +15,13 @@ import java.util.List;
  * @author John Grosh
  */
 public class SetVoiceChannelCommand extends AdminCommand {
-    public SetVoiceChannelCommand() {
+    private final SettingsFunction<VoiceChannel> setVoiceChannelId;
+
+    public SetVoiceChannelCommand(SettingsFunction<VoiceChannel> setVoiceChannelId) {
         this.name = "setvc";
         this.help = "sets the voice channel for playing music";
         this.arguments = "<channel|NONE>";
+        this.setVoiceChannelId = setVoiceChannelId;
     }
 
     @Override
@@ -28,9 +31,8 @@ public class SetVoiceChannelCommand extends AdminCommand {
             return;
         }
 
-        Settings settings = event.getClient().getSettingsFor(event.getGuild());
         if (event.getArgs().equalsIgnoreCase("none")) {
-            settings.setVoiceChannelId(null);
+            setVoiceChannelId.set(null);
             event.reply(event.getClient().getSuccess() + " Music can now be played in any channel");
         } else {
             List<VoiceChannel> list = FinderUtil.findVoiceChannels(event.getArgs(), event.getGuild());
@@ -40,7 +42,7 @@ public class SetVoiceChannelCommand extends AdminCommand {
             } else if (list.size() > 1) {
                 event.reply(event.getClient().getWarning() + FormatUtils.listOfVChannels(list, event.getArgs()));
             } else {
-                settings.setVoiceChannelId(list.get(0));
+                setVoiceChannelId.set(list.get(0));
                 event.reply(event.getClient().getSuccess()
                         + " Music can now only be played in **" + list.get(0).getName() + "**");
             }

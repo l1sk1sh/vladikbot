@@ -4,17 +4,16 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.audio.NowPlayingHandler;
-import com.multiheaded.vladikbot.audio.PlayerManager;
-import com.multiheaded.vladikbot.automod.AutoModeration;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
+import com.multiheaded.vladikbot.services.audio.NowPlayingHandler;
+import com.multiheaded.vladikbot.services.audio.PlayerManager;
+import com.multiheaded.vladikbot.services.AutoModerationService;
 import com.multiheaded.vladikbot.commands.admin.*;
 import com.multiheaded.vladikbot.commands.dj.*;
 import com.multiheaded.vladikbot.commands.everyone.SettingsCommand;
 import com.multiheaded.vladikbot.commands.music.*;
 import com.multiheaded.vladikbot.commands.owner.*;
-import com.multiheaded.vladikbot.database.Database;
-import com.multiheaded.vladikbot.models.playlist.PlaylistLoader;
+import com.multiheaded.vladikbot.services.PlaylistLoaderService;
 import com.multiheaded.vladikbot.settings.Settings;
 import com.multiheaded.vladikbot.settings.SettingsManager;
 import net.dv8tion.jda.core.AccountType;
@@ -27,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.sql.SQLException;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,41 +34,32 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author Oliver Johnson
  */
 public class VladikBot {
-    private static final Logger logger = LoggerFactory.getLogger(VladikBot.class);
+    private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
     private final EventWaiter waiter;
     private final ScheduledExecutorService threadPool;
     private final Settings settings = SettingsManager.getInstance().getSettings();
     private final PlayerManager players;
-    private final PlaylistLoader playlists;
+    private final PlaylistLoaderService playlists;
     private final NowPlayingHandler nowPlaying;
-    private final AutoModeration autoModeration;
+    private final AutoModerationService autoModerationService;
 
     private boolean availableBackup = true;
     private boolean shuttingDown = false;
-    private boolean databaseAvailable = false;
     private JDA jda;
 
     private VladikBot() {
         this.threadPool = Executors.newSingleThreadScheduledExecutor();
         this.waiter = new EventWaiter();
-        this.playlists = new PlaylistLoader();
+        this.playlists = new PlaylistLoaderService(this);
         this.players = new PlayerManager(this);
         this.players.init();
         this.nowPlaying = new NowPlayingHandler(this);
         this.nowPlaying.init();
-        this.autoModeration = new AutoModeration(this);
+        this.autoModerationService = new AutoModerationService(this);
 
         try {
             Settings settings = SettingsManager.getInstance().getSettings();
-            Database database;
-
-            try {
-                database = new Database();
-                databaseAvailable = true;
-            } catch (SQLException | ClassNotFoundException e) {
-                logger.warn("Database is not properly configured. Some features will not be available. {}", e.getMessage());
-            }
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                     .setPrefix(settings.getPrefix())
@@ -84,14 +73,15 @@ public class VladikBot {
                     .setLinkedCacheSize(200)
                     .addCommands(
                             new PingCommand(),
-                            new SettingsCommand(),
+                            new SettingsCommand(settings),
 
-                            new SetDjCommand(),
-                            new SetTextChannelCommand(),
-                            new SetVoiceChannelCommand(),
+                            new SetDjCommand(settings::setDjRoleId),
+                            new SetTextChannelCommand(settings::setTextChannelId),
+                            new SetVoiceChannelCommand(settings::setVoiceChannelId),
                             new BackupMediaCommand(this),
                             new BackupChannelCommand(this),
                             new EmojiStatsCommand(waiter, this),
+                            new AutoModerationCommand(this),
 
                             new ForceskipCommand(this),
                             new PauseCommand(this),
@@ -136,10 +126,10 @@ public class VladikBot {
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
         } catch (ExceptionInInitializerError e) {
-            logger.error("Problematic settings input");
+            log.error("Problematic settings input");
             System.exit(1);
         } catch (LoginException le) {
-            logger.error("Invalid username and/or password.");
+            log.error("Invalid username and/or password.");
             System.exit(1);
         }
     }
@@ -160,7 +150,7 @@ public class VladikBot {
         return players;
     }
 
-    public PlaylistLoader getPlaylistLoader() {
+    public PlaylistLoaderService getPlaylistLoader() {
         return playlists;
     }
 
@@ -168,8 +158,8 @@ public class VladikBot {
         return nowPlaying;
     }
 
-    public AutoModeration getAutoModeration() {
-        return autoModeration;
+    public AutoModerationService getAutoModerationService() {
+        return autoModerationService;
     }
 
     public JDA getJDA() {
@@ -219,10 +209,6 @@ public class VladikBot {
 
     public void setAvailableBackup(boolean availableBackup) {
         this.availableBackup = availableBackup;
-    }
-
-    public boolean isDatabaseAvailable() {
-        return databaseAvailable;
     }
 
     public Settings getSettings() {

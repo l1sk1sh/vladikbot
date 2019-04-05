@@ -3,9 +3,7 @@ package com.multiheaded.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.core.entities.GuildVoiceState;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -30,8 +28,7 @@ public abstract class MusicCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        Settings settings = SettingsManager.getInstance().getSettings();
-        TextChannel tchannel = settings.getTextChannel(event.getGuild());
+        TextChannel tchannel = bot.getSettings().getTextChannel(event.getGuild());
 
         if (tchannel != null && !event.getTextChannel().equals(tchannel)) {
             try {
@@ -43,7 +40,7 @@ public abstract class MusicCommand extends Command {
             return;
         }
 
-        bot.getPlayerManager().setUpHandler(event.getGuild()); // no point constantly checking for this later
+        bot.getPlayerManager().setUpHandler(event.getGuild()); /* No point constantly checking for this later */
         if (bePlaying && !((AudioHandler) event.getGuild().getAudioManager().getSendingHandler())
                 .isMusicPlaying(event.getJDA())) {
             event.reply(event.getClient().getError() + " There must be music playing to use that!");
@@ -52,7 +49,7 @@ public abstract class MusicCommand extends Command {
         if (beListening) {
             VoiceChannel current = event.getGuild().getSelfMember().getVoiceState().getChannel();
             if (current == null) {
-                current = settings.getVoiceChannel(event.getGuild());
+                current = bot.getSettings().getVoiceChannel(event.getGuild());
             }
 
             GuildVoiceState userState = event.getMember().getVoiceState();

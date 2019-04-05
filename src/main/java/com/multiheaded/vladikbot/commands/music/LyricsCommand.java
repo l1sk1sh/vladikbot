@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jlyrics.LyricsClient;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
 

@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.conductors.services.ClearTmpService;
+import com.multiheaded.vladikbot.services.ClearTmpService;
 
 import java.io.IOException;
 

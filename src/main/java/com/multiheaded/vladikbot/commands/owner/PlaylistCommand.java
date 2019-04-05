@@ -3,8 +3,7 @@ package com.multiheaded.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.models.playlist.PlaylistLoader.Playlist;
-import org.json.JSONArray;
+import com.multiheaded.vladikbot.services.PlaylistLoaderService.Playlist;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -159,13 +158,6 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            if (!bot.getPlaylistLoader().folderExists())
-                bot.getPlaylistLoader().createFolder();
-            if (!bot.getPlaylistLoader().folderExists()) {
-                event.replyWarning("Playlists folder does not exist and could not be created!");
-                return;
-            }
-
             List<String> list = bot.getPlaylistLoader().getPlaylistNames();
             if (list == null) {
                 event.replyError("Failed to load available playlists!");

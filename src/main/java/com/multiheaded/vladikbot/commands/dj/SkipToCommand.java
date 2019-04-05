@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
 
 /**
  * @author Oliver Johnson

@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Role;
@@ -18,16 +17,18 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
  * @author John Grosh
  */
 public class SettingsCommand extends Command {
-    public SettingsCommand() {
+    private final Settings settings;
+
+    public SettingsCommand(Settings settings) {
         this.name = "settings";
         this.help = "shows the bots settings";
         this.aliases = new String[]{"status"};
         this.guildOnly = true;
+        this.settings = settings;
     }
 
     @Override
     protected void execute(CommandEvent event) {
-        Settings settings = SettingsManager.getInstance().getSettings();
         MessageBuilder builder = new MessageBuilder()
                 .append(Constants.HEADPHONES_EMOJI + " **")
                 .append(event.getSelfUser().getName())

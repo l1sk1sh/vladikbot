@@ -4,12 +4,10 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.audio.QueuedTrack;
-import com.multiheaded.vladikbot.models.playlist.PlaylistLoader.Playlist;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
+import com.multiheaded.vladikbot.models.queue.QueuedTrack;
+import com.multiheaded.vladikbot.services.PlaylistLoaderService.Playlist;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -30,9 +28,6 @@ import java.util.concurrent.TimeUnit;
  * @author John Grosh
  */
 public class PlayCommand extends MusicCommand {
-
-    private final Settings settings;
-
     public PlayCommand(VladikBot bot) {
         super(bot);
         this.name = "play";
@@ -41,7 +36,6 @@ public class PlayCommand extends MusicCommand {
         this.beListening = true;
         this.bePlaying = false;
         this.children = new Command[]{new PlaylistCommand(bot)};
-        settings = SettingsManager.getInstance().getSettings();
     }
 
     @Override
@@ -52,7 +46,7 @@ public class PlayCommand extends MusicCommand {
                 boolean isDJ = event.getMember().hasPermission(Permission.MANAGE_SERVER);
                 if (!isDJ)
                     isDJ = event.isOwner();
-                Role dj = settings.getDjRole(event.getGuild());
+                Role dj = bot.getSettings().getDjRole(event.getGuild());
                 if (!isDJ && dj != null)
                     isDJ = event.getMember().getRoles().contains(dj);
                 if (!isDJ)
@@ -78,7 +72,8 @@ public class PlayCommand extends MusicCommand {
         String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">")
                 ? event.getArgs().substring(1, event.getArgs().length() - 1)
                 : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(settings.getLoadingEmoji() + " Loading... `[" + args + "]`", m -> bot.getPlayerManager().loadItemOrdered(
+        event.reply(bot.getSettings().getLoadingEmoji()
+                + " Loading... `[" + args + "]`", m -> bot.getPlayerManager().loadItemOrdered(
                 event.getGuild(), args, new ResultHandler(m, event, false)));
     }
 
@@ -94,11 +89,11 @@ public class PlayCommand extends MusicCommand {
         }
 
         private void loadSingle(AudioTrack track, AudioPlaylist playlist) {
-            if (settings.isTooLong(track)) {
+            if (bot.getSettings().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
                         + FormatUtils.formatTime(track.getDuration()) + "` > `"
-                        + FormatUtils.formatTime(settings.getMaxSeconds() * 1000) + "`")).queue();
+                        + FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000) + "`")).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
@@ -139,7 +134,7 @@ public class PlayCommand extends MusicCommand {
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude) {
             int[] count = {0};
             playlist.getTracks().forEach((track) -> {
-                if (!settings.isTooLong(track) && !track.equals(exclude)) {
+                if (!bot.getSettings().isTooLong(track) && !track.equals(exclude)) {
                     AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                     audioHandler.addTrack(new QueuedTrack(track, event.getAuthor()));
                     count[0]++;
@@ -169,7 +164,7 @@ public class PlayCommand extends MusicCommand {
                             + " All entries in this playlist " +
                             (playlist.getName() == null ? "" : "(**" + playlist.getName()
                                     + "**) ") + "were longer than the allowed maximum (`"
-                            + settings.getMaxTime() + "`)")).queue();
+                            + bot.getSettings().getMaxTime() + "`)")).queue();
                 } else {
                     message.editMessage(FormatUtils.filter(event.getClient().getSuccess() + " Found "
                             + (playlist.getName() == null ? "a playlist" : "playlist **"
@@ -177,7 +172,7 @@ public class PlayCommand extends MusicCommand {
                             + playlist.getTracks().size() + "` entries; added to the queue!"
                             + (count < playlist.getTracks().size() ? "\n" + event.getClient().getWarning()
                             + " Tracks longer than the allowed maximum (`"
-                            + settings.getMaxTime() + "`) have been omitted." : ""))).queue();
+                            + bot.getSettings().getMaxTime() + "`) have been omitted." : ""))).queue();
                 }
             }
         }
@@ -228,7 +223,7 @@ public class PlayCommand extends MusicCommand {
                 return;
             }
 
-            event.getChannel().sendMessage(settings.getLoadingEmoji() + " Loading playlist **"
+            event.getChannel().sendMessage(bot.getSettings().getLoadingEmoji() + " Loading playlist **"
                     + event.getArgs() + "**... (" + playlist.getItems().size() + " items)").queue(m ->
             {
                 AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();

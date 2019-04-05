@@ -1,15 +1,15 @@
-package com.multiheaded.vladikbot.conductors.services;
+package com.multiheaded.vladikbot.services;
 
-import com.multiheaded.vladikbot.models.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockService;
 
 import java.io.IOException;
 import java.nio.file.*;
 
 public class ClearTmpService {
     private final String localTmpPath;
-    private final LockdownInterface lock;
+    private final LockService lock;
 
-    public ClearTmpService(String localTmpPath, LockdownInterface lock) {
+    public ClearTmpService(String localTmpPath, LockService lock) {
         this.localTmpPath = localTmpPath;
         this.lock = lock;
     }

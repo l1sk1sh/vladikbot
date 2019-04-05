@@ -3,10 +3,8 @@ package com.multiheaded.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.audio.QueuedTrack;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
+import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -26,7 +24,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class SearchCommand extends MusicCommand {
     private final OrderedMenu.Builder builder;
-    private final Settings settings;
     String searchPrefix = "ytsearch:";
 
     public SearchCommand(VladikBot bot) {
@@ -44,8 +41,6 @@ public class SearchCommand extends MusicCommand {
                 .useCancelButton(true)
                 .setEventWaiter(bot.getWaiter())
                 .setTimeout(1, TimeUnit.MINUTES);
-
-        settings = SettingsManager.getInstance().getSettings();
     }
 
     @Override
@@ -55,7 +50,7 @@ public class SearchCommand extends MusicCommand {
             return;
         }
 
-        event.reply(settings.getSearchingEmoji() + " Searching... `[" + event.getArgs() + "]`",
+        event.reply(bot.getSettings().getSearchingEmoji() + " Searching... `[" + event.getArgs() + "]`",
                 m -> bot.getPlayerManager().loadItemOrdered(
                         event.getGuild(), searchPrefix + event.getArgs(), new ResultHandler(m, event)));
     }
@@ -71,11 +66,11 @@ public class SearchCommand extends MusicCommand {
 
         @Override
         public void trackLoaded(AudioTrack track) {
-            if (settings.isTooLong(track)) {
+            if (bot.getSettings().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(event.getClient().getWarning()
                         + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
                         + FormatUtils.formatTime(track.getDuration()) + "` > `"
-                        + settings.getMaxTime() + "`")).queue();
+                        + bot.getSettings().getMaxTime() + "`")).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
@@ -95,11 +90,11 @@ public class SearchCommand extends MusicCommand {
                     .setSelection((msg, i) ->
                     {
                         AudioTrack track = playlist.getTracks().get(i - 1);
-                        if (settings.isTooLong(track)) {
+                        if (bot.getSettings().isTooLong(track)) {
                             event.replyWarning("This track (**" + track.getInfo().title
                                     + "**) is longer than the allowed maximum: `"
                                     + FormatUtils.formatTime(track.getDuration()) + "` > `"
-                                    + settings.getMaxTime() + "`");
+                                    + bot.getSettings().getMaxTime() + "`");
                             return;
                         }
                         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();

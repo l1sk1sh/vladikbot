@@ -24,14 +24,6 @@ public class PlaylistsCommand extends MusicCommand {
 
     @Override
     public void doCommand(CommandEvent event) {
-        if (!bot.getPlaylistLoader().folderExists()) {
-            bot.getPlaylistLoader().createFolder();
-        }
-        if (!bot.getPlaylistLoader().folderExists()) {
-            event.reply(event.getClient().getWarning() + " Playlists folder does not exist and could not be created!");
-            return;
-        }
-
         List<String> list = bot.getPlaylistLoader().getPlaylistNames();
         if (list == null) {
             event.reply(event.getClient().getError() + " Failed to load available playlists!");

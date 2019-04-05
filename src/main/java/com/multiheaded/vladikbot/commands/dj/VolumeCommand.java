@@ -2,9 +2,7 @@ package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.audio.AudioHandler;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 
 /**
@@ -25,7 +23,6 @@ public class VolumeCommand extends DJCommand {
     @Override
     public void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        Settings settings = SettingsManager.getInstance().getSettings();
         int volume = audioHandler.getPlayer().getVolume();
         if (event.getArgs().isEmpty()) {
             event.reply(FormatUtils.volumeIcon(volume) + " Current volume is `" + volume + "`");
@@ -40,7 +37,7 @@ public class VolumeCommand extends DJCommand {
                 event.reply(event.getClient().getError() + " Volume must be a valid integer between 0 and 150!");
             } else {
                 audioHandler.getPlayer().setVolume(nVolume);
-                settings.setVolume(nVolume);
+                bot.getSettings().setVolume(nVolume);
                 event.reply(FormatUtils.volumeIcon(nVolume) + " Volume changed from `" + volume + "` to `" + nVolume + "`");
             }
         }

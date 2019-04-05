@@ -1,5 +1,6 @@
-package com.multiheaded.vladikbot.conductors.services.processes;
+package com.multiheaded.vladikbot.services.processes;
 
+import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,13 +12,12 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class BackupProcess {
-    private static final Logger logger = LoggerFactory.getLogger(BackupProcess.class);
+public class CleanProcess {
+    private static final Logger log = LoggerFactory.getLogger(CleanProcess.class);
 
-    public BackupProcess(List<String> command) throws IOException, InterruptedException {
+    public CleanProcess(List<String> command) throws IOException, NotFound, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
-        boolean failed = true;
         pb.command(command);
 
         final Process process = pb.start();
@@ -25,15 +25,13 @@ public class BackupProcess {
 
         String line;
         while ((line = br.readLine()) != null) {
-            logger.debug(line);
-            if (line.contains("Completed ✓")) {
-                failed = false;
+            log.debug(line);
+            if (line.contains("No such container")) {
+                throw new NotFound();
             } else if (line.contains("Error")) {
                 throw new IOException(line);
             }
         }
         process.waitFor();
-
-        if (failed) throw new IOException("Backup has not been completed");
     }
 }

@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 
 /**
  * @author Oliver Johnson
@@ -30,8 +29,7 @@ public class AutoPlaylistCommand extends OwnerCommand {
             return;
         }
         if (event.getArgs().equalsIgnoreCase("none")) {
-            Settings settings = SettingsManager.getInstance().getSettings();
-            settings.setDefaultPlaylist(null);
+            bot.getSettings().setDefaultPlaylist(null);
             event.reply(event.getClient().getSuccess()
                     + " Cleared the default playlist for **" + event.getGuild().getName() + "**");
             return;

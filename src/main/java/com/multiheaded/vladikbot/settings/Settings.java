@@ -11,31 +11,34 @@ import net.dv8tion.jda.core.entities.*;
  */
 @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
 public class Settings {
-    private String token = "MY_BOT_TOKEN"; //Bot token taken from discord developer portal
-    private Long ownerId = 0L; //Id of the person, who is hosting the bot
-    private String dockerContainerName = "disbackup"; //Your container name
-    private String dockerPathToExport = "/app/out"; //Docker disbackup workdir (check repository if fails)
-    private String localPathToExport = "app/"; //Your local workdir
-    private String prefix = "~"; //Bot prefix
-    private String helpWord = "help"; //Help word used for help command
-    private String successEmoji = "\uD83D\uDC4C"; //👌
-    private String warningEmoji = "\uD83D\uDD95"; //🖕
-    private String errorEmoji = "\uD83D\uDCA2"; //💢
-    private String loadingEmoji = "\uD83E\uDDF6"; //🧶
-    private String searchingEmoji = "\uD83D\uDD0E"; //🔎
-    private String game = "watching Ubisoft conference";
-    private String onlineStatus = "ONLINE"; // "online", "idle", "dnd", "invisible", "offline", ""
-    private boolean leaveChannel = true; //Leave channel if no one is listening
-    private boolean songInGame = false; //Show song as status
-    private boolean npImages = true; //Display search images
-    private Long maxSeconds = 0L; //Maximum song length
-    private String playlistsFolder = "app/playlists/"; //Local folder for playlists to be stored
-    private Long textChannelId = 0L; //Only one channel id for bot's texting
-    private Long voiceChannelId = 0L; //Only one voice id for bot's music
-    private Long djRoleId = 0L; //Sets who can use DJ commands
-    private int volume = 50; //Sets volume of the bot
-    private String defaultPlaylist = "default_playlist"; //Sets name of default playlist
-    private boolean repeat = true; //If repeat mode is available
+    private String token = "MY_BOT_TOKEN";                      // Bot token taken from discord developer portal
+    private Long ownerId = 0L;                                  // Id of the person, who is hosting the bot
+    private String dockerContainerName = "disbackup";           // Docker container name
+    private String dockerPathToExport = "/app/out";             // Docker disbackup workdir (check repository if fails)
+    private String localPathToExport = "app/";                  // Local workdir
+    private String localMediaFolder = "app/saved_media";        // Local storage for downloaded media
+    private String moderationRulesFolder = "app/mod_rules";     // Local storage for automoderation settings
+    private String prefix = "~";                                // Bot prefix
+    private String helpWord = "help";                           // Help word used for help command
+    private String successEmoji = "\uD83D\uDC4C";               // 👌
+    private String warningEmoji = "\uD83D\uDD95";               // 🖕
+    private String errorEmoji = "\uD83D\uDCA2";                 // 💢
+    private String loadingEmoji = "\uD83E\uDDF6";               // 🧶
+    private String searchingEmoji = "\uD83D\uDD0E";             // 🔎
+    private String game = "watching Ubisoft conference";        // Current name of the 'game' being played by the bot
+    private String onlineStatus = "ONLINE";                     // "online", "idle", "dnd", "invisible", "offline", ""
+    private boolean leaveChannel = true;                        // Leave channel if no one is listening
+    private boolean songInGame = false;                         // Show song as status
+    private boolean npImages = true;                            // Display search images
+    private Long maxSeconds = 0L;                               // Maximum song length
+    private String playlistsFolder = "app/playlists/";          // Local folder for playlists to be stored
+    private Long textChannelId = 0L;                            // Only one channel id for bot's texting
+    private Long voiceChannelId = 0L;                           // Only one voice id for bot's music
+    private Long djRoleId = 0L;                                 // Sets who can use DJ commands
+    private int volume = 50;                                    // Sets volume of the bot
+    private String defaultPlaylist = "default_playlist";        // Sets name of default playlist
+    private boolean repeat = true;                              // If repeat mode is available
+    private boolean autoModeration = false;                     // If to use moderation feature
 
     public String getToken() {
         return token;
@@ -165,6 +168,23 @@ public class Settings {
     public void setRepeat(boolean repeat) {
         this.repeat = repeat;
         SettingsManager.getInstance().writeSettings();
+    }
+
+    public boolean isAutoModeration() {
+        return autoModeration;
+    }
+
+    public void setAutoModeration(boolean autoModeration) {
+        this.autoModeration = autoModeration;
+        SettingsManager.getInstance().writeSettings();
+    }
+
+    public String getLocalMediaFolder() {
+        return localMediaFolder;
+    }
+
+    public String getModerationRulesFolder() {
+        return moderationRulesFolder;
     }
 
     public String getMaxTime() {

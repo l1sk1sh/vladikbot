@@ -17,10 +17,10 @@ public class StringUtils {
         return beginString + replace + endString;
     }
 
-    public static boolean containsStringFromArray(String input, String[] check) {
+    public static boolean notInArray(String input, String[] check) {
         for (String value : check) {
-            if (input.contains(value)) return true;
+            if (input.contains(value)) return false;
         }
-        return false;
+        return true;
     }
 }

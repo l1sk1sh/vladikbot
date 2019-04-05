@@ -4,9 +4,9 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.conductors.EmojiStatsConductor;
+import com.multiheaded.vladikbot.services.BackupChannelService;
+import com.multiheaded.vladikbot.services.EmojiStatsService;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -57,27 +57,30 @@ public class EmojiStatsCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        Settings settings = bot.getSettings();
-
         if (!bot.isBackupAvailable()) {
             event.reply("Initializing emoji statistics calculation. Be patient...");
 
             new Thread(() -> {
                 try {
-                    EmojiStatsConductor emojiStatsConductor = new EmojiStatsConductor(
-                            event.getChannel().getId(),
-                            Constants.BACKUP_PLAIN_TEXT,
-                            settings.getLocalPathToExport(),
-                            settings.getDockerPathToExport(),
-                            settings.getDockerContainerName(),
-                            settings.getToken(),
-                            event.getArgs().split(" "),
+                    EmojiStatsService emojiStatsService = new EmojiStatsService(
+                            new BackupChannelService(
+                                    event.getChannel().getId(),
+                                    bot.getSettings().getToken(),
+                                    Constants.BACKUP_PLAIN_TEXT,
+                                    bot.getSettings().getLocalPathToExport(),
+                                    bot.getSettings().getDockerPathToExport(),
+                                    bot.getSettings().getDockerContainerName(),
+                                    event.getArgs().split(" "),
+                                    bot::setAvailableBackup
+                            ).getExportedFile(),
                             event.getGuild().getEmotes(),
-                            bot::setAvailableBackup);
+                            event.getArgs().split(" "),
+                            bot::setAvailableBackup
+                    );
 
-                    if (emojiStatsConductor.getEmojiStatsService().getEmojiList() == null)
+                    if (emojiStatsService.getEmojiList() == null)
                         throw new RuntimeException("Emoji Statistics Service failed!");
-                    sendStatisticsMessage(event, emojiStatsConductor.getEmojiStatsService().getEmojiList());
+                    sendStatisticsMessage(event, emojiStatsService.getEmojiList());
                 } catch (InterruptedException | IOException e) {
                     event.replyError(String.format("Backup **has failed**! `[%s]`", e.getMessage()));
                 } catch (InvalidParameterException ipe) {
@@ -95,10 +98,11 @@ public class EmojiStatsCommand extends AdminCommand {
 
     private void sendStatisticsMessage(CommandEvent event, Map<String, Integer> emojiMap) {
         int startPageNumber = 1;
+        pbuilder.clearItems();
 
         Map<String, Integer> preparedEmojiMap = new HashMap<>(emojiMap);
 
-        // Prepare server emojis for displaying <:emoji:id>
+        /* Prepare guild's emojis for displaying <:emoji:id> */
         for (Map.Entry<String, Integer> entry : emojiMap.entrySet()) {
             if (entry.getKey().contains(":")) {
                 String emojiName = entry.getKey().replaceAll(":", "");
@@ -109,12 +113,12 @@ public class EmojiStatsCommand extends AdminCommand {
                         preparedEmojiMap.put("<:" + emojiName + ":" + emojiIdList.get(0).getId() + ">",
                                 preparedEmojiMap.remove(entry.getKey()));
                     }
-                } catch (IllegalArgumentException emptyName) { //
+                } catch (IllegalArgumentException emptyName) { /* Ignore */
                 }
             }
         }
 
-        // Sort Descending using Stream API
+        /* Sort Descending using Stream API */
         preparedEmojiMap = preparedEmojiMap
                 .entrySet()
                 .stream()
@@ -122,7 +126,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2,
                         LinkedHashMap::new));
 
-        // Form String[] for PageBuilder addItems(String... input) method
+        /* Form String[] for PageBuilder addItems(String... input) method */
         String[] keys = preparedEmojiMap.keySet().toArray(new String[0]);
         String[] values = Arrays.stream(preparedEmojiMap.values().toArray(new Integer[0]))
                 .map(String::valueOf)
@@ -133,7 +137,6 @@ public class EmojiStatsCommand extends AdminCommand {
             resultSet[i] = keys[i] + "=" + values[i];
         }
 
-        pbuilder.clearItems();
         pbuilder.addItems(resultSet);
 
         Paginator paginator = pbuilder

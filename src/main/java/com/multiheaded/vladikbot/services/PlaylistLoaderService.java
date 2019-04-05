@@ -1,11 +1,10 @@
-package com.multiheaded.vladikbot.models.playlist;
+package com.multiheaded.vladikbot.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
+import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -22,6 +21,9 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.multiheaded.vladikbot.utils.FileUtils.createFolder;
+import static com.multiheaded.vladikbot.utils.FileUtils.fileIsAbsent;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -31,49 +33,38 @@ import java.util.stream.Collectors;
  * @author John Grosh
  */
 @SuppressWarnings("unchecked")
-public class PlaylistLoader {
-    private final Settings settings;
+public class PlaylistLoaderService {
+    private final VladikBot bot;
     private final String extension = Constants.JSON_EXTENSION;
-    private Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public PlaylistLoader() {
-        this.settings = SettingsManager.getInstance().getSettings();
+    public PlaylistLoaderService(VladikBot bot) {
+        this.bot = bot;
     }
 
     public List<String> getPlaylistNames() {
-        if (folderExists()) {
-            File folder = new File(settings.getPlaylistsFolder());
+        if (fileIsAbsent(bot.getSettings().getPlaylistsFolder())) {
+            File folder = new File(bot.getSettings().getPlaylistsFolder());
             return Arrays.stream(
                     Objects.requireNonNull(folder.listFiles((pathname) -> pathname.getName().endsWith(extension)))
             ).map(f -> f.getName().substring(0, f.getName().length() - extension.length())).collect(Collectors.toList());
         } else {
-            createFolder();
+            createFolder(bot.getSettings().getPlaylistsFolder());
             return Collections.EMPTY_LIST;
         }
     }
 
-    public void createFolder() {
-        try {
-            Files.createDirectories(Paths.get(settings.getPlaylistsFolder()));
-        } catch (IOException ignore) {
-        }
-    }
-
-    public boolean folderExists() {
-        return Files.exists(Paths.get(settings.getPlaylistsFolder()));
-    }
-
     public void createPlaylist(String name) throws IOException {
-        Files.createFile(Paths.get(settings.getPlaylistsFolder() + File.separator + name + extension));
+        Files.createFile(Paths.get(bot.getSettings().getPlaylistsFolder() + File.separator + name + extension));
     }
 
     public void deletePlaylist(String name) throws IOException {
-        Files.delete(Paths.get(settings.getPlaylistsFolder() + File.separator + name + extension));
+        Files.delete(Paths.get(bot.getSettings().getPlaylistsFolder() + File.separator + name + extension));
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {
         JsonWriter writer = new JsonWriter(
-                new FileWriter(settings.getPlaylistsFolder() + File.separator + name + extension));
+                new FileWriter(bot.getSettings().getPlaylistsFolder() + File.separator + name + extension));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(listToWrite, listToWrite.getClass(), writer);
@@ -84,23 +75,13 @@ public class PlaylistLoader {
         if (!getPlaylistNames().contains(name))
             return null;
         try {
-            if (folderExists()) {
-                List<String> list = gson.fromJson(new FileReader(settings.getPlaylistsFolder()
+            if (fileIsAbsent(bot.getSettings().getPlaylistsFolder())) {
+                List<String> list = gson.fromJson(new FileReader(bot.getSettings().getPlaylistsFolder()
                         + File.separator + name + extension), ArrayList.class);
-
-                /*Files.readAllLines(Paths.get(settings.getPlaylistsFolder()
-                        + File.separator + name + extension)).forEach(str ->
-                {
-                    String s = str.trim();
-                    if (s.isEmpty()) {
-                        return;
-                    }
-                    list.add(s);
-                });*/
 
                 return new Playlist(name, list);
             } else {
-                createFolder();
+                createFolder(bot.getSettings().getPlaylistsFolder());
                 return null;
             }
         } catch (IOException e) {
@@ -141,7 +122,7 @@ public class PlaylistLoader {
                     manager.loadItemOrdered(name, items.get(i), new AudioLoadResultHandler() {
                         @Override
                         public void trackLoaded(AudioTrack at) {
-                            if (settings.isTooLong(at)) {
+                            if (bot.getSettings().isTooLong(at)) {
                                 errors.add(new PlaylistLoadError(index, items.get(index),
                                         "This track is longer than the allowed maximum"));
                             } else {
@@ -157,7 +138,7 @@ public class PlaylistLoader {
                         @Override
                         public void playlistLoaded(AudioPlaylist audioPlaylist) {
                             if (audioPlaylist.isSearchResult()) {
-                                if (settings.isTooLong(audioPlaylist.getTracks().get(0))) {
+                                if (bot.getSettings().isTooLong(audioPlaylist.getTracks().get(0))) {
                                     errors.add(new PlaylistLoadError(index, items.get(index),
                                             "This track is longer than the allowed maximum"));
                                 } else {
@@ -166,7 +147,7 @@ public class PlaylistLoader {
                                     consumer.accept(audioPlaylist.getTracks().get(0));
                                 }
                             } else if (audioPlaylist.getSelectedTrack() != null) {
-                                if (settings.isTooLong(audioPlaylist.getSelectedTrack())) {
+                                if (bot.getSettings().isTooLong(audioPlaylist.getSelectedTrack())) {
                                     errors.add(new PlaylistLoadError(index, items.get(index),
                                             "This track is longer than the allowed maximum"));
                                 } else {
@@ -177,7 +158,7 @@ public class PlaylistLoader {
                             } else {
                                 List<AudioTrack> loaded = new ArrayList<>(audioPlaylist.getTracks());
 
-                                loaded.removeIf(settings::isTooLong);
+                                loaded.removeIf(bot.getSettings()::isTooLong);
                                 loaded.forEach(at -> at.setUserData(0L));
                                 tracks.addAll(loaded);
                                 loaded.forEach(consumer);

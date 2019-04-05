@@ -1,15 +1,17 @@
-package com.multiheaded.vladikbot.conductors.services;
+package com.multiheaded.vladikbot.services;
 
-import com.multiheaded.vladikbot.conductors.services.processes.BackupProcess;
-import com.multiheaded.vladikbot.conductors.services.processes.CleanProcess;
-import com.multiheaded.vladikbot.conductors.services.processes.CopyProcess;
-import com.multiheaded.vladikbot.models.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockService;
+import com.multiheaded.vladikbot.services.processes.BackupProcess;
+import com.multiheaded.vladikbot.services.processes.CleanProcess;
+import com.multiheaded.vladikbot.services.processes.CopyProcess;
+import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.utils.FileUtils;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
@@ -25,27 +27,26 @@ import static com.multiheaded.vladikbot.settings.Constants.FORMAT_EXTENSION;
  * @author Oliver Johnson
  */
 public class BackupChannelService {
-    private static final Logger logger = LoggerFactory.getLogger(BackupChannelService.class);
+    private static final Logger log = LoggerFactory.getLogger(BackupChannelService.class);
 
     private File exportedFile;
     private final String channelId;
     private final String format;
     private String beforeDate;
     private String afterDate;
-    private final String[] args;
     private final String localPathToExport;
     private final String dockerPathToExport;
     private final String dockerContainerName;
     private final String token;
+    private boolean forceBackup = false;
 
-    public BackupChannelService(String channelId, String format, String[] args,
+    public BackupChannelService(String channelId, String token, String format,
                                 String localPathToExport, String dockerPathToExport,
-                                String dockerContainerName, String token, LockdownInterface lock)
+                                String dockerContainerName, String[] args, LockService lock)
             throws InvalidParameterException, InterruptedException, IOException {
 
         this.channelId = channelId;
         this.format = format;
-        this.args = args;
         this.localPathToExport = localPathToExport;
         this.dockerPathToExport = dockerPathToExport;
         this.dockerContainerName = dockerContainerName;
@@ -54,35 +55,46 @@ public class BackupChannelService {
 
         try {
             lock.setAvailable(false);
-            processArguments();
-
-            new BackupProcess(constructBackupCommand());
-            logger.info("Waiting for backup to finish...");
-            logger.debug("Passing command {}", constructBackupCommand());
-
-            FileUtils.deleteFilesByIdAndExtension(localPathToExport, channelId, extension);
-            new CopyProcess(constructCopyCommand());
-            logger.info("Copying received file...");
-            logger.debug("Passing command {}", constructCopyCommand());
+            processArguments(args);
 
             exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
+
+            /* If file is absent or was made more than 24 hours ago - create new backup */
+            if ((exportedFile == null)
+                    || ((System.currentTimeMillis() - exportedFile.lastModified()) > Constants.DAY_IN_MILLISECONDS)
+                    || forceBackup) {
+
+                new BackupProcess(constructBackupCommand());
+                log.info("Waiting for backup to finish...");
+                log.debug("Passing command {}", constructBackupCommand());
+
+                FileUtils.deleteFilesByIdAndExtension(localPathToExport, channelId, extension);
+                new CopyProcess(constructCopyCommand());
+                log.info("Copying received file...");
+                log.debug("Passing command {}", constructCopyCommand());
+
+                exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
+                if (exportedFile == null) {
+                    throw new FileNotFoundException("Failed to find or create backup of a channel");
+                }
+            }
         } catch (IOException ioe) {
             String msg = String.format("Failed to find exported file [%s]", ioe.getMessage());
-            logger.error(msg);
+            log.error(msg);
             throw new IOException(msg);
         } catch (InterruptedException ie) {
             String msg = String.format("Backup thread interrupted on services level [%s]", ie.getMessage());
-            logger.error(msg);
+            log.error(msg);
             throw new InterruptedException(msg);
         } finally {
             try {
-                logger.info("Cleaning docker container...");
-                logger.debug("Passing command {}", constructCleanCommand());
+                log.info("Cleaning docker container...");
+                log.debug("Passing command {}", constructCleanCommand());
                 new CleanProcess(constructCleanCommand());
             } catch (InterruptedException ire) {
-                logger.error("Clean process thread was interrupted {}", ire.getMessage());
+                log.error("Clean process thread was interrupted {}", ire.getMessage());
             } catch (NotFound nf) {
-                logger.error("Container was not found");
+                log.error("Container was not found");
             } finally {
                 lock.setAvailable(true);
             }
@@ -136,7 +148,7 @@ public class BackupChannelService {
         return command;
     }
 
-    private void processArguments() throws InvalidParameterException {
+    private void processArguments(String[] args) throws InvalidParameterException {
         try {
             if (args.length > 0) {
                 for (int i = 0; i < args.length; i++) {
@@ -157,11 +169,15 @@ public class BackupChannelService {
                                 throw new InvalidParameterException();
                             }
                             break;
+                        case "-f":
+                        case "--force":
+                            forceBackup = true;
+                            break;
                     }
                 }
             }
 
-            // Check if dates are within correct period (if "before" is more than "after" date)
+            /* Check if dates are within correct period (if "before" is more than "after" date) */
             if (beforeDate != null && afterDate != null) {
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
@@ -173,7 +189,7 @@ public class BackupChannelService {
             }
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
             String msg = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
-            logger.error(msg);
+            log.error(msg);
             throw new InvalidParameterException(msg);
         }
     }

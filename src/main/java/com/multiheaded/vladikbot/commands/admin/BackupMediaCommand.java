@@ -2,10 +2,9 @@ package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.conductors.BackupMediaConductor;
-import com.multiheaded.vladikbot.conductors.services.BackupMediaService;
+import com.multiheaded.vladikbot.services.BackupChannelService;
+import com.multiheaded.vladikbot.services.BackupMediaService;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,39 +31,42 @@ public class BackupMediaCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        Settings settings = bot.getSettings();
-
         if (bot.isBackupAvailable()) {
             event.reply("Getting attachments. Be patient...");
 
             new Thread(() -> {
                 try {
-                    String fileName = String.format("%s - %s [%s] - media list",
-                            event.getGuild().getName(),
-                            event.getChannel().getName(),
-                            event.getChannel().getId());
-
-                    BackupMediaConductor backupMediaConductor = new BackupMediaConductor(
+                    BackupMediaService backupMediaService = new BackupMediaService(
+                            new BackupChannelService(
+                                    event.getChannel().getId(),
+                                    bot.getSettings().getToken(),
+                                    Constants.BACKUP_PLAIN_TEXT,
+                                    bot.getSettings().getLocalPathToExport(),
+                                    bot.getSettings().getDockerPathToExport(),
+                                    bot.getSettings().getDockerContainerName(),
+                                    event.getArgs().split(" "),
+                                    bot::setAvailableBackup
+                            ).getExportedFile(),
                             event.getChannel().getId(),
-                            fileName,
-                            Constants.BACKUP_PLAIN_TEXT,
-                            settings.getLocalPathToExport(),
-                            settings.getDockerPathToExport(),
-                            settings.getDockerContainerName(),
-                            settings.getToken(),
+                            bot.getSettings().getLocalPathToExport(),
+                            bot.getSettings().getLocalMediaFolder(),
+                            String.format("%s - %s [%s] - media list",
+                                    event.getGuild().getName(),
+                                    event.getChannel().getName(),
+                                    event.getChannel().getId()),
                             event.getArgs().split(" "),
-                            bot::setAvailableBackup);
-                    BackupMediaService service = backupMediaConductor.getBackupMediaService();
+                            bot::setAvailableBackup
+                    );
 
-                    File exportedFile = service.getMediaUrlsFile();
+                    File exportedFile = backupMediaService.getMediaUrlsFile();
                     if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
                         event.replyWarning(
                                 "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\n" +
                                         "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
                     } else {
-                        event.getTextChannel().sendFile(exportedFile, service.getMediaUrlsFile().getName()).queue();
+                        event.getTextChannel().sendFile(exportedFile, backupMediaService.getMediaUrlsFile().getName()).queue();
 
-                        if (service.doZip() && service.isDownloadComplete()) {
+                        if (backupMediaService.doZip() && backupMediaService.isDownloadComplete()) {
                             event.replySuccess("Zip with uploaded media files could be downloaded from local storage.");
                         }
                     }

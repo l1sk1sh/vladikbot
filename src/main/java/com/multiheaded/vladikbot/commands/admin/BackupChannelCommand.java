@@ -2,9 +2,8 @@ package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.conductors.services.BackupChannelService;
+import com.multiheaded.vladikbot.services.BackupChannelService;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +27,6 @@ public class BackupChannelCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        Settings settings = bot.getSettings();
-
         if (bot.isBackupAvailable()) {
             event.reply("Initializing backup processes. Be patient...");
 
@@ -37,13 +34,14 @@ public class BackupChannelCommand extends AdminCommand {
                 try {
                     BackupChannelService service = new BackupChannelService(
                             event.getChannel().getId(),
+                            bot.getSettings().getToken(),
                             Constants.BACKUP_HTML_DARK,
+                            bot.getSettings().getLocalPathToExport(),
+                            bot.getSettings().getDockerPathToExport(),
+                            bot.getSettings().getDockerContainerName(),
                             event.getArgs().split(" "),
-                            settings.getLocalPathToExport(),
-                            settings.getDockerPathToExport(),
-                            settings.getDockerContainerName(),
-                            settings.getToken(),
-                            bot::setAvailableBackup);
+                            bot::setAvailableBackup
+                    );
 
                     File exportedFile = service.getExportedFile();
                     if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {

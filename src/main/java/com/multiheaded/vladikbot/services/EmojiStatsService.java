@@ -1,6 +1,6 @@
-package com.multiheaded.vladikbot.conductors.services;
+package com.multiheaded.vladikbot.services;
 
-import com.multiheaded.vladikbot.models.LockdownInterface;
+import com.multiheaded.vladikbot.models.LockService;
 import com.multiheaded.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Emote;
 import org.slf4j.Logger;
@@ -19,25 +19,23 @@ import java.util.regex.Pattern;
  * @author Oliver Johnson
  */
 public class EmojiStatsService {
-    private static final Logger logger = LoggerFactory.getLogger(EmojiStatsService.class);
+    private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 
     private final Map<String, Integer> emojiList = new HashMap<>();
 
-    private final String[] args;
     private final List<Emote> serverEmojiList;
     private boolean ignoreUnicodeEmoji = false;
     private boolean ignoreUnknownEmoji = false;
 
-    public EmojiStatsService(File exportedFile, List<Emote> serverEmojiList, String[] args, LockdownInterface lock) {
-        this.args = args;
+    public EmojiStatsService(File exportedFile, List<Emote> serverEmojiList, String[] args, LockService lock) {
         this.serverEmojiList = serverEmojiList;
 
         try {
             lock.setAvailable(false);
-            processArguments();
+            processArguments(args);
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
 
-            // Custom :emoji: matcher
+            /* Custom :emoji: matcher */
             Matcher customEmojiMatcher = Pattern.compile(":(::|[^:\\n\\s/()])+:").matcher(input);
             while (customEmojiMatcher.find()) {
                 if (ignoreUnknownEmoji) {
@@ -49,7 +47,8 @@ public class EmojiStatsService {
             }
 
             if (!ignoreUnicodeEmoji) {
-                // Unicode \ud83c\udc00 matcher
+
+                /* Unicode \ud83c\udc00 matcher */
                 Matcher unicodeEmojiMathcer =
                         Pattern.compile("[\ud83c\udc00-\ud83d\udfff]|[\u2600-\u27ff]",
                                 Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE).matcher(input);
@@ -59,18 +58,19 @@ public class EmojiStatsService {
             }
 
         } catch (IOException e) {
-            logger.error("Failed to read exportedFile. {}", e.getMessage());
+            log.error("Failed to read exportedFile. {}", e.getMessage());
         } finally {
             lock.setAvailable(true);
         }
     }
 
-    private void processArguments() {
+    private void processArguments(String[] args) {
         if (args.length > 0) {
             for (String arg : args) {
                 switch (arg) {
                     case "-iu":
                         ignoreUnknownEmoji = true;
+                        /* falls through */
                     case "-i":
                         ignoreUnicodeEmoji = true;
                         break;
@@ -80,7 +80,8 @@ public class EmojiStatsService {
     }
 
     private void addElementToList(String element) {
-        // If not null - increase counter. If null - add element
+
+        /* If not null - increase counter. If null - add element */
         emojiList.merge(element, 1, (a, b) -> a + b);
     }
 

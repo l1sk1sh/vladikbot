@@ -1,13 +1,13 @@
 package com.multiheaded.vladikbot.utils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Oliver Johnson
@@ -34,11 +34,6 @@ public class FileUtils {
         return file;
     }
 
-    public static String readFile(File file, Charset encoding) throws IOException {
-        byte[] encoded = Files.readAllBytes(file.toPath());
-        return new String(encoded, encoding);
-    }
-
     public static void deleteFilesByIdAndExtension(String pathToDir, String id, String extension) {
         File f = new File(pathToDir);
         File[] paths = f.listFiles();
@@ -53,6 +48,22 @@ public class FileUtils {
         }
     }
 
+    public static void createFolder(String path) {
+        try {
+            Files.createDirectories(Paths.get(path));
+        } catch (IOException ignore) { /* Ignore */
+        }
+    }
+
+    public static boolean fileIsAbsent(String path) {
+        return !Files.exists(Paths.get(path));
+    }
+
+    public static String readFile(File file, Charset encoding) throws IOException {
+        byte[] encoded = Files.readAllBytes(file.toPath());
+        return new String(encoded, encoding);
+    }
+
     public static void writeSetToFile(String pathToFile, Set<String> set) throws IOException {
         BufferedWriter out = new BufferedWriter(new FileWriter(pathToFile));
 
@@ -62,5 +73,34 @@ public class FileUtils {
         }
 
         out.close();
+    }
+
+    public static void zipFile(File fileToZip, String fileName, ZipOutputStream zipOut) throws IOException {
+        if (fileToZip.isHidden()) {
+            return;
+        }
+        if (fileToZip.isDirectory()) {
+            if (fileName.endsWith("/")) {
+                zipOut.putNextEntry(new ZipEntry(fileName));
+                zipOut.closeEntry();
+            } else {
+                zipOut.putNextEntry(new ZipEntry(fileName + "/"));
+                zipOut.closeEntry();
+            }
+            File[] children = fileToZip.listFiles();
+            for (File childFile : Objects.requireNonNull(children)) {
+                zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
+            }
+            return;
+        }
+        FileInputStream fis = new FileInputStream(fileToZip);
+        ZipEntry zipEntry = new ZipEntry(fileName);
+        zipOut.putNextEntry(zipEntry);
+        byte[] bytes = new byte[1024];
+        int length;
+        while ((length = fis.read(bytes)) >= 0) {
+            zipOut.write(bytes, 0, length);
+        }
+        fis.close();
     }
 }

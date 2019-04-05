@@ -1,6 +1,5 @@
-package com.multiheaded.vladikbot.audio;
+package com.multiheaded.vladikbot.models.queue;
 
-import com.multiheaded.vladikbot.models.queue.Queueable;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.entities.User;
@@ -18,7 +17,7 @@ public class QueuedTrack implements Queueable {
         this(track, owner.getIdLong());
     }
 
-    QueuedTrack(AudioTrack track, long owner) {
+    public QueuedTrack(AudioTrack track, long owner) {
         this.track = track;
         this.track.setUserData(owner);
     }
