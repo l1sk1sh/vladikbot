@@ -158,7 +158,7 @@ public class VladikBot {
         return nowPlaying;
     }
 
-    public AutoModeration getAutoModerationService() {
+    public AutoModeration getAutoModeration() {
         return autoModeration;
     }
 

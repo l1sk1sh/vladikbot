@@ -9,6 +9,7 @@ import com.multiheaded.vladikbot.models.entities.ReactionRule;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,7 +23,7 @@ public class AutoModerationCommand extends AdminCommand {
 
     public AutoModerationCommand(VladikBot bot) {
         this.bot = bot;
-        this.automod = bot.getAutoModerationService();
+        this.automod = bot.getAutoModeration();
         this.guildOnly = false;
         this.name = "automod";
         this.arguments = "<switch|make|delete|list>";
@@ -115,6 +116,7 @@ public class AutoModerationCommand extends AdminCommand {
 
                 ReactionRule rule = new ReactionRule(name, reactTo, reactWith);
                 automod.writeRule(rule);
+                event.replySuccess(String.format("Rule was added: `[%s]`", rule.toString()));
 
             } catch (IllegalArgumentException iae) {
                 event.replyWarning(String.format("Input arguments were incorrect `[%s]`", event.getArgs()));
@@ -127,21 +129,54 @@ public class AutoModerationCommand extends AdminCommand {
     class DeleteCommand extends AdminCommand {
 
         DeleteCommand() {
-
+            this.name = "delete";
+            this.aliases = new String[]{"remove"};
+            this.help = "deletes an existing rule";
+            this.arguments = "<name>";
+            this.guildOnly = false;
         }
 
         @Override
         protected void execute(CommandEvent event) {
-
+            String name = event.getArgs().replaceAll("\\s+", "_");
+            if (automod.getRule(name) == null) {
+                event.replyError("Rule `" + name + "` doesn't exist!");
+            } else {
+                try {
+                    automod.deleteRule(name);
+                    event.replySuccess(String.format("Successfully deleted rule `%s`!", name));
+                } catch (IOException e) {
+                    event.replyError(String.format("Unable to delete the rule: `[%s]`", e.getLocalizedMessage()));
+                }
+            }
         }
     }
 
     class ListCommand extends AdminCommand {
 
-        @Override
-        protected void execute(CommandEvent event) {
-
+        ListCommand() {
+            this.name = "all";
+            this.aliases = new String[]{"available", "list"};
+            this.help = "lists all available rules";
+            this.guildOnly = true;
         }
 
+        @Override
+        protected void execute(CommandEvent event) {
+            try {
+                Set<ReactionRule> list = bot.getAutoModeration().getRules();
+                if (list == null) {
+                    event.replyError("Failed to load available rules!");
+                } else if (list.isEmpty()) {
+                    event.replyWarning("There are no rules in the Rules folder!");
+                } else {
+                    StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Acting rules:\r\n");
+                    list.forEach(str -> builder.append("`").append(str).append("` ").append("\r\n"));
+                    event.reply(builder.toString());
+                }
+            } catch (IOException ioe) {
+                event.replyError(String.format("Local folder couldn't be processed! `[%s]`", ioe.getLocalizedMessage()));
+            }
+        }
     }
 }

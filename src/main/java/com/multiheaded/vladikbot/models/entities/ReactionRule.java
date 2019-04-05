@@ -1,5 +1,6 @@
 package com.multiheaded.vladikbot.models.entities;
 
+import java.util.Arrays;
 import java.util.Set;
 
 /**
@@ -26,5 +27,11 @@ public class ReactionRule {
 
     public Set<String> getReactWithList() {
         return reactWithList;
+    }
+
+    @Override
+    public String toString() {
+        return ruleName + ":" + Arrays.toString(reactToList.toArray())
+                + "  " + Arrays.toString(reactWithList.toArray());
     }
 }

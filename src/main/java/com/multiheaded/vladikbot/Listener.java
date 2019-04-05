@@ -57,7 +57,7 @@ class Listener extends ListenerAdapter {
         Message message = event.getMessage();
 
         if (!message.getAuthor().isBot()) {
-            bot.getAutoModerationService().performAutomod(message);
+            bot.getAutoModeration().performAutomod(message);
         }
     }
 
