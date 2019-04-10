@@ -17,16 +17,16 @@ public class BackupMediaCommand extends AdminCommand {
     private final VladikBot bot;
 
     public BackupMediaCommand(VladikBot bot) {
+        this.bot = bot;
         this.name = "savemedia";
-        this.help = "exports all attachments of the current channel\n"
-                + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which export would be done\n"
-                + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which export would be done\n"
-                + "\t\t `-f` - creates new backup ignoring existing files.\n"
-                + "\t\t `-a, --all` - backups all attachments. By default only .jpg, .png and .mp4\n"
-                + "\t\t `-z, --zip` - zip flag that creates local copy of files from media links.";
+        this.help = "exports all attachments of the current channel\r\n"
+                + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which export would be done\r\n"
+                + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which export would be done\r\n"
+                + "\t\t `-f` - creates new backup ignoring existing files\r\n"
+                + "\t\t `-a, --all` - backups all attachments. By default only .jpg, .png and .mp4\r\n"
+                + "\t\t `-z, --zip` - zip flag that creates local copy of files from media links";
         this.arguments = "-a, -b, -f, -a, -z";
         this.guildOnly = true;
-        this.bot = bot;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class BackupMediaCommand extends AdminCommand {
                     File exportedFile = backupMediaService.getMediaUrlsFile();
                     if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
                         event.replyWarning(
-                                "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\n" +
+                                "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\r\n" +
                                         "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
                     } else {
                         event.getTextChannel().sendFile(exportedFile, backupMediaService.getMediaUrlsFile().getName()).queue();
@@ -72,13 +72,13 @@ public class BackupMediaCommand extends AdminCommand {
                     }
 
                 } catch (InterruptedException e) {
-                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getLocalizedMessage()));
+                    event.replyError(String.format("Backup **has failed**! `[%1$s]`", e.getLocalizedMessage()));
                 } catch (IOException ioe) {
-                    event.replyError(String.format("**Failed** to properly *work* with files! `[%s]`", ioe.getLocalizedMessage()));
+                    event.replyError(String.format("**Failed** to properly *work* with files! `[%1$s]`", ioe.getLocalizedMessage()));
                 } catch (InvalidParameterException ipe) {
                     event.replyError(ipe.getLocalizedMessage());
                 } catch (Exception e) {
-                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getLocalizedMessage()));
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%1$s]`", e.getLocalizedMessage()));
                 }
             }).start();
         } else {

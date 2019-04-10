@@ -25,10 +25,10 @@ public class SetStatusCommand extends OwnerCommand {
                 event.replyError("Please include one of the following statuses: `ONLINE`, `IDLE`, `DND`, `INVISIBLE`");
             } else {
                 event.getJDA().getPresence().setStatus(status);
-                event.replySuccess("Set the status to `" + status.getKey().toUpperCase() + "`");
+                event.replySuccess(String.format("Set the status to `%1$s`", status.getKey().toUpperCase()));
             }
         } catch (Exception e) {
-            event.reply(event.getClient().getError() + " The status could not be set!");
+            event.replyError("The status could not be set!");
         }
     }
 }

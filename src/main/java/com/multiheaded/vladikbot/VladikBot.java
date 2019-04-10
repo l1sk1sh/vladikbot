@@ -4,10 +4,11 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
+import com.multiheaded.vladikbot.services.AutoModerationManager;
+import com.multiheaded.vladikbot.services.ActionAndGameRotationManager;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.services.audio.NowPlayingHandler;
 import com.multiheaded.vladikbot.services.audio.PlayerManager;
-import com.multiheaded.vladikbot.services.AutoModeration;
 import com.multiheaded.vladikbot.commands.admin.*;
 import com.multiheaded.vladikbot.commands.dj.*;
 import com.multiheaded.vladikbot.commands.everyone.SettingsCommand;
@@ -42,7 +43,8 @@ public class VladikBot {
     private final PlayerManager players;
     private final NowPlayingHandler nowPlaying;
     private final PlaylistLoader playlists;
-    private final AutoModeration autoModeration;
+    private final AutoModerationManager autoModerationManager;
+    private final ActionAndGameRotationManager actionAndGameRotationManager;
 
     private boolean availableBackup = true;
     private boolean shuttingDown = false;
@@ -56,7 +58,8 @@ public class VladikBot {
         this.players.init();
         this.nowPlaying = new NowPlayingHandler(this);
         this.nowPlaying.init();
-        this.autoModeration = new AutoModeration(this);
+        this.autoModerationManager = new AutoModerationManager(this);
+        this.actionAndGameRotationManager = new ActionAndGameRotationManager(this);
 
         try {
             Settings settings = SettingsManager.getInstance().getSettings();
@@ -69,7 +72,7 @@ public class VladikBot {
                     .setStatus((settings.getOnlineStatus() != OnlineStatus.UNKNOWN)
                             ? settings.getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB)
                     .setGame((settings.getGame() != null)
-                            ? settings.getGame() : Game.playing("with your mom"))
+                            ? settings.getGame() : Game.playing("your dad"))
                     .setLinkedCacheSize(200)
                     .addCommands(
                             new PingCommand(),
@@ -82,8 +85,9 @@ public class VladikBot {
                             new BackupChannelCommand(this),
                             new EmojiStatsCommand(waiter, this),
                             new AutoModerationCommand(this),
+                            new RotatingActionAndGameCommand(this),
 
-                            new ForceskipCommand(this),
+                            new ForceSkipCommand(this),
                             new PauseCommand(this),
                             new PlayNextCommand(this),
                             new RepeatCommand(this),
@@ -126,7 +130,7 @@ public class VladikBot {
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
         } catch (ExceptionInInitializerError e) {
-            logger.error("Problematic settings input");
+            logger.error("Problematic settings input.");
             System.exit(1);
         } catch (LoginException le) {
             logger.error("Invalid username and/or password.");
@@ -158,8 +162,8 @@ public class VladikBot {
         return nowPlaying;
     }
 
-    public AutoModeration getAutoModeration() {
-        return autoModeration;
+    public AutoModerationManager getAutoModerationManager() {
+        return autoModerationManager;
     }
 
     public JDA getJDA() {
@@ -213,5 +217,9 @@ public class VladikBot {
 
     public Settings getSettings() {
         return settings;
+    }
+
+    public ActionAndGameRotationManager getActionAndGameRotationManager() {
+        return actionAndGameRotationManager;
     }
 }

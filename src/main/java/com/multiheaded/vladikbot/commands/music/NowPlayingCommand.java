@@ -16,8 +16,8 @@ public class NowPlayingCommand extends MusicCommand {
     public NowPlayingCommand(VladikBot bot) {
         super(bot);
         this.name = "nowplaying";
-        this.help = "shows the song that is currently playing";
         this.aliases = new String[]{"np", "current"};
+        this.help = "shows the song that is currently playing";
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
     }
 

@@ -19,7 +19,7 @@ public class Settings {
     private String dockerPathToExport = "/app/out/";            // Docker disbackup workdir (check repository if fails)
     private String localPathToExport = "app/";                  // Local workdir
     private String localMediaFolder = "app/saved_media/";       // Local storage for downloaded media
-    private String moderationRulesFolder = "app/mod_rules/";    // Local storage for automoderation settings
+    private String moderationRulesFolder = "app/rules/";        // Local storage for automoderation settings
     private String prefix = "~";                                // Bot prefix
     private String helpWord = "help";                           // Help word used for help command
     private String successEmoji = "\uD83D\uDC4C";               // 👌
@@ -41,6 +41,8 @@ public class Settings {
     private String defaultPlaylist = "default_playlist";        // Sets name of default playlist
     private boolean repeat = true;                              // If repeat mode is available
     private boolean autoModeration = false;                     // If to use moderation feature
+    private String rotationListFolder = "app/rules/rotation/";  // Folder that stores statuses.json
+    private boolean rotateActionsAndGames = false;              // If bot should change statuses by himself
 
     public String getToken() {
         return token;
@@ -195,5 +197,18 @@ public class Settings {
 
     public boolean isTooLong(AudioTrack track) {
         return (maxSeconds > 0) && (Math.round(track.getDuration() / 1000.0) > maxSeconds);
+    }
+
+    public String getRotationFolder() {
+        return rotationListFolder;
+    }
+
+    public boolean shouldRotateActionsAndGames() {
+        return rotateActionsAndGames;
+    }
+
+    public void setRotateActionsAndGames(boolean rotateActionAndGames) {
+        this.rotateActionsAndGames = rotateActionAndGames;
+        SettingsManager.getInstance().writeSettings();
     }
 }

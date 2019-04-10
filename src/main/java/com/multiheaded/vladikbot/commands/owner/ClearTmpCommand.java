@@ -13,11 +13,11 @@ public class ClearTmpCommand extends OwnerCommand {
     private final VladikBot bot;
 
     public ClearTmpCommand(VladikBot bot) {
+        this.bot = bot;
         this.name = "cleartmp";
         this.help = "completely clears tmp folder of the bot";
         this.guildOnly = false;
         this.ownerCommand = true;
-        this.bot = bot;
     }
 
     @Override

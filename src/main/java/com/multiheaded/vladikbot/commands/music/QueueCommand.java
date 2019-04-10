@@ -27,9 +27,9 @@ public class QueueCommand extends MusicCommand {
     public QueueCommand(VladikBot bot) {
         super(bot);
         this.name = "queue";
-        this.help = "shows the current queue";
-        this.arguments = "[pagenum]";
         this.aliases = new String[]{"list"};
+        this.help = "shows the current queue";
+        this.arguments = "<pagenum>";
         this.bePlaying = true;
         this.botPermissions = new Permission[]{Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_EMBED_LINKS};
         builder = new Paginator.Builder()
@@ -94,7 +94,7 @@ public class QueueCommand extends MusicCommand {
         if (audioPlayer.getPlayer().getPlayingTrack() != null) {
             stringBuilder.append(audioPlayer.getPlayer().isPaused()
                     ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI).append(" **")
-                    .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\n");
+                    .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\r\n");
         }
 
         return FormatUtils.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)

@@ -19,8 +19,8 @@ public class LyricsCommand extends MusicCommand {
     public LyricsCommand(VladikBot bot) {
         super(bot);
         this.name = "lyrics";
-        this.arguments = "[song name]";
         this.help = "shows the lyrics to the currently-playing song";
+        this.arguments = "<song name>";
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
         this.bePlaying = true;
     }
@@ -39,7 +39,7 @@ public class LyricsCommand extends MusicCommand {
         client.getLyrics(title).thenAccept(lyrics ->
         {
             if (lyrics == null) {
-                event.replyError("Lyrics for `" + title + "` could not be found!");
+                event.replyError(String.format("Lyrics for `%1$s` could not be found!", title));
                 return;
             }
 
@@ -48,13 +48,13 @@ public class LyricsCommand extends MusicCommand {
                     .setColor(event.getSelfMember().getColor())
                     .setTitle(lyrics.getTitle(), lyrics.getURL());
             if (lyrics.getContent().length() > 15000) {
-                event.replyWarning("Lyrics for `" + title + "` found but likely not correct: " + lyrics.getURL());
+                event.replyWarning(String.format("Lyrics for `%1$s` found but likely not correct: %2$s.", title, lyrics.getURL()));
             } else if (lyrics.getContent().length() > 2000) {
                 String content = lyrics.getContent().trim();
                 while (content.length() > 2000) {
-                    int index = content.lastIndexOf("\n\n", 2000);
+                    int index = content.lastIndexOf("\r\n\r\n", 2000);
                     if (index == -1) {
-                        index = content.lastIndexOf("\n", 2000);
+                        index = content.lastIndexOf("\r\n", 2000);
                     }
                     if (index == -1) {
                         index = content.lastIndexOf(" ", 2000);

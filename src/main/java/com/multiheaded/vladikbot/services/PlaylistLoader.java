@@ -10,6 +10,8 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
@@ -29,38 +31,46 @@ import static com.multiheaded.vladikbot.utils.FileUtils.*;
  * - Removed 'comment-shuffle' and added direct command to shuffle file itself
  * @author John Grosh
  */
-@SuppressWarnings("unchecked")
 public class PlaylistLoader {
+    private static final Logger logger = LoggerFactory.getLogger(PlaylistLoader.class);
+
     private final VladikBot bot;
     private final String extension = Constants.JSON_EXTENSION;
-    private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private final Gson gson;
 
     public PlaylistLoader(VladikBot bot) {
         this.bot = bot;
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     public List<String> getPlaylistNames() throws IOException {
         if (fileOrFolderIsAbsent(bot.getSettings().getPlaylistsFolder())) {
             createFolder(bot.getSettings().getPlaylistsFolder());
+
+            //noinspection unchecked
             return Collections.EMPTY_LIST;
         } else {
             File folder = new File(bot.getSettings().getPlaylistsFolder());
-            return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) -> pathname.getName().endsWith(extension)))
-            ).map(f -> f.getName().substring(0, f.getName().length() - extension.length())).collect(Collectors.toList());
+            return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) ->
+                    pathname.getName().endsWith(extension))))
+                    .map(f ->
+                            f.getName().substring(0, f.getName().length() - extension.length())).collect(Collectors.toList());
         }
     }
 
     public void createPlaylist(String name) throws IOException {
         createFile(bot.getSettings().getPlaylistsFolder() + name + extension);
+        logger.info("Created new playlist {}", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
         deleteFile(bot.getSettings().getPlaylistsFolder() + name + extension);
+        logger.info("Deleted playlist {}", name);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getSettings().getPlaylistsFolder() + File.separator + name + extension));
+                new FileWriter(bot.getSettings().getPlaylistsFolder() + name + extension));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(listToWrite, listToWrite.getClass(), writer);
@@ -76,9 +86,10 @@ public class PlaylistLoader {
                 createFolder(bot.getSettings().getPlaylistsFolder());
                 return null;
             } else {
-                List<String> list = gson.fromJson(new FileReader(bot.getSettings().getPlaylistsFolder()
-                        + File.separator + name + extension), ArrayList.class);
 
+                //noinspection unchecked
+                List<String> list = gson.fromJson(new FileReader(bot.getSettings().getPlaylistsFolder()
+                        + name + extension), ArrayList.class);
                 return new Playlist(name, list);
             }
         } catch (IOException e) {

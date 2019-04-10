@@ -11,12 +11,12 @@ import net.dv8tion.jda.core.entities.User;
  * - Reformating code
  * @author John Grosh
  */
-public class ForceskipCommand extends DJCommand {
-    public ForceskipCommand(VladikBot bot) {
+public class ForceSkipCommand extends DJCommand {
+    public ForceSkipCommand(VladikBot bot) {
         super(bot);
         this.name = "forceskip";
-        this.help = "skips the current song";
         this.aliases = new String[]{"modskip"};
+        this.help = "skips the current song";
         this.bePlaying = true;
     }
 
@@ -24,9 +24,9 @@ public class ForceskipCommand extends DJCommand {
     public void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         User user = event.getJDA().getUserById(audioHandler.getRequester());
-        event.reply(event.getClient().getSuccess()
-                + " Skipped **" + audioHandler.getPlayer().getPlayingTrack().getInfo().title
-                + "** (requested by " + (user == null ? "someone" : "**" + user.getName() + "**") + ")");
+        event.replySuccess(String.format("Skipped **%1$s** (requested by *%2$s*).",
+                audioHandler.getPlayer().getPlayingTrack().getInfo().title,
+                (user == null ? "someone" : user.getName())));
         audioHandler.getPlayer().stopTrack();
     }
 }

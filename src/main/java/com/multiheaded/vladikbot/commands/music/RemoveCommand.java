@@ -17,9 +17,9 @@ public class RemoveCommand extends MusicCommand {
     public RemoveCommand(VladikBot bot) {
         super(bot);
         this.name = "remove";
-        this.help = "removes a song from the queue";
-        this.arguments = "<position|ALL>";
         this.aliases = new String[]{"delete"};
+        this.help = "removes a song from the queue";
+        this.arguments = "<position|all>";
         this.beListening = true;
         this.bePlaying = true;
     }
@@ -34,10 +34,11 @@ public class RemoveCommand extends MusicCommand {
 
         if (event.getArgs().equalsIgnoreCase("all")) {
             int count = audioHandler.getQueue().removeAll(event.getAuthor().getIdLong());
-            if (count == 0)
+            if (count == 0) {
                 event.replyWarning("You don't have any songs in the queue!");
-            else
-                event.replySuccess("Successfully removed your " + count + " entries.");
+            } else {
+                event.replySuccess(String.format("Successfully removed your %1$s entries.", count));
+            }
             return;
         }
 
@@ -48,8 +49,9 @@ public class RemoveCommand extends MusicCommand {
             pos = 0;
         }
 
-        if (pos < 1 || pos > audioHandler.getQueue().size()) {
-            event.replyError("Position must be a valid integer between 1 and " + audioHandler.getQueue().size() + "!");
+        if ((pos < 1) || (pos > audioHandler.getQueue().size())) {
+            event.replyError(String.format("Position must be a valid integer between 1 and %1$s!",
+                    audioHandler.getQueue().size()));
             return;
         }
 
@@ -61,7 +63,7 @@ public class RemoveCommand extends MusicCommand {
         QueuedTrack queuedTrack = audioHandler.getQueue().get(pos - 1);
         if (queuedTrack.getIdentifier() == event.getAuthor().getIdLong()) {
             audioHandler.getQueue().remove(pos - 1);
-            event.replySuccess("Removed **" + queuedTrack.getTrack().getInfo().title + "** from the queue");
+            event.replySuccess(String.format("Removed **%1$s** from the queue", queuedTrack.getTrack().getInfo().title));
         } else if (isDJ) {
             audioHandler.getQueue().remove(pos - 1);
             User user;
@@ -70,10 +72,14 @@ public class RemoveCommand extends MusicCommand {
             } catch (Exception e) {
                 user = null;
             }
-            event.replySuccess("Removed **" + queuedTrack.getTrack().getInfo().title
-                    + "** from the queue (requested by " + (user == null ? "someone" : "**" + user.getName() + "**") + ")");
+            event.replySuccess(String.format(
+                    "Removed **%1$s** from the queue (requested by *%2$s*)",
+                    queuedTrack.getTrack().getInfo().title,
+                    ((user == null) ? "someone" : user.getName()))
+            );
         } else {
-            event.replyError("You cannot remove **" + queuedTrack.getTrack().getInfo().title + "** because you didn't add it!");
+            event.replyError(String.format("You cannot remove **%1$s** because you didn't add it!",
+                    queuedTrack.getTrack().getInfo().title));
         }
     }
 }

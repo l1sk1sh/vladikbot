@@ -14,9 +14,9 @@ public class SkipToCommand extends DJCommand {
     public SkipToCommand(VladikBot bot) {
         super(bot);
         this.name = "skipto";
+        this.aliases = new String[]{"jumpto"};
         this.help = "skips to the specified song";
         this.arguments = "<position>";
-        this.aliases = new String[]{"jumpto"};
         this.bePlaying = true;
     }
 
@@ -26,18 +26,16 @@ public class SkipToCommand extends DJCommand {
         try {
             index = Integer.parseInt(event.getArgs());
         } catch (NumberFormatException e) {
-            event.reply(event.getClient().getError() + " `" + event.getArgs() + "` is not a valid integer!");
+            event.replyError(String.format("`%1$s` is not a valid integer!", event.getArgs()));
             return;
         }
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        if (index < 1 || index > audioHandler.getQueue().size()) {
-            event.reply(event.getClient().getError()
-                    + " Position must be a valid integer between 1 and " + audioHandler.getQueue().size() + "!");
+        if ((index < 1) || (index > audioHandler.getQueue().size())) {
+            event.replyError(String.format("Position must be a valid integer between 1 and %1$s!", audioHandler.getQueue().size()));
             return;
         }
         audioHandler.getQueue().skip(index - 1);
-        event.reply(event.getClient().getSuccess()
-                + " Skipped to **" + audioHandler.getQueue().get(0).getTrack().getInfo().title + "**");
+        event.replySuccess(String.format("Skipped to **%1$s**.", audioHandler.getQueue().get(0).getTrack().getInfo().title));
         audioHandler.getPlayer().stopTrack();
     }
 }

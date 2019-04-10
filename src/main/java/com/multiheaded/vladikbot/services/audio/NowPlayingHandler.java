@@ -90,7 +90,7 @@ public class NowPlayingHandler {
             } else if (textChannel.getTopic().contains("\u200B")) {
                 otherText = textChannel.getTopic().substring(textChannel.getTopic().lastIndexOf("\u200B"));
             } else {
-                otherText = "\u200B\n " + textChannel.getTopic();
+                otherText = "\u200B\r\n " + textChannel.getTopic();
             }
 
             String text = audioHandler.getTopicFormat(bot.getJDA()) + otherText;

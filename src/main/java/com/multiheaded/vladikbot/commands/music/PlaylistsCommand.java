@@ -16,8 +16,8 @@ public class PlaylistsCommand extends MusicCommand {
     public PlaylistsCommand(VladikBot bot) {
         super(bot);
         this.name = "playlists";
-        this.help = "shows the available playlists";
         this.aliases = new String[]{"pls"};
+        this.help = "shows the available playlists";
         this.guildOnly = true;
         this.beListening = false;
         this.beListening = false;
@@ -32,9 +32,9 @@ public class PlaylistsCommand extends MusicCommand {
             } else if (list.isEmpty()) {
                 event.replyWarning("There are no playlists in the Playlists folder!");
             } else {
-                StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\n");
+                StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\r\n");
                 list.forEach(str -> builder.append("`").append(str).append("` "));
-                builder.append("\nType `").append(event.getClient().getTextualPrefix())
+                builder.append("\r\nType `").append(event.getClient().getTextualPrefix())
                         .append("play playlist <name>` to play a playlist");
                 event.reply(builder.toString());
             }

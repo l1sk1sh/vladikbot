@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
+import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -21,8 +22,8 @@ public class PlayNextCommand extends DJCommand {
     public PlayNextCommand(VladikBot bot) {
         super(bot);
         this.name = "playnext";
-        this.arguments = "<title|URL>";
         this.help = "plays a single song next";
+        this.arguments = "<title|URL>";
         this.beListening = true;
         this.bePlaying = false;
     }
@@ -36,8 +37,8 @@ public class PlayNextCommand extends DJCommand {
         String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">")
                 ? event.getArgs().substring(1, event.getArgs().length() - 1)
                 : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(bot.getSettings().getLoadingEmoji() + " Loading... `[" + args + "]`", m -> bot.getPlayerManager()
-                .loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
+        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getSettings().getLoadingEmoji(), args),
+                m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
     }
 
     private class ResultHandler implements AudioLoadResultHandler {
@@ -53,18 +54,25 @@ public class PlayNextCommand extends DJCommand {
 
         private void loadSingle(AudioTrack track) {
             if (bot.getSettings().isTooLong(track)) {
-                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
-                        + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
-                        + FormatUtils.formatTime(track.getDuration())
-                        + "` > `" + FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000) + "`")).queue();
+                message.editMessage(FormatUtils.filter(String.format(
+                        "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
+                        event.getClient().getWarning(),
+                        track.getInfo().title,
+                        FormatUtils.formatTime(track.getDuration()),
+                        FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000)))
+                ).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             int pos = audioHandler.addTrackToFront(new QueuedTrack(track, event.getAuthor())) + 1;
-            String addMessage = FormatUtils.filter(event.getClient().getSuccess()
-                    + " Added **" + track.getInfo().title
-                    + "** (`" + FormatUtils.formatTime(track.getDuration()) + "`) "
-                    + (pos == 0 ? "to begin playing" : " to the queue at position " + pos));
+
+            String addMessage = FormatUtils.filter(String.format(
+                    "%1$s Added **%2$s** (`%3$s`) %4$s.",
+                    event.getClient().getSuccess(),
+                    track.getInfo().title,
+                    FormatUtils.formatTime(track.getDuration()),
+                    ((pos == 0) ? "to begin playing" : " to the queue at position " + pos))
+            );
             message.editMessage(addMessage).queue();
         }
 
@@ -77,8 +85,8 @@ public class PlayNextCommand extends DJCommand {
         public void playlistLoaded(AudioPlaylist playlist) {
             AudioTrack single;
             if (playlist.getTracks().size() == 1 || playlist.isSearchResult()) {
-                single = playlist.getSelectedTrack()
-                        == null ? playlist.getTracks().get(0) : playlist.getSelectedTrack();
+                single = (playlist.getSelectedTrack() == null)
+                        ? playlist.getTracks().get(0) : playlist.getSelectedTrack();
             } else if (playlist.getSelectedTrack() != null) {
                 single = playlist.getSelectedTrack();
             } else {
@@ -90,22 +98,26 @@ public class PlayNextCommand extends DJCommand {
         @Override
         public void noMatches() {
             if (ytsearch) {
-                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
-                        + " No results found for `" + event.getArgs() + "`.")).queue();
+                message.editMessage(FormatUtils.filter(
+                        String.format("%1$s No results found for `%2$s1`.",
+                                event.getClient().getWarning(),
+                                event.getArgs()))
+                ).queue();
             } else {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(),
-                        "ytsearch:" + event.getArgs(), new ResultHandler(message, event, true));
+                        Constants.YT_SEARCH_PREFIX + event.getArgs(), new ResultHandler(message, event, true));
             }
         }
 
         @Override
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == FriendlyException.Severity.COMMON) {
-                message.editMessage(event.getClient().getError()
-                        + " Error loading: " + throwable.getLocalizedMessage()).queue();
+                message.editMessage(String.format("%1$s Error loading: %2$s.",
+                        event.getClient().getError(),
+                        throwable.getLocalizedMessage())
+                ).queue();
             } else {
-                message.editMessage(event.getClient().getError()
-                        + " Error loading track.").queue();
+                message.editMessage(String.format("%1$s Error loading track.", event.getClient().getError())).queue();
             }
         }
     }

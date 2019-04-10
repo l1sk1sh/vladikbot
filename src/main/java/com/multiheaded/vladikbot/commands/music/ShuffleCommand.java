@@ -31,7 +31,7 @@ public class ShuffleCommand extends MusicCommand {
                 event.replyWarning("You only have one song in the queue!");
                 break;
             default:
-                event.replySuccess("You successfully shuffled your " + shuffle + " entries.");
+                event.replySuccess("You successfully shuffled your entries.");
                 break;
         }
     }

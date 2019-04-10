@@ -15,8 +15,8 @@ public class SkipCommand extends MusicCommand {
     public SkipCommand(VladikBot bot) {
         super(bot);
         this.name = "skip";
-        this.help = "votes to skip the current song";
         this.aliases = new String[]{"voteskip"};
+        this.help = "votes to skip the current song";
         this.beListening = true;
         this.bePlaying = true;
     }
@@ -25,8 +25,8 @@ public class SkipCommand extends MusicCommand {
     public void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         if (event.getAuthor().getIdLong() == audioHandler.getRequester()) {
-            event.reply(event.getClient().getSuccess() + " Skipped **"
-                    + audioHandler.getPlayer().getPlayingTrack().getInfo().title + "**");
+            event.reply(String.format("%1$s Skipped **%2$s**.",
+                    event.getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title));
             audioHandler.getPlayer().stopTrack();
         } else {
             int listeners = (int) event.getSelfMember().getVoiceState().getChannel().getMembers().stream()
@@ -47,10 +47,16 @@ public class SkipCommand extends MusicCommand {
 
             if (skippers >= required) {
                 User user = event.getJDA().getUserById(audioHandler.getRequester());
-                message += "\n" + event.getClient().getSuccess() + " Skipped **"
-                        + audioHandler.getPlayer().getPlayingTrack().getInfo().title
-                        + "**" + (audioHandler.getRequester() == 0 ?
-                        "" : " (requested by " + (user == null ? "someone" : "**" + user.getName() + "**") + ")");
+                message += String.format("\r\n%1$s Skipped **%2$s**%3$s.",
+                        event.getClient().getSuccess(),
+                        audioHandler.getPlayer().getPlayingTrack().getInfo().title,
+                        ((audioHandler.getRequester() == 0)
+                                ? ""
+                                : String.format(" (requested by %1$s",
+                                ((user == null) ? "someone" : "**" + user.getName() + "**") + ")")
+                        )
+                );
+
                 audioHandler.getPlayer().stopTrack();
             }
             event.reply(message);

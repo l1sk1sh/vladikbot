@@ -36,7 +36,7 @@ public class EmojiStatsService {
             String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
 
             /* Custom :emoji: matcher */
-            Matcher customEmojiMatcher = Pattern.compile(":(::|[^:\\n\\s/()])+:").matcher(input);
+            Matcher customEmojiMatcher = Pattern.compile(":(::|[^:\\r\n\\s/()])+:").matcher(input);
             while (customEmojiMatcher.find()) {
                 if (ignoreUnknownEmoji) {
                     if (isEmojiInList(customEmojiMatcher.group()))

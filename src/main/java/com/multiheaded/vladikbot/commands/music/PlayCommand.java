@@ -31,8 +31,8 @@ public class PlayCommand extends MusicCommand {
     public PlayCommand(VladikBot bot) {
         super(bot);
         this.name = "play";
-        this.arguments = "<title|URL|subcommand>";
         this.help = "plays the provided song";
+        this.arguments = "<title|URL|sub command>";
         this.beListening = true;
         this.bePlaying = false;
         this.children = new Command[]{new PlaylistCommand(bot)};
@@ -44,37 +44,46 @@ public class PlayCommand extends MusicCommand {
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             if (audioHandler.getPlayer().getPlayingTrack() != null && audioHandler.getPlayer().isPaused()) {
                 boolean isDJ = event.getMember().hasPermission(Permission.MANAGE_SERVER);
-                if (!isDJ)
+                if (!isDJ) {
                     isDJ = event.isOwner();
+                }
                 Role dj = bot.getSettings().getDjRole(event.getGuild());
-                if (!isDJ && dj != null)
+                if (!isDJ && (dj != null)) {
                     isDJ = event.getMember().getRoles().contains(dj);
-                if (!isDJ)
+                }
+                if (!isDJ) {
                     event.replyError("Only DJs can unpause the player!");
-                else {
+                } else {
                     audioHandler.getPlayer().setPaused(false);
-                    event.replySuccess("Resumed **" + audioHandler.getPlayer().getPlayingTrack().getInfo().title + "**.");
+                    event.replySuccess(String.format("Resumed **%1$s**.",
+                            audioHandler.getPlayer().getPlayingTrack().getInfo().title));
                 }
                 return;
             }
-            StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Play Commands:\n");
-            builder.append("\n`").append(event.getClient().getPrefix()).append(name)
+
+            StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Play Commands:\r\n");
+            builder.append("\r\n`").append(event.getClient().getPrefix()).append(name)
                     .append(" <song title>` - plays the first result from Youtube");
-            builder.append("\n`").append(event.getClient().getPrefix()).append(name)
+            builder.append("\r\n`").append(event.getClient().getPrefix()).append(name)
                     .append(" <URL>` - plays the provided song, playlist, or stream");
-            for (Command cmd : children)
-                builder.append("\n`").append(event.getClient().getPrefix()).append(name)
+            for (Command cmd : children) {
+                builder.append("\r\n`").append(event.getClient().getPrefix()).append(name)
                         .append(" ").append(cmd.getName()).append(" ")
                         .append(cmd.getArguments()).append("` - ").append(cmd.getHelp());
+            }
             event.reply(builder.toString());
             return;
         }
-        String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">")
+        String args = (event.getArgs().startsWith("<") && event.getArgs().endsWith(">"))
                 ? event.getArgs().substring(1, event.getArgs().length() - 1)
-                : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(bot.getSettings().getLoadingEmoji()
-                + " Loading... `[" + args + "]`", m -> bot.getPlayerManager().loadItemOrdered(
-                event.getGuild(), args, new ResultHandler(m, event, false)));
+                : ((event.getArgs().isEmpty())
+                ? event.getMessage().getAttachments().get(0).getUrl()
+                : event.getArgs());
+        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getSettings().getLoadingEmoji(), args),
+                m -> bot.getPlayerManager().loadItemOrdered(
+                        event.getGuild(), args, new ResultHandler(m, event, false)
+                )
+        );
     }
 
     private class ResultHandler implements AudioLoadResultHandler {
@@ -90,36 +99,46 @@ public class PlayCommand extends MusicCommand {
 
         private void loadSingle(AudioTrack track, AudioPlaylist playlist) {
             if (bot.getSettings().isTooLong(track)) {
-                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
-                        + " This track (**" + track.getInfo().title + "**) is longer than the allowed maximum: `"
-                        + FormatUtils.formatTime(track.getDuration()) + "` > `"
-                        + FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000) + "`")).queue();
+                message.editMessage(FormatUtils.filter(String.format(
+                        "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
+                        event.getClient().getWarning(),
+                        track.getInfo().title,
+                        FormatUtils.formatTime(track.getDuration()),
+                        FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000)))
+                ).queue();
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
-            String addMsg = FormatUtils.filter(event.getClient().getSuccess()
-                    + " Added **" + track.getInfo().title
-                    + "** (`" + FormatUtils.formatTime(track.getDuration()) + "`) "
-                    + (pos == 0 ? "to begin playing" : " to the queue at position " + pos));
-            if (playlist == null
+
+            String addMessage = FormatUtils.filter(String.format(
+                    "%1$s Added **%2$s** (`%3$s`) %4$s.",
+                    event.getClient().getSuccess(),
+                    track.getInfo().title,
+                    FormatUtils.formatTime(track.getDuration()),
+                    ((pos == 0) ? "to begin playing" : " to the queue at position " + pos))
+            );
+            if ((playlist == null)
                     || !event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION)) {
-                message.editMessage(addMsg).queue();
+                message.editMessage(addMessage).queue();
             } else {
-                new ButtonMenu.Builder()
-                        .setText(addMsg + "\n" + event.getClient().getWarning()
-                                + " This track has a playlist of **" + playlist.getTracks().size()
-                                + "** tracks attached. Select " + Constants.LOAD_EMOJI + " to load playlist.")
+                new ButtonMenu.Builder().setText(String.format(
+                        "%1$s \r\n %2$s  This track has a playlist of **%3$s** tracks attached. Select %4$s to load playlist.",
+                        addMessage,
+                        event.getClient().getWarning(),
+                        playlist.getTracks().size(),
+                        Constants.LOAD_EMOJI))
                         .setChoices(Constants.LOAD_EMOJI, Constants.CANCEL_EMOJI)
                         .setEventWaiter(bot.getWaiter())
                         .setTimeout(30, TimeUnit.SECONDS)
                         .setAction(re ->
                         {
                             if (re.getName().equals(Constants.LOAD_EMOJI)) {
-                                message.editMessage(addMsg + "\n" + event.getClient().getSuccess()
-                                        + " Loaded **" + loadPlaylist(playlist, track) + "** additional tracks!").queue();
+                                message.editMessage(String.format("%1$s \r\n %2$s Loaded **%3$s** additional tracks!",
+                                        addMessage, event.getClient().getSuccess(), loadPlaylist(playlist, track)))
+                                        .queue();
                             } else {
-                                message.editMessage(addMsg).queue();
+                                message.editMessage(addMessage).queue();
                             }
                         }).setFinalAction(m ->
                 {
@@ -150,9 +169,10 @@ public class PlayCommand extends MusicCommand {
 
         @Override
         public void playlistLoaded(AudioPlaylist playlist) {
-            if (playlist.getTracks().size() == 1 || playlist.isSearchResult()) {
-                AudioTrack single = playlist.getSelectedTrack() == null
-                        ? playlist.getTracks().get(0) : playlist.getSelectedTrack();
+            if ((playlist.getTracks().size() == 1) || playlist.isSearchResult()) {
+                AudioTrack single = (playlist.getSelectedTrack() == null)
+                        ? playlist.getTracks().get(0)
+                        : playlist.getSelectedTrack();
                 loadSingle(single, null);
             } else if (playlist.getSelectedTrack() != null) {
                 AudioTrack single = playlist.getSelectedTrack();
@@ -160,41 +180,46 @@ public class PlayCommand extends MusicCommand {
             } else {
                 int count = loadPlaylist(playlist, null);
                 if (count == 0) {
-                    message.editMessage(FormatUtils.filter(event.getClient().getWarning()
-                            + " All entries in this playlist " +
-                            (playlist.getName() == null ? "" : "(**" + playlist.getName()
-                                    + "**) ") + "were longer than the allowed maximum (`"
-                            + bot.getSettings().getMaxTime() + "`)")).queue();
+                    message.editMessage(FormatUtils.filter(String.format(
+                            "%1$s All entries in this playlist %2$s were longer than the allowed maximum (`%3$s`).",
+                            event.getClient().getWarning(),
+                            ((playlist.getName() == null) ? "" : "(**" + playlist.getName() + "**)"),
+                            bot.getSettings().getMaxTime()))).queue();
                 } else {
-                    message.editMessage(FormatUtils.filter(event.getClient().getSuccess() + " Found "
-                            + (playlist.getName() == null ? "a playlist" : "playlist **"
-                            + playlist.getName() + "**") + " with `"
-                            + playlist.getTracks().size() + "` entries; added to the queue!"
-                            + (count < playlist.getTracks().size() ? "\n" + event.getClient().getWarning()
-                            + " Tracks longer than the allowed maximum (`"
-                            + bot.getSettings().getMaxTime() + "`) have been omitted." : ""))).queue();
+                    message.editMessage(FormatUtils.filter(String.format(
+                            "%1$s Found %2$s with `%3$s` entries; added to the queue! %4$s",
+                            event.getClient().getSuccess(),
+                            ((playlist.getName() == null) ? "a playlist" : "playlist **" + playlist.getName() + "**"),
+                            playlist.getTracks().size(),
+                            ((count < playlist.getTracks().size())
+                                    ? String.format("\r\n%1$s Tracks longer than the allowed maximum (`%2$s`) have been omitted.",
+                                    event.getClient().getWarning(),
+                                    bot.getSettings().getMaxTime())
+                                    : "")))
+                    ).queue();
                 }
             }
         }
 
         @Override
         public void noMatches() {
-            if (ytsearch)
-                message.editMessage(FormatUtils.filter(event.getClient().getWarning()
-                        + " No results found for `" + event.getArgs() + "`.")).queue();
-            else
-                bot.getPlayerManager().loadItemOrdered(event.getGuild(), "ytsearch:"
+            if (ytsearch) {
+                message.editMessage(FormatUtils.filter(String.format("%1$s  No results found for `%2$s`.",
+                        event.getClient().getWarning(), event.getArgs()))).queue();
+            } else {
+                bot.getPlayerManager().loadItemOrdered(event.getGuild(), Constants.YT_SEARCH_PREFIX
                         + event.getArgs(), new ResultHandler(message, event, true));
+            }
         }
 
         @Override
         public void loadFailed(FriendlyException throwable) {
-            if (throwable.severity == Severity.COMMON)
-                message.editMessage(event.getClient().getError()
-                        + " Error loading: " + throwable.getLocalizedMessage()).queue();
-            else
-                message.editMessage(event.getClient().getError()
-                        + " Error loading track.").queue();
+            if (throwable.severity == Severity.COMMON) {
+                message.editMessage(String.format("%1$s  Error loading: %2$s.", event.getClient().getError(),
+                        throwable.getLocalizedMessage())).queue();
+            } else {
+                message.editMessage(String.format("%1$s  Error loading track.", event.getClient().getError())).queue();
+            }
         }
     }
 
@@ -212,14 +237,13 @@ public class PlayCommand extends MusicCommand {
         @Override
         public void doCommand(CommandEvent event) {
             if (event.getArgs().isEmpty()) {
-                event.reply(event.getClient().getError() + " Please include a playlist name.");
+                event.replyError("Please include a playlist name.");
                 return;
             }
 
             Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getArgs());
             if (playlist == null) {
-                event.replyError("I could not find `" + event.getArgs() + Constants.JSON_EXTENSION
-                        + "` in the Playlists folder.");
+                event.replyError(String.format("I could not find `%1$s` in the Playlists folder.", event.getArgs()));
                 return;
             }
 
@@ -227,24 +251,27 @@ public class PlayCommand extends MusicCommand {
                 event.replyWarning("Specified playlist is empty!");
             }
 
-            event.getChannel().sendMessage(bot.getSettings().getLoadingEmoji() + " Loading playlist **"
-                    + event.getArgs() + "**... (" + playlist.getItems().size() + " items)").queue(m ->
+            event.getChannel().sendMessage(String.format("%1$s Loading playlist... **%2$s**... (%3$s items).",
+                    bot.getSettings().getLoadingEmoji(), event.getArgs(), playlist.getItems().size())).queue(m ->
             {
                 AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                 playlist.loadTracks(bot.getPlayerManager(),
                         (audioTrack) -> audioHandler.addTrack(new QueuedTrack(audioTrack, event.getAuthor())), () -> {
-                    StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty()
-                            ? event.getClient().getWarning() + " No tracks were loaded!"
-                            : event.getClient().getSuccess() + " Loaded **" + playlist.getTracks().size() + "** tracks!");
-                    if (!playlist.getErrors().isEmpty())
-                        builder.append("\nThe following tracks failed to load:");
-                    playlist.getErrors().forEach(err -> builder.append("\n`[").append(err.getIndex() + 1).append("]` **")
-                            .append(err.getItem()).append("**: ").append(err.getReason()));
-                    String str = builder.toString();
-                    if (str.length() > 2000)
-                        str = str.substring(0, 1994) + " (...)";
+                            StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty()
+                                    ? event.getClient().getWarning() + " No tracks were loaded!"
+                                    : event.getClient().getSuccess()
+                                    + " Loaded **" + playlist.getTracks().size() + "** tracks!");
+                            if (!playlist.getErrors().isEmpty())
+                                builder.append("\r\nThe following tracks failed to load:");
+                            playlist.getErrors().forEach(
+                                    err -> builder.append("\r\n`[").append(err.getIndex() + 1).append("]` **")
+                                            .append(err.getItem()).append("**: ").append(err.getReason())
+                            );
+                            String str = builder.toString();
+                            if (str.length() > 2000)
+                                str = str.substring(0, 1994) + " (...)";
                             m.editMessage(FormatUtils.filter(str)).queue();
-                });
+                        });
             });
         }
     }

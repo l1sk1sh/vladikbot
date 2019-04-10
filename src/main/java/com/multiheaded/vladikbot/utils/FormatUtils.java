@@ -51,24 +51,24 @@ public class FormatUtils {
         return Constants.VOLUME_100_EMOJI;
     }
 
-    public static String listOfTChannels(List<TextChannel> list, String query) {
+    public static String listOfTextChannels(List<TextChannel> list, String query) {
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
         for (int i = 0; i < 6 && i < list.size(); i++) {
-            out.append("\n - ").append(list.get(i).getName()).append(" (<#").append(list.get(i).getId()).append(">)");
+            out.append("\r\n - ").append(list.get(i).getName()).append(" (<#").append(list.get(i).getId()).append(">)");
         }
         if (list.size() > 6) {
-            out.append("\n**And ").append(list.size() - 6).append(" more...**");
+            out.append("\r\n**And ").append(list.size() - 6).append(" more...**");
         }
         return out.toString();
     }
 
-    public static String listOfVChannels(List<VoiceChannel> list, String query) {
+    public static String listOfVoiceChannels(List<VoiceChannel> list, String query) {
         StringBuilder out = new StringBuilder(" Multiple voice channels found matching \"" + query + "\":");
         for (int i = 0; i < 6 && i < list.size(); i++) {
-            out.append("\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
+            out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
         if (list.size() > 6) {
-            out.append("\n**And ").append(list.size() - 6).append(" more...**");
+            out.append("\r\n**And ").append(list.size() - 6).append(" more...**");
         }
         return out.toString();
     }
@@ -76,10 +76,10 @@ public class FormatUtils {
     public static String listOfRoles(List<Role> list, String query) {
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
         for (int i = 0; i < 6 && i < list.size(); i++) {
-            out.append("\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
+            out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
         if (list.size() > 6) {
-            out.append("\n**And ").append(list.size() - 6).append(" more...**");
+            out.append("\r\n**And ").append(list.size() - 6).append(" more...**");
         }
         return out.toString();
     }

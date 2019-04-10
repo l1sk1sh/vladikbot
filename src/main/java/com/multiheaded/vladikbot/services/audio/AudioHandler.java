@@ -232,7 +232,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                 title = track.getInfo().uri;
             }
             return "**" + title + "** [" + (userid == 0 ? "autoplay" : "<@" + userid + ">") + "]"
-                    + "\n" + (audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI) + " "
+                    + "\r\n" + (audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI) + " "
                     + "[" + FormatUtils.formatTime(track.getDuration()) + "] "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume());
         } else {

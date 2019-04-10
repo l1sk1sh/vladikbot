@@ -14,11 +14,11 @@ public class RepeatCommand extends DJCommand {
         super(bot);
         this.name = "repeat";
         this.help = "re-adds music to the queue when finished";
-        this.arguments = "[on|off]";
+        this.arguments = "<on|off>";
         this.guildOnly = true;
     }
 
-    /* Override musiccommand's execute because we don't actually care where this is used */
+    /* Override MusicCommand's execute because we don't actually care where this is used */
     @Override
     protected void execute(CommandEvent event) {
         boolean value;
@@ -29,11 +29,11 @@ public class RepeatCommand extends DJCommand {
         } else if (event.getArgs().equalsIgnoreCase("false") || event.getArgs().equalsIgnoreCase("off")) {
             value = false;
         } else {
-            event.replyError("Valid options are `on` or `off` (or leave empty to toggle)");
+            event.replyError("Valid options are `on` or `off` (or leave empty to toggle).");
             return;
         }
         bot.getSettings().setRepeat(value);
-        event.replySuccess("Repeat mode is now `" + (value ? "ON" : "OFF") + "`");
+        event.replySuccess(String.format("Repeat mode is now `%1$s`.", (value ? "ON" : "OFF")));
     }
 
     @Override

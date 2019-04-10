@@ -16,12 +16,15 @@ abstract class DJCommand extends MusicCommand {
         super(bot);
         this.category = new Category("DJ", event ->
         {
-            if (event.getAuthor().getId().equals(event.getClient().getOwnerId()))
+            if (event.getAuthor().getId().equals(event.getClient().getOwnerId())) {
                 return true;
-            if (event.getGuild() == null)
+            }
+            if (event.getGuild() == null) {
                 return true;
-            if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL))
+            }
+            if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
                 return true;
+            }
             Role djRole = bot.getSettings().getDjRole(event.getGuild());
             return djRole != null &&
                     (event.getMember().getRoles().contains(djRole) || djRole.getIdLong() == event.getGuild().getIdLong());

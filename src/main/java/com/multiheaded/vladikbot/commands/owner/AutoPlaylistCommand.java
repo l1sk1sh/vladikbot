@@ -2,7 +2,6 @@ package com.multiheaded.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.Settings;
 
 /**
@@ -16,33 +15,33 @@ public class AutoPlaylistCommand extends OwnerCommand {
 
     public AutoPlaylistCommand(VladikBot bot) {
         this.bot = bot;
-        this.guildOnly = true;
         this.name = "autoplaylist";
-        this.arguments = "<name|NONE>";
         this.help = "sets the default playlist for the server";
+        this.arguments = "<name|none>";
+        this.guildOnly = true;
     }
 
     @Override
     public void execute(CommandEvent event) {
         if (event.getArgs().isEmpty()) {
-            event.reply(event.getClient().getError() + " Please include a playlist name or NONE");
+            event.replyError("Please include a playlist name or none");
             return;
         }
+
         if (event.getArgs().equalsIgnoreCase("none")) {
             bot.getSettings().setDefaultPlaylist(null);
-            event.reply(event.getClient().getSuccess()
-                    + " Cleared the default playlist for **" + event.getGuild().getName() + "**");
+            event.replySuccess(String.format("Cleared the default playlist for **%1$s**", event.getGuild().getName()));
             return;
         }
 
         String pname = event.getArgs().replaceAll("\\s+", "_");
         if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
-            event.reply(event.getClient().getError() + " Could not find `" + pname + Constants.JSON_EXTENSION + "`!");
+            event.replyError(String.format("Could not find `%1$s`!", pname));
         } else {
             Settings settings = event.getClient().getSettingsFor(event.getGuild());
             settings.setDefaultPlaylist(pname);
-            event.reply(event.getClient().getSuccess()
-                    + " The default playlist for **" + event.getGuild().getName() + "** is now `" + pname + "`");
+            event.replySuccess(String.format("The default playlist for **%1$s** is now `%2$s`",
+                    event.getGuild().getName(), pname));
         }
     }
 }

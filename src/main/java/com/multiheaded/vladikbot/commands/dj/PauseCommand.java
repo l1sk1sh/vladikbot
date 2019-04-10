@@ -22,12 +22,13 @@ public class PauseCommand extends DJCommand {
     public void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         if (audioHandler.getPlayer().isPaused()) {
-            event.replyWarning("The player is already paused! Use `"
-                    + event.getClient().getPrefix() + "play` to unpause!");
+            event.replyWarning(String.format("The player is already paused! Use `%1$splay` to unpause!",
+                    event.getClient().getPrefix()));
             return;
         }
         audioHandler.getPlayer().setPaused(true);
-        event.replySuccess("Paused **" + audioHandler.getPlayer().getPlayingTrack().getInfo().title
-                + "**. Type `" + event.getClient().getPrefix() + "play` to unpause!");
+        event.replySuccess(String.format("Paused **%1$s**. Type `%2$splay` to unpause!",
+                audioHandler.getPlayer().getPlayingTrack().getInfo().title,
+                event.getClient().getPrefix()));
     }
 }

@@ -18,15 +18,25 @@ public class Constants {
                     Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
 
     static final String SETTINGS_JSON = "settings.json";
+    public static final String STATUSES_JSON = "rotation.json";
 
     public static final Integer DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
     public static final Integer EIGHT_MEGABYTES_IN_BYTES = 8388608;
+    public static final Integer STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
     public static final String[] SUPPORTED_MEDIA_FORMATS = {".jpg", ".png", ".mp4"};
     public static final String JSON_EXTENSION = ".json";
     public static final String HTML_EXTENSION = ".html";
     public static final String TXT_EXTENSION = ".txt";
+
+    public static final String ACTION_PLAYING = "playing";
+    public static final String ACTION_WATCHING = "watching";
+    public static final String ACTION_LISTENING = "listening";
+    public static final String ACTION_STREAMING = "streaming";
+
+    public static final String YT_SEARCH_PREFIX = "ytsearch:";
+    public static final String SC_SEARCH_PREFIX = "scsearch:";
 
     public static final String BACKUP_HTML_DARK = "HtmlDark";
     public static final String BACKUP_PLAIN_TEXT = "PlainText";

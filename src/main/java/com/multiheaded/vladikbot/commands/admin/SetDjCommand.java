@@ -20,30 +20,30 @@ public class SetDjCommand extends AdminCommand {
     public SetDjCommand(SettingsFunction<Role> setDjRoleId) {
         this.name = "setdj";
         this.help = "sets the DJ role for certain music commands";
-        this.arguments = "<rolename|NONE>";
+        this.arguments = "<rolename|none>";
         this.setDjRoleId = setDjRoleId;
     }
 
     @Override
     protected void execute(CommandEvent event) {
         if (event.getArgs().isEmpty()) {
-            event.reply(event.getClient().getError() + " Please include a role name or NONE");
+            event.replyError("Please include a role name or *none*.");
             return;
         }
 
         if (event.getArgs().equalsIgnoreCase("none")) {
             setDjRoleId.set(null);
-            event.reply(event.getClient().getSuccess() + " DJ role cleared; Only Admins can use the DJ commands.");
+            event.replySuccess("DJ role cleared.");
         } else {
             List<Role> list = FinderUtil.findRoles(event.getArgs(), event.getGuild());
             if (list.isEmpty()) {
-                event.reply(event.getClient().getWarning() + " No Roles found matching \"" + event.getArgs() + "\"");
+                event.replyWarning(String.format("No Roles found matching \"%1$s\".", event.getArgs()));
             } else if (list.size() > 1) {
-                event.reply(event.getClient().getWarning() + FormatUtils.listOfRoles(list, event.getArgs()));
+                event.replyWarning(FormatUtils.listOfRoles(list, event.getArgs()));
             } else {
                 setDjRoleId.set(list.get(0));
-                event.reply(event.getClient().getSuccess()
-                        + " DJ commands can now be used by users with the **" + list.get(0).getName() + "** role.");
+                event.replySuccess(String.format("DJ commands can now be used by users with the **%1$s** role.",
+                        list.get(0).getName()));
             }
         }
     }

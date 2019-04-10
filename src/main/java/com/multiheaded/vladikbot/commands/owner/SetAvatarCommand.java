@@ -16,8 +16,8 @@ import java.io.InputStream;
 public class SetAvatarCommand extends OwnerCommand {
     public SetAvatarCommand() {
         this.name = "setavatar";
-        this.help = "sets the avatar of the bot";
         this.arguments = "<url>";
+        this.help = "sets the avatar of the bot";
         this.guildOnly = false;
     }
 
@@ -36,14 +36,14 @@ public class SetAvatarCommand extends OwnerCommand {
 
         InputStream inputStream = OtherUtils.imageFromUrl(url);
         if (inputStream == null) {
-            event.reply(event.getClient().getError() + " Invalid or missing URL");
+            event.replyError("Invalid or missing URL.");
         } else {
             try {
                 event.getSelfUser().getManager().setAvatar(Icon.from(inputStream)).queue(
                         v -> event.reply(event.getClient().getSuccess() + " Successfully changed avatar."),
                         t -> event.reply(event.getClient().getError() + " Failed to set avatar."));
             } catch (IOException e) {
-                event.reply(event.getClient().getError() + " Could not load from provided URL.");
+                event.replyError("Could not load from provided URL.");
             }
         }
     }

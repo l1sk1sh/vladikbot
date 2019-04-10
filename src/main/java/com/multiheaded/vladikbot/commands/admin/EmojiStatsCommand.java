@@ -28,16 +28,16 @@ public class EmojiStatsCommand extends AdminCommand {
     private final VladikBot bot;
 
     public EmojiStatsCommand(EventWaiter waiter, VladikBot bot) {
+        this.bot = bot;
         this.name = "emojistats";
-        this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\n"
-                + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done.\n"
-                + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which statics would be done.\n"
-                + "\t\t `-iu` - ignores unicode emoji and unknown emoji.\n"
-                + "\t\t `-f` - creates new backup despite existing one.\n"
+        this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\r\n"
+                + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done\r\n"
+                + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which statics would be done\r\n"
+                + "\t\t `-iu` - ignores unicode emoji and unknown emoji\r\n"
+                + "\t\t `-f` - creates new backup despite existing one\r\n"
                 + "\t\t `-i` - ignores unicode emoji.";
         this.arguments = "-a, -b, -iu, -i, -f";
         this.guildOnly = true;
-        this.bot = bot;
 
         pbuilder = new Paginator.Builder().setColumns(1)
                 .setItemsPerPage(20)
@@ -82,13 +82,13 @@ public class EmojiStatsCommand extends AdminCommand {
                         throw new RuntimeException("Emoji Statistics Service failed!");
                     sendStatisticsMessage(event, emojiStatsService.getEmojiList());
                 } catch (InterruptedException | IOException e) {
-                    event.replyError(String.format("Backup **has failed**! `[%s]`", e.getLocalizedMessage()));
+                    event.replyError(String.format("Backup **has failed**! `[%1$s]`", e.getLocalizedMessage()));
                 } catch (InvalidParameterException ipe) {
                     event.replyError(ipe.getLocalizedMessage());
                 } catch (RuntimeException re) {
-                    event.replyError(String.format("Calculation failed! `[%s]`", re.getLocalizedMessage()));
+                    event.replyError(String.format("Calculation failed! `[%1$s]`", re.getLocalizedMessage()));
                 } catch (Exception e) {
-                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%s]`", e.getLocalizedMessage()));
+                    event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%1$s]`", e.getLocalizedMessage()));
                 }
             }).start();
         } else {

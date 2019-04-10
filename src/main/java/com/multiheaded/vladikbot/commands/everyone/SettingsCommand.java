@@ -40,13 +40,13 @@ public class SettingsCommand extends Command {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(event.getSelfMember().getColor())
                 .setDescription("Text Channel: " + ((textChannel == null) ? "Any" : "**#" + textChannel.getName() + "**")
-                        + "\nVoice Channel: "
+                        + "\r\nVoice Channel: "
                         + ((voiceChannel == null) ? "Any" : "**" + voiceChannel.getName() + "**")
-                        + "\nDJ Role: "
+                        + "\r\nDJ Role: "
                         + ((djRole == null) ? "None" : "**" + djRole.getName() + "**")
-                        + "\nRepeat Mode: **"
+                        + "\r\nRepeat Mode: **"
                         + (settings.shouldRepeat() ? "On" : "Off") + "**"
-                        + "\nDefault Playlist: "
+                        + "\r\nDefault Playlist: "
                         + ((settings.getDefaultPlaylist() == null) ? "None" : "**" + settings.getDefaultPlaylist() + "**")
                 )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
