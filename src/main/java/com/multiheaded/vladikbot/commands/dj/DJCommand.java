@@ -11,6 +11,7 @@ import net.dv8tion.jda.core.entities.Role;
  * - Reformating code
  * @author John Grosh
  */
+// TODO Fix help output
 abstract class DJCommand extends MusicCommand {
     DJCommand(VladikBot bot) {
         super(bot);
