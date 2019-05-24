@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 /**
  * @author Oliver Johnson
  */
+// TODO Compare lowercase emoji
 public class EmojiStatsService {
     private static final Logger logger = LoggerFactory.getLogger(EmojiStatsService.class);
 
