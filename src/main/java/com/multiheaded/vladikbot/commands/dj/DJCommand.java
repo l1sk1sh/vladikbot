@@ -2,6 +2,7 @@ package com.multiheaded.vladikbot.commands.dj;
 
 import com.multiheaded.vladikbot.VladikBot;
 import com.multiheaded.vladikbot.commands.music.MusicCommand;
+import com.multiheaded.vladikbot.settings.SettingsManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
 
@@ -11,7 +12,6 @@ import net.dv8tion.jda.core.entities.Role;
  * - Reformating code
  * @author John Grosh
  */
-// TODO Fix help output
 abstract class DJCommand extends MusicCommand {
     DJCommand(VladikBot bot) {
         super(bot);
@@ -26,7 +26,8 @@ abstract class DJCommand extends MusicCommand {
             if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
                 return true;
             }
-            Role djRole = bot.getSettings().getDjRole(event.getGuild());
+            /* Intentionally calling SettingsManager instead of `bot` due to strange bug in help output */
+            Role djRole = SettingsManager.getInstance().getSettings().getDjRole(event.getGuild());
             return djRole != null &&
                     (event.getMember().getRoles().contains(djRole) || djRole.getIdLong() == event.getGuild().getIdLong());
         });
