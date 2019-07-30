@@ -28,14 +28,14 @@ public abstract class MusicCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        TextChannel tchannel = bot.getSettings().getTextChannel(event.getGuild());
+        TextChannel textChannel = bot.getSettings().getTextChannel(event.getGuild());
 
-        if (tchannel != null && !event.getTextChannel().equals(tchannel)) {
+        if (textChannel != null && !event.getTextChannel().equals(textChannel)) {
             try {
                 event.getMessage().delete().queue();
             } catch (PermissionException ignore) { /* Ignoring */ }
             event.replyInDm(String.format("%1$s You can only use that command in %2$s!",
-                    event.getClient().getError(), tchannel.getAsMention()));
+                    event.getClient().getError(), textChannel.getAsMention()));
             return;
         }
 
