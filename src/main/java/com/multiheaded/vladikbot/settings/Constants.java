@@ -51,13 +51,13 @@ public class Constants {
     public final static String PAUSE_EMOJI = "\u23F8";              // ⏸
     public final static String STOP_EMOJI = "\u23F9";               // ⏹
     public final static String REPEAT_EMOJI = "\uD83D\uDD01";       // 🔁
-    public final static String PROGRESS_EMOJI = "\uD83D\uDD18";     //🔘
+    public final static String PROGRESS_EMOJI = "\uD83D\uDD18";     // 🔘
     public final static String HEADPHONES_EMOJI = "\uD83C\uDFA7";   // 🎧
     public final static String LOAD_EMOJI = "\uD83D\uDCE5";         // 📥
     public final static String CANCEL_EMOJI = "\uD83D\uDEAB";       // 🚫
-    public final static String VOLUME_OFF_EMOJI = "\uD83D\uDD07";   //🔇
-    public final static String VOLUME_30_EMOJI = "\uD83D\uDD08";    //🔈
-    public final static String VOLUME_70_EMOJI = "\uD83D\uDD09";    //🔉
-    public final static String VOLUME_100_EMOJI = "\uD83D\uDD0A";   //🔊
+    public final static String VOLUME_OFF_EMOJI = "\uD83D\uDD07";   // 🔇
+    public final static String VOLUME_30_EMOJI = "\uD83D\uDD08";    // 🔈
+    public final static String VOLUME_70_EMOJI = "\uD83D\uDD09";    // 🔉
+    public final static String VOLUME_100_EMOJI = "\uD83D\uDD0A";   // 🔊
 
 }

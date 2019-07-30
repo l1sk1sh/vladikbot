@@ -18,7 +18,6 @@ import java.util.regex.Pattern;
 /**
  * @author Oliver Johnson
  */
-// TODO Compare lowercase emoji
 public class EmojiStatsService {
     private static final Logger logger = LoggerFactory.getLogger(EmojiStatsService.class);
 
@@ -90,7 +89,7 @@ public class EmojiStatsService {
         boolean present = false;
 
         for (Emote serverEmoji : serverEmojiList) {
-            if (serverEmoji.getName().equals(emoji.replaceAll(":", "")))
+            if (serverEmoji.getName().toLowerCase().equals(emoji.replaceAll(":", "")))
                 present = true;
         }
 

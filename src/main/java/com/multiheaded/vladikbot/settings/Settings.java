@@ -36,6 +36,7 @@ public class Settings {
     private String playlistsFolder = "app/playlists/";          // Local folder for playlists to be stored
     private Long textChannelId = 0L;                            // Only one channel id for bot's texting
     private Long voiceChannelId = 0L;                           // Only one voice id for bot's music
+    private Long notificationChannelId = 0L;                    // Use separate system notification channel for bot
     private Long djRoleId = 0L;                                 // Sets who can use DJ commands
     private int volume = 50;                                    // Sets volume of the bot
     private String defaultPlaylist = "default_playlist";        // Sets name of default playlist
@@ -135,6 +136,15 @@ public class Settings {
 
     public void setVoiceChannelId(VoiceChannel voiceChannel) {
         this.voiceChannelId = voiceChannel == null ? 0 : voiceChannel.getIdLong();
+        SettingsManager.getInstance().writeSettings();
+    }
+
+    public TextChannel getNotificationChannel(Guild guild) {
+        return (guild == null) ? null : guild.getTextChannelById(notificationChannelId);
+    }
+
+    public void setNotificationChannelId(TextChannel textChannel) {
+        this.notificationChannelId = textChannel == null ? 0 : textChannel.getIdLong();
         SettingsManager.getInstance().writeSettings();
     }
 

@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
+import com.multiheaded.vladikbot.commands.everyone.StatusCommand;
 import com.multiheaded.vladikbot.services.AutoModerationManager;
 import com.multiheaded.vladikbot.services.ActionAndGameRotationManager;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
@@ -77,7 +78,9 @@ public class VladikBot {
                     .addCommands(
                             new PingCommand(),
                             new SettingsCommand(settings),
+                            new StatusCommand(settings),
 
+                            new SetNotificationChannelCommand(settings::setNotificationChannelId),
                             new SetDjCommand(settings::setDjRoleId),
                             new SetTextChannelCommand(settings::setTextChannelId),
                             new SetVoiceChannelCommand(settings::setVoiceChannelId),
@@ -94,6 +97,7 @@ public class VladikBot {
                             new SkipToCommand(this),
                             new StopCommand(this),
                             new VolumeCommand(this),
+                            new MoveTrackCommand(this),
 
                             new AutoPlaylistCommand(this),
                             new PlaylistCommand(this),

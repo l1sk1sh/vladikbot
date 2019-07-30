@@ -26,6 +26,7 @@ abstract class DJCommand extends MusicCommand {
             if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
                 return true;
             }
+
             /* Intentionally calling SettingsManager instead of `bot` due to strange bug in help output */
             Role djRole = SettingsManager.getInstance().getSettings().getDjRole(event.getGuild());
             return djRole != null &&

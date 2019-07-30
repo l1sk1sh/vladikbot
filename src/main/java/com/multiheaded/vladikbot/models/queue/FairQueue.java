@@ -100,4 +100,10 @@ public class FairQueue<T extends Queueable> {
             list.remove(0);
         }
     }
+
+    public T moveItem(int from, int to) {
+        T item = list.remove(from);
+        list.add(to, item);
+        return item;
+    }
 }
