@@ -1,9 +1,10 @@
 ### Simple Discord bot
 Bot is written using JDA library and common sense.
 #### Credits
-- [JDA](https://github.com/Tyrrrz/DiscordChatExporter/releases) for flexible and intuitive Discord API Java wrapper
+- [JDA](https://github.com/DV8FromTheWorld/JDA) for flexible and intuitive Discord API Java wrapper
 - [Yui-bot](https://github.com/DV8FromTheWorld/Yui) for basic idea of how discord bot should work
 - [JMusic](https://github.com/jagrosh/MusicBot) (_30 of July 2019_) for wonderful and simple MusicBot, that has become a core of project
+- [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases) for discord chat backup solution
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
    1. `itunes [song name]` - Get info on a song
