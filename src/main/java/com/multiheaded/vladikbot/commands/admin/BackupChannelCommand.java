@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.BackupChannelService;
 import com.multiheaded.vladikbot.settings.Constants;
 
@@ -13,9 +13,9 @@ import java.security.InvalidParameterException;
  * @author Oliver Johnson
  */
 public class BackupChannelCommand extends AdminCommand {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public BackupChannelCommand(VladikBot bot) {
+    public BackupChannelCommand(Bot bot) {
         this.bot = bot;
         this.name = "backup";
         this.help = "creates backup of the current channel\r\n"
@@ -34,11 +34,11 @@ public class BackupChannelCommand extends AdminCommand {
                 try {
                     BackupChannelService service = new BackupChannelService(
                             event.getChannel().getId(),
-                            bot.getSettings().getToken(),
+                            bot.getBotSettings().getToken(),
                             Constants.BACKUP_HTML_DARK,
-                            bot.getSettings().getLocalPathToExport(),
-                            bot.getSettings().getDockerPathToExport(),
-                            bot.getSettings().getDockerContainerName(),
+                            bot.getBotSettings().getLocalPathToExport(),
+                            bot.getBotSettings().getDockerPathToExport(),
+                            bot.getBotSettings().getDockerContainerName(),
                             event.getArgs().split(" "),
                             bot::setAvailableBackup
                     );

@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jlyrics.LyricsClient;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -16,7 +16,7 @@ import net.dv8tion.jda.core.Permission;
 public class LyricsCommand extends MusicCommand {
     private final LyricsClient client = new LyricsClient();
 
-    public LyricsCommand(VladikBot bot) {
+    public LyricsCommand(Bot bot) {
         super(bot);
         this.name = "lyrics";
         this.help = "shows the lyrics to the currently-playing song";

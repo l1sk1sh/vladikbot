@@ -1,6 +1,6 @@
 package com.multiheaded.vladikbot.services.audio;
 
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
@@ -14,9 +14,9 @@ import net.dv8tion.jda.core.entities.Guild;
  * @author John Grosh
  */
 public class PlayerManager extends DefaultAudioPlayerManager {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public PlayerManager(VladikBot bot) {
+    public PlayerManager(Bot bot) {
         this.bot = bot;
     }
 
@@ -26,7 +26,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
         source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
     }
 
-    public VladikBot getBot() {
+    public Bot getBot() {
         return bot;
     }
 
@@ -34,8 +34,8 @@ public class PlayerManager extends DefaultAudioPlayerManager {
         AudioHandler audioHandler;
         if (guild.getAudioManager().getSendingHandler() == null) {
             AudioPlayer player = createPlayer();
-            player.setVolume(bot.getSettings().getVolume());
-            audioHandler = new AudioHandler(this, guild, player, bot.getSettings());
+            player.setVolume(bot.getGuildSettings(guild).getVolume());
+            audioHandler = new AudioHandler(this, guild, player, bot.getBotSettings(), bot.getGuildSettings(guild));
             player.addListener(audioHandler);
             guild.getAudioManager().setSendingHandler(audioHandler);
         } else {

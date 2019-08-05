@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 
 /**
  * @author Oliver Johnson
@@ -10,7 +10,7 @@ import com.multiheaded.vladikbot.VladikBot;
  * @author John Grosh
  */
 public class RepeatCommand extends DJCommand {
-    public RepeatCommand(VladikBot bot) {
+    public RepeatCommand(Bot bot) {
         super(bot);
         this.name = "repeat";
         this.help = "re-adds music to the queue when finished";
@@ -23,7 +23,7 @@ public class RepeatCommand extends DJCommand {
     protected void execute(CommandEvent event) {
         boolean value;
         if (event.getArgs().isEmpty()) {
-            value = !bot.getSettings().shouldRepeat();
+            value = !bot.getBotSettings().shouldRepeat();
         } else if (event.getArgs().equalsIgnoreCase("true") || event.getArgs().equalsIgnoreCase("on")) {
             value = true;
         } else if (event.getArgs().equalsIgnoreCase("false") || event.getArgs().equalsIgnoreCase("off")) {
@@ -32,7 +32,7 @@ public class RepeatCommand extends DJCommand {
             event.replyError("Valid options are `on` or `off` (or leave empty to toggle).");
             return;
         }
-        bot.getSettings().setRepeat(value);
+        bot.getBotSettings().setRepeat(value);
         event.replySuccess(String.format("Repeat mode is now `%1$s`.", (value ? "ON" : "OFF")));
     }
 

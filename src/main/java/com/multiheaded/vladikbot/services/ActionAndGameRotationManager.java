@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.settings.Constants;
 import net.dv8tion.jda.core.entities.Game;
 import org.slf4j.Logger;
@@ -28,18 +28,18 @@ import static com.multiheaded.vladikbot.utils.FileUtils.fileOrFolderIsAbsent;
 public class ActionAndGameRotationManager {
     private static final Logger logger = LoggerFactory.getLogger(ActionAndGameRotationManager.class);
 
-    private final VladikBot bot;
+    private final Bot bot;
     private final Gson gson;
     private final ScheduledExecutorService scheduler;
     private ScheduledFuture<?> scheduledFuture;
 
-    public ActionAndGameRotationManager(VladikBot bot) {
+    public ActionAndGameRotationManager(Bot bot) {
         this.bot = bot;
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.gson = new GsonBuilder().setPrettyPrinting().create();
 
         /* If rotation enabled - start rotation right away */
-        if (bot.getSettings().shouldRotateActionsAndGames()) {
+        if (bot.getBotSettings().shouldRotateActionsAndGames()) {
             activateRotation();
         }
     }
@@ -47,12 +47,12 @@ public class ActionAndGameRotationManager {
     public Map<String, String> getActionsAndGames() throws IOException {
         Map<String, String> pairs;
 
-        if (fileOrFolderIsAbsent(bot.getSettings().getRotationFolder())) {
-            createFolder(bot.getSettings().getRotationFolder());
-            logger.info("Creating folder {}", bot.getSettings().getRotationFolder());
+        if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
+            createFolder(bot.getBotSettings().getRotationFolder());
+            logger.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
             return null;
         } else {
-            File folder = new File(bot.getSettings().getRotationFolder());
+            File folder = new File(bot.getBotSettings().getRotationFolder());
 
             if (folder.listFiles() == null) {
                 return null;
@@ -63,7 +63,7 @@ public class ActionAndGameRotationManager {
                 if (file.getName().equals(Constants.STATUSES_JSON)) {
 
                     //noinspection unchecked
-                    pairs = gson.fromJson(new FileReader(bot.getSettings().getRotationFolder()
+                    pairs = gson.fromJson(new FileReader(bot.getBotSettings().getRotationFolder()
                             + file.getName()), Map.class);
                 }
             }
@@ -97,9 +97,9 @@ public class ActionAndGameRotationManager {
     }
 
     public void writeActionAndGame(String action, String gameName) throws IOException {
-        if (fileOrFolderIsAbsent(bot.getSettings().getRotationFolder())) {
-            createFolder(bot.getSettings().getRotationFolder());
-            logger.info("Creating folder {}", bot.getSettings().getRotationFolder());
+        if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
+            createFolder(bot.getBotSettings().getRotationFolder());
+            logger.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
         }
 
         logger.debug("Writing new pair: action - {}, game - {}", action, gameName);
@@ -108,7 +108,7 @@ public class ActionAndGameRotationManager {
         pairs.put(gameName, action); /* Intentionally twisted! */
 
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getSettings().getRotationFolder() + Constants.STATUSES_JSON));
+                new FileWriter(bot.getBotSettings().getRotationFolder() + Constants.STATUSES_JSON));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(pairs, pairs.getClass(), writer);
@@ -122,7 +122,7 @@ public class ActionAndGameRotationManager {
         pairs.remove(gameName, action); /* Intentionally twisted! */
 
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getSettings().getRotationFolder() + Constants.STATUSES_JSON));
+                new FileWriter(bot.getBotSettings().getRotationFolder() + Constants.STATUSES_JSON));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(pairs, pairs.getClass(), writer);

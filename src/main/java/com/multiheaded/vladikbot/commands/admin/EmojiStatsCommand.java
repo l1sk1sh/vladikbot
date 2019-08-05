@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.BackupChannelService;
 import com.multiheaded.vladikbot.services.EmojiStatsService;
 import com.multiheaded.vladikbot.settings.Constants;
@@ -25,9 +25,9 @@ import static java.util.stream.Collectors.toMap;
  */
 public class EmojiStatsCommand extends AdminCommand {
     private final Paginator.Builder pbuilder;
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public EmojiStatsCommand(EventWaiter waiter, VladikBot bot) {
+    public EmojiStatsCommand(EventWaiter waiter, Bot bot) {
         this.bot = bot;
         this.name = "emojistats";
         this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\r\n"
@@ -65,11 +65,11 @@ public class EmojiStatsCommand extends AdminCommand {
                     EmojiStatsService emojiStatsService = new EmojiStatsService(
                             new BackupChannelService(
                                     event.getChannel().getId(),
-                                    bot.getSettings().getToken(),
+                                    bot.getBotSettings().getToken(),
                                     Constants.BACKUP_PLAIN_TEXT,
-                                    bot.getSettings().getLocalPathToExport(),
-                                    bot.getSettings().getDockerPathToExport(),
-                                    bot.getSettings().getDockerContainerName(),
+                                    bot.getBotSettings().getLocalPathToExport(),
+                                    bot.getBotSettings().getDockerPathToExport(),
+                                    bot.getBotSettings().getDockerContainerName(),
                                     event.getArgs().split(" "),
                                     bot::setAvailableBackup
                             ).getExportedFile(),

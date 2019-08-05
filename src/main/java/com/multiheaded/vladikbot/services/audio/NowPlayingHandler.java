@@ -1,6 +1,6 @@
 package com.multiheaded.vladikbot.services.audio;
 
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.models.entities.Pair;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.Permission;
@@ -22,10 +22,10 @@ import java.util.concurrent.TimeUnit;
  * @author John Grosh
  */
 public class NowPlayingHandler {
-    private final VladikBot bot;
+    private final Bot bot;
     private final HashMap<Long, Pair<Long, Long>> lastNP; /* guild -> channel, message */
 
-    public NowPlayingHandler(VladikBot bot) {
+    public NowPlayingHandler(Bot bot) {
         this.bot = bot;
         this.lastNP = new HashMap<>();
     }
@@ -82,7 +82,7 @@ public class NowPlayingHandler {
             return;
         }
 
-        TextChannel textChannel = bot.getSettings().getTextChannel(guild);
+        TextChannel textChannel = bot.getGuildSettings(guild).getTextChannel(guild);
         if (textChannel != null && guild.getSelfMember().hasPermission(textChannel, Permission.MANAGE_CHANNEL)) {
             String otherText;
             if (textChannel.getTopic() == null || textChannel.getTopic().isEmpty()) {
@@ -110,7 +110,7 @@ public class NowPlayingHandler {
     /* "event"-based methods */
     void onTrackUpdate(long guildId, AudioTrack track, AudioHandler audioHandler) {
         /* Update bot status if applicable */
-        if (bot.getSettings().shouldSongBeInStatus()) {
+        if (bot.getBotSettings().shouldSongBeInStatus()) {
             if (track != null && bot.getJDA().getGuilds().stream()
                     .filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count() <= 1) {
                 bot.getJDA().getPresence().setGame(Game.listening(track.getInfo().title));

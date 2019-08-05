@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.settings.Constants;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -34,23 +34,23 @@ import static com.multiheaded.vladikbot.utils.FileUtils.*;
 public class PlaylistLoader {
     private static final Logger logger = LoggerFactory.getLogger(PlaylistLoader.class);
 
-    private final VladikBot bot;
+    private final Bot bot;
     private final String extension = Constants.JSON_EXTENSION;
     private final Gson gson;
 
-    public PlaylistLoader(VladikBot bot) {
+    public PlaylistLoader(Bot bot) {
         this.bot = bot;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     public List<String> getPlaylistNames() throws IOException {
-        if (fileOrFolderIsAbsent(bot.getSettings().getPlaylistsFolder())) {
-            createFolder(bot.getSettings().getPlaylistsFolder());
+        if (fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
+            createFolder(bot.getBotSettings().getPlaylistsFolder());
 
             //noinspection unchecked
             return Collections.EMPTY_LIST;
         } else {
-            File folder = new File(bot.getSettings().getPlaylistsFolder());
+            File folder = new File(bot.getBotSettings().getPlaylistsFolder());
             return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) ->
                     pathname.getName().endsWith(extension))))
                     .map(f ->
@@ -59,18 +59,18 @@ public class PlaylistLoader {
     }
 
     public void createPlaylist(String name) throws IOException {
-        createFile(bot.getSettings().getPlaylistsFolder() + name + extension);
+        createFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
         logger.info("Created new playlist {}", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
-        deleteFile(bot.getSettings().getPlaylistsFolder() + name + extension);
+        deleteFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
         logger.info("Deleted playlist {}", name);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getSettings().getPlaylistsFolder() + name + extension));
+                new FileWriter(bot.getBotSettings().getPlaylistsFolder() + name + extension));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(listToWrite, listToWrite.getClass(), writer);
@@ -82,13 +82,13 @@ public class PlaylistLoader {
             if (!getPlaylistNames().contains(name)) {
                 return null;
             }
-            if (fileOrFolderIsAbsent(bot.getSettings().getPlaylistsFolder())) {
-                createFolder(bot.getSettings().getPlaylistsFolder());
+            if (fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
+                createFolder(bot.getBotSettings().getPlaylistsFolder());
                 return null;
             } else {
 
                 //noinspection unchecked
-                List<String> list = gson.fromJson(new FileReader(bot.getSettings().getPlaylistsFolder()
+                List<String> list = gson.fromJson(new FileReader(bot.getBotSettings().getPlaylistsFolder()
                         + name + extension), ArrayList.class);
                 return new Playlist(name, list);
             }
@@ -134,7 +134,7 @@ public class PlaylistLoader {
                     manager.loadItemOrdered(name, items.get(i), new AudioLoadResultHandler() {
                         @Override
                         public void trackLoaded(AudioTrack at) {
-                            if (bot.getSettings().isTooLong(at)) {
+                            if (bot.getBotSettings().isTooLong(at)) {
                                 errors.add(new PlaylistLoadError(index, items.get(index),
                                         "This track is longer than the allowed maximum"));
                             } else {
@@ -150,7 +150,7 @@ public class PlaylistLoader {
                         @Override
                         public void playlistLoaded(AudioPlaylist audioPlaylist) {
                             if (audioPlaylist.isSearchResult()) {
-                                if (bot.getSettings().isTooLong(audioPlaylist.getTracks().get(0))) {
+                                if (bot.getBotSettings().isTooLong(audioPlaylist.getTracks().get(0))) {
                                     errors.add(new PlaylistLoadError(index, items.get(index),
                                             "This track is longer than the allowed maximum"));
                                 } else {
@@ -159,7 +159,7 @@ public class PlaylistLoader {
                                     consumer.accept(audioPlaylist.getTracks().get(0));
                                 }
                             } else if (audioPlaylist.getSelectedTrack() != null) {
-                                if (bot.getSettings().isTooLong(audioPlaylist.getSelectedTrack())) {
+                                if (bot.getBotSettings().isTooLong(audioPlaylist.getSelectedTrack())) {
                                     errors.add(new PlaylistLoadError(index, items.get(index),
                                             "This track is longer than the allowed maximum"));
                                 } else {
@@ -170,7 +170,7 @@ public class PlaylistLoader {
                             } else {
                                 List<AudioTrack> loaded = new ArrayList<>(audioPlaylist.getTracks());
 
-                                loaded.removeIf(bot.getSettings()::isTooLong);
+                                loaded.removeIf(bot.getBotSettings()::isTooLong);
                                 loaded.forEach(at -> at.setUserData(0L));
                                 tracks.addAll(loaded);
                                 loaded.forEach(consumer);

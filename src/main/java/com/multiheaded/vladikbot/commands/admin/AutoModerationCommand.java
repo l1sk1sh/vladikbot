@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.models.entities.ReactionRule;
 
 import java.io.IOException;
@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
  * @author Oliver Johnson
  */
 public class AutoModerationCommand extends AdminCommand {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public AutoModerationCommand(VladikBot bot) {
+    public AutoModerationCommand(Bot bot) {
         this.bot = bot;
         this.name = "automod";
         this.help = "auto moderation management";
@@ -156,12 +156,12 @@ public class AutoModerationCommand extends AdminCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getSettings().setAutoModeration(true);
+                            bot.getBotSettings().setAutoModeration(true);
                             event.replySuccess("AutoModerationManager is now enabled!");
                             break;
                         case "off":
                         case "disable":
-                            bot.getSettings().setAutoModeration(false);
+                            bot.getBotSettings().setAutoModeration(false);
                             event.replySuccess("AutoModerationManager is now disabled!");
                             break;
                     }

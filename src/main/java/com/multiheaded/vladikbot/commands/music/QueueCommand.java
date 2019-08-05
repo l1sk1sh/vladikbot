@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public class QueueCommand extends MusicCommand {
     private final Paginator.Builder builder;
 
-    public QueueCommand(VladikBot bot) {
+    public QueueCommand(Bot bot) {
         super(bot);
         this.name = "queue";
         this.aliases = new String[]{"list"};
@@ -81,7 +81,7 @@ public class QueueCommand extends MusicCommand {
 
         long fintotal = total;
         builder.setText((i1, i2) -> getQueueTitle(ah, event.getClient().getSuccess(), songs.length, fintotal,
-                bot.getSettings().shouldRepeat()))
+                bot.getBotSettings().shouldRepeat()))
                 .setItems(songs)
                 .setUsers(event.getAuthor())
                 .setColor(event.getSelfMember().getColor())

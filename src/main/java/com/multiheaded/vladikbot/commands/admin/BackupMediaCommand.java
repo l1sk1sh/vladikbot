@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.BackupChannelService;
 import com.multiheaded.vladikbot.services.BackupMediaService;
 import com.multiheaded.vladikbot.settings.Constants;
@@ -14,9 +14,9 @@ import java.security.InvalidParameterException;
  * @author Oliver Johnson
  */
 public class BackupMediaCommand extends AdminCommand {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public BackupMediaCommand(VladikBot bot) {
+    public BackupMediaCommand(Bot bot) {
         this.bot = bot;
         this.name = "savemedia";
         this.help = "exports all attachments of the current channel\r\n"
@@ -39,17 +39,17 @@ public class BackupMediaCommand extends AdminCommand {
                     BackupMediaService backupMediaService = new BackupMediaService(
                             new BackupChannelService(
                                     event.getChannel().getId(),
-                                    bot.getSettings().getToken(),
+                                    bot.getBotSettings().getToken(),
                                     Constants.BACKUP_PLAIN_TEXT,
-                                    bot.getSettings().getLocalPathToExport(),
-                                    bot.getSettings().getDockerPathToExport(),
-                                    bot.getSettings().getDockerContainerName(),
+                                    bot.getBotSettings().getLocalPathToExport(),
+                                    bot.getBotSettings().getDockerPathToExport(),
+                                    bot.getBotSettings().getDockerContainerName(),
                                     event.getArgs().split(" "),
                                     bot::setAvailableBackup
                             ).getExportedFile(),
                             event.getChannel().getId(),
-                            bot.getSettings().getLocalPathToExport(),
-                            bot.getSettings().getLocalMediaFolder(),
+                            bot.getBotSettings().getLocalPathToExport(),
+                            bot.getBotSettings().getLocalMediaFolder(),
                             String.format("%s - %s [%s] - media list",
                                     event.getGuild().getName(),
                                     event.getChannel().getName(),

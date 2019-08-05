@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
@@ -27,7 +27,7 @@ public class SearchCommand extends MusicCommand {
     private final OrderedMenu.Builder builder;
     String searchPrefix;
 
-    public SearchCommand(VladikBot bot) {
+    public SearchCommand(Bot bot) {
         super(bot);
         this.name = "search";
         this.arguments = "<query>";
@@ -51,7 +51,7 @@ public class SearchCommand extends MusicCommand {
             return;
         }
 
-        event.reply(String.format("%1$s  Searching... `[%2$s]`", bot.getSettings().getSearchingEmoji(), event.getArgs()),
+        event.reply(String.format("%1$s  Searching... `[%2$s]`", bot.getBotSettings().getSearchingEmoji(), event.getArgs()),
                 m -> bot.getPlayerManager().loadItemOrdered(
                         event.getGuild(), searchPrefix + event.getArgs(), new ResultHandler(m, event)));
     }
@@ -67,13 +67,13 @@ public class SearchCommand extends MusicCommand {
 
         @Override
         public void trackLoaded(AudioTrack track) {
-            if (bot.getSettings().isTooLong(track)) {
+            if (bot.getBotSettings().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
                         FormatUtils.formatTime(track.getDuration()),
-                        FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTime(bot.getBotSettings().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }
@@ -97,12 +97,12 @@ public class SearchCommand extends MusicCommand {
                     .setSelection((msg, i) ->
                     {
                         AudioTrack track = playlist.getTracks().get(i - 1);
-                        if (bot.getSettings().isTooLong(track)) {
+                        if (bot.getBotSettings().isTooLong(track)) {
                             event.replyWarning(String.format(
                                     "This track (**%1$s**) is longer than the allowed maximum: `%2$s` > `%3$s`.",
                                     track.getInfo().title,
                                     FormatUtils.formatTime(track.getDuration()),
-                                    bot.getSettings().getMaxTime()));
+                                    bot.getBotSettings().getMaxTime()));
                             return;
                         }
                         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();

@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -17,9 +17,9 @@ import static com.multiheaded.vladikbot.settings.Constants.ACTION_WATCHING;
  * @author Oliver Johnson
  */
 public class RotatingActionAndGameCommand extends AdminCommand {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public RotatingActionAndGameCommand(VladikBot bot) {
+    public RotatingActionAndGameCommand(Bot bot) {
         this.bot = bot;
         this.name = "actions";
         this.aliases = new String[]{"games", "rotate", "rotation"};
@@ -147,13 +147,13 @@ public class RotatingActionAndGameCommand extends AdminCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getSettings().setRotateActionsAndGames(true);
+                            bot.getBotSettings().setRotateActionsAndGames(true);
                             event.replySuccess("Rotation is now enabled!");
                             bot.getActionAndGameRotationManager().activateRotation();
                             break;
                         case "off":
                         case "disable":
-                            bot.getSettings().setRotateActionsAndGames(false);
+                            bot.getBotSettings().setRotateActionsAndGames(false);
                             event.replySuccess("Rotation is now disabled!");
                             bot.getActionAndGameRotationManager().stopRotation();
                             break;

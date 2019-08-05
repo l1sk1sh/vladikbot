@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.models.entities.ReactionRule;
 import com.multiheaded.vladikbot.settings.Constants;
 import net.dv8tion.jda.core.entities.Message;
@@ -24,18 +24,18 @@ import static com.multiheaded.vladikbot.utils.FileUtils.*;
 public class AutoModerationManager {
     private static final Logger logger = LoggerFactory.getLogger(AutoModerationManager.class);
 
-    private final VladikBot bot;
+    private final Bot bot;
     private final String extension = Constants.JSON_EXTENSION;
     private final Gson gson;
 
-    public AutoModerationManager(VladikBot bot) {
+    public AutoModerationManager(Bot bot) {
         this.bot = bot;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
     public void performAutomod(Message message) {
         try {
-            if (bot.getSettings().isAutoModeration()) {
+            if (bot.getBotSettings().isAutoModeration()) {
                 List<ReactionRule> allRules = getRules();
 
                 for (ReactionRule rule : allRules) {
@@ -55,11 +55,11 @@ public class AutoModerationManager {
     }
 
     public List<ReactionRule> getRules() throws IOException, NullPointerException {
-        if (fileOrFolderIsAbsent(bot.getSettings().getModerationRulesFolder())) {
-            createFolder(bot.getSettings().getModerationRulesFolder());
+        if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
+            createFolder(bot.getBotSettings().getModerationRulesFolder());
             return null;
         } else {
-            File folder = new File(bot.getSettings().getModerationRulesFolder());
+            File folder = new File(bot.getBotSettings().getModerationRulesFolder());
             List<ReactionRule> rules = new ArrayList<>();
 
             if (folder.listFiles() == null) {
@@ -77,11 +77,11 @@ public class AutoModerationManager {
 
     public ReactionRule getRule(String name) {
         try {
-            if (fileOrFolderIsAbsent(bot.getSettings().getModerationRulesFolder())) {
-                createFolder(bot.getSettings().getModerationRulesFolder());
+            if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
+                createFolder(bot.getBotSettings().getModerationRulesFolder());
                 return null;
             } else {
-                return gson.fromJson(new FileReader(bot.getSettings().getModerationRulesFolder()
+                return gson.fromJson(new FileReader(bot.getBotSettings().getModerationRulesFolder()
                         + name + extension), ReactionRule.class);
             }
         } catch (IOException e) {
@@ -90,18 +90,18 @@ public class AutoModerationManager {
     }
 
     public void deleteRule(String name) throws IOException {
-        deleteFile(bot.getSettings().getModerationRulesFolder() + name + extension);
+        deleteFile(bot.getBotSettings().getModerationRulesFolder() + name + extension);
     }
 
     public void writeRule(ReactionRule rule) throws IOException {
-        if (fileOrFolderIsAbsent(bot.getSettings().getModerationRulesFolder())) {
-            createFolder(bot.getSettings().getModerationRulesFolder());
-            logger.info("Creating folder {}", bot.getSettings().getModerationRulesFolder());
+        if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
+            createFolder(bot.getBotSettings().getModerationRulesFolder());
+            logger.info("Creating folder {}", bot.getBotSettings().getModerationRulesFolder());
         }
 
         logger.debug("Adding rule {}", rule.toString());
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getSettings().getModerationRulesFolder() + rule.getRuleName() + extension));
+                new FileWriter(bot.getBotSettings().getModerationRulesFolder() + rule.getRuleName() + extension));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(rule, rule.getClass(), writer);

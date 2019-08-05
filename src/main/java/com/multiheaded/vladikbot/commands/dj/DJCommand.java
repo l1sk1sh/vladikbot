@@ -1,8 +1,7 @@
 package com.multiheaded.vladikbot.commands.dj;
 
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.commands.music.MusicCommand;
-import com.multiheaded.vladikbot.settings.SettingsManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
 
@@ -13,7 +12,7 @@ import net.dv8tion.jda.core.entities.Role;
  * @author John Grosh
  */
 abstract class DJCommand extends MusicCommand {
-    DJCommand(VladikBot bot) {
+    DJCommand(Bot bot) {
         super(bot);
         this.category = new Category("DJ", event ->
         {
@@ -27,8 +26,8 @@ abstract class DJCommand extends MusicCommand {
                 return true;
             }
 
-            /* Intentionally calling SettingsManager instead of `bot` due to strange bug in help output */
-            Role djRole = SettingsManager.getInstance().getSettings().getDjRole(event.getGuild());
+            /* Intentionally calling BotSettingsManager instead of `bot` due to strange bug in help output */
+            Role djRole = bot.getGuildSettings(event.getGuild()).getDjRole(event.getGuild());
             return djRole != null &&
                     (event.getMember().getRoles().contains(djRole) || djRole.getIdLong() == event.getGuild().getIdLong());
         });

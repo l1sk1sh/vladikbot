@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
@@ -19,7 +19,7 @@ import net.dv8tion.jda.core.entities.Message;
  * @author John Grosh
  */
 public class PlayNextCommand extends DJCommand {
-    public PlayNextCommand(VladikBot bot) {
+    public PlayNextCommand(Bot bot) {
         super(bot);
         this.name = "playnext";
         this.help = "plays a single song next";
@@ -37,7 +37,7 @@ public class PlayNextCommand extends DJCommand {
         String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">")
                 ? event.getArgs().substring(1, event.getArgs().length() - 1)
                 : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getSettings().getLoadingEmoji(), args),
+        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getBotSettings().getLoadingEmoji(), args),
                 m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
     }
 
@@ -53,13 +53,13 @@ public class PlayNextCommand extends DJCommand {
         }
 
         private void loadSingle(AudioTrack track) {
-            if (bot.getSettings().isTooLong(track)) {
+            if (bot.getBotSettings().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
                         FormatUtils.formatTime(track.getDuration()),
-                        FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTime(bot.getBotSettings().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }

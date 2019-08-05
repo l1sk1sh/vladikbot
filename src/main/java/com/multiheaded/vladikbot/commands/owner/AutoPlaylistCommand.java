@@ -1,8 +1,8 @@
 package com.multiheaded.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
-import com.multiheaded.vladikbot.settings.Settings;
+import com.multiheaded.vladikbot.Bot;
+import com.multiheaded.vladikbot.settings.GuildSettings;
 
 /**
  * @author Oliver Johnson
@@ -11,9 +11,9 @@ import com.multiheaded.vladikbot.settings.Settings;
  * @author John Grosh
  */
 public class AutoPlaylistCommand extends OwnerCommand {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public AutoPlaylistCommand(VladikBot bot) {
+    public AutoPlaylistCommand(Bot bot) {
         this.bot = bot;
         this.name = "autoplaylist";
         this.help = "sets the default playlist for the server";
@@ -29,19 +29,19 @@ public class AutoPlaylistCommand extends OwnerCommand {
         }
 
         if (event.getArgs().equalsIgnoreCase("none")) {
-            bot.getSettings().setDefaultPlaylist(null);
+            bot.getGuildSettings(event.getGuild()).setDefaultPlaylist(null);
             event.replySuccess(String.format("Cleared the default playlist for **%1$s**", event.getGuild().getName()));
             return;
         }
 
-        String pname = event.getArgs().replaceAll("\\s+", "_");
-        if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
-            event.replyError(String.format("Could not find `%1$s`!", pname));
+        String playlistName = event.getArgs().replaceAll("\\s+", "_");
+        if (bot.getPlaylistLoader().getPlaylist(playlistName) == null) {
+            event.replyError(String.format("Could not find `%1$s`!", playlistName));
         } else {
-            Settings settings = event.getClient().getSettingsFor(event.getGuild());
-            settings.setDefaultPlaylist(pname);
+            GuildSettings settings = event.getClient().getSettingsFor(event.getGuild());
+            settings.setDefaultPlaylist(playlistName);
             event.replySuccess(String.format("The default playlist for **%1$s** is now `%2$s`",
-                    event.getGuild().getName(), pname));
+                    event.getGuild().getName(), playlistName));
         }
     }
 }

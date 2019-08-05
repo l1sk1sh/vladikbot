@@ -1,0 +1,148 @@
+package com.multiheaded.vladikbot;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+
+import java.util.Objects;
+
+import com.multiheaded.vladikbot.services.ActionAndGameRotationManager;
+import com.multiheaded.vladikbot.services.AutoModerationManager;
+import com.multiheaded.vladikbot.services.PlaylistLoader;
+import com.multiheaded.vladikbot.services.audio.AudioHandler;
+import com.multiheaded.vladikbot.services.audio.NowPlayingHandler;
+import com.multiheaded.vladikbot.services.audio.PlayerManager;
+import com.multiheaded.vladikbot.settings.BotSettings;
+import com.multiheaded.vladikbot.settings.BotSettingsManager;
+import com.multiheaded.vladikbot.settings.GuildSettings;
+import com.multiheaded.vladikbot.settings.GuildSettingsManager;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
+
+/**
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformating code
+ * @author John Grosh
+ */
+public class Bot {
+    private final EventWaiter waiter;
+    private final ScheduledExecutorService threadPool;
+    private final BotSettingsManager botSettingsManager;
+    private final GuildSettingsManager guildSettingsManager;
+    private final PlayerManager playerManager;
+    private final PlaylistLoader playlistLoader;
+    private final NowPlayingHandler nowPlayingHandler;
+    private final AutoModerationManager autoModerationManager;
+    private final ActionAndGameRotationManager actionAndGameRotationManager;
+
+    private boolean availableBackup = true;
+    private boolean shuttingDown = false;
+    private JDA jda;
+
+    public Bot(EventWaiter waiter, BotSettingsManager botSettingsManager, GuildSettingsManager guildSettingsManager) {
+        this.waiter = waiter;
+        this.botSettingsManager = botSettingsManager;
+        this.guildSettingsManager = guildSettingsManager;
+        this.playlistLoader = new PlaylistLoader(this);
+        this.threadPool = Executors.newSingleThreadScheduledExecutor();
+        this.playerManager = new PlayerManager(this);
+        this.playerManager.init();
+        this.nowPlayingHandler = new NowPlayingHandler(this);
+        this.nowPlayingHandler.init();
+        this.autoModerationManager = new AutoModerationManager(this);
+        this.actionAndGameRotationManager = new ActionAndGameRotationManager(this);
+    }
+
+    public void closeAudioConnection(long guildId) {
+        Guild guild = jda.getGuildById(guildId);
+        if (guild != null) {
+            threadPool.submit(() -> guild.getAudioManager().closeAudioConnection());
+        }
+    }
+
+    public void resetGame() {
+        Game game = botSettingsManager.getSettings().getGame() == null
+                || botSettingsManager.getSettings().getGame().getName().equalsIgnoreCase("none")
+                ? null : botSettingsManager.getSettings().getGame();
+        if (!Objects.equals(jda.getPresence().getGame(), game)) {
+            jda.getPresence().setGame(game);
+        }
+    }
+
+    public void shutdown() {
+        if (shuttingDown) {
+            return;
+        }
+        shuttingDown = true;
+        threadPool.shutdownNow();
+        if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
+            jda.getGuilds().forEach(g -> {
+                g.getAudioManager().closeAudioConnection();
+                AudioHandler audioHandler = (AudioHandler) g.getAudioManager().getSendingHandler();
+                if (audioHandler != null) {
+                    audioHandler.stopAndClear();
+                    audioHandler.getPlayer().destroy();
+                    nowPlayingHandler.updateTopic(g.getIdLong(), audioHandler, true);
+                }
+            });
+
+            jda.shutdown();
+        }
+        System.exit(0);
+    }
+
+    public BotSettings getBotSettings() {
+        return botSettingsManager.getSettings();
+    }
+
+    public GuildSettings getGuildSettings(Guild guild) {
+        return (GuildSettings) guildSettingsManager.getSettings(guild);
+    }
+
+    public EventWaiter getWaiter() {
+        return waiter;
+    }
+
+    public ScheduledExecutorService getThreadPool() {
+        return threadPool;
+    }
+
+    public PlayerManager getPlayerManager() {
+        return playerManager;
+    }
+
+    public PlaylistLoader getPlaylistLoader() {
+        return playlistLoader;
+    }
+
+    public NowPlayingHandler getNowPlayingHandler() {
+        return nowPlayingHandler;
+    }
+
+    public void setJDA(JDA jda) {
+        this.jda = jda;
+    }
+
+    public JDA getJDA() {
+        return jda;
+    }
+
+    public boolean isBackupAvailable() {
+        return availableBackup;
+    }
+
+    public void setAvailableBackup(boolean availableBackup) {
+        this.availableBackup = availableBackup;
+    }
+
+    public AutoModerationManager getAutoModerationManager() {
+        return autoModerationManager;
+    }
+
+    public ActionAndGameRotationManager getActionAndGameRotationManager() {
+        return actionAndGameRotationManager;
+    }
+}

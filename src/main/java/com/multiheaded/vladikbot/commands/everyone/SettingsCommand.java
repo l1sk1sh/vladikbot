@@ -3,7 +3,9 @@ package com.multiheaded.vladikbot.commands.everyone;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
+import com.multiheaded.vladikbot.settings.BotSettings;
+import com.multiheaded.vladikbot.settings.GuildSettings;
+import com.multiheaded.vladikbot.settings.GuildSettingsManager;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Role;
@@ -19,25 +21,29 @@ import java.awt.*;
  * @author John Grosh
  */
 public class SettingsCommand extends Command {
-    private final Settings settings;
+    private final BotSettings botSettings;
+    private final GuildSettingsManager guildSettingsManager;
 
-    public SettingsCommand(Settings settings) {
+    public SettingsCommand(BotSettings botSettings, GuildSettingsManager guildSettingsManager) {
         this.name = "settings";
         this.help = "shows the bots settings";
         this.guildOnly = true;
-        this.settings = settings;
+        this.botSettings = botSettings;
+        this.guildSettingsManager = guildSettingsManager;
     }
 
     @Override
+    @SuppressWarnings("ConstantConditions")
     protected void execute(CommandEvent event) {
+        GuildSettings guildSettings = (GuildSettings) guildSettingsManager.getSettings(event.getGuild());
         MessageBuilder builder = new MessageBuilder()
                 .append(Constants.HEADPHONES_EMOJI + " **")
                 .append(event.getSelfUser().getName())
                 .append("** settings:");
-        TextChannel textChannel = settings.getTextChannel(event.getGuild());
-        TextChannel notificationChannel = settings.getNotificationChannel(event.getGuild());
-        VoiceChannel voiceChannel = settings.getVoiceChannel(event.getGuild());
-        Role djRole = settings.getDjRole(event.getGuild());
+        TextChannel textChannel = guildSettings.getTextChannel(event.getGuild());
+        TextChannel notificationChannel = guildSettings.getNotificationChannel(event.getGuild());
+        VoiceChannel voiceChannel = guildSettings.getVoiceChannel(event.getGuild());
+        Role djRole = guildSettings.getDjRole(event.getGuild());
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(new Color(244, 160, 0))
@@ -51,13 +57,13 @@ public class SettingsCommand extends Command {
                         + "\r\nDJ Role: "
                                 + ((djRole == null) ? "None" : "**" + djRole.getName() + "**")
                         + "\r\nRepeat Mode: **"
-                                + (settings.shouldRepeat() ? "On" : "Off") + "**"
+                                + (botSettings.shouldRepeat() ? "On" : "Off") + "**"
                         + "\r\nDefault Playlist: "
-                                + ((settings.getDefaultPlaylist() == null) ? "None" : "**" + settings.getDefaultPlaylist() + "**")
+                                + ((guildSettings.getDefaultPlaylist() == null) ? "None" : "**" + guildSettings.getDefaultPlaylist() + "**")
                                 + "\r\nAuto Moderation: **"
-                                + (settings.isAutoModeration() ? "On" : "Off") + "**"
+                                + (botSettings.isAutoModeration() ? "On" : "Off") + "**"
                                 + "\r\nStatuses rotation: **"
-                                + (settings.shouldRotateActionsAndGames() ? "On" : "Off") + "**"
+                                + (botSettings.shouldRotateActionsAndGames() ? "On" : "Off") + "**"
                 )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()

@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.core.entities.User;
 
@@ -12,7 +12,7 @@ import net.dv8tion.jda.core.entities.User;
  * @author John Grosh
  */
 public class SkipCommand extends MusicCommand {
-    public SkipCommand(VladikBot bot) {
+    public SkipCommand(Bot bot) {
         super(bot);
         this.name = "skip";
         this.aliases = new String[]{"voteskip"};

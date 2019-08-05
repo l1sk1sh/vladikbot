@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 
 /**
@@ -11,7 +11,7 @@ import com.multiheaded.vladikbot.services.audio.AudioHandler;
  * @author John Grosh
  */
 public class SkipToCommand extends DJCommand {
-    public SkipToCommand(VladikBot bot) {
+    public SkipToCommand(Bot bot) {
         super(bot);
         this.name = "skipto";
         this.aliases = new String[]{"jumpto"};

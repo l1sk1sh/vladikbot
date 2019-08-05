@@ -17,7 +17,8 @@ public class Constants {
                     Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT,
                     Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
 
-    static final String SETTINGS_JSON = "settings.json";
+    static final String BOT_SETTINGS_JSON = "settings_bot.json";
+    static final String GUILD_SETTINGS_JSON = "settings_guild.json";
     public static final String STATUSES_JSON = "rotation.json";
 
     public static final Integer DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;

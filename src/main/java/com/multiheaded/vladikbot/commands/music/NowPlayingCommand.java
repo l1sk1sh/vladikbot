@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
@@ -13,7 +13,7 @@ import net.dv8tion.jda.core.entities.Message;
  * @author John Grosh
  */
 public class NowPlayingCommand extends MusicCommand {
-    public NowPlayingCommand(VladikBot bot) {
+    public NowPlayingCommand(Bot bot) {
         super(bot);
         this.name = "nowplaying";
         this.aliases = new String[]{"np", "current"};

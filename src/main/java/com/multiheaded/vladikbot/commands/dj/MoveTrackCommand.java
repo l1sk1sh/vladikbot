@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.models.queue.FairQueue;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
@@ -10,7 +10,7 @@ import com.multiheaded.vladikbot.services.audio.AudioHandler;
  * Command that provides users the ability to move a track in the playlist.
  */
 public class MoveTrackCommand extends DJCommand {
-    public MoveTrackCommand(VladikBot bot) {
+    public MoveTrackCommand(Bot bot) {
         super(bot);
         this.name = "movetrack";
         this.help = "move a track in the current queue to a different position";

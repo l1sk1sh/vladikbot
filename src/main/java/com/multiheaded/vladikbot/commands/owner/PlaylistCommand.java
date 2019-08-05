@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.PlaylistLoader.Playlist;
 
 import java.io.IOException;
@@ -17,9 +17,9 @@ import java.util.List;
  * @author John Grosh
  */
 public class PlaylistCommand extends OwnerCommand {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public PlaylistCommand(VladikBot bot) {
+    public PlaylistCommand(Bot bot) {
         this.bot = bot;
         this.name = "playlist";
         this.arguments = "<create|list|update|delete|default|shuffle>";
@@ -171,7 +171,7 @@ public class PlaylistCommand extends OwnerCommand {
     }
 
     class DefaultListCommand extends AutoPlaylistCommand {
-        DefaultListCommand(VladikBot bot) {
+        DefaultListCommand(Bot bot) {
             super(bot);
             this.name = "default";
             this.aliases = new String[]{"setdefault"};

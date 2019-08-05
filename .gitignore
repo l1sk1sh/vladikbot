@@ -24,7 +24,8 @@ manifest.mf
 .gradle/
 
 # Security ignore
-settings.json
+settings_bot.json
+settings_guild.json
 
 # Local files
 playlists/

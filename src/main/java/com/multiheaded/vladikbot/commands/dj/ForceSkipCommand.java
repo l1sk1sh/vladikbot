@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.core.entities.User;
 
@@ -12,7 +12,7 @@ import net.dv8tion.jda.core.entities.User;
  * @author John Grosh
  */
 public class ForceSkipCommand extends DJCommand {
-    public ForceSkipCommand(VladikBot bot) {
+    public ForceSkipCommand(Bot bot) {
         super(bot);
         this.name = "forceskip";
         this.aliases = new String[]{"modskip"};

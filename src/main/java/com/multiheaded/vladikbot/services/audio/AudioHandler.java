@@ -3,8 +3,9 @@ package com.multiheaded.vladikbot.services.audio;
 import com.multiheaded.vladikbot.models.queue.FairQueue;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.settings.Constants;
-import com.multiheaded.vladikbot.settings.Settings;
+import com.multiheaded.vladikbot.settings.BotSettings;
 import com.multiheaded.vladikbot.services.PlaylistLoader.Playlist;
+import com.multiheaded.vladikbot.settings.GuildSettings;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -40,15 +41,18 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     private final AudioPlayer audioPlayer;
     private final long guildId;
 
-    private final Settings settings;
+    private final BotSettings botSettings;
+    private final GuildSettings guildSettings;
 
     private AudioFrame lastFrame;
 
-    AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player, Settings settings) {
+    AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player,
+                 BotSettings botSettings, GuildSettings guildSettings) {
         this.manager = manager;
         this.audioPlayer = player;
         this.guildId = guild.getIdLong();
-        this.settings = settings;
+        this.botSettings = botSettings;
+        this.guildSettings = guildSettings;
     }
 
     public int addTrackToFront(QueuedTrack qtrack) {
@@ -105,11 +109,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             return true;
         }
 
-        if (settings == null || settings.getDefaultPlaylist() == null) {
+        if (guildSettings == null || guildSettings.getDefaultPlaylist() == null) {
             return false;
         }
 
-        Playlist playlist = manager.getBot().getPlaylistLoader().getPlaylist(settings.getDefaultPlaylist());
+        Playlist playlist = manager.getBot().getPlaylistLoader().getPlaylist(guildSettings.getDefaultPlaylist());
         if (playlist == null || playlist.getItems().isEmpty() || (playlist.getItems() == null)) {
             return false;
         }
@@ -123,7 +127,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             }
         }, () ->
         {
-            if (playlist.getTracks().isEmpty() && settings.shouldLeaveChannel()) {
+            if (playlist.getTracks().isEmpty() && botSettings.shouldLeaveChannel()) {
                 manager.getBot().closeAudioConnection(guildId);
             }
         });
@@ -134,7 +138,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         /* If the track ended normally, and we're in repeat mode, re-add it to the queue */
-        if (endReason == AudioTrackEndReason.FINISHED && settings.shouldRepeat()) {
+        if (endReason == AudioTrackEndReason.FINISHED && botSettings.shouldRepeat()) {
             queue.add(new QueuedTrack(track.makeClone(),
                     track.getUserData(Long.class) == null ? 0L : track.getUserData(Long.class)));
         }
@@ -142,7 +146,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         if (queue.isEmpty()) {
             if (!playFromDefault()) {
                 manager.getBot().getNowPlayingHandler().onTrackUpdate(guildId, null, this);
-                if (settings.shouldLeaveChannel()) {
+                if (botSettings.shouldLeaveChannel()) {
                     manager.getBot().closeAudioConnection(guildId);
                 }
             }
@@ -165,7 +169,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             Guild guild = guild(jda);
             AudioTrack track = audioPlayer.getPlayingTrack();
             MessageBuilder messageBuilder = new MessageBuilder();
-            messageBuilder.append(FormatUtils.filter(settings.getSuccessEmoji() + " **Now Playing in "
+            messageBuilder.append(FormatUtils.filter(botSettings.getSuccessEmoji() + " **Now Playing in "
                     + guild.getSelfMember().getVoiceState().getChannel().getName() + "...**"));
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
@@ -188,7 +192,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                 embedBuilder.setTitle(track.getInfo().title);
             }
 
-            if (track instanceof YoutubeAudioTrack && settings.useNpImages()) {
+            if (track instanceof YoutubeAudioTrack && botSettings.useNpImages()) {
                 embedBuilder.setThumbnail("https://img.youtube.com/vi/" + track.getIdentifier() + "/mqdefault.jpg");
             }
 
@@ -212,7 +216,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     public Message getNoMusicPlaying(JDA jda) {
         Guild guild = guild(jda);
         return new MessageBuilder()
-                .setContent(FormatUtils.filter(settings.getSuccessEmoji() + " **Now Playing...**"))
+                .setContent(FormatUtils.filter(botSettings.getSuccessEmoji() + " **Now Playing...**"))
                 .setEmbed(new EmbedBuilder()
                         .setTitle("No music playing")
                         .setDescription(Constants.STOP_EMOJI + " "

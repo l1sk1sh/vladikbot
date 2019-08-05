@@ -5,5 +5,6 @@ package com.multiheaded.vladikbot.models;
  */
 @FunctionalInterface
 public interface SettingsFunction<T> {
+    @SuppressWarnings("unused")
     void set(T t);
 }

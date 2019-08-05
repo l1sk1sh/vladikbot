@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 
 /**
@@ -11,7 +11,7 @@ import com.multiheaded.vladikbot.services.audio.AudioHandler;
  * @author John Grosh
  */
 public class ShuffleCommand extends MusicCommand {
-    public ShuffleCommand(VladikBot bot) {
+    public ShuffleCommand(Bot bot) {
         super(bot);
         this.name = "shuffle";
         this.help = "shuffles songs you have added";

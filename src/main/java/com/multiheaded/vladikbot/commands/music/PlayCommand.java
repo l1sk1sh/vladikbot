@@ -3,7 +3,7 @@ package com.multiheaded.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.services.PlaylistLoader.Playlist;
@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * @author John Grosh
  */
 public class PlayCommand extends MusicCommand {
-    public PlayCommand(VladikBot bot) {
+    public PlayCommand(Bot bot) {
         super(bot);
         this.name = "play";
         this.help = "plays the provided song";
@@ -47,7 +47,7 @@ public class PlayCommand extends MusicCommand {
                 if (!isDJ) {
                     isDJ = event.isOwner();
                 }
-                Role dj = bot.getSettings().getDjRole(event.getGuild());
+                Role dj = bot.getGuildSettings(event.getGuild()).getDjRole(event.getGuild());
                 if (!isDJ && (dj != null)) {
                     isDJ = event.getMember().getRoles().contains(dj);
                 }
@@ -79,7 +79,7 @@ public class PlayCommand extends MusicCommand {
                 : ((event.getArgs().isEmpty())
                 ? event.getMessage().getAttachments().get(0).getUrl()
                 : event.getArgs());
-        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getSettings().getLoadingEmoji(), args),
+        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getBotSettings().getLoadingEmoji(), args),
                 m -> bot.getPlayerManager().loadItemOrdered(
                         event.getGuild(), args, new ResultHandler(m, event, false)
                 )
@@ -98,13 +98,13 @@ public class PlayCommand extends MusicCommand {
         }
 
         private void loadSingle(AudioTrack track, AudioPlaylist playlist) {
-            if (bot.getSettings().isTooLong(track)) {
+            if (bot.getBotSettings().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
                         FormatUtils.formatTime(track.getDuration()),
-                        FormatUtils.formatTime(bot.getSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTime(bot.getBotSettings().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }
@@ -153,7 +153,7 @@ public class PlayCommand extends MusicCommand {
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude) {
             int[] count = {0};
             playlist.getTracks().forEach((track) -> {
-                if (!bot.getSettings().isTooLong(track) && !track.equals(exclude)) {
+                if (!bot.getBotSettings().isTooLong(track) && !track.equals(exclude)) {
                     AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                     audioHandler.addTrack(new QueuedTrack(track, event.getAuthor()));
                     count[0]++;
@@ -184,7 +184,7 @@ public class PlayCommand extends MusicCommand {
                             "%1$s All entries in this playlist %2$s were longer than the allowed maximum (`%3$s`).",
                             event.getClient().getWarning(),
                             ((playlist.getName() == null) ? "" : "(**" + playlist.getName() + "**)"),
-                            bot.getSettings().getMaxTime()))).queue();
+                            bot.getBotSettings().getMaxTime()))).queue();
                 } else {
                     message.editMessage(FormatUtils.filter(String.format(
                             "%1$s Found %2$s with `%3$s` entries; added to the queue! %4$s",
@@ -194,7 +194,7 @@ public class PlayCommand extends MusicCommand {
                             ((count < playlist.getTracks().size())
                                     ? String.format("\r\n%1$s Tracks longer than the allowed maximum (`%2$s`) have been omitted.",
                                     event.getClient().getWarning(),
-                                    bot.getSettings().getMaxTime())
+                                    bot.getBotSettings().getMaxTime())
                                     : "")))
                     ).queue();
                 }
@@ -224,7 +224,7 @@ public class PlayCommand extends MusicCommand {
     }
 
     protected class PlaylistCommand extends MusicCommand {
-        PlaylistCommand(VladikBot bot) {
+        PlaylistCommand(Bot bot) {
             super(bot);
             this.name = "playlist";
             this.aliases = new String[]{"pl"};
@@ -252,7 +252,7 @@ public class PlayCommand extends MusicCommand {
             }
 
             event.getChannel().sendMessage(String.format("%1$s Loading playlist... **%2$s**... (%3$s items).",
-                    bot.getSettings().getLoadingEmoji(), event.getArgs(), playlist.getItems().size())).queue(m ->
+                    bot.getBotSettings().getLoadingEmoji(), event.getArgs(), playlist.getItems().size())).queue(m ->
             {
                 AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                 playlist.loadTracks(bot.getPlayerManager(),

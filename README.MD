@@ -31,6 +31,7 @@ Bot is written using JDA library and common sense.
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
    24. `permissions` - Check if bot has all necessary permissions (also, log that in the logger in case bot can't write into the discord)
+   25. `settings read` - Read .json configuration file
 5. Create auto-scheduler with notification to backup chats and media
 6. Command to backup all chats that bot is currently in
 7. Test lyrics command
@@ -39,3 +40,8 @@ Bot is written using JDA library and common sense.
 10. Deploy the bot
 13. Shorten command names (like `findpicture` -> `fp`)
 14. Implement wordFrequencyAnalyzer
+15. Separate configurations for different Guilds
+16. Separate backup files per guild
+17. Separate media files per guild
+18. Separate AutoModeration per guild
+19. Separate status rotation per guild

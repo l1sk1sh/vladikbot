@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.settings.Settings;
+import com.multiheaded.vladikbot.settings.BotSettings;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
@@ -13,9 +13,9 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class StatusCommand extends Command {
-    private final Settings settings;
+    private final BotSettings settings;
 
-    public StatusCommand(Settings settings) {
+    public StatusCommand(BotSettings settings) {
         this.name = "status";
         this.help = "shows the bots status";
         this.aliases = new String[]{"info"};

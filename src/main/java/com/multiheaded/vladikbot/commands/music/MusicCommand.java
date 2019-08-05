@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.core.entities.GuildVoiceState;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -16,11 +16,11 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
  * @author John Grosh
  */
 public abstract class MusicCommand extends Command {
-    protected final VladikBot bot;
+    protected final Bot bot;
     protected boolean bePlaying;
     protected boolean beListening;
 
-    protected MusicCommand(VladikBot bot) {
+    protected MusicCommand(Bot bot) {
         this.bot = bot;
         this.guildOnly = true;
         this.category = new Category("Music");
@@ -28,7 +28,7 @@ public abstract class MusicCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        TextChannel textChannel = bot.getSettings().getTextChannel(event.getGuild());
+        TextChannel textChannel = bot.getGuildSettings(event.getGuild()).getTextChannel(event.getGuild());
 
         if (textChannel != null && !event.getTextChannel().equals(textChannel)) {
             try {
@@ -49,7 +49,7 @@ public abstract class MusicCommand extends Command {
         if (beListening) {
             VoiceChannel current = event.getGuild().getSelfMember().getVoiceState().getChannel();
             if (current == null) {
-                current = bot.getSettings().getVoiceChannel(event.getGuild());
+                current = bot.getGuildSettings(event.getGuild()).getVoiceChannel(event.getGuild());
             }
 
             GuildVoiceState userState = event.getMember().getVoiceState();

@@ -10,7 +10,8 @@ import net.dv8tion.jda.core.entities.*;
  * @author Oliver Johnson
  */
 @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
-public class Settings {
+public class BotSettings extends AbstractSettings {
+    private final transient BotSettingsManager manager;
 
     /* Finish all paths with file system separator! */
     private String token = "MY_BOT_TOKEN";                      // Bot token taken from discord developer portal
@@ -34,16 +35,14 @@ public class Settings {
     private boolean npImages = true;                            // Display search images
     private Long maxSeconds = 0L;                               // Maximum song length
     private String playlistsFolder = "app/playlists/";          // Local folder for playlists to be stored
-    private Long textChannelId = 0L;                            // Only one channel id for bot's texting
-    private Long voiceChannelId = 0L;                           // Only one voice id for bot's music
-    private Long notificationChannelId = 0L;                    // Use separate system notification channel for bot
-    private Long djRoleId = 0L;                                 // Sets who can use DJ commands
-    private int volume = 50;                                    // Sets volume of the bot
-    private String defaultPlaylist = "default_playlist";        // Sets name of default playlist
     private boolean repeat = true;                              // If repeat mode is available
     private boolean autoModeration = false;                     // If to use moderation feature
-    private String rotationListFolder = "app/rules/rotation/";  // Folder that stores statuses.json
     private boolean rotateActionsAndGames = false;              // If bot should change statuses by himself
+    private String rotationListFolder = "app/rules/rotation/";  // Folder that stores statuses.json
+
+    BotSettings(BotSettingsManager manager) {
+        this.manager = manager;
+    }
 
     public String getToken() {
         return token;
@@ -121,67 +120,13 @@ public class Settings {
         return playlistsFolder;
     }
 
-    public TextChannel getTextChannel(Guild guild) {
-        return (guild == null) ? null : guild.getTextChannelById(textChannelId);
-    }
-
-    public void setTextChannelId(TextChannel textChannel) {
-        this.textChannelId = textChannel == null ? 0 : textChannel.getIdLong();
-        SettingsManager.getInstance().writeSettings();
-    }
-
-    public VoiceChannel getVoiceChannel(Guild guild) {
-        return (guild == null) ? null : guild.getVoiceChannelById(voiceChannelId);
-    }
-
-    public void setVoiceChannelId(VoiceChannel voiceChannel) {
-        this.voiceChannelId = voiceChannel == null ? 0 : voiceChannel.getIdLong();
-        SettingsManager.getInstance().writeSettings();
-    }
-
-    public TextChannel getNotificationChannel(Guild guild) {
-        return (guild == null) ? null : guild.getTextChannelById(notificationChannelId);
-    }
-
-    public void setNotificationChannelId(TextChannel textChannel) {
-        this.notificationChannelId = textChannel == null ? 0 : textChannel.getIdLong();
-        SettingsManager.getInstance().writeSettings();
-    }
-
-    public Role getDjRole(Guild guild) {
-        return (guild == null) ? null : guild.getRoleById(djRoleId);
-    }
-
-    public void setDjRoleId(Role role) {
-        this.djRoleId = role == null ? 0 : role.getIdLong();
-        SettingsManager.getInstance().writeSettings();
-    }
-
-    public int getVolume() {
-        return volume;
-    }
-
-    public void setVolume(int volume) {
-        this.volume = volume;
-        SettingsManager.getInstance().writeSettings();
-    }
-
-    public String getDefaultPlaylist() {
-        return defaultPlaylist;
-    }
-
-    public void setDefaultPlaylist(String defaultPlaylist) {
-        this.defaultPlaylist = defaultPlaylist;
-        SettingsManager.getInstance().writeSettings();
-    }
-
     public boolean shouldRepeat() {
         return repeat;
     }
 
     public void setRepeat(boolean repeat) {
         this.repeat = repeat;
-        SettingsManager.getInstance().writeSettings();
+        manager.writeSettings();
     }
 
     public boolean isAutoModeration() {
@@ -190,7 +135,7 @@ public class Settings {
 
     public void setAutoModeration(boolean autoModeration) {
         this.autoModeration = autoModeration;
-        SettingsManager.getInstance().writeSettings();
+        manager.writeSettings();
     }
 
     public String getLocalMediaFolder() {
@@ -219,6 +164,6 @@ public class Settings {
 
     public void setRotateActionsAndGames(boolean rotateActionAndGames) {
         this.rotateActionsAndGames = rotateActionAndGames;
-        SettingsManager.getInstance().writeSettings();
+        manager.writeSettings();
     }
 }

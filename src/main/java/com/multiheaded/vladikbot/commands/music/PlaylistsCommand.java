@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
  * @author John Grosh
  */
 public class PlaylistsCommand extends MusicCommand {
-    public PlaylistsCommand(VladikBot bot) {
+    public PlaylistsCommand(Bot bot) {
         super(bot);
         this.name = "playlists";
         this.aliases = new String[]{"pls"};

@@ -2,7 +2,7 @@ package com.multiheaded.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
-import com.multiheaded.vladikbot.models.SettingsFunction;
+import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
 
@@ -15,13 +15,13 @@ import java.util.List;
  * @author John Grosh
  */
 public class SetTextChannelCommand extends AdminCommand {
-    private final SettingsFunction<TextChannel> setTextChannelId;
+    private final Bot bot;
 
-    public SetTextChannelCommand(SettingsFunction<TextChannel> setTextChannelId) {
+    public SetTextChannelCommand(Bot bot) {
         this.name = "settc";
         this.help = "sets the text channel for music commands";
         this.arguments = "<channel|none>";
-        this.setTextChannelId = setTextChannelId;
+        this.bot = bot;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class SetTextChannelCommand extends AdminCommand {
         }
 
         if (event.getArgs().equalsIgnoreCase("none")) {
-            setTextChannelId.set(null);
+            bot.getGuildSettings(event.getGuild()).setTextChannelId(null);
             event.replySuccess("Music commands can now be used in any channel.");
         } else {
             List<TextChannel> list = FinderUtil.findTextChannels(event.getArgs(), event.getGuild());
@@ -41,7 +41,7 @@ public class SetTextChannelCommand extends AdminCommand {
             } else if (list.size() > 1) {
                 event.replyWarning(FormatUtils.listOfTextChannels(list, event.getArgs()));
             } else {
-                setTextChannelId.set(list.get(0));
+                bot.getGuildSettings(event.getGuild()).setTextChannelId(list.get(0));
                 event.replySuccess(String.format("Music commands can now only be used in <#%1$s>.", list.get(0).getId()));
             }
         }

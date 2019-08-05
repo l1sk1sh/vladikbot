@@ -5,225 +5,115 @@ import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
 import com.multiheaded.vladikbot.commands.everyone.StatusCommand;
-import com.multiheaded.vladikbot.services.AutoModerationManager;
-import com.multiheaded.vladikbot.services.ActionAndGameRotationManager;
-import com.multiheaded.vladikbot.services.audio.AudioHandler;
-import com.multiheaded.vladikbot.services.audio.NowPlayingHandler;
-import com.multiheaded.vladikbot.services.audio.PlayerManager;
 import com.multiheaded.vladikbot.commands.admin.*;
 import com.multiheaded.vladikbot.commands.dj.*;
 import com.multiheaded.vladikbot.commands.everyone.SettingsCommand;
 import com.multiheaded.vladikbot.commands.music.*;
 import com.multiheaded.vladikbot.commands.owner.*;
-import com.multiheaded.vladikbot.services.PlaylistLoader;
-import com.multiheaded.vladikbot.settings.Settings;
-import com.multiheaded.vladikbot.settings.SettingsManager;
+import com.multiheaded.vladikbot.settings.BotSettings;
+import com.multiheaded.vladikbot.settings.BotSettingsManager;
+import com.multiheaded.vladikbot.settings.GuildSettingsManager;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
-import java.util.Objects;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Oliver Johnson
  */
-public class VladikBot {
+class VladikBot {
     private static final Logger logger = LoggerFactory.getLogger(VladikBot.class);
 
-    private final EventWaiter waiter;
-    private final ScheduledExecutorService threadPool;
-    private final Settings settings = SettingsManager.getInstance().getSettings();
-    private final PlayerManager players;
-    private final NowPlayingHandler nowPlaying;
-    private final PlaylistLoader playlists;
-    private final AutoModerationManager autoModerationManager;
-    private final ActionAndGameRotationManager actionAndGameRotationManager;
-
-    private boolean availableBackup = true;
-    private boolean shuttingDown = false;
-    private JDA jda;
-
-    private VladikBot() {
-        this.threadPool = Executors.newSingleThreadScheduledExecutor();
-        this.waiter = new EventWaiter();
-        this.playlists = new PlaylistLoader(this);
-        this.players = new PlayerManager(this);
-        this.players.init();
-        this.nowPlaying = new NowPlayingHandler(this);
-        this.nowPlaying.init();
-        this.autoModerationManager = new AutoModerationManager(this);
-        this.actionAndGameRotationManager = new ActionAndGameRotationManager(this);
-
+    public static void main(String[] args) {
         try {
-            Settings settings = SettingsManager.getInstance().getSettings();
+            EventWaiter waiter = new EventWaiter();
+            BotSettingsManager botSettingsManager = new BotSettingsManager();
+            GuildSettingsManager guildSettingsManager = new GuildSettingsManager();
+            BotSettings botSettings = botSettingsManager.getSettings();
+
+            Bot bot = new Bot(waiter, botSettingsManager, guildSettingsManager);
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
-                    .setPrefix(settings.getPrefix())
-                    .setOwnerId(Long.toString(settings.getOwnerId()))
-                    .setEmojis(settings.getSuccessEmoji(), settings.getWarningEmoji(), settings.getErrorEmoji())
-                    .setHelpWord(settings.getHelpWord())
-                    .setStatus((settings.getOnlineStatus() != OnlineStatus.UNKNOWN)
-                            ? settings.getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB)
-                    .setGame((settings.getGame() != null)
-                            ? settings.getGame() : Game.playing("your dad"))
+                    .setPrefix(botSettings.getPrefix())
+                    .setOwnerId(Long.toString(botSettings.getOwnerId()))
+                    .setEmojis(botSettings.getSuccessEmoji(), botSettings.getWarningEmoji(), botSettings.getErrorEmoji())
+                    .setHelpWord(botSettings.getHelpWord())
+                    .setStatus((botSettings.getOnlineStatus() != OnlineStatus.UNKNOWN)
+                            ? botSettings.getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB)
+                    .setGame((botSettings.getGame() != null)
+                            ? botSettings.getGame() : Game.playing("your dad"))
                     .setLinkedCacheSize(200)
                     .addCommands(
                             new PingCommand(),
-                            new SettingsCommand(settings),
-                            new StatusCommand(settings),
+                            new SettingsCommand(botSettings, guildSettingsManager),
+                            new StatusCommand(botSettings),
 
-                            new SetNotificationChannelCommand(settings::setNotificationChannelId),
-                            new SetDjCommand(settings::setDjRoleId),
-                            new SetTextChannelCommand(settings::setTextChannelId),
-                            new SetVoiceChannelCommand(settings::setVoiceChannelId),
-                            new BackupMediaCommand(this),
-                            new BackupChannelCommand(this),
-                            new EmojiStatsCommand(waiter, this),
-                            new AutoModerationCommand(this),
-                            new RotatingActionAndGameCommand(this),
+                            new SetNotificationChannelCommand(bot),
+                            new SetDjCommand(bot),
+                            new SetTextChannelCommand(bot),
+                            new SetVoiceChannelCommand(bot),
 
-                            new ForceSkipCommand(this),
-                            new PauseCommand(this),
-                            new PlayNextCommand(this),
-                            new RepeatCommand(this),
-                            new SkipToCommand(this),
-                            new StopCommand(this),
-                            new VolumeCommand(this),
-                            new MoveTrackCommand(this),
+                            new BackupMediaCommand(bot),
+                            new BackupChannelCommand(bot),
+                            new EmojiStatsCommand(waiter, bot),
+                            new AutoModerationCommand(bot),
+                            new RotatingActionAndGameCommand(bot),
 
-                            new AutoPlaylistCommand(this),
-                            new PlaylistCommand(this),
+                            new ForceSkipCommand(bot),
+                            new PauseCommand(bot),
+                            new PlayNextCommand(bot),
+                            new RepeatCommand(bot),
+                            new SkipToCommand(bot),
+                            new StopCommand(bot),
+                            new VolumeCommand(bot),
+                            new MoveTrackCommand(bot),
+
+                            new AutoPlaylistCommand(bot),
+                            new PlaylistCommand(bot),
                             new SetAvatarCommand(),
                             new SetGameCommand(),
                             new SetNameCommand(),
                             new SetStatusCommand(),
-                            new ClearTmpCommand(this),
+                            new ClearTmpCommand(bot),
 
-                            new LyricsCommand(this),
-                            new NowPlayingCommand(this),
-                            new PlayCommand(this),
-                            new PlaylistsCommand(this),
-                            new QueueCommand(this),
-                            new RemoveCommand(this),
-                            new SearchCommand(this),
-                            new ShuffleCommand(this),
-                            new SkipCommand(this),
-                            new SoundCloudSearchCommand(this),
+                            new LyricsCommand(bot),
+                            new NowPlayingCommand(bot),
+                            new PlayCommand(bot),
+                            new PlaylistsCommand(bot),
+                            new QueueCommand(bot),
+                            new RemoveCommand(bot),
+                            new SearchCommand(bot),
+                            new ShuffleCommand(bot),
+                            new SkipCommand(bot),
+                            new SoundCloudSearchCommand(bot),
 
-                            new ShutdownCommand(this)
+                            new ShutdownCommand(bot)
                     );
 
             CommandClient commandClient = commandClientBuilder.build();
 
-            jda = new JDABuilder(AccountType.BOT)
-                    .setToken(settings.getToken())
+            JDA jda = new JDABuilder(AccountType.BOT)
+                    .setToken(botSettings.getToken())
                     .setAudioEnabled(true)
                     .addEventListener(
                             waiter,
                             commandClient,
-                            new Listener(this)
+                            new Listener(bot)
                     )
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
+            bot.setJDA(jda);
         } catch (ExceptionInInitializerError e) {
-            logger.error("Problematic settings input.");
+            logger.error("Problematic botSettings input.");
             System.exit(1);
         } catch (LoginException le) {
             logger.error("Invalid username and/or password.");
             System.exit(1);
         }
-    }
-
-    public static void main(String[] args) {
-        new VladikBot();
-    }
-
-    public EventWaiter getWaiter() {
-        return waiter;
-    }
-
-    public ScheduledExecutorService getThreadPool() {
-        return threadPool;
-    }
-
-    public PlayerManager getPlayerManager() {
-        return players;
-    }
-
-    public PlaylistLoader getPlaylistLoader() {
-        return playlists;
-    }
-
-    public NowPlayingHandler getNowPlayingHandler() {
-        return nowPlaying;
-    }
-
-    public AutoModerationManager getAutoModerationManager() {
-        return autoModerationManager;
-    }
-
-    public JDA getJDA() {
-        return jda;
-    }
-
-    public void closeAudioConnection(long guildId) {
-        Guild guild = jda.getGuildById(guildId);
-        if (guild != null) {
-            threadPool.submit(() -> guild.getAudioManager().closeAudioConnection());
-        }
-    }
-
-    public void resetGame() {
-        Game game = settings.getGame() == null
-                || settings.getGame().getName().equalsIgnoreCase("none") ? null : settings.getGame();
-        if (!Objects.equals(jda.getPresence().getGame(), game)) {
-            jda.getPresence().setGame(game);
-        }
-    }
-
-    public void shutdown() {
-        if (shuttingDown) {
-            return;
-        }
-        shuttingDown = true;
-        threadPool.shutdownNow();
-        if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
-            jda.getGuilds().forEach(g -> {
-                g.getAudioManager().closeAudioConnection();
-                AudioHandler audioHandler = (AudioHandler) g.getAudioManager().getSendingHandler();
-                if (audioHandler != null) {
-                    audioHandler.stopAndClear();
-                    audioHandler.getPlayer().destroy();
-                    nowPlaying.updateTopic(g.getIdLong(), audioHandler, true);
-                }
-            });
-
-            jda.shutdown();
-        }
-        System.exit(0);
-    }
-
-    public boolean isBackupAvailable() {
-        return availableBackup;
-    }
-
-    public void setAvailableBackup(boolean availableBackup) {
-        this.availableBackup = availableBackup;
-    }
-
-    public Settings getSettings() {
-        return settings;
-    }
-
-    public ActionAndGameRotationManager getActionAndGameRotationManager() {
-        return actionAndGameRotationManager;
     }
 }

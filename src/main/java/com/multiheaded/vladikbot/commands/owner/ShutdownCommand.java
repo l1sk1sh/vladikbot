@@ -1,7 +1,7 @@
 package com.multiheaded.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.multiheaded.vladikbot.VladikBot;
+import com.multiheaded.vladikbot.Bot;
 
 /**
  * @author Oliver Johnson
@@ -11,9 +11,9 @@ import com.multiheaded.vladikbot.VladikBot;
  * @author John Grosh
  */
 public class ShutdownCommand extends OwnerCommand {
-    private final VladikBot bot;
+    private final Bot bot;
 
-    public ShutdownCommand(VladikBot bot) {
+    public ShutdownCommand(Bot bot) {
         this.bot = bot;
         this.name = "shutdown";
         this.help = "safely shuts down";
