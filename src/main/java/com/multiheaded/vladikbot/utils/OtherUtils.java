@@ -2,12 +2,15 @@ package com.multiheaded.vladikbot.utils;
 
 import com.multiheaded.vladikbot.settings.Constants;
 import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Oliver Johnson
@@ -62,5 +65,17 @@ public class OtherUtils {
         }
         OnlineStatus onlineStatus = OnlineStatus.fromKey(status);
         return onlineStatus == null ? OnlineStatus.ONLINE : onlineStatus;
+    }
+
+    public static List<Permission> getMissingPermissions(List<Permission> available, List<Permission> required) {
+        if (available.containsAll(required)) {
+            return null;
+        } else {
+            return required.stream().filter(permission -> !available.contains(permission)).collect(Collectors.toList());
+        }
+    }
+
+    public static List<Permission> getGrantedAndRequiredPermissions(List<Permission> available, List<Permission> required) {
+        return available.stream().filter(required::contains).collect(Collectors.toList());
     }
 }

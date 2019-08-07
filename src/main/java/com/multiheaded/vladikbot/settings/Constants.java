@@ -2,20 +2,31 @@ package com.multiheaded.vladikbot.settings;
 
 import net.dv8tion.jda.core.Permission;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Oliver Johnson
  */
 public class Constants {
-    public final static Permission[] RECOMMENDED_PERMS = new Permission[]
-            {Permission.MESSAGE_READ, Permission.MESSAGE_WRITE,
-                    Permission.MESSAGE_HISTORY, Permission.MESSAGE_ADD_REACTION,
-                    Permission.MESSAGE_EMBED_LINKS, Permission.MESSAGE_ATTACH_FILES,
-                    Permission.MESSAGE_MANAGE, Permission.MESSAGE_EXT_EMOJI,
-                    Permission.MANAGE_CHANNEL, Permission.VOICE_CONNECT,
-                    Permission.VOICE_SPEAK, Permission.NICKNAME_CHANGE};
+    public final static List<Permission> RECOMMENDED_PERMS = new ArrayList<>();
+
+    static {
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_READ);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_WRITE);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_HISTORY);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_ADD_REACTION);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_EMBED_LINKS);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_ATTACH_FILES);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_MANAGE);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_EXT_EMOJI);
+        RECOMMENDED_PERMS.add(Permission.MANAGE_CHANNEL);
+        RECOMMENDED_PERMS.add(Permission.VOICE_CONNECT);
+        RECOMMENDED_PERMS.add(Permission.VOICE_SPEAK);
+        RECOMMENDED_PERMS.add(Permission.NICKNAME_CHANGE);
+    }
 
     static final String BOT_SETTINGS_JSON = "settings_bot.json";
     static final String GUILD_SETTINGS_JSON = "settings_guild.json";

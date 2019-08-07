@@ -58,6 +58,7 @@ class VladikBot {
                             new SetTextChannelCommand(bot),
                             new SetVoiceChannelCommand(bot),
 
+                            new PermissionsCommand(),
                             new BackupMediaCommand(bot),
                             new BackupChannelCommand(bot),
                             new EmojiStatsCommand(waiter, bot),

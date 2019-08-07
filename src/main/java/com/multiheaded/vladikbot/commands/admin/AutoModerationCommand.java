@@ -46,7 +46,7 @@ public class AutoModerationCommand extends AdminCommand {
             this.name = "make";
             this.aliases = new String[]{"create", "add"};
             this.help = "makes a new moderation rule (';' - used as separator)\r\n" +
-                    "Example: *automod add gay_check {gay; гей; мао цзе дун} {кумир; тунец; А чо сразу Валерчик, а?}*";
+                    "Example: *automod add fbi_check {fbi; open up} {POLICE, OPEN UP!; You've played your role, criminal!}*";
             this.arguments = "<name> <{react to}> <{react with}>";
             this.guildOnly = false;
         }

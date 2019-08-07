@@ -30,7 +30,6 @@ Bot is written using JDA library and common sense.
    21. `whois [user mention]` - Get user information
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
-   24. `permissions` - Check if bot has all necessary permissions (also, log that in the logger in case bot can't write into the discord)
    25. `settings read` - Read .json configuration file
 5. Create auto-scheduler with notification to backup chats and media
 6. Command to backup all chats that bot is currently in

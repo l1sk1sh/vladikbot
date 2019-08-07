@@ -12,6 +12,9 @@ import java.awt.*;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
+/**
+ * @author Oliver Johnson
+ */
 public class StatusCommand extends Command {
     private final BotSettings settings;
 

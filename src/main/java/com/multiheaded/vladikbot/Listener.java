@@ -1,6 +1,6 @@
 package com.multiheaded.vladikbot;
 
-import com.multiheaded.vladikbot.settings.Constants;
+import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.ReadyEvent;
@@ -11,11 +11,19 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static com.multiheaded.vladikbot.settings.Constants.RECOMMENDED_PERMS;
+import static com.multiheaded.vladikbot.utils.OtherUtils.getMissingPermissions;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
  * - Reformating code
  * - Removal of update
+ * - Addition of moderation Listener
+ * - Addition of permission handler
  * @author John Grosh
  */
 class Listener extends ListenerAdapter {
@@ -31,7 +39,7 @@ class Listener extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         if (event.getJDA().getGuilds().isEmpty()) {
             logger.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
-            logger.warn(event.getJDA().asBot().getInviteUrl(Constants.RECOMMENDED_PERMS));
+            logger.warn(event.getJDA().asBot().getInviteUrl(RECOMMENDED_PERMS));
         }
 
         event.getJDA().getGuilds().forEach((guild) ->
@@ -43,6 +51,13 @@ class Listener extends ListenerAdapter {
                     guild.getAudioManager().openAudioConnection(vc);
                 }
             } catch (Exception ignore) {
+            }
+
+            List<Permission> missingPermissions =
+                    getMissingPermissions(guild.getSelfMember().getPermissions(), RECOMMENDED_PERMS);
+            if (missingPermissions != null) {
+                logger.warn("Bot in guild '{}' doesn't have following recommended permissions {}.",
+                        guild.getName(), Arrays.toString(missingPermissions.toArray()));
             }
         });
     }
