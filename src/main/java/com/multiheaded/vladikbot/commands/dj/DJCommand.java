@@ -2,8 +2,12 @@ package com.multiheaded.vladikbot.commands.dj;
 
 import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.commands.music.MusicCommand;
+import com.multiheaded.vladikbot.settings.GuildSettings;
+import com.multiheaded.vladikbot.settings.GuildSettingsManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -26,10 +30,11 @@ abstract class DJCommand extends MusicCommand {
                 return true;
             }
 
-            /* Intentionally calling BotSettingsManager instead of `bot` due to strange bug in help output */
-            Role djRole = bot.getGuildSettings(event.getGuild()).getDjRole(event.getGuild());
-            return djRole != null &&
-                    (event.getMember().getRoles().contains(djRole) || djRole.getIdLong() == event.getGuild().getIdLong());
+            /* Intentionally calling GuildSettingsManager instead of `bot` due to strange bug in help output */
+            GuildSettings settings = (GuildSettings) new GuildSettingsManager().getSettings(event.getGuild());
+            Role djRole = Objects.requireNonNull(settings).getDjRole(event.getGuild());
+            return djRole != null && (event.getMember().getRoles().contains(djRole)
+                    || djRole.getIdLong() == event.getGuild().getIdLong());
         });
     }
 }
