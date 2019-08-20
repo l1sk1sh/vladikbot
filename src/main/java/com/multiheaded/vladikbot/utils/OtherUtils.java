@@ -4,6 +4,7 @@ import com.multiheaded.vladikbot.settings.Constants;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 import java.io.IOException;
 import java.io.InputStream;

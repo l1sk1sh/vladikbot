@@ -56,7 +56,7 @@ public class FileUtils {
         Files.createFile(Paths.get(path));
     }
 
-    public static void createFolder(String path) throws IOException {
+    public static void createFolders(String path) throws IOException {
         Files.createDirectories(Paths.get(path));
     }
 

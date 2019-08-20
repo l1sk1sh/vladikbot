@@ -7,9 +7,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
 import java.util.Objects;
 
-import com.multiheaded.vladikbot.services.ActionAndGameRotationManager;
-import com.multiheaded.vladikbot.services.AutoModerationManager;
-import com.multiheaded.vladikbot.services.PlaylistLoader;
+import com.multiheaded.vladikbot.services.*;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.services.audio.NowPlayingHandler;
 import com.multiheaded.vladikbot.services.audio.PlayerManager;
@@ -37,6 +35,9 @@ public class Bot {
     private final NowPlayingHandler nowPlayingHandler;
     private final AutoModerationManager autoModerationManager;
     private final ActionAndGameRotationManager actionAndGameRotationManager;
+    private final RotatingBackupChannelService rotatingBackupChannelService;
+    private final RotatingBackupMediaService rotatingBackupMediaService;
+    private final ChatNotificationService notificationService;
 
     private boolean availableBackup = true;
     private boolean shuttingDown = false;
@@ -54,6 +55,9 @@ public class Bot {
         this.nowPlayingHandler.init();
         this.autoModerationManager = new AutoModerationManager(this);
         this.actionAndGameRotationManager = new ActionAndGameRotationManager(this);
+        this.rotatingBackupChannelService = new RotatingBackupChannelService(this);
+        this.rotatingBackupMediaService = new RotatingBackupMediaService(this);
+        this.notificationService = new ChatNotificationService(this);
     }
 
     public void closeAudioConnection(long guildId) {
@@ -144,5 +148,17 @@ public class Bot {
 
     public ActionAndGameRotationManager getActionAndGameRotationManager() {
         return actionAndGameRotationManager;
+    }
+
+    public RotatingBackupChannelService getRotatingBackupChannelService() {
+        return rotatingBackupChannelService;
+    }
+
+    public RotatingBackupMediaService getRotatingBackupMediaService() {
+        return rotatingBackupMediaService;
+    }
+
+    public ChatNotificationService getNotificationService() {
+        return notificationService;
     }
 }

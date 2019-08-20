@@ -11,7 +11,7 @@ import net.dv8tion.jda.core.entities.*;
  */
 @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
 public class BotSettings extends AbstractSettings {
-    private final transient BotSettingsManager manager;
+    private transient BotSettingsManager manager;
 
     /* Finish all paths with file system separator! */
     private String token = "MY_BOT_TOKEN";                      // Bot token taken from discord developer portal
@@ -39,8 +39,15 @@ public class BotSettings extends AbstractSettings {
     private boolean autoModeration = false;                     // If to use moderation feature
     private boolean rotateActionsAndGames = false;              // If bot should change statuses by himself
     private String rotationListFolder = "app/rules/rotation/";  // Folder that stores statuses.json
+    private boolean rotateTextBackup = true;                    // Automatically create backups of all available chats
+    private boolean rotateMediaBackup = true;                   // Automatically save media from all available chats
+    private Integer targetHourForBackup = 12;                   // Set local TZ hour for backup to be started
 
     BotSettings(BotSettingsManager manager) {
+        this.manager = manager;
+    }
+
+    public void setManager(BotSettingsManager manager) {
         this.manager = manager;
     }
 
@@ -165,5 +172,27 @@ public class BotSettings extends AbstractSettings {
     public void setRotateActionsAndGames(boolean rotateActionAndGames) {
         this.rotateActionsAndGames = rotateActionAndGames;
         manager.writeSettings();
+    }
+
+    public boolean shouldRotateTextBackup() {
+        return rotateTextBackup;
+    }
+
+    public void setRotateTextBackup(boolean rotateTextBackup) {
+        this.rotateTextBackup = rotateTextBackup;
+        manager.writeSettings();
+    }
+
+    public boolean shouldRotateMediaBackup() {
+        return rotateMediaBackup;
+    }
+
+    public void setRotateMediaBackup(boolean rotateMediaBackup) {
+        this.rotateMediaBackup = rotateMediaBackup;
+        manager.writeSettings();
+    }
+
+    public Integer getTargetHourForBackup() {
+        return targetHourForBackup;
     }
 }

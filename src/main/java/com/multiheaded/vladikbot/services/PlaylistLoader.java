@@ -45,7 +45,7 @@ public class PlaylistLoader {
 
     public List<String> getPlaylistNames() throws IOException {
         if (fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
-            createFolder(bot.getBotSettings().getPlaylistsFolder());
+            createFolders(bot.getBotSettings().getPlaylistsFolder());
 
             //noinspection unchecked
             return Collections.EMPTY_LIST;
@@ -83,7 +83,7 @@ public class PlaylistLoader {
                 return null;
             }
             if (fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
-                createFolder(bot.getBotSettings().getPlaylistsFolder());
+                createFolders(bot.getBotSettings().getPlaylistsFolder());
                 return null;
             } else {
 

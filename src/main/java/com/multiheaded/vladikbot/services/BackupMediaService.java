@@ -87,7 +87,7 @@ public class BackupMediaService {
 
                 if (fileOrFolderIsAbsent(mediaFolderPath)) {
                     logger.info("Creating [{}] directory.", mediaFolderPath);
-                    createFolder(mediaFolderPath);
+                    createFolders(mediaFolderPath);
                 }
 
                 for (String mediaUrl : setOfMediaUrls) {

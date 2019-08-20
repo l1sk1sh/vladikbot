@@ -6,6 +6,7 @@ Bot is written using JDA library and common sense.
 - [JMusic](https://github.com/jagrosh/MusicBot) (_30 of July 2019_) for wonderful and simple MusicBot, that has become a core of project
 - [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases) for discord chat backup solution
 #### ToDo List
+0. Fix bug with settings writing
 1. Add commands (partially from DYNO.GG)
    1. `itunes [song name]` - Get info on a song
    2. `quote` - Get a random quote
@@ -30,7 +31,7 @@ Bot is written using JDA library and common sense.
    21. `whois [user mention]` - Get user information
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
-   25. `settings read` - Read .json configuration file
+   25. `game` - manages list of games saved by us
 5. Create auto-scheduler with notification to backup chats and media
 6. Command to backup all chats that bot is currently in
 7. Test lyrics command
@@ -39,8 +40,8 @@ Bot is written using JDA library and common sense.
 10. Deploy the bot
 13. Shorten command names (like `findpicture` -> `fp`)
 14. Implement wordFrequencyAnalyzer
-15. Separate configurations for different Guilds
 16. Separate backup files per guild
 17. Separate media files per guild
 18. Separate AutoModeration per guild
 19. Separate status rotation per guild
+20. Extend logger to every error\warning reply

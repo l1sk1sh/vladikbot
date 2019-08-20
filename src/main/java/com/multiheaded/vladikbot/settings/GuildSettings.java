@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
  * @author Oliver Johnson
  */
 public class GuildSettings extends AbstractSettings {
-    private final transient GuildSettingsManager manager;
+    private transient GuildSettingsManager manager;
 
     private Long textChannelId = 0L;                            // Only one channel id for bot's texting
     private Long voiceChannelId = 0L;                           // Only one voice id for bot's music
@@ -20,6 +20,10 @@ public class GuildSettings extends AbstractSettings {
     private int volume = 50;                                    // Sets volume of the bot
 
     GuildSettings(GuildSettingsManager manager) {
+        this.manager = manager;
+    }
+
+    public void setManager(GuildSettingsManager manager) {
         this.manager = manager;
     }
 

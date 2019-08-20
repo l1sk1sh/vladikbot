@@ -37,6 +37,7 @@ public class GuildSettingsManager extends AbstractSettingsManager
                                 .orElse(""),
                         GuildSettings.class
                 );
+                this.guildSettings.setManager(this);
             } catch (IOException e) {
                 logger.error(String.format("Error while reading %s file.", GUILD_SETTINGS_JSON),
                         e.getLocalizedMessage(), e.getCause());

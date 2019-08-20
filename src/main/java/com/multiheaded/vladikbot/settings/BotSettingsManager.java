@@ -34,6 +34,7 @@ public class BotSettingsManager extends AbstractSettingsManager {
                                 .orElse(""),
                         BotSettings.class
                 );
+                this.botSettings.setManager(this);
             } catch (IOException e) {
                 logger.error(String.format("Error while reading %s file.", BOT_SETTINGS_JSON),
                         e.getLocalizedMessage(), e.getCause());

@@ -81,6 +81,7 @@ class VladikBot {
                             new SetNameCommand(),
                             new SetStatusCommand(),
                             new ClearTmpCommand(bot),
+                            new RotatingBackupCommand(bot),
 
                             new LyricsCommand(bot),
                             new NowPlayingCommand(bot),

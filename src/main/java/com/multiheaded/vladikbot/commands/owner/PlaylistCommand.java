@@ -106,6 +106,7 @@ public class PlaylistCommand extends OwnerCommand {
             this.arguments = "<name> <URL> | <URL> | ...";
             this.guildOnly = false;
         }
+
         @Override
         protected void execute(CommandEvent event) {
             String[] parts = event.getArgs().split("\\s+", 2);

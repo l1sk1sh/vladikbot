@@ -56,7 +56,7 @@ public class AutoModerationManager {
 
     public List<ReactionRule> getRules() throws IOException, NullPointerException {
         if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
-            createFolder(bot.getBotSettings().getModerationRulesFolder());
+            createFolders(bot.getBotSettings().getModerationRulesFolder());
             return null;
         } else {
             File folder = new File(bot.getBotSettings().getModerationRulesFolder());
@@ -78,7 +78,7 @@ public class AutoModerationManager {
     public ReactionRule getRule(String name) {
         try {
             if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
-                createFolder(bot.getBotSettings().getModerationRulesFolder());
+                createFolders(bot.getBotSettings().getModerationRulesFolder());
                 return null;
             } else {
                 return gson.fromJson(new FileReader(bot.getBotSettings().getModerationRulesFolder()
@@ -95,7 +95,7 @@ public class AutoModerationManager {
 
     public void writeRule(ReactionRule rule) throws IOException {
         if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
-            createFolder(bot.getBotSettings().getModerationRulesFolder());
+            createFolders(bot.getBotSettings().getModerationRulesFolder());
             logger.info("Creating folder {}", bot.getBotSettings().getModerationRulesFolder());
         }
 

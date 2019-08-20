@@ -19,7 +19,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import static com.multiheaded.vladikbot.utils.FileUtils.createFolder;
+import static com.multiheaded.vladikbot.utils.FileUtils.createFolders;
 import static com.multiheaded.vladikbot.utils.FileUtils.fileOrFolderIsAbsent;
 
 /**
@@ -48,7 +48,7 @@ public class ActionAndGameRotationManager {
         Map<String, String> pairs;
 
         if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
-            createFolder(bot.getBotSettings().getRotationFolder());
+            createFolders(bot.getBotSettings().getRotationFolder());
             logger.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
             return null;
         } else {
@@ -98,7 +98,7 @@ public class ActionAndGameRotationManager {
 
     public void writeActionAndGame(String action, String gameName) throws IOException {
         if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
-            createFolder(bot.getBotSettings().getRotationFolder());
+            createFolders(bot.getBotSettings().getRotationFolder());
             logger.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
         }
 
