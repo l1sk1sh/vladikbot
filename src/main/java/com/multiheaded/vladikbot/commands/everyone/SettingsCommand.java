@@ -65,6 +65,10 @@ public class SettingsCommand extends Command {
                                 + (botSettings.isAutoModeration() ? "On" : "Off") + "**"
                                 + "\r\nStatuses rotation: **"
                                 + (botSettings.shouldRotateActionsAndGames() ? "On" : "Off") + "**"
+                                + "\r\nText backup rotation: **"
+                                + (botSettings.shouldRotateTextBackup() ? "On" : "Off") + "**"
+                                + "\r\nMedia backup rotation: **"
+                                + (botSettings.shouldRotateMediaBackup() ? "On" : "Off") + "**"
                 )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()

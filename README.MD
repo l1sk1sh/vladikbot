@@ -3,10 +3,9 @@ Bot is written using JDA library and common sense.
 #### Credits
 - [JDA](https://github.com/DV8FromTheWorld/JDA) for flexible and intuitive Discord API Java wrapper
 - [Yui-bot](https://github.com/DV8FromTheWorld/Yui) for basic idea of how discord bot should work
-- [JMusic](https://github.com/jagrosh/MusicBot) (_30 of July 2019_) for wonderful and simple MusicBot, that has become a core of project
+- [JMusic](https://github.com/jagrosh/MusicBot) (_10 of November 2019_) for wonderful and simple MusicBot, that has become a core of project
 - [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases) for discord chat backup solution
 #### ToDo List
-0. Fix bug with settings writing
 1. Add commands (partially from DYNO.GG)
    1. `itunes [song name]` - Get info on a song
    2. `quote` - Get a random quote
@@ -32,11 +31,12 @@ Bot is written using JDA library and common sense.
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
    25. `game` - manages list of games saved by us
+   26. `findpicture` - looks for google picture using given search string
 7. Test lyrics command
 8. Add code analyzer
 9. Package the bot
 10. Deploy the bot
-13. Shorten command names (like `findpicture` -> `fp`)
+13. Shorten command names (like `findpicture` -> `fp`) and add aliases
 14. Implement wordFrequencyAnalyzer
 16. Separate backup files per guild
 17. Separate media files per guild
@@ -46,3 +46,5 @@ Bot is written using JDA library and common sense.
 21. Rewrite Services to use bot instance directly
 22. Organize all folder used by bot (especially, used in backup)
 23. Perform code analysis and fix issues (especially duplicates)
+24. Embedded message could тще be switched using emoji after certain time
+25. Rewrite emoji stats to work with time frame as well

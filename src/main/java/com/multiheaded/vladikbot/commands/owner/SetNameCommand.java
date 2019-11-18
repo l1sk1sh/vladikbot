@@ -20,9 +20,9 @@ public class SetNameCommand extends OwnerCommand {
     @Override
     protected void execute(CommandEvent event) {
         try {
-            String oldname = event.getSelfUser().getName();
+            String oldName = event.getSelfUser().getName();
             event.getSelfUser().getManager().setName(event.getArgs()).complete(false);
-            event.replySuccess(String.format("Name changed from `%1$s` to `%2$s`.", oldname, event.getArgs()));
+            event.replySuccess(String.format("Name changed from `%1$s` to `%2$s`.", oldName, event.getArgs()));
         } catch (RateLimitedException e) {
             event.replyError("Name can only be changed twice per hour!");
         } catch (Exception e) {
