@@ -24,7 +24,6 @@ public class RotatingBackupCommand extends OwnerCommand {
     }
 
     @Override
-    @SuppressWarnings("Duplicates")
     protected void execute(CommandEvent event) {
         StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Backup Rotation Management Commands:\r\n");
         for (Command cmd : this.children) {

@@ -1,6 +1,5 @@
 package com.multiheaded.vladikbot;
 
-import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
@@ -52,6 +51,7 @@ class VladikBot {
                             new PingCommand(),
                             new SettingsCommand(botSettings, guildSettingsManager),
                             new StatusCommand(botSettings),
+                            new DebugCommand(bot),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),
@@ -97,14 +97,12 @@ class VladikBot {
                             new ShutdownCommand(bot)
                     );
 
-            CommandClient commandClient = commandClientBuilder.build();
-
             JDA jda = new JDABuilder(AccountType.BOT)
                     .setToken(botSettings.getToken())
                     .setAudioEnabled(true)
                     .addEventListener(
                             waiter,
-                            commandClient,
+                            commandClientBuilder.build(),
                             new Listener(bot)
                     )
                     .setBulkDeleteSplittingEnabled(true)

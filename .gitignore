@@ -13,12 +13,10 @@ build/
 logs/
 
 # Generated config files
-build.xml
 manifest.mf
 
 # Packages
 *.jar
-*.war
 
 # Gradle compilation output
 .gradle/
@@ -28,6 +26,4 @@ settings_bot.json
 settings_guild.json
 
 # Local files
-playlists/
 app/
-.db

@@ -6,6 +6,7 @@ import com.multiheaded.vladikbot.settings.Constants;
 import com.multiheaded.vladikbot.settings.BotSettings;
 import com.multiheaded.vladikbot.settings.GuildSettings;
 import com.multiheaded.vladikbot.settings.GuildSettingsManager;
+import com.multiheaded.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Role;
@@ -38,7 +39,7 @@ public class SettingsCommand extends Command {
         GuildSettings guildSettings = (GuildSettings) guildSettingsManager.getSettings(event.getGuild());
         MessageBuilder builder = new MessageBuilder()
                 .append(Constants.HEADPHONES_EMOJI + " **")
-                .append(event.getSelfUser().getName())
+                .append(FormatUtils.filter(event.getSelfUser().getName()))
                 .append("** settings:");
         TextChannel textChannel = guildSettings.getTextChannel(event.getGuild());
         TextChannel notificationChannel = guildSettings.getNotificationChannel(event.getGuild());

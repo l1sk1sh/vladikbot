@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.multiheaded.vladikbot.Bot;
+import com.multiheaded.vladikbot.commands.dj.DJCommand;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
 import com.multiheaded.vladikbot.models.queue.QueuedTrack;
 import com.multiheaded.vladikbot.services.PlaylistLoader.Playlist;
@@ -16,7 +17,6 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.util.concurrent.TimeUnit;
@@ -43,20 +43,12 @@ public class PlayCommand extends MusicCommand {
         if (event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty()) {
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             if (audioHandler.getPlayer().getPlayingTrack() != null && audioHandler.getPlayer().isPaused()) {
-                boolean isDJ = event.getMember().hasPermission(Permission.MANAGE_SERVER);
-                if (!isDJ) {
-                    isDJ = event.isOwner();
-                }
-                Role dj = bot.getGuildSettings(event.getGuild()).getDjRole(event.getGuild());
-                if (!isDJ && (dj != null)) {
-                    isDJ = event.getMember().getRoles().contains(dj);
-                }
-                if (!isDJ) {
-                    event.replyError("Only DJs can unpause the player!");
-                } else {
+                if (DJCommand.checkDJPermission(event)) {
                     audioHandler.getPlayer().setPaused(false);
                     event.replySuccess(String.format("Resumed **%1$s**.",
                             audioHandler.getPlayer().getPlayingTrack().getInfo().title));
+                } else {
+                    event.replyError("Only DJs can unpause the player!");
                 }
                 return;
             }

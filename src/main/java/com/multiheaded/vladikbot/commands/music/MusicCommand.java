@@ -60,6 +60,13 @@ public abstract class MusicCommand extends Command {
                         (current == null ? "a voice channel" : current.getName())));
                 return;
             }
+
+            VoiceChannel afkChannel = userState.getGuild().getAfkChannel();
+            if (afkChannel != null && afkChannel.equals(userState.getChannel())) {
+                event.replyError("You cannot use that command in an AFK channel!");
+                return;
+            }
+
             if (!event.getGuild().getSelfMember().getVoiceState().inVoiceChannel()) {
                 try {
                     event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());

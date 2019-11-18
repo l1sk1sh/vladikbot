@@ -31,7 +31,9 @@ public class NowPlayingHandler {
     }
 
     public void init() {
-        bot.getThreadPool().scheduleWithFixedDelay(this::updateAll, 0, 5, TimeUnit.SECONDS);
+        if (!bot.getBotSettings().useNpImages()) {
+            bot.getThreadPool().scheduleWithFixedDelay(this::updateAll, 0, 5, TimeUnit.SECONDS);
+        }
     }
 
     public void setLastNPMessage(Message message) {

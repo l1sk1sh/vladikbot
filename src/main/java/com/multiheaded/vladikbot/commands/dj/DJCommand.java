@@ -1,5 +1,6 @@
 package com.multiheaded.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.multiheaded.vladikbot.Bot;
 import com.multiheaded.vladikbot.commands.music.MusicCommand;
 import com.multiheaded.vladikbot.settings.GuildSettings;
@@ -15,26 +16,27 @@ import java.util.Objects;
  * - Reformating code
  * @author John Grosh
  */
-abstract class DJCommand extends MusicCommand {
-    DJCommand(Bot bot) {
+public abstract class DJCommand extends MusicCommand {
+    public DJCommand(Bot bot) {
         super(bot);
-        this.category = new Category("DJ", event ->
-        {
-            if (event.getAuthor().getId().equals(event.getClient().getOwnerId())) {
-                return true;
-            }
-            if (event.getGuild() == null) {
-                return true;
-            }
-            if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
-                return true;
-            }
+        this.category = new Category("DJ", DJCommand::checkDJPermission);
+    }
 
-            /* Intentionally calling GuildSettingsManager instead of `bot` due to strange bug in help output */
-            GuildSettings settings = (GuildSettings) new GuildSettingsManager().getSettings(event.getGuild());
-            Role djRole = Objects.requireNonNull(settings).getDjRole(event.getGuild());
-            return djRole != null && (event.getMember().getRoles().contains(djRole)
-                    || djRole.getIdLong() == event.getGuild().getIdLong());
-        });
+    public static boolean checkDJPermission(CommandEvent event) {
+        if (event.getAuthor().getId().equals(event.getClient().getOwnerId())) {
+            return true;
+        }
+        if (event.getGuild() == null) {
+            return true;
+        }
+        if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
+            return true;
+        }
+
+        /* Intentionally calling GuildSettingsManager instead of `bot` due to strange bug in help output */
+        GuildSettings settings = (GuildSettings) new GuildSettingsManager().getSettings(event.getGuild());
+        Role djRole = Objects.requireNonNull(settings).getDjRole(event.getGuild());
+        return djRole != null && (event.getMember().getRoles().contains(djRole)
+                || djRole.getIdLong() == event.getGuild().getIdLong());
     }
 }

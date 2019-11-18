@@ -45,3 +45,4 @@ Bot is written using JDA library and common sense.
 20. Extend logger to every error\warning reply
 21. Rewrite Services to use bot instance directly
 22. Organize all folder used by bot (especially, used in backup)
+23. Perform code analysis and fix issues (especially duplicates)
