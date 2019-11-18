@@ -14,8 +14,8 @@ import java.io.IOException;
  * @author Oliver Johnson
  */
 class AbstractSettingsManager {
-    final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     private static final Logger logger = LoggerFactory.getLogger(AbstractSettingsManager.class);
+    final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     void writeSettings(AbstractSettings settings, File configFile) {
         try {

@@ -12,7 +12,6 @@ import java.util.Map;
  */
 public class Constants {
     public final static List<Permission> RECOMMENDED_PERMS = new ArrayList<>();
-
     static {
         RECOMMENDED_PERMS.add(Permission.MESSAGE_READ);
         RECOMMENDED_PERMS.add(Permission.MESSAGE_WRITE);
@@ -33,7 +32,7 @@ public class Constants {
     public static final String STATUSES_JSON = "rotation.json";
 
     public static final Integer DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-    public static final Integer EIGHT_MEGABYTES_IN_BYTES = 8388608;
+    public static final Integer EIGHT_MEGABYTES_IN_BYTES = 8 * 1024 * 1024;
     public static final Integer STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";

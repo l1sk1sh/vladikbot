@@ -1,11 +1,14 @@
 package com.multiheaded.vladikbot;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.multiheaded.vladikbot.services.*;
 import com.multiheaded.vladikbot.services.audio.AudioHandler;
@@ -18,6 +21,7 @@ import com.multiheaded.vladikbot.settings.GuildSettingsManager;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
 
 /**
  * @author Oliver Johnson
@@ -160,5 +164,18 @@ public class Bot {
 
     public ChatNotificationService getNotificationService() {
         return notificationService;
+    }
+
+    public List<TextChannel> getAllTextChannels() {
+        return this.getJDA().getGuilds().stream()
+                .map(Guild::getTextChannels).flatMap(Collection::stream).collect(Collectors.toList());
+    }
+
+    public List<TextChannel> getAvailableTextChannels() {
+        return this.getAllTextChannels().stream().filter(textChannel ->
+                textChannel.getMembers().stream().anyMatch(
+                        member -> member.getUser().getAsTag().equals(getJDA().getSelfUser().getAsTag())
+                )
+        ).collect(Collectors.toList());
     }
 }

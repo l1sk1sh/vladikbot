@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * @author Oliver Johnson
  */
 public class RotatingBackupChannelService implements RotatingTask {
-    private static final Logger logger = LoggerFactory.getLogger(BackupChannelService.class);
+    private static final Logger logger = LoggerFactory.getLogger(RotatingBackupChannelService.class);
     private RotatingTaskExecutor rotatingTaskExecutor;
     private Bot bot;
 
@@ -30,19 +30,12 @@ public class RotatingBackupChannelService implements RotatingTask {
 
     public void execute() {
         if (bot.getBotSettings().shouldRotateTextBackup()) {
-            User selfUser = bot.getJDA().getSelfUser();
-
-            List<TextChannel> allChannels = bot.getJDA().getGuilds().stream()
-                    .map(Guild::getTextChannels).flatMap(Collection::stream).collect(Collectors.toList());
-
-            List<TextChannel> availableChannels = allChannels.stream().filter(textChannel ->
-                    textChannel.getMembers().stream().anyMatch(
-                            member -> member.getUser().getAsTag().equals(selfUser.getAsTag())
-                    )
-            ).collect(Collectors.toList());
+            List<TextChannel> availableChannels = bot.getAvailableTextChannels();
 
             new Thread(() -> {
                 for (TextChannel channel : availableChannels) {
+                    bot.getNotificationService().sendMessage(channel.getGuild(),
+                            String.format("Starting text backup of channel %s", channel.getName()));
                     try {
                         String pathToBackup = bot.getBotSettings().getLocalPathToExport() + "/backup/text/"
                                 + channel.getGuild().getId() + "/";
@@ -58,10 +51,13 @@ public class RotatingBackupChannelService implements RotatingTask {
                                 new String[]{"-f"},
                                 bot::setAvailableBackup
                         );
+                        bot.getNotificationService().sendMessage(channel.getGuild(),
+                                "Automatic text rotation backup has finished.");
                     } catch (Exception e) {
                         logger.error("Failed to create rotation backup: {}", e);
                         bot.getNotificationService().sendMessage(channel.getGuild(),
-                                String.format("Automatic rotation backup has failed due to: %s", e.getLocalizedMessage()));
+                                String.format("Automatic text rotation backup has failed due to: %s",
+                                        e.getLocalizedMessage()));
                     }
                 }
             }).start();
@@ -69,7 +65,11 @@ public class RotatingBackupChannelService implements RotatingTask {
     }
 
     public void enableExecution() {
-        rotatingTaskExecutor.startExecutionAt(bot.getBotSettings().getTargetHourForBackup(), 0, 0);
+        int targetHour = bot.getBotSettings().getTargetHourForBackup();
+        int targetMin = 0;
+        int targetSec = 0;
+        rotatingTaskExecutor.startExecutionAt(targetHour, targetMin, targetSec);
+        logger.info(String.format("Text backup will be performed at %s:%s:%s local time", targetHour, targetMin, targetSec));
     }
 
     public void disableExecution() throws InterruptedException {

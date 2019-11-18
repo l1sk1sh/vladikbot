@@ -60,6 +60,16 @@ class Listener extends ListenerAdapter {
                         guild.getName(), Arrays.toString(missingPermissions.toArray()));
             }
         });
+
+        if (bot.getBotSettings().shouldRotateMediaBackup()) {
+            logger.info("Enabling Rotation media backup service...");
+            bot.getRotatingBackupMediaService().enableExecution();
+        }
+
+        if (bot.getBotSettings().shouldRotateTextBackup()) {
+            logger.info("Enabling Rotation text backup service...");
+            bot.getRotatingBackupChannelService().enableExecution();
+        }
     }
 
     @Override

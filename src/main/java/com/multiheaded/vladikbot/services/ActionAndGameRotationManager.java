@@ -106,13 +106,7 @@ public class ActionAndGameRotationManager {
         Map<String, String> pairs = getActionsAndGames();
 
         pairs.put(gameName, action); /* Intentionally twisted! */
-
-        JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getBotSettings().getRotationFolder() + Constants.STATUSES_JSON));
-        writer.setIndent("  ");
-        writer.setHtmlSafe(false);
-        gson.toJson(pairs, pairs.getClass(), writer);
-        writer.close();
+        writeJson(pairs);
     }
 
     public void deleteActionAndGame(String action, String gameName) throws IOException {
@@ -120,7 +114,10 @@ public class ActionAndGameRotationManager {
         logger.info("Trying to remove action-game: action - {}, game - {}", action, gameName);
 
         pairs.remove(gameName, action); /* Intentionally twisted! */
+        writeJson(pairs);
+    }
 
+    private void writeJson(Map<String, String> pairs) throws IOException {
         JsonWriter writer = new JsonWriter(
                 new FileWriter(bot.getBotSettings().getRotationFolder() + Constants.STATUSES_JSON));
         writer.setIndent("  ");

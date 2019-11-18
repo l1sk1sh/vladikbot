@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
  * @author Oliver Johnson
  */
 public class ChatNotificationService {
-    private static final Logger logger = LoggerFactory.getLogger(BackupChannelService.class);
     private Bot bot;
 
     public ChatNotificationService(Bot bot) {

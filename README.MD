@@ -32,8 +32,6 @@ Bot is written using JDA library and common sense.
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
    25. `game` - manages list of games saved by us
-5. Create auto-scheduler with notification to backup chats and media
-6. Command to backup all chats that bot is currently in
 7. Test lyrics command
 8. Add code analyzer
 9. Package the bot
@@ -45,3 +43,5 @@ Bot is written using JDA library and common sense.
 18. Separate AutoModeration per guild
 19. Separate status rotation per guild
 20. Extend logger to every error\warning reply
+21. Rewrite Services to use bot instance directly
+22. Organize all folder used by bot (especially, used in backup)
