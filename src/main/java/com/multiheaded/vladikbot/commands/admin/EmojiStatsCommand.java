@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.*;
@@ -62,17 +63,19 @@ public class EmojiStatsCommand extends AdminCommand {
 
             new Thread(() -> {
                 try {
+                    File exportedFile = new BackupChannelService(
+                            event.getChannel().getId(),
+                            bot.getBotSettings().getToken(),
+                            Constants.BACKUP_PLAIN_TEXT,
+                            bot.getBotSettings().getLocalPathToExport(),
+                            bot.getBotSettings().getDockerPathToExport(),
+                            bot.getBotSettings().getDockerContainerName(),
+                            event.getArgs().split(" "),
+                            bot::setAvailableBackup
+                    ).getExportedFile();
+
                     EmojiStatsService emojiStatsService = new EmojiStatsService(
-                            new BackupChannelService(
-                                    event.getChannel().getId(),
-                                    bot.getBotSettings().getToken(),
-                                    Constants.BACKUP_PLAIN_TEXT,
-                                    bot.getBotSettings().getLocalPathToExport(),
-                                    bot.getBotSettings().getDockerPathToExport(),
-                                    bot.getBotSettings().getDockerContainerName(),
-                                    event.getArgs().split(" "),
-                                    bot::setAvailableBackup
-                            ).getExportedFile(),
+                            exportedFile,
                             event.getGuild().getEmotes(),
                             event.getArgs().split(" "),
                             bot::setAvailableBackup

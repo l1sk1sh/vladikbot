@@ -36,17 +36,19 @@ public class BackupMediaCommand extends AdminCommand {
 
             new Thread(() -> {
                 try {
+                    File exportedTextFile = new BackupChannelService(
+                            event.getChannel().getId(),
+                            bot.getBotSettings().getToken(),
+                            Constants.BACKUP_PLAIN_TEXT,
+                            bot.getBotSettings().getLocalPathToExport(),
+                            bot.getBotSettings().getDockerPathToExport(),
+                            bot.getBotSettings().getDockerContainerName(),
+                            event.getArgs().split(" "),
+                            bot::setAvailableBackup
+                    ).getExportedFile();
+
                     BackupMediaService backupMediaService = new BackupMediaService(
-                            new BackupChannelService(
-                                    event.getChannel().getId(),
-                                    bot.getBotSettings().getToken(),
-                                    Constants.BACKUP_PLAIN_TEXT,
-                                    bot.getBotSettings().getLocalPathToExport(),
-                                    bot.getBotSettings().getDockerPathToExport(),
-                                    bot.getBotSettings().getDockerContainerName(),
-                                    event.getArgs().split(" "),
-                                    bot::setAvailableBackup
-                            ).getExportedFile(),
+                            exportedTextFile,
                             event.getChannel().getId(),
                             bot.getBotSettings().getLocalPathToExport(),
                             bot.getBotSettings().getLocalMediaFolder(),
@@ -58,13 +60,14 @@ public class BackupMediaCommand extends AdminCommand {
                             bot::setAvailableBackup
                     );
 
-                    File exportedFile = backupMediaService.getMediaUrlsFile();
-                    if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
+                    File exportedMediaUrlsFile = backupMediaService.getMediaUrlsFile();
+                    if (exportedMediaUrlsFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
+                        // TODO Move such checks into separate Utils or handler
                         event.replyWarning(
                                 "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\r\n" +
                                         "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
                     } else {
-                        event.getTextChannel().sendFile(exportedFile, backupMediaService.getMediaUrlsFile().getName()).queue();
+                        event.getTextChannel().sendFile(exportedMediaUrlsFile, backupMediaService.getMediaUrlsFile().getName()).queue();
 
                         if (backupMediaService.doZip() && backupMediaService.isDownloadComplete()) {
                             event.replySuccess("Zip with uploaded media files could be downloaded from local storage.");

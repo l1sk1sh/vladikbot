@@ -33,13 +33,13 @@ public abstract class MusicCommand extends Command {
         if (textChannel != null && !event.getTextChannel().equals(textChannel)) {
             try {
                 event.getMessage().delete().queue();
-            } catch (PermissionException ignore) { /* Ignoring */ }
+            } catch (PermissionException ignore) { /* Ignore */ }
             event.replyInDm(String.format("%1$s You can only use that command in %2$s!",
                     event.getClient().getError(), textChannel.getAsMention()));
             return;
         }
 
-        bot.getPlayerManager().setUpHandler(event.getGuild()); /* No point constantly checking for this later */
+        bot.getPlayerManager().setUpHandler(event.getGuild()); /* No point in constantly checking for this later */
         if (bePlaying && !((AudioHandler) event.getGuild().getAudioManager().getSendingHandler())
                 .isMusicPlaying(event.getJDA())) {
             event.replyError("There must be music playing to use that!");

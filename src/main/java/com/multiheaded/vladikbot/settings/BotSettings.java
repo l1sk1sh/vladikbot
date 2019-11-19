@@ -18,7 +18,7 @@ public class BotSettings extends AbstractSettings {
     private Long ownerId = 0L;                                  // Id of the person, who is hosting the bot
     private String dockerContainerName = "disbackup";           // Docker container name
     private String dockerPathToExport = "/app/out/";            // Docker disbackup workdir (check repository if fails)
-    private String localPathToExport = "app/";                  // Local workdir
+    private String localPathToExport = "app/tmp/";              // Local workdir
     private String localMediaFolder = "app/saved_media/";       // Local storage for downloaded media
     private String moderationRulesFolder = "app/rules/";        // Local storage for automoderation settings
     private String prefix = "~";                                // Bot prefix
@@ -41,13 +41,16 @@ public class BotSettings extends AbstractSettings {
     private String rotationListFolder = "app/rules/rotation/";  // Folder that stores statuses.json
     private boolean rotateTextBackup = true;                    // Automatically create backups of all available chats
     private boolean rotateMediaBackup = true;                   // Automatically save media from all available chats
-    private Integer targetHourForBackup = 12;                   // Set local TZ hour for backup to be started
+    private Integer targetHourForTextBackup = 12;               // Set local TZ hour for text backup to be started
+    private Integer targetHourForMediaBackup = 13;              // Set local TZ hour for media backup to be started
+    private Integer delayDaysForTextBackup = 2;                 // Set delay in days between text backups
+    private Integer delayDaysForMediaBackup = 7;                // Set delay in days between text backups
 
     BotSettings(BotSettingsManager manager) {
         this.manager = manager;
     }
 
-    public void setManager(BotSettingsManager manager) {
+    void setManager(BotSettingsManager manager) {
         this.manager = manager;
     }
 
@@ -192,7 +195,27 @@ public class BotSettings extends AbstractSettings {
         manager.writeSettings();
     }
 
-    public Integer getTargetHourForBackup() {
-        return targetHourForBackup;
+    public Integer getTargetHourForTextBackup() {
+        return targetHourForTextBackup;
+    }
+
+    public void setTargetHourForTextBackup(Integer targetHourForTextBackup) {
+        this.targetHourForTextBackup = targetHourForTextBackup;
+    }
+
+    public Integer getTargetHourForMediaBackup() {
+        return targetHourForMediaBackup;
+    }
+
+    public void setTargetHourForMediaBackup(Integer targetHourForMediaBackup) {
+        this.targetHourForMediaBackup = targetHourForMediaBackup;
+    }
+
+    public Integer getDelayDaysForTextBackup() {
+        return delayDaysForTextBackup;
+    }
+
+    public Integer getDelayDaysForMediaBackup() {
+        return delayDaysForMediaBackup;
     }
 }

@@ -44,6 +44,7 @@ public class Bot {
     private final ChatNotificationService notificationService;
 
     private boolean availableBackup = true;
+    private boolean availableRotationBackup = true;
     private boolean shuttingDown = false;
     private JDA jda;
 
@@ -130,7 +131,7 @@ public class Bot {
         return nowPlayingHandler;
     }
 
-    public void setJDA(JDA jda) {
+    void setJDA(JDA jda) {
         this.jda = jda;
     }
 
@@ -144,6 +145,14 @@ public class Bot {
 
     public void setAvailableBackup(boolean availableBackup) {
         this.availableBackup = availableBackup;
+    }
+
+    public boolean isAvailableRotationBackup() {
+        return availableRotationBackup;
+    }
+
+    public void setAvailableRotationBackup(boolean availableRotationBackup) {
+        this.availableRotationBackup = availableRotationBackup;
     }
 
     public AutoModerationManager getAutoModerationManager() {
@@ -166,7 +175,7 @@ public class Bot {
         return notificationService;
     }
 
-    public List<TextChannel> getAllTextChannels() {
+    private List<TextChannel> getAllTextChannels() {
         return this.getJDA().getGuilds().stream()
                 .map(Guild::getTextChannels).flatMap(Collection::stream).collect(Collectors.toList());
     }

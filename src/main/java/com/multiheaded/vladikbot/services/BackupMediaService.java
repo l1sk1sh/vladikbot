@@ -52,8 +52,7 @@ public class BackupMediaService {
 
             while (urlAttachmentsMatcher.find()) {
                 if (useSupportedMedia) {
-                    if (StringUtils.notInArray(
-                            urlAttachmentsMatcher.group(), Constants.SUPPORTED_MEDIA_FORMATS)) {
+                    if (StringUtils.notInArray(urlAttachmentsMatcher.group(), Constants.SUPPORTED_MEDIA_FORMATS)) {
                         continue;
                     }
                 }
@@ -99,8 +98,7 @@ public class BackupMediaService {
                     Matcher urlNameMatcher = Pattern.compile("[^/]+$").matcher(tempUrl); /* Getting exact file name */
                     if (urlNameMatcher.find()) {
                         String remoteFileName = urlNameMatcher.group();
-                        downloadFile(new URL(mediaUrl),
-                                mediaFolderPath + remoteFileName);
+                        downloadFile(new URL(mediaUrl), mediaFolderPath + remoteFileName);
                     }
                 }
 

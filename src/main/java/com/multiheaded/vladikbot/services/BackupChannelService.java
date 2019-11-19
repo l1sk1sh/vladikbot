@@ -64,14 +64,23 @@ public class BackupChannelService {
                     || ((System.currentTimeMillis() - exportedFile.lastModified()) > Constants.DAY_IN_MILLISECONDS)
                     || forceBackup) {
 
-                new BackupProcess(constructBackupCommand());
+                logger.info("Clearing docker container before launch...");
+                logger.debug("Passing command {}", constructCleanCommand());
+                try {
+                    new CleanProcess(constructCleanCommand());
+                    logger.info("Container was running and it was cleared.");
+                } catch (NotFound notFound) {
+                    logger.info("There was no docker container found.");
+                }
+
                 logger.info("Waiting for backup to finish...");
                 logger.debug("Passing command {}", constructBackupCommand());
+                new BackupProcess(constructBackupCommand());
 
                 FileUtils.deleteFilesByIdAndExtension(localPathToExport, channelId, extension);
-                new CopyProcess(constructCopyCommand());
                 logger.info("Copying received file...");
                 logger.debug("Passing command {}", constructCopyCommand());
+                new CopyProcess(constructCopyCommand());
 
                 exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
                 if (exportedFile == null) {

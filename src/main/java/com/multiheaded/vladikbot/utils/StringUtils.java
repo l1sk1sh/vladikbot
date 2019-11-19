@@ -1,5 +1,10 @@
 package com.multiheaded.vladikbot.utils;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
 /**
  * @author Oliver Johnson
  */
@@ -22,5 +27,11 @@ public class StringUtils {
             if (input.contains(value)) return false;
         }
         return true;
+    }
+
+    public static String getCurrentDate() {
+        Date date = Calendar.getInstance().getTime();
+        DateFormat dateFormat = new SimpleDateFormat("ddmmyyyy");
+        return dateFormat.format(date);
     }
 }

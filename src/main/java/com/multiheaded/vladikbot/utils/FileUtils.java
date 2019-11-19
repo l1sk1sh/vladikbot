@@ -40,10 +40,11 @@ public class FileUtils {
 
         if (paths != null) {
             for (File path : paths) {
-                if (path.toString().contains(id) && path.toString().contains(extension))
+                if (path.toString().contains(id) && path.toString().contains(extension)) {
                     if (!path.delete()) {
                         throw new SecurityException();
                     }
+                }
             }
         }
     }

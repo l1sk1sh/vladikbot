@@ -1,5 +1,6 @@
 package com.multiheaded.vladikbot;
 
+import com.multiheaded.vladikbot.settings.BotSettings;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -30,9 +31,11 @@ class Listener extends ListenerAdapter {
     private static final Logger logger = LoggerFactory.getLogger(Listener.class);
 
     private final Bot bot;
+    private BotSettings botSettings;
 
     Listener(Bot bot) {
         this.bot = bot;
+        this.botSettings = bot.getBotSettings();
     }
 
     @Override
@@ -50,8 +53,7 @@ class Listener extends ListenerAdapter {
                 if (defaultPlaylist != null && vc != null && bot.getPlayerManager().setUpHandler(guild).playFromDefault()) {
                     guild.getAudioManager().openAudioConnection(vc);
                 }
-            } catch (Exception ignore) {
-            }
+            } catch (Exception ignore) { /* Ignore */ }
 
             List<Permission> missingPermissions =
                     getMissingPermissions(guild.getSelfMember().getPermissions(), RECOMMENDED_PERMS);
@@ -61,12 +63,22 @@ class Listener extends ListenerAdapter {
             }
         });
 
-        if (bot.getBotSettings().shouldRotateMediaBackup()) {
+        if (botSettings.shouldRotateTextBackup() && botSettings.shouldRotateMediaBackup()) {
+            int timeDifference = Math.abs(botSettings.getTargetHourForTextBackup()
+                    - botSettings.getTargetHourForMediaBackup());
+            if (timeDifference < 1) {
+                logger.warn("Rotation backups should have at least 1 hour difference");
+                botSettings.setTargetHourForTextBackup(botSettings.getTargetHourForTextBackup() - 1);
+                botSettings.setTargetHourForMediaBackup(botSettings.getTargetHourForMediaBackup() + 2);
+            }
+        }
+
+        if (botSettings.shouldRotateMediaBackup()) {
             logger.info("Enabling Rotation media backup service...");
             bot.getRotatingBackupMediaService().enableExecution();
         }
 
-        if (bot.getBotSettings().shouldRotateTextBackup()) {
+        if (botSettings.shouldRotateTextBackup()) {
             logger.info("Enabling Rotation text backup service...");
             bot.getRotatingBackupChannelService().enableExecution();
         }

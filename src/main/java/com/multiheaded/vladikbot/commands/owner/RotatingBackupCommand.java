@@ -19,7 +19,8 @@ public class RotatingBackupCommand extends OwnerCommand {
         this.children = new OwnerCommand[]{
                 new RotatingBackupCommand.SwitchTextCommand(),
                 new RotatingBackupCommand.SwitchMediaCommand(),
-                new RotatingBackupCommand.FullBackup()
+                new FullTextBackup(),
+                new FullMediaBackup()
         };
     }
 
@@ -110,16 +111,28 @@ public class RotatingBackupCommand extends OwnerCommand {
         }
     }
 
-    class FullBackup extends OwnerCommand {
-        FullBackup() {
-            this.name = "force";
-            this.help = "launches immediate force backup for channels";
+    class FullTextBackup extends OwnerCommand {
+        FullTextBackup() {
+            this.name = "ftext";
+            this.help = "launches immediate force text backup for channels";
             this.guildOnly = true;
         }
 
         @Override
         protected void execute(CommandEvent event) {
             bot.getRotatingBackupChannelService().execute();
+        }
+    }
+
+    class FullMediaBackup extends OwnerCommand {
+        FullMediaBackup() {
+            this.name = "fmedia";
+            this.help = "launches immediate force media backup for channels";
+            this.guildOnly = true;
+        }
+
+        @Override
+        protected void execute(CommandEvent event) {
             bot.getRotatingBackupMediaService().execute();
         }
     }
