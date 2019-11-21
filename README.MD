@@ -33,7 +33,7 @@ Bot is written using JDA library and common sense.
    25. `game` - manages list of games saved by us
    26. `findpicture` - looks for google picture using given search string
 7. Test lyrics command
-8. Add code analyzer
+8. Add [code analyzer](https://dzone.com/articles/intellij-idea-finds-bugs)
 9. Package the bot
 10. Deploy the bot
 13. Shorten command names (like `findpicture` -> `fp`) and add aliases

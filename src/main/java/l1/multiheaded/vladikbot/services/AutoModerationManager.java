@@ -22,7 +22,7 @@ import static l1.multiheaded.vladikbot.utils.FileUtils.*;
  * @author Oliver Johnson
  */
 public class AutoModerationManager {
-    private static final Logger logger = LoggerFactory.getLogger(AutoModerationManager.class);
+    private static final Logger log = LoggerFactory.getLogger(AutoModerationManager.class);
 
     private final Bot bot;
     private final String extension = Constants.JSON_EXTENSION;
@@ -50,7 +50,7 @@ public class AutoModerationManager {
                 }
             }
         } catch (IOException | NullPointerException e) {
-            logger.error(e.getLocalizedMessage());
+            log.error(e.getLocalizedMessage());
         }
     }
 
@@ -96,10 +96,10 @@ public class AutoModerationManager {
     public void writeRule(ReactionRule rule) throws IOException {
         if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
             createFolders(bot.getBotSettings().getModerationRulesFolder());
-            logger.info("Creating folder {}", bot.getBotSettings().getModerationRulesFolder());
+            log.info("Creating folder {}", bot.getBotSettings().getModerationRulesFolder());
         }
 
-        logger.debug("Adding rule {}", rule.toString());
+        log.debug("Adding rule {}", rule.toString());
         JsonWriter writer = new JsonWriter(
                 new FileWriter(bot.getBotSettings().getModerationRulesFolder() + rule.getRuleName() + extension));
         writer.setIndent("  ");

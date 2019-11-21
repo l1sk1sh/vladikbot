@@ -30,7 +30,7 @@ import static l1.multiheaded.vladikbot.utils.FileUtils.*;
  * @author Oliver Johnson
  */
 public class BackupMediaService {
-    private static final Logger logger = LoggerFactory.getLogger(BackupMediaService.class);
+    private static final Logger log = LoggerFactory.getLogger(BackupMediaService.class);
 
     private boolean doZip = false;
     private boolean useSupportedMedia = true;
@@ -59,7 +59,7 @@ public class BackupMediaService {
                 setOfMediaUrls.add(urlAttachmentsMatcher.group());
             }
 
-            logger.info("Writing media URLs into a file.");
+            log.info("Writing media URLs into a file.");
             if (useSupportedMedia) {
                 StringBuilder htmlContent = new StringBuilder();
                 htmlContent.append("<!doctype html><html lang=\"en\"><head>");
@@ -81,11 +81,11 @@ public class BackupMediaService {
             }
 
             if (doZip) {
-                logger.info("Downloading media files from Discord CDN.");
+                log.info("Downloading media files from Discord CDN.");
                 String mediaFolderPath = localMediaPath + "/" + channelId + "/";
 
                 if (fileOrFolderIsAbsent(mediaFolderPath)) {
-                    logger.info("Creating [{}] directory.", mediaFolderPath);
+                    log.info("Creating [{}] directory.", mediaFolderPath);
                     createFolders(mediaFolderPath);
                 }
 
@@ -114,7 +114,7 @@ public class BackupMediaService {
             }
 
         } catch (IOException e) {
-            logger.error("Failed to read exported file, to write local file or to download media. {}", e.getLocalizedMessage());
+            log.error("Failed to read exported file, to write local file or to download media. {}", e.getLocalizedMessage());
             throw e;
         } finally {
             lock.setLocked(false);
@@ -123,7 +123,7 @@ public class BackupMediaService {
 
     private void downloadFile(URL url, String localFileNamePath) throws IOException {
         if (fileOrFolderIsAbsent(localFileNamePath)) {
-            logger.info("Downloading file [{}]", localFileNamePath);
+            log.info("Downloading file [{}]", localFileNamePath);
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", Constants.USER_AGENT);
             ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());

@@ -26,7 +26,7 @@ import static l1.multiheaded.vladikbot.utils.FileUtils.fileOrFolderIsAbsent;
  * @author Oliver Johnson
  */
 public class ActionAndGameRotationManager {
-    private static final Logger logger = LoggerFactory.getLogger(ActionAndGameRotationManager.class);
+    private static final Logger log = LoggerFactory.getLogger(ActionAndGameRotationManager.class);
 
     private final Bot bot;
     private final Gson gson;
@@ -49,7 +49,7 @@ public class ActionAndGameRotationManager {
 
         if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
             createFolders(bot.getBotSettings().getRotationFolder());
-            logger.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
+            log.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
             return null;
         } else {
             File folder = new File(bot.getBotSettings().getRotationFolder());
@@ -76,7 +76,7 @@ public class ActionAndGameRotationManager {
             Map<String, String> pairs = getActionsAndGames();
             return pairs.get(gameName);
         } catch (IOException e) {
-            logger.error("Failed to get action and game {}", e.getLocalizedMessage());
+            log.error("Failed to get action and game {}", e.getLocalizedMessage());
             return null;
         }
     }
@@ -88,10 +88,10 @@ public class ActionAndGameRotationManager {
 
             String chosenGame = (String) keySet[new Random().nextInt(keySet.length)];
 
-            logger.debug("Chosen randomly: action - {}, game - {}", pairs.get(chosenGame), chosenGame);
+            log.debug("Chosen randomly: action - {}, game - {}", pairs.get(chosenGame), chosenGame);
             return new String[]{pairs.get(chosenGame), chosenGame};
         } catch (IOException e) {
-            logger.error("Failed to get random action and game {}", e.getLocalizedMessage());
+            log.error("Failed to get random action and game {}", e.getLocalizedMessage());
             return null;
         }
     }
@@ -99,10 +99,10 @@ public class ActionAndGameRotationManager {
     public void writeActionAndGame(String action, String gameName) throws IOException {
         if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
             createFolders(bot.getBotSettings().getRotationFolder());
-            logger.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
+            log.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
         }
 
-        logger.debug("Writing new pair: action - {}, game - {}", action, gameName);
+        log.debug("Writing new pair: action - {}, game - {}", action, gameName);
         Map<String, String> pairs = getActionsAndGames();
 
         pairs.put(gameName, action); /* Intentionally twisted! */
@@ -111,7 +111,7 @@ public class ActionAndGameRotationManager {
 
     public void deleteActionAndGame(String action, String gameName) throws IOException {
         Map<String, String> pairs = getActionsAndGames();
-        logger.info("Trying to remove action-game: action - {}, game - {}", action, gameName);
+        log.info("Trying to remove action-game: action - {}, game - {}", action, gameName);
 
         pairs.remove(gameName, action); /* Intentionally twisted! */
         writeJson(pairs);
@@ -127,11 +127,11 @@ public class ActionAndGameRotationManager {
     }
 
     public void activateRotation() {
-        logger.debug("Rotating actions-games of the bot");
+        log.debug("Rotating actions-games of the bot");
         try {
             Runnable rotation = () -> {
                 String[] chosenPair = getRandomStatusAndGame(); /* [0] - chosen action; [1] - chosen game */
-                logger.debug("Trying to set new action and game: {}", Arrays.toString(chosenPair));
+                log.debug("Trying to set new action and game: {}", Arrays.toString(chosenPair));
                 switch (Objects.requireNonNull(chosenPair)[0]) {
                     case Constants.ACTION_PLAYING:
                         bot.getJDA().getPresence().setGame(Game.playing(chosenPair[1]));
@@ -148,12 +148,12 @@ public class ActionAndGameRotationManager {
             scheduledFuture = scheduler.scheduleWithFixedDelay(
                     rotation, 30, Constants.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
         } catch (NullPointerException npe) {
-            logger.error("Failed to obtain and set new action-game pair!");
+            log.error("Failed to obtain and set new action-game pair!");
         }
     }
 
     public void stopRotation() {
-        logger.info("Cancelling rotation of actions-games");
+        log.info("Cancelling rotation of actions-games");
         scheduledFuture.cancel(false);
         scheduler.shutdown();
     }

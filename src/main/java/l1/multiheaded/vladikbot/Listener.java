@@ -27,7 +27,7 @@ import java.util.List;
  * @author John Grosh
  */
 class Listener extends ListenerAdapter {
-    private static final Logger logger = LoggerFactory.getLogger(Listener.class);
+    private static final Logger log = LoggerFactory.getLogger(Listener.class);
 
     private final Bot bot;
     private final BotSettings botSettings;
@@ -40,8 +40,8 @@ class Listener extends ListenerAdapter {
     @Override
     public void onReady(ReadyEvent event) {
         if (event.getJDA().getGuilds().isEmpty()) {
-            logger.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
-            logger.warn(event.getJDA().asBot().getInviteUrl(Constants.RECOMMENDED_PERMS));
+            log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
+            log.warn(event.getJDA().asBot().getInviteUrl(Constants.RECOMMENDED_PERMS));
         }
 
         event.getJDA().getGuilds().forEach((guild) ->
@@ -57,7 +57,7 @@ class Listener extends ListenerAdapter {
             List<Permission> missingPermissions =
                     OtherUtils.getMissingPermissions(guild.getSelfMember().getPermissions(), Constants.RECOMMENDED_PERMS);
             if (missingPermissions != null) {
-                logger.warn("Bot in guild '{}' doesn't have following recommended permissions {}.",
+                log.warn("Bot in guild '{}' doesn't have following recommended permissions {}.",
                         guild.getName(), Arrays.toString(missingPermissions.toArray()));
             }
         });
@@ -66,19 +66,19 @@ class Listener extends ListenerAdapter {
             int timeDifference = Math.abs(botSettings.getTargetHourForTextBackup()
                     - botSettings.getTargetHourForMediaBackup());
             if (timeDifference < 1) {
-                logger.warn("Rotation backups should have at least 1 hour difference");
+                log.warn("Rotation backups should have at least 1 hour difference");
                 botSettings.setTargetHourForTextBackup(botSettings.getTargetHourForTextBackup() - 1);
                 botSettings.setTargetHourForMediaBackup(botSettings.getTargetHourForMediaBackup() + 2);
             }
         }
 
         if (botSettings.shouldRotateMediaBackup()) {
-            logger.info("Enabling Rotation media backup service...");
+            log.info("Enabling Rotation media backup service...");
             bot.getRotatingBackupMediaService().enableExecution();
         }
 
         if (botSettings.shouldRotateTextBackup()) {
-            logger.info("Enabling Rotation text backup service...");
+            log.info("Enabling Rotation text backup service...");
             bot.getRotatingBackupChannelService().enableExecution();
         }
     }

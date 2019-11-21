@@ -12,7 +12,7 @@ import static l1.multiheaded.vladikbot.settings.Constants.BOT_SETTINGS_JSON;
  * @author Oliver Johnson
  */
 public class BotSettingsManager extends AbstractSettingsManager {
-    private static final Logger logger = LoggerFactory.getLogger(BotSettingsManager.class);
+    private static final Logger log = LoggerFactory.getLogger(BotSettingsManager.class);
     private BotSettings botSettings;
     private final File botConfigFile;
 
@@ -22,7 +22,7 @@ public class BotSettingsManager extends AbstractSettingsManager {
         if (!botConfigFile.exists()) {
             this.botSettings = new BotSettings(this);
             writeSettings();
-            logger.warn(String.format("Created %s. You will have to setup it manually", BOT_SETTINGS_JSON));
+            log.warn(String.format("Created %s. You will have to setup it manually", BOT_SETTINGS_JSON));
             System.exit(1);
         } else {
             try {
@@ -36,7 +36,7 @@ public class BotSettingsManager extends AbstractSettingsManager {
                 );
                 this.botSettings.setManager(this);
             } catch (IOException e) {
-                logger.error(String.format("Error while reading %s file.", BOT_SETTINGS_JSON),
+                log.error(String.format("Error while reading %s file.", BOT_SETTINGS_JSON),
                         e.getLocalizedMessage(), e.getCause());
             }
         }

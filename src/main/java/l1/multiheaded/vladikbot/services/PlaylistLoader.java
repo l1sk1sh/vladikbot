@@ -32,7 +32,7 @@ import static l1.multiheaded.vladikbot.utils.FileUtils.*;
  * @author John Grosh
  */
 public class PlaylistLoader {
-    private static final Logger logger = LoggerFactory.getLogger(PlaylistLoader.class);
+    private static final Logger log = LoggerFactory.getLogger(PlaylistLoader.class);
 
     private final Bot bot;
     private final String extension = Constants.JSON_EXTENSION;
@@ -60,12 +60,12 @@ public class PlaylistLoader {
 
     public void createPlaylist(String name) throws IOException {
         createFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
-        logger.info("Created new playlist {}", name);
+        log.info("Created new playlist {}", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
         deleteFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
-        logger.info("Deleted playlist {}", name);
+        log.info("Deleted playlist {}", name);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {

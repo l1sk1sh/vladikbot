@@ -26,7 +26,7 @@ import javax.security.auth.login.LoginException;
  * @author Oliver Johnson
  */
 class VladikBot {
-    private static final Logger logger = LoggerFactory.getLogger(VladikBot.class);
+    private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
     public static void main(String[] args) {
         try {
@@ -109,10 +109,10 @@ class VladikBot {
                     .build();
             bot.setJDA(jda);
         } catch (ExceptionInInitializerError e) {
-            logger.error("Problematic botSettings input.");
+            log.error("Problematic botSettings input.");
             System.exit(1);
         } catch (LoginException le) {
-            logger.error("Invalid username and/or password.");
+            log.error("Invalid username and/or password.");
             System.exit(1);
         }
     }

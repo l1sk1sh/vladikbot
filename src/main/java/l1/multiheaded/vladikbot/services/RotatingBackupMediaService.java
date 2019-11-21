@@ -17,7 +17,7 @@ import java.util.List;
  * @author Oliver Johnson
  */
 public class RotatingBackupMediaService implements RotatingTask {
-    private static final Logger logger = LoggerFactory.getLogger(RotatingBackupMediaService.class);
+    private static final Logger log = LoggerFactory.getLogger(RotatingBackupMediaService.class);
     private final RotatingTaskExecutor rotatingTaskExecutor;
     private final Bot bot;
 
@@ -42,7 +42,7 @@ public class RotatingBackupMediaService implements RotatingTask {
             bot.setLockedRotationBackup(false);
 
             for (TextChannel channel : availableChannels) {
-                logger.info("Starting text backup of {}", channel.getName());
+                log.info("Starting text backup of {}", channel.getName());
                 bot.getNotificationService().sendMessage(channel.getGuild(),
                         String.format("Starting media backup of channel %s", channel.getName()));
                 try {
@@ -74,11 +74,11 @@ public class RotatingBackupMediaService implements RotatingTask {
                             bot::setLockedBackup
                     );
 
-                    logger.info("Finished text backup of {}", channel.getName());
+                    log.info("Finished text backup of {}", channel.getName());
                     bot.getNotificationService().sendMessage(channel.getGuild(),
                             String.format("Automatic media rotation backup of chat `%s` has finished.", channel.getName()));
                 } catch (Exception e) {
-                    logger.error("Failed to create rotation backup", e);
+                    log.error("Failed to create rotation backup", e);
                     bot.getNotificationService().sendMessage(channel.getGuild(),
                             String.format("Automatic media rotation backup has failed due to: %s", e.getLocalizedMessage()));
                     break;
@@ -95,7 +95,7 @@ public class RotatingBackupMediaService implements RotatingTask {
         int targetMin = 0;
         int targetSec = 0;
         rotatingTaskExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
-        logger.info(String.format("Media backup will be performed at %s:%s:%s local time", targetHour, targetMin, targetSec));
+        log.info(String.format("Media backup will be performed at %s:%s:%s local time", targetHour, targetMin, targetSec));
     }
 
     public void disableExecution() throws InterruptedException {

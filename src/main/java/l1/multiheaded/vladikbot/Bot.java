@@ -4,12 +4,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
+import net.dv8tion.jda.core.JDA;
+import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.core.entities.TextChannel;
 import l1.multiheaded.vladikbot.services.*;
 import l1.multiheaded.vladikbot.services.audio.AudioHandler;
 import l1.multiheaded.vladikbot.services.audio.NowPlayingHandler;
@@ -18,10 +20,6 @@ import l1.multiheaded.vladikbot.settings.BotSettings;
 import l1.multiheaded.vladikbot.settings.BotSettingsManager;
 import l1.multiheaded.vladikbot.settings.GuildSettings;
 import l1.multiheaded.vladikbot.settings.GuildSettingsManager;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
 
 /**
  * @author Oliver Johnson

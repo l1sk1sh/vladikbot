@@ -13,7 +13,7 @@ import java.util.List;
  * @author Oliver Johnson
  */
 public class CleanProcess {
-    private static final Logger logger = LoggerFactory.getLogger(CleanProcess.class);
+    private static final Logger log = LoggerFactory.getLogger(CleanProcess.class);
 
     public CleanProcess(List<String> command) throws IOException, NotFound, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
@@ -25,7 +25,7 @@ public class CleanProcess {
 
         String line;
         while ((line = br.readLine()) != null) {
-            logger.debug(line);
+            log.debug(line);
             if (line.contains("No such container")) {
                 throw new NotFound();
             } else if (line.contains("Error")) {

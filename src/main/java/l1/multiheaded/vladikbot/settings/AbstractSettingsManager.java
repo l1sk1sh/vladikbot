@@ -14,7 +14,7 @@ import java.io.IOException;
  * @author Oliver Johnson
  */
 class AbstractSettingsManager {
-    private static final Logger logger = LoggerFactory.getLogger(AbstractSettingsManager.class);
+    private static final Logger log = LoggerFactory.getLogger(AbstractSettingsManager.class);
     final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
     void writeSettings(AbstractSettings settings, File configFile) {
@@ -25,7 +25,7 @@ class AbstractSettingsManager {
             gson.toJson(settings, settings.getClass(), writer);
             writer.close();
         } catch (IOException e) {
-            logger.error(String.format("Error while writing %s file.", configFile.getName()),
+            log.error(String.format("Error while writing %s file.", configFile.getName()),
                     e.getLocalizedMessage(), e.getCause());
         }
     }

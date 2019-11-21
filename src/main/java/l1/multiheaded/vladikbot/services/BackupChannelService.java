@@ -25,7 +25,7 @@ import java.util.List;
  * @author Oliver Johnson
  */
 public class BackupChannelService {
-    private static final Logger logger = LoggerFactory.getLogger(BackupChannelService.class);
+    private static final Logger log = LoggerFactory.getLogger(BackupChannelService.class);
 
     private File exportedFile;
     private final String channelId;
@@ -62,22 +62,22 @@ public class BackupChannelService {
                     || ((System.currentTimeMillis() - exportedFile.lastModified()) > Constants.DAY_IN_MILLISECONDS)
                     || forceBackup) {
 
-                logger.info("Clearing docker container before launch...");
-                logger.debug("Passing command {}", constructCleanCommand());
+                log.info("Clearing docker container before launch...");
+                log.debug("Passing command {}", constructCleanCommand());
                 try {
                     new CleanProcess(constructCleanCommand());
-                    logger.info("Container was running and it was cleared.");
+                    log.info("Container was running and it was cleared.");
                 } catch (NotFound notFound) {
-                    logger.info("There was no docker container found.");
+                    log.info("There was no docker container found.");
                 }
 
-                logger.info("Waiting for backup to finish...");
-                logger.debug("Passing command {}", constructBackupCommand());
+                log.info("Waiting for backup to finish...");
+                log.debug("Passing command {}", constructBackupCommand());
                 new BackupProcess(constructBackupCommand());
 
                 FileUtils.deleteFilesByIdAndExtension(localPathToExport, channelId, extension);
-                logger.info("Copying received file...");
-                logger.debug("Passing command {}", constructCopyCommand());
+                log.info("Copying received file...");
+                log.debug("Passing command {}", constructCopyCommand());
                 new CopyProcess(constructCopyCommand());
 
                 exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
@@ -87,21 +87,21 @@ public class BackupChannelService {
             }
         } catch (IOException ioe) {
             String msg = String.format("Failed to find exported file [%s]", ioe.getLocalizedMessage());
-            logger.error(msg);
+            log.error(msg);
             throw new IOException(msg);
         } catch (InterruptedException ie) {
             String msg = String.format("Backup thread interrupted on services level [%s]", ie.getLocalizedMessage());
-            logger.error(msg);
+            log.error(msg);
             throw new InterruptedException(msg);
         } finally {
             try {
-                logger.info("Cleaning docker container...");
-                logger.debug("Passing command {}", constructCleanCommand());
+                log.info("Cleaning docker container...");
+                log.debug("Passing command {}", constructCleanCommand());
                 new CleanProcess(constructCleanCommand());
             } catch (InterruptedException ire) {
-                logger.error("Clean process thread was interrupted {}", ire.getLocalizedMessage());
+                log.error("Clean process thread was interrupted {}", ire.getLocalizedMessage());
             } catch (NotFound nf) {
-                logger.error("Container was not found");
+                log.error("Container was not found");
             } finally {
                 lock.setLocked(false);
             }
@@ -196,7 +196,7 @@ public class BackupChannelService {
             }
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
             String msg = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
-            logger.error(msg);
+            log.error(msg);
             throw new InvalidParameterException(msg);
         }
     }

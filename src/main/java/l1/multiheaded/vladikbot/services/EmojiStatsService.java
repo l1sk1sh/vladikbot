@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * @author Oliver Johnson
  */
 public class EmojiStatsService {
-    private static final Logger logger = LoggerFactory.getLogger(EmojiStatsService.class);
+    private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 
     private final Map<String, Integer> emojiList = new HashMap<>();
 
@@ -58,7 +58,7 @@ public class EmojiStatsService {
             }
 
         } catch (IOException e) {
-            logger.error("Failed to read exportedFile. {}", e.getLocalizedMessage());
+            log.error("Failed to read exportedFile. {}", e.getLocalizedMessage());
         } finally {
             lock.setLocked(false);
         }

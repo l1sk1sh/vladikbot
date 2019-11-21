@@ -16,7 +16,7 @@ import static l1.multiheaded.vladikbot.settings.Constants.GUILD_SETTINGS_JSON;
 public class GuildSettingsManager extends AbstractSettingsManager
         implements com.jagrosh.jdautilities.command.GuildSettingsManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(GuildSettingsManager.class);
+    private static final Logger log = LoggerFactory.getLogger(GuildSettingsManager.class);
     private GuildSettings guildSettings;
     private final File guildConfigFile;
 
@@ -26,7 +26,7 @@ public class GuildSettingsManager extends AbstractSettingsManager
         if (!guildConfigFile.exists()) {
             this.guildSettings = new GuildSettings(this);
             writeSettings();
-            logger.warn(String.format("Created %s.", GUILD_SETTINGS_JSON));
+            log.warn(String.format("Created %s.", GUILD_SETTINGS_JSON));
         } else {
             try {
                 this.guildSettings = gson.fromJson(
@@ -39,7 +39,7 @@ public class GuildSettingsManager extends AbstractSettingsManager
                 );
                 this.guildSettings.setManager(this);
             } catch (IOException e) {
-                logger.error(String.format("Error while reading %s file.", GUILD_SETTINGS_JSON),
+                log.error(String.format("Error while reading %s file.", GUILD_SETTINGS_JSON),
                         e.getLocalizedMessage(), e.getCause());
             }
         }
