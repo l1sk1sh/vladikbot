@@ -1,41 +1,51 @@
-group 'com.multiheaded'
-version '1.1'
-
-apply plugin: 'java'
-apply plugin: 'idea'
-apply plugin: 'com.bmuschko.docker-remote-api'
-
 buildscript {
     repositories {
         jcenter()
     }
-    dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:4.6.0'
-    }
+}
+
+plugins {
+    id 'java'
+    id 'idea'
+    id 'com.github.johnrengelman.shadow' version '5.2.0'
 }
 
 repositories {
     jcenter()
 }
 
-sourceCompatibility = 1.8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
-import com.bmuschko.gradle.docker.tasks.image.DockerPullImage
-/* Backup command to manually pull docker discord backup image. `docker run` command makes it automatically */
-docker {
-    task pullDiscordChatBackup(type: DockerPullImage) {
-        //noinspection GroovyAssignabilityCheck
-        repository = 'tyrrrz/discordchatexporter'
+group 'l1.multiheaded'
+version '1.1.1'
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'l1.multiheaded.vladikbot.VladikBot'
     }
 }
 
+shadowJar {
+    //noinspection GrDeprecatedAPIUsage
+    baseName = 'vladik'
+    //noinspection GrDeprecatedAPIUsage
+    classifier = null
+    //noinspection GrDeprecatedAPIUsage
+    version = null
+    //noinspection GrDeprecatedAPIUsage
+    destinationDir = file("$rootDir")
+}
+
 dependencies {
-    compile group: 'net.dv8tion', name: 'JDA',                  version: '3.8.3_464'
-    compile group: 'com.jagrosh', name: 'jda-utilities',        version: '2.1.5'
-    compile group: 'com.jagrosh', name: 'JLyrics',              version: '0.4'
-    compile group: 'com.google.code.gson', name: 'gson',        version: '2.8.5'
-    compile group: 'org.slf4j', name: 'slf4j-api',              version: '1.7.26'
-    compile group: 'ch.qos.logback', name: 'logback-classic',   version: '1.2.3'
-    compile group: 'com.sedmelluq', name: 'lavaplayer',         version: '1.3.25'
-    compile group: 'org.fusesource.jansi', name: 'jansi',       version: '1.17.1'
+    implementation 'net.dv8tion:JDA:3.8.3_464'
+    implementation 'com.jagrosh:jda-utilities:2.1.5'
+    implementation 'com.jagrosh:JLyrics:0.4'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'org.slf4j:slf4j-api:1.7.26'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'com.sedmelluq:lavaplayer:1.3.25'
+    implementation 'org.fusesource.jansi:jansi:1.18'
 }
