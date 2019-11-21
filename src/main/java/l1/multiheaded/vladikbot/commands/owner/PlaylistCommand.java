@@ -171,7 +171,7 @@ public class PlaylistCommand extends OwnerCommand {
 
     }
 
-    class DefaultListCommand extends AutoPlaylistCommand {
+    static class DefaultListCommand extends AutoPlaylistCommand {
         DefaultListCommand(Bot bot) {
             super(bot);
             this.name = "default";

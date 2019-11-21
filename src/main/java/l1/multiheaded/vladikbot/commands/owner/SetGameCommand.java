@@ -41,7 +41,7 @@ public class SetGameCommand extends OwnerCommand {
         }
     }
 
-    private class SetStreamCommand extends OwnerCommand {
+    private static class SetStreamCommand extends OwnerCommand {
         private SetStreamCommand() {
             this.name = "stream";
             this.aliases = new String[]{"twitch", Constants.ACTION_STREAMING};
@@ -67,7 +67,7 @@ public class SetGameCommand extends OwnerCommand {
         }
     }
 
-    private class SetListenCommand extends OwnerCommand {
+    private static class SetListenCommand extends OwnerCommand {
         private SetListenCommand() {
             this.name = "listen";
             this.aliases = new String[]{Constants.ACTION_LISTENING};
@@ -95,7 +95,7 @@ public class SetGameCommand extends OwnerCommand {
         }
     }
 
-    private class SetWatchCommand extends OwnerCommand {
+    private static class SetWatchCommand extends OwnerCommand {
         private SetWatchCommand() {
             this.name = "watch";
             this.aliases = new String[]{Constants.ACTION_WATCHING};

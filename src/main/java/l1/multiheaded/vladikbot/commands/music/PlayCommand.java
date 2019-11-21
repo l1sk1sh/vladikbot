@@ -215,7 +215,7 @@ public class PlayCommand extends MusicCommand {
         }
     }
 
-    protected class PlaylistCommand extends MusicCommand {
+    protected static class PlaylistCommand extends MusicCommand {
         PlaylistCommand(Bot bot) {
             super(bot);
             this.name = "playlist";

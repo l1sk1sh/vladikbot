@@ -217,7 +217,7 @@ public class PlaylistLoader {
         }
     }
 
-    public class PlaylistLoadError {
+    public static class PlaylistLoadError {
         private final int number;
         private final String item;
         private final String reason;
