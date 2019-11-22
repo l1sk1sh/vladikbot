@@ -20,7 +20,7 @@ public class MoveTrackCommand extends DJCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         int from;
         int to;
 

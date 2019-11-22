@@ -9,10 +9,14 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.l1sk1sh.vladikbot.settings.Const.BITS_IN_BYTE;
+
 /**
  * @author Oliver Johnson
  */
-public class FileUtils {
+public final class FileUtils {
+    private FileUtils() {}
+
     public static File getFileByIdAndExtension(String pathToDir, String id, String extension) throws IOException {
         Files.createDirectories(Paths.get(pathToDir));
         File folder = new File(pathToDir);
@@ -34,16 +38,15 @@ public class FileUtils {
         return file;
     }
 
-    public static void deleteFilesByIdAndExtension(String pathToDir, String id, String extension) {
+    public static void deleteFilesByChannelIdAndExtension(String pathToDir, String id, String extension) {
         File f = new File(pathToDir);
         File[] paths = f.listFiles();
 
         if (paths != null) {
             for (File path : paths) {
-                if (path.toString().contains(id) && path.toString().contains(extension)) {
-                    if (!path.delete()) {
-                        throw new SecurityException();
-                    }
+                if ((path.toString().contains(id) && path.toString().contains(extension))
+                        && !path.delete()) {
+                    throw new SecurityException();
                 }
             }
         }
@@ -102,7 +105,7 @@ public class FileUtils {
         FileInputStream fis = new FileInputStream(fileToZip);
         ZipEntry zipEntry = new ZipEntry(fileName);
         zipOut.putNextEntry(zipEntry);
-        byte[] bytes = new byte[1024];
+        byte[] bytes = new byte[BITS_IN_BYTE];
         int length;
         while ((length = fis.read(bytes)) >= 0) {
             zipOut.write(bytes, 0, length);

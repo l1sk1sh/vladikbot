@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.ReactionRule;
 import net.dv8tion.jda.core.entities.Message;
@@ -25,7 +25,7 @@ public class AutoModerationManager {
     private static final Logger log = LoggerFactory.getLogger(AutoModerationManager.class);
 
     private final Bot bot;
-    private final String extension = Constants.JSON_EXTENSION;
+    private final String extension = Const.JSON_EXTENSION;
     private final Gson gson;
 
     public AutoModerationManager(Bot bot) {
@@ -33,7 +33,7 @@ public class AutoModerationManager {
         this.gson = new GsonBuilder().setPrettyPrinting().create();
     }
 
-    public void performAutomod(Message message) {
+    public void moderate(Message message) {
         try {
             if (bot.getBotSettings().isAutoModeration()) {
                 List<ReactionRule> allRules = getRules();
@@ -49,12 +49,12 @@ public class AutoModerationManager {
                     }
                 }
             }
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException e) {
             log.error(e.getLocalizedMessage());
         }
     }
 
-    public List<ReactionRule> getRules() throws IOException, NullPointerException {
+    public List<ReactionRule> getRules() throws IOException {
         if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
             createFolders(bot.getBotSettings().getModerationRulesFolder());
             return null;
@@ -71,6 +71,7 @@ public class AutoModerationManager {
                     rules.add(getRule(file.getName().replace(extension, "")));
                 }
             }
+
             return rules;
         }
     }

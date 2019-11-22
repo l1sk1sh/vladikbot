@@ -11,7 +11,7 @@ import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.GuildSettingsManager;
+import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -25,17 +25,19 @@ import javax.security.auth.login.LoginException;
 /**
  * @author Oliver Johnson
  */
-class VladikBot {
+final class VladikBot {
+    private VladikBot() {}
+
     private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
     public static void main(String[] args) {
         try {
             EventWaiter waiter = new EventWaiter();
             BotSettingsManager botSettingsManager = new BotSettingsManager();
-            GuildSettingsManager guildSettingsManager = new GuildSettingsManager();
+            GuildSpecificSettingsManager guildSpecificSettingsManager = new GuildSpecificSettingsManager();
             BotSettings botSettings = botSettingsManager.getSettings();
 
-            Bot bot = new Bot(waiter, botSettingsManager, guildSettingsManager);
+            Bot bot = new Bot(waiter, botSettingsManager, guildSpecificSettingsManager);
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                     .setPrefix(botSettings.getPrefix())
@@ -49,7 +51,7 @@ class VladikBot {
                     .setLinkedCacheSize(200)
                     .addCommands(
                             new PingCommand(),
-                            new SettingsCommand(botSettings, guildSettingsManager),
+                            new SettingsCommand(botSettings, guildSpecificSettingsManager),
                             new StatusCommand(botSettings),
                             new DebugCommand(bot),
 

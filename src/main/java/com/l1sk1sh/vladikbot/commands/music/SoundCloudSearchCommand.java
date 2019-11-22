@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 
 /**
@@ -14,6 +14,6 @@ public class SoundCloudSearchCommand extends SearchCommand {
         super(bot);
         this.name = "scsearch";
         this.help = "searches Soundcloud for a provided query";
-        this.searchPrefix = Constants.SC_SEARCH_PREFIX;
+        this.searchPrefix = Const.SC_SEARCH_PREFIX;
     }
 }

@@ -21,9 +21,10 @@ public class VolumeCommand extends DJCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         int volume = audioHandler.getPlayer().getVolume();
+        int maxVolume = 150;
 
         if (event.getArgs().isEmpty()) {
             event.reply(String.format("%1$s Current volume is `%2$s`.", FormatUtils.volumeIcon(volume), volume));
@@ -35,7 +36,7 @@ public class VolumeCommand extends DJCommand {
                 nVolume = -1;
             }
 
-            if (nVolume < 0 || nVolume > 150) {
+            if (nVolume < 0 || nVolume > maxVolume) {
                 event.replyError("Volume must be a valid integer between 0 and 150!");
             } else {
                 audioHandler.getPlayer().setVolume(nVolume);

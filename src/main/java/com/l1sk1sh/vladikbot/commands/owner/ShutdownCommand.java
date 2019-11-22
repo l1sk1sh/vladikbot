@@ -22,7 +22,7 @@ public class ShutdownCommand extends OwnerCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected final void execute(CommandEvent event) {
         event.replyWarning("Shutting down...");
         bot.shutdown();
     }

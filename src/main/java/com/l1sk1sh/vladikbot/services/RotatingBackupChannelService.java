@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.RotatingTask;
 import com.l1sk1sh.vladikbot.models.RotatingTaskExecutor;
@@ -52,7 +52,7 @@ public class RotatingBackupChannelService implements RotatingTask {
                     new BackupChannelService(
                             channel.getId(),
                             bot.getBotSettings().getToken(),
-                            Constants.BACKUP_PLAIN_TEXT,
+                            Const.BACKUP_PLAIN_TEXT,
                             pathToBackup,
                             bot.getBotSettings().getDockerPathToExport(),
                             bot.getBotSettings().getDockerContainerName(),

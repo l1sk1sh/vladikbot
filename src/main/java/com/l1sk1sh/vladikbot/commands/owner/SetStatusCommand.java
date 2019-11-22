@@ -18,7 +18,7 @@ public class SetStatusCommand extends OwnerCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected final void execute(CommandEvent event) {
         try {
             OnlineStatus status = OnlineStatus.fromKey(event.getArgs());
             if (status == OnlineStatus.UNKNOWN) {

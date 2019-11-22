@@ -20,7 +20,7 @@ public class ShuffleCommand extends MusicCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         int shuffle = audioHandler.getQueue().shuffle(event.getAuthor().getIdLong());
         switch (shuffle) {

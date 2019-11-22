@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot;
 
 import com.l1sk1sh.vladikbot.settings.BotSettings;
-import com.l1sk1sh.vladikbot.settings.Constants;
-import com.l1sk1sh.vladikbot.utils.OtherUtils;
+import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.BotUtils;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.VoiceChannel;
@@ -41,7 +41,7 @@ class Listener extends ListenerAdapter {
     public void onReady(ReadyEvent event) {
         if (event.getJDA().getGuilds().isEmpty()) {
             log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
-            log.warn(event.getJDA().asBot().getInviteUrl(Constants.RECOMMENDED_PERMS));
+            log.warn(event.getJDA().asBot().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
 
         event.getJDA().getGuilds().forEach((guild) ->
@@ -55,7 +55,7 @@ class Listener extends ListenerAdapter {
             } catch (Exception ignore) { /* Ignore */ }
 
             List<Permission> missingPermissions =
-                    OtherUtils.getMissingPermissions(guild.getSelfMember().getPermissions(), Constants.RECOMMENDED_PERMS);
+                    BotUtils.getMissingPermissions(guild.getSelfMember().getPermissions(), Const.RECOMMENDED_PERMS);
             if (missingPermissions != null) {
                 log.warn("Bot in guild '{}' doesn't have following recommended permissions {}.",
                         guild.getName(), Arrays.toString(missingPermissions.toArray()));
@@ -93,7 +93,7 @@ class Listener extends ListenerAdapter {
         Message message = event.getMessage();
 
         if (!message.getAuthor().isBot()) {
-            bot.getAutoModerationManager().performAutomod(message);
+            bot.getAutoModerationManager().moderate(message);
         }
     }
 

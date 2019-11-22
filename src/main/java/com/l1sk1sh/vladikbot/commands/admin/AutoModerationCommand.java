@@ -32,7 +32,8 @@ public class AutoModerationCommand extends AdminCommand {
 
     @Override
     protected void execute(CommandEvent event) {
-        StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " AutoModerationService Management Commands:\r\n");
+        String message = event.getClient().getWarning() + " AutoModerationService Management Commands:\r\n";
+        StringBuilder builder = new StringBuilder(message);
         for (Command cmd : this.children) {
             builder.append("\r\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName())
                     .append(" ").append(cmd.getArguments()
@@ -104,7 +105,8 @@ public class AutoModerationCommand extends AdminCommand {
                 } else if (list.isEmpty()) {
                     event.replyWarning("There are no rules in the Rules folder!");
                 } else {
-                    StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Acting rules:\r\n");
+                    String message = event.getClient().getSuccess() + " Acting rules:\r\n";
+                    StringBuilder builder = new StringBuilder(message);
                     list.forEach(str -> builder.append("`").append(str).append("` ").append("\r\n"));
                     event.reply(builder.toString());
                 }

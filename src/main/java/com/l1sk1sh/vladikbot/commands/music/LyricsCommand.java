@@ -57,7 +57,7 @@ public class LyricsCommand extends MusicCommand {
                         index = content.lastIndexOf("\r\n", 2000);
                     }
                     if (index == -1) {
-                        index = content.lastIndexOf(" ", 2000);
+                        index = content.lastIndexOf(' ', 2000);
                     }
                     if (index == -1) {
                         index = 2000;

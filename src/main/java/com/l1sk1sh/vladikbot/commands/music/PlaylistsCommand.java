@@ -32,7 +32,8 @@ public class PlaylistsCommand extends MusicCommand {
             } else if (list.isEmpty()) {
                 event.replyWarning("There are no playlists in the Playlists folder!");
             } else {
-                StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\r\n");
+                String message = event.getClient().getSuccess() + " Available playlists:\r\n";
+                StringBuilder builder = new StringBuilder(message);
                 list.forEach(str -> builder.append("`").append(str).append("` "));
                 builder.append("\r\nType `").append(event.getClient().getTextualPrefix())
                         .append("play playlist <name>` to play a playlist");

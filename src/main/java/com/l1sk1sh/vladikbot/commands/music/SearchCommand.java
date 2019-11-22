@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
@@ -35,7 +35,7 @@ public class SearchCommand extends MusicCommand {
         this.beListening = true;
         this.bePlaying = false;
         this.botPermissions = new Permission[]{Permission.MESSAGE_EMBED_LINKS};
-        this.searchPrefix = Constants.YT_SEARCH_PREFIX;
+        this.searchPrefix = Const.YT_SEARCH_PREFIX;
         builder = new OrderedMenu.Builder()
                 .allowTextInput(true)
                 .useNumbers()

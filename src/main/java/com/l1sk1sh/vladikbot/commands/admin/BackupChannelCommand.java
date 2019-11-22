@@ -2,7 +2,7 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.BackupChannelService;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 
 import java.io.File;
@@ -38,7 +38,7 @@ public class BackupChannelCommand extends AdminCommand {
                 BackupChannelService service = new BackupChannelService(
                         event.getChannel().getId(),
                         bot.getBotSettings().getToken(),
-                        Constants.BACKUP_HTML_DARK,
+                        Const.BACKUP_HTML_DARK,
                         bot.getBotSettings().getLocalPathToExport(),
                         bot.getBotSettings().getDockerPathToExport(),
                         bot.getBotSettings().getDockerContainerName(),
@@ -47,7 +47,7 @@ public class BackupChannelCommand extends AdminCommand {
                 );
 
                 File exportedFile = service.getExportedFile();
-                if (exportedFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
+                if (exportedFile.length() > Const.EIGHT_MEGABYTES_IN_BYTES) {
                     event.replyWarning(
                             "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\r\n" +
                                     "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
@@ -56,15 +56,13 @@ public class BackupChannelCommand extends AdminCommand {
                 }
 
             } catch (IOException ioe) {
-                event.replyWarning(String.format("Something with files gone mad! Ask owner for help! `[%1$s]`",
-                        ioe.getLocalizedMessage()));
+                event.replyWarning(String.format("Something with files gone mad! Ask owner for help! `[%1$s]`", ioe.getLocalizedMessage()));
             } catch (InterruptedException ie) {
                 event.replyError(String.format("Backup **has failed**! `[%1$s]`", ie.getLocalizedMessage()));
             } catch (InvalidParameterException ipe) {
                 event.replyError(ipe.getLocalizedMessage());
             } catch (Exception e) {
-                event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%1$s]`",
-                        e.getLocalizedMessage()));
+                event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%1$s]`", e.getLocalizedMessage()));
             }
         }).start();
     }

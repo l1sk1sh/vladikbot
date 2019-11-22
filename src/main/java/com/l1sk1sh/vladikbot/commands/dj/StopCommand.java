@@ -19,7 +19,7 @@ public class StopCommand extends DJCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         audioHandler.stopAndClear();
         event.getGuild().getAudioManager().closeAudioConnection();

@@ -2,7 +2,7 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 
 import java.io.IOException;
@@ -32,13 +32,21 @@ public class RotatingActionAndGameCommand extends AdminCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
-        StringBuilder builder = new StringBuilder(event.getClient().getWarning()
-                + " Action & Game Rotation Management Commands:\r\n");
+    protected final void execute(CommandEvent event) {
+        String message = event.getClient().getWarning() + " Action & Game Rotation Management Commands:\r\n";
+        StringBuilder builder = new StringBuilder(message);
         for (Command cmd : this.children) {
-            builder.append("\r\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName())
-                    .append(" ").append(cmd.getArguments()
-                    == null ? "" : cmd.getArguments()).append("` - ").append(cmd.getHelp());
+            builder.append("\r\n`")
+                    .append(event.getClient().getPrefix())
+                    .append(name)
+                    .append(" ")
+                    .append(cmd.getName())
+                    .append(" ")
+                    .append(cmd.getArguments() == null
+                            ? ""
+                            : cmd.getArguments())
+                    .append("` - ")
+                    .append(cmd.getHelp());
         }
         event.reply(builder.toString());
     }
@@ -53,7 +61,7 @@ public class RotatingActionAndGameCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             try {
                 if (event.getArgs().isEmpty()) {
                     event.replyError("Please include an **action** word!");
@@ -62,15 +70,15 @@ public class RotatingActionAndGameCommand extends AdminCommand {
 
                 String action;
 
-                if (event.getArgs().toLowerCase().startsWith(Constants.ACTION_PLAYING)) {
-                    action = Constants.ACTION_PLAYING;
-                } else if (event.getArgs().toLowerCase().startsWith(Constants.ACTION_LISTENING)) {
-                    action = Constants.ACTION_LISTENING;
-                } else if (event.getArgs().toLowerCase().startsWith(Constants.ACTION_WATCHING)) {
-                    action = Constants.ACTION_WATCHING;
+                if (event.getArgs().toLowerCase().startsWith(Const.ACTION_PLAYING)) {
+                    action = Const.ACTION_PLAYING;
+                } else if (event.getArgs().toLowerCase().startsWith(Const.ACTION_LISTENING)) {
+                    action = Const.ACTION_LISTENING;
+                } else if (event.getArgs().toLowerCase().startsWith(Const.ACTION_WATCHING)) {
+                    action = Const.ACTION_WATCHING;
                 } else {
                     event.replyWarning(String.format("Action word must be one of `[%1$s, %2$s, %3$s]`!",
-                            Constants.ACTION_PLAYING, Constants.ACTION_LISTENING, Constants.ACTION_WATCHING));
+                            Const.ACTION_PLAYING, Const.ACTION_LISTENING, Const.ACTION_WATCHING));
                     return;
                 }
 
@@ -92,7 +100,7 @@ public class RotatingActionAndGameCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             try {
                 Map<String, String> pairs = bot.getActionAndGameRotationManager().getActionsAndGames();
                 if (pairs == null) {
@@ -100,27 +108,27 @@ public class RotatingActionAndGameCommand extends AdminCommand {
                 } else if (pairs.isEmpty()) {
                     event.replyWarning("There are no *action:game* records available!");
                 } else {
-                    StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Acting pairs:\r\n");
+                    String message = event.getClient().getSuccess() + " Acting pairs:\r\n";
+                    StringBuilder builder = new StringBuilder(message);
 
                     builder.append("`Action`");
                     builder.append("  ");
                     builder.append("`Game`");
 
-                    for (String key : pairs.keySet()) {
+                    for (Map.Entry<String, String> entry : pairs.entrySet()) {
                         if (builder.length() > 0) {
                             builder.append("\r\n");
                         }
-                        String value = pairs.get(key);
-                        try {
-                            builder.append(value != null ? URLEncoder.encode(value, "UTF-8") : "");
-                            builder.append(" = ");
-                            builder.append((key != null ? URLEncoder.encode(key, "UTF-8") : ""));
-                        } catch (UnsupportedEncodingException e) {
-                            throw new RuntimeException("Action requires UTF-8 encoding support!", e);
-                        }
+
+                        builder.append(entry.getValue() != null ? URLEncoder.encode(entry.getValue(), "UTF-8") : "");
+                        builder.append(" = ");
+                        builder.append((entry.getKey() != null ? URLEncoder.encode(entry.getKey(), "UTF-8") : ""));
                     }
+
                     event.reply(builder.toString());
                 }
+            } catch (UnsupportedEncodingException e) {
+                event.replyError("Action requires UTF-8 encoding support!");
             } catch (IOException ioe) {
                 event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
             }
@@ -137,7 +145,7 @@ public class RotatingActionAndGameCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             String[] args = event.getArgs().split("\\s+");
             if (args.length > 0) {
                 for (String arg : args) {
@@ -172,7 +180,7 @@ public class RotatingActionAndGameCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             String gameName = event.getArgs().replaceAll("\\s+", "_");
 
             if (bot.getActionAndGameRotationManager().getActionByGameTitle(gameName) == null) {

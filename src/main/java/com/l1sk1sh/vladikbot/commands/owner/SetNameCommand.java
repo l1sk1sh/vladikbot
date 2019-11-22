@@ -18,7 +18,7 @@ public class SetNameCommand extends OwnerCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected final void execute(CommandEvent event) {
         try {
             String oldName = event.getSelfUser().getName();
             event.getSelfUser().getManager().setName(event.getArgs()).complete(false);

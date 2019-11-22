@@ -7,6 +7,7 @@ import net.dv8tion.jda.core.entities.TextChannel;
 /**
  * @author Oliver Johnson
  */
+// TODO Make embedded notification
 public class ChatNotificationService {
     private final Bot bot;
 
@@ -14,7 +15,7 @@ public class ChatNotificationService {
         this.bot = bot;
     }
 
-    public void sendMessage(Guild guild, String message) {
+    public final void sendMessage(Guild guild, String message) {
         TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
 
         if (notificationChannel != null) {

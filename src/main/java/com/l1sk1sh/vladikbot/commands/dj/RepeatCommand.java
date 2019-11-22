@@ -20,7 +20,7 @@ public class RepeatCommand extends DJCommand {
 
     /* Override MusicCommand's execute because we don't actually care where this is used */
     @Override
-    protected void execute(CommandEvent event) {
+    protected final void execute(CommandEvent event) {
         boolean value;
         if (event.getArgs().isEmpty()) {
             value = !bot.getBotSettings().shouldRepeat();
@@ -37,5 +37,5 @@ public class RepeatCommand extends DJCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) { /* Intentionally empty */ }
+    public final void doCommand(CommandEvent event) { /* Intentionally empty */ }
 }

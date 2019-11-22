@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.utils;
 
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
@@ -19,14 +19,14 @@ import java.util.stream.Collectors;
  * - Removal of update version methods
  * @author John Grosh
  */
-public class OtherUtils {
+public class BotUtils {
     public static InputStream imageFromUrl(String url) {
         if (url == null)
             return null;
         try {
             URL u = new URL(url);
             URLConnection urlConnection = u.openConnection();
-            urlConnection.setRequestProperty("User-Agent", Constants.USER_AGENT);
+            urlConnection.setRequestProperty("User-Agent", Const.USER_AGENT);
             return urlConnection.getInputStream();
         } catch (IOException | IllegalArgumentException ignore) {
         }

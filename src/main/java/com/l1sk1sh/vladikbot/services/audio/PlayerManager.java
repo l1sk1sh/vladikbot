@@ -20,17 +20,17 @@ public class PlayerManager extends DefaultAudioPlayerManager {
         this.bot = bot;
     }
 
-    public void init() {
+    public final void init() {
         AudioSourceManagers.registerRemoteSources(this);
         AudioSourceManagers.registerLocalSource(this);
         source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
     }
 
-    public Bot getBot() {
+    public final Bot getBot() {
         return bot;
     }
 
-    public AudioHandler setUpHandler(Guild guild) {
+    public final AudioHandler setUpHandler(Guild guild) {
         AudioHandler audioHandler;
         if (guild.getAudioManager().getSendingHandler() == null) {
             AudioPlayer player = createPlayer();

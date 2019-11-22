@@ -21,7 +21,7 @@ public class SkipToCommand extends DJCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         int index;
         try {
             index = Integer.parseInt(event.getArgs());

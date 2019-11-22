@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
@@ -35,7 +35,7 @@ public class PlaylistLoader {
     private static final Logger log = LoggerFactory.getLogger(PlaylistLoader.class);
 
     private final Bot bot;
-    private final String extension = Constants.JSON_EXTENSION;
+    private final String extension = Const.JSON_EXTENSION;
     private final Gson gson;
 
     public PlaylistLoader(Bot bot) {
@@ -89,7 +89,7 @@ public class PlaylistLoader {
 
                 //noinspection unchecked
                 List<String> list = gson.fromJson(new FileReader(bot.getBotSettings().getPlaylistsFolder()
-                        + name + extension), ArrayList.class);
+                        + name + extension), List.class);
                 return new Playlist(name, list);
             }
         } catch (IOException e) {

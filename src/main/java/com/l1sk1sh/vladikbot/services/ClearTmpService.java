@@ -14,7 +14,7 @@ public class ClearTmpService {
         this.lock = lock;
     }
 
-    public void clear() throws IOException, NullPointerException {
+    public final void clear() throws IOException {
         try {
             lock.setLocked(true);
             deleteDirectoryRecursion(Paths.get(localTmpPath));

@@ -14,8 +14,9 @@ import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.GuildSettings;
-import com.l1sk1sh.vladikbot.settings.GuildSettingsManager;
+import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
+import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
+import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
@@ -31,7 +32,7 @@ public class Bot {
     private final EventWaiter waiter;
     private final ScheduledExecutorService threadPool;
     private final BotSettingsManager botSettingsManager;
-    private final GuildSettingsManager guildSettingsManager;
+    private final GuildSpecificSettingsManager guildSpecificSettingsManager;
     private final PlayerManager playerManager;
     private final PlaylistLoader playlistLoader;
     private final NowPlayingHandler nowPlayingHandler;
@@ -46,10 +47,10 @@ public class Bot {
     private boolean shuttingDown = false;
     private JDA jda;
 
-    public Bot(EventWaiter waiter, BotSettingsManager botSettingsManager, GuildSettingsManager guildSettingsManager) {
+    public Bot(EventWaiter waiter, BotSettingsManager botSettingsManager, GuildSpecificSettingsManager guildSpecificSettingsManager) {
         this.waiter = waiter;
         this.botSettingsManager = botSettingsManager;
-        this.guildSettingsManager = guildSettingsManager;
+        this.guildSpecificSettingsManager = guildSpecificSettingsManager;
         this.playlistLoader = new PlaylistLoader(this);
         this.threadPool = Executors.newSingleThreadScheduledExecutor();
         this.playerManager = new PlayerManager(this);
@@ -98,15 +99,15 @@ public class Bot {
 
             jda.shutdown();
         }
-        System.exit(0);
+        SystemUtils.exit(0, 5000);
     }
 
     public BotSettings getBotSettings() {
         return botSettingsManager.getSettings();
     }
 
-    public GuildSettings getGuildSettings(Guild guild) {
-        return (GuildSettings) guildSettingsManager.getSettings(guild);
+    public GuildSpecificSettings getGuildSettings(Guild guild) {
+        return (GuildSpecificSettings) guildSpecificSettingsManager.getSettings(guild);
     }
 
     public EventWaiter getWaiter() {

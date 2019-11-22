@@ -13,12 +13,13 @@ public class FairQueue<T extends Queueable> {
     private final List<T> list = new ArrayList<>();
     private final Set<Long> set = new HashSet<>();
 
-    public int add(T item) {
+    public final int add(T item) {
         int lastIndex;
-        for (lastIndex = list.size() - 1; lastIndex > -1; lastIndex--)
+        for (lastIndex = list.size() - 1; lastIndex > -1; lastIndex--) {
             if (list.get(lastIndex).getIdentifier() == item.getIdentifier()) {
                 break;
             }
+        }
         lastIndex++;
         set.clear();
         for (; lastIndex < list.size(); lastIndex++) {
@@ -31,7 +32,7 @@ public class FairQueue<T extends Queueable> {
         return lastIndex;
     }
 
-    public void addAt(int index, T item) {
+    public final void addAt(int index, T item) {
         if (index >= list.size()) {
             list.add(item);
         } else {
@@ -39,31 +40,31 @@ public class FairQueue<T extends Queueable> {
         }
     }
 
-    public int size() {
+    public final int size() {
         return list.size();
     }
 
-    public T pull() {
+    public final T pull() {
         return list.remove(0);
     }
 
-    public boolean isEmpty() {
+    public final boolean isEmpty() {
         return list.isEmpty();
     }
 
-    public List<T> getList() {
+    public final List<T> getList() {
         return list;
     }
 
-    public T get(int index) {
+    public final T get(int index) {
         return list.get(index);
     }
 
-    public void remove(int index) {
+    public final void remove(int index) {
         list.remove(index);
     }
 
-    public int removeAll(long identifier) {
+    public final int removeAll(long identifier) {
         int count = 0;
         for (int i = list.size() - 1; i >= 0; i--) {
             if (list.get(i).getIdentifier() == identifier) {
@@ -74,11 +75,11 @@ public class FairQueue<T extends Queueable> {
         return count;
     }
 
-    public void clear() {
+    public final void clear() {
         list.clear();
     }
 
-    public int shuffle(long identifier) {
+    public final int shuffle(long identifier) {
         List<Integer> iset = new ArrayList<>();
         for (int i = 0; i < list.size(); i++) {
             if (list.get(i).getIdentifier() == identifier) {
@@ -95,13 +96,13 @@ public class FairQueue<T extends Queueable> {
         return iset.size();
     }
 
-    public void skip(int number) {
+    public final void skip(int number) {
         if (number > 0) {
             list.subList(0, number).clear();
         }
     }
 
-    public T moveItem(int from, int to) {
+    public final T moveItem(int from, int to) {
         T item = list.remove(from);
         list.add(to, item);
         return item;

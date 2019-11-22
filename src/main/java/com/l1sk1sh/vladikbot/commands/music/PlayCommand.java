@@ -5,7 +5,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.l1sk1sh.vladikbot.services.PlaylistLoader;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.commands.dj.DJCommand;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
@@ -53,7 +53,8 @@ public class PlayCommand extends MusicCommand {
                 return;
             }
 
-            StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Play Commands:\r\n");
+            String message = event.getClient().getWarning() + " Play Commands:\r\n";
+            StringBuilder builder = new StringBuilder(message);
             builder.append("\r\n`").append(event.getClient().getPrefix()).append(name)
                     .append(" <song title>` - plays the first result from Youtube");
             builder.append("\r\n`").append(event.getClient().getPrefix()).append(name)
@@ -119,13 +120,13 @@ public class PlayCommand extends MusicCommand {
                         addMessage,
                         event.getClient().getWarning(),
                         playlist.getTracks().size(),
-                        Constants.LOAD_EMOJI))
-                        .setChoices(Constants.LOAD_EMOJI, Constants.CANCEL_EMOJI)
+                        Const.LOAD_EMOJI))
+                        .setChoices(Const.LOAD_EMOJI, Const.CANCEL_EMOJI)
                         .setEventWaiter(bot.getWaiter())
                         .setTimeout(30, TimeUnit.SECONDS)
                         .setAction(re ->
                         {
-                            if (re.getName().equals(Constants.LOAD_EMOJI)) {
+                            if (re.getName().equals(Const.LOAD_EMOJI)) {
                                 message.editMessage(String.format("%1$s \r\n %2$s Loaded **%3$s** additional tracks!",
                                         addMessage, event.getClient().getSuccess(), loadPlaylist(playlist, track)))
                                         .queue();
@@ -199,7 +200,7 @@ public class PlayCommand extends MusicCommand {
                 message.editMessage(FormatUtils.filter(String.format("%1$s  No results found for `%2$s`.",
                         event.getClient().getWarning(), event.getArgs()))).queue();
             } else {
-                bot.getPlayerManager().loadItemOrdered(event.getGuild(), Constants.YT_SEARCH_PREFIX
+                bot.getPlayerManager().loadItemOrdered(event.getGuild(), Const.YT_SEARCH_PREFIX
                         + event.getArgs(), new ResultHandler(message, event, true));
             }
         }
@@ -244,24 +245,35 @@ public class PlayCommand extends MusicCommand {
             }
 
             event.getChannel().sendMessage(String.format("%1$s Loading playlist... **%2$s**... (%3$s items).",
-                    bot.getBotSettings().getLoadingEmoji(), event.getArgs(), playlist.getItems().size())).queue(m ->
+                    bot.getBotSettings().getLoadingEmoji(),
+                    event.getArgs(),
+                    playlist.getItems().size())).queue(m ->
             {
                 AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                 playlist.loadTracks(bot.getPlayerManager(),
-                        (audioTrack) -> audioHandler.addTrack(new QueuedTrack(audioTrack, event.getAuthor())), () -> {
+                        (audioTrack) -> audioHandler.addTrack(new QueuedTrack(audioTrack, event.getAuthor())), () ->
+                        {
+
+                            String errorMessage = event.getClient().getWarning() + " No tracks were loaded!";
+                            String successMessage = event.getClient().getSuccess()
+                                    + " Loaded **" + playlist.getTracks().size() + "** tracks!";
                             StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty()
-                                    ? event.getClient().getWarning() + " No tracks were loaded!"
-                                    : event.getClient().getSuccess()
-                                    + " Loaded **" + playlist.getTracks().size() + "** tracks!");
-                            if (!playlist.getErrors().isEmpty())
+                                    ? errorMessage
+                                    : successMessage);
+
+                            if (!playlist.getErrors().isEmpty()) {
                                 builder.append("\r\nThe following tracks failed to load:");
+                            }
+
                             playlist.getErrors().forEach(
                                     err -> builder.append("\r\n`[").append(err.getIndex() + 1).append("]` **")
                                             .append(err.getItem()).append("**: ").append(err.getReason())
                             );
+
                             String str = builder.toString();
-                            if (str.length() > 2000)
+                            if (str.length() > 2000) {
                                 str = str.substring(0, 1994) + " (...)";
+                            }
                             m.editMessage(FormatUtils.filter(str)).queue();
                         });
             });

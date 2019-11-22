@@ -1,11 +1,13 @@
 package com.l1sk1sh.vladikbot.utils;
 
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.List;
+
+import static com.l1sk1sh.vladikbot.settings.Const.SECONDS_IN_MINUTES;
 
 /**
  * @author Oliver Johnson
@@ -13,73 +15,89 @@ import java.util.List;
  * - Reformating code
  * @author John Grosh
  */
-public class FormatUtils {
+public final class FormatUtils {
+    private FormatUtils() {}
+    
     public static String formatTime(long duration) {
+        final float durationDivider = 1000f;
+        final int thresholdTime = 10;
         if (duration == Long.MAX_VALUE) {
             return "LIVE";
         }
-        long seconds = Math.round(duration / 1000.0);
-        long hours = seconds / (60 * 60);
-        seconds %= 60 * 60;
-        long minutes = seconds / 60;
-        seconds %= 60;
-        return (hours > 0 ? hours + ":" : "") + (minutes < 10 ? "0" + minutes : minutes)
-                + ":" + (seconds < 10 ? "0" + seconds : seconds);
+        long seconds = Math.round(duration / durationDivider);
+        long hours = seconds / (SECONDS_IN_MINUTES * SECONDS_IN_MINUTES);
+        seconds %= SECONDS_IN_MINUTES * SECONDS_IN_MINUTES;
+        long minutes = seconds / SECONDS_IN_MINUTES;
+        seconds %= SECONDS_IN_MINUTES;
+        return (hours > 0 ? hours + ":" : "") + (minutes < thresholdTime ? "0" + minutes : minutes)
+                + ":" + (seconds < thresholdTime ? "0" + seconds : seconds);
     }
 
     public static String progressBar(double percent) {
         StringBuilder stringBuilder = new StringBuilder();
-        for (int i = 0; i < 12; i++)
-            if (i == (int) (percent * 12)) {
-                stringBuilder.append(Constants.PROGRESS_EMOJI);
+        final int progressBarPart = 12;
+
+        for (int i = 0; i < progressBarPart; i++) {
+            if (i == (int) (percent * progressBarPart)) {
+                stringBuilder.append(Const.PROGRESS_EMOJI);
             } else {
                 stringBuilder.append("▬");
             }
+        }
         return stringBuilder.toString();
     }
 
     public static String volumeIcon(int volume) {
+        final int volume30 = 30;
+        final int volume70 = 70;
+
         if (volume == 0) {
-            return Constants.VOLUME_OFF_EMOJI;
+            return Const.VOLUME_OFF_EMOJI;
         }
-        if (volume < 30) {
-            return Constants.VOLUME_30_EMOJI;
+        if (volume < volume30) {
+            return Const.VOLUME_30_EMOJI;
         }
-        if (volume < 70) {
-            return Constants.VOLUME_70_EMOJI;
+        if (volume < volume70) {
+            return Const.VOLUME_70_EMOJI;
         }
-        return Constants.VOLUME_100_EMOJI;
+        return Const.VOLUME_100_EMOJI;
     }
 
     public static String listOfTextChannels(List<TextChannel> list, String query) {
+        final int textChannelsListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
-        for (int i = 0; i < 6 && i < list.size(); i++) {
+
+        for (int i = 0; i < textChannelsListLimit && i < list.size(); i++) {
             out.append("\r\n - ").append(list.get(i).getName()).append(" (<#").append(list.get(i).getId()).append(">)");
         }
-        if (list.size() > 6) {
-            out.append("\r\n**And ").append(list.size() - 6).append(" more...**");
+        if (list.size() > textChannelsListLimit) {
+            out.append("\r\n**And ").append(list.size() - textChannelsListLimit).append(" more...**");
         }
         return out.toString();
     }
 
     public static String listOfVoiceChannels(List<VoiceChannel> list, String query) {
+        final int voiceChannelsListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple voice channels found matching \"" + query + "\":");
-        for (int i = 0; i < 6 && i < list.size(); i++) {
+
+        for (int i = 0; i < voiceChannelsListLimit && i < list.size(); i++) {
             out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
-        if (list.size() > 6) {
-            out.append("\r\n**And ").append(list.size() - 6).append(" more...**");
+        if (list.size() > voiceChannelsListLimit) {
+            out.append("\r\n**And ").append(list.size() - voiceChannelsListLimit).append(" more...**");
         }
         return out.toString();
     }
 
     public static String listOfRoles(List<Role> list, String query) {
+        final int rolesListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
-        for (int i = 0; i < 6 && i < list.size(); i++) {
+
+        for (int i = 0; i < rolesListLimit && i < list.size(); i++) {
             out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
-        if (list.size() > 6) {
-            out.append("\r\n**And ").append(list.size() - 6).append(" more...**");
+        if (list.size() > rolesListLimit) {
+            out.append("\r\n**And ").append(list.size() - rolesListLimit).append(" more...**");
         }
         return out.toString();
     }

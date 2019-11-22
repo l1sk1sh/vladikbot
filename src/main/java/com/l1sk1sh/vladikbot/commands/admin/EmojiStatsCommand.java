@@ -6,7 +6,7 @@ import com.jagrosh.jdautilities.menu.Paginator;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.BackupChannelService;
 import com.l1sk1sh.vladikbot.services.EmojiStatsService;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -69,7 +69,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 File exportedFile = new BackupChannelService(
                         event.getChannel().getId(),
                         bot.getBotSettings().getToken(),
-                        Constants.BACKUP_PLAIN_TEXT,
+                        Const.BACKUP_PLAIN_TEXT,
                         bot.getBotSettings().getLocalPathToExport(),
                         bot.getBotSettings().getDockerPathToExport(),
                         bot.getBotSettings().getDockerContainerName(),
@@ -84,15 +84,16 @@ public class EmojiStatsCommand extends AdminCommand {
                         bot::setLockedBackup
                 );
 
-                if (emojiStatsService.getEmojiList() == null)
-                    throw new RuntimeException("Emoji Statistics Service failed!");
+                if (emojiStatsService.getEmojiList() == null) {
+                    throw new IllegalStateException("Emoji Statistics Service failed!");
+                }
                 sendStatisticsMessage(event, emojiStatsService.getEmojiList());
             } catch (InterruptedException | IOException e) {
                 event.replyError(String.format("Backup **has failed**! `[%1$s]`", e.getLocalizedMessage()));
             } catch (InvalidParameterException ipe) {
                 event.replyError(ipe.getLocalizedMessage());
-            } catch (RuntimeException re) {
-                event.replyError(String.format("Calculation failed! `[%1$s]`", re.getLocalizedMessage()));
+            } catch (IllegalStateException ise) {
+                event.replyError(String.format("Calculation failed! `[%1$s]`", ise.getLocalizedMessage()));
             } catch (Exception e) {
                 event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%1$s]`", e.getLocalizedMessage()));
             }

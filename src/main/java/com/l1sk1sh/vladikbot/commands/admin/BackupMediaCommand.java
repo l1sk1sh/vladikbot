@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.BackupChannelService;
 import com.l1sk1sh.vladikbot.services.BackupMediaService;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class BackupMediaCommand extends AdminCommand {
                 File exportedTextFile = new BackupChannelService(
                         event.getChannel().getId(),
                         bot.getBotSettings().getToken(),
-                        Constants.BACKUP_PLAIN_TEXT,
+                        Const.BACKUP_PLAIN_TEXT,
                         bot.getBotSettings().getLocalPathToExport(),
                         bot.getBotSettings().getDockerPathToExport(),
                         bot.getBotSettings().getDockerContainerName(),
@@ -64,7 +64,7 @@ public class BackupMediaCommand extends AdminCommand {
                 );
 
                 File exportedMediaUrlsFile = backupMediaService.getMediaUrlsFile();
-                if (exportedMediaUrlsFile.length() > Constants.EIGHT_MEGABYTES_IN_BYTES) {
+                if (exportedMediaUrlsFile.length() > Const.EIGHT_MEGABYTES_IN_BYTES) {
                     // TODO Move such checks into separate Utils or handler
                     event.replyWarning(
                             "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\r\n" +
@@ -72,8 +72,8 @@ public class BackupMediaCommand extends AdminCommand {
                 } else {
                     event.getTextChannel().sendFile(exportedMediaUrlsFile, backupMediaService.getMediaUrlsFile().getName()).queue();
 
-                    if (backupMediaService.doZip() && backupMediaService.isDownloadComplete()) {
-                        event.replySuccess("Zip with uploaded media files could be downloaded from local storage.");
+                    if (backupMediaService.doZip() && backupMediaService.isDownloadToZipComplete()) {
+                        event.replySuccess("Zip with uploaded media files could now be downloaded from local storage.");
                     }
                 }
 

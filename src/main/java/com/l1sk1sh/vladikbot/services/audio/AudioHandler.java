@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
 import com.l1sk1sh.vladikbot.settings.BotSettings;
-import com.l1sk1sh.vladikbot.settings.Constants;
-import com.l1sk1sh.vladikbot.settings.GuildSettings;
+import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.PlaylistLoader.Playlist;
@@ -42,17 +42,17 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     private final long guildId;
 
     private final BotSettings botSettings;
-    private final GuildSettings guildSettings;
+    private final GuildSpecificSettings guildSpecificSettings;
 
     private AudioFrame lastFrame;
 
     AudioHandler(PlayerManager manager, Guild guild, AudioPlayer player,
-                 BotSettings botSettings, GuildSettings guildSettings) {
+                 BotSettings botSettings, GuildSpecificSettings guildSpecificSettings) {
         this.manager = manager;
         this.audioPlayer = player;
         this.guildId = guild.getIdLong();
         this.botSettings = botSettings;
-        this.guildSettings = guildSettings;
+        this.guildSpecificSettings = guildSpecificSettings;
     }
 
     public int addTrackToFront(QueuedTrack qtrack) {
@@ -109,11 +109,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             return true;
         }
 
-        if (guildSettings == null || guildSettings.getDefaultPlaylist() == null) {
+        if (guildSpecificSettings == null || guildSpecificSettings.getDefaultPlaylist() == null) {
             return false;
         }
 
-        Playlist playlist = manager.getBot().getPlaylistLoader().getPlaylist(guildSettings.getDefaultPlaylist());
+        Playlist playlist = manager.getBot().getPlaylistLoader().getPlaylist(guildSpecificSettings.getDefaultPlaylist());
         if (playlist == null || playlist.getItems().isEmpty() || (playlist.getItems() == null)) {
             return false;
         }
@@ -204,7 +204,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             }
 
             double progress = (double) audioPlayer.getPlayingTrack().getPosition() / track.getDuration();
-            embedBuilder.setDescription((audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI)
+            embedBuilder.setDescription((audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI)
                     + " " + FormatUtils.progressBar(progress)
                     + " `[" + FormatUtils.formatTime(track.getPosition()) + "/"
                     + FormatUtils.formatTime(track.getDuration()) + "]` "
@@ -222,7 +222,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                 .setContent(FormatUtils.filter(botSettings.getSuccessEmoji() + " **Now Playing...**"))
                 .setEmbed(new EmbedBuilder()
                         .setTitle("No music playing")
-                        .setDescription(Constants.STOP_EMOJI + " "
+                        .setDescription(Const.STOP_EMOJI + " "
                                 + FormatUtils.progressBar(-1) + " "
                                 + FormatUtils.volumeIcon(audioPlayer.getVolume()))
                         .setColor(guild.getSelfMember().getColor())
@@ -239,11 +239,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                 title = track.getInfo().uri;
             }
             return "**" + title + "** [" + (userid == 0 ? "autoplay" : "<@" + userid + ">") + "]"
-                    + "\r\n" + (audioPlayer.isPaused() ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI) + " "
+                    + "\r\n" + (audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI) + " "
                     + "[" + FormatUtils.formatTime(track.getDuration()) + "] "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume());
         } else {
-            return "No music playing " + Constants.STOP_EMOJI + " "
+            return "No music playing " + Const.STOP_EMOJI + " "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume());
         }
     }

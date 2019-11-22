@@ -10,7 +10,10 @@ import java.util.Map;
 /**
  * @author Oliver Johnson
  */
-public class Constants {
+// TODO Rewrite to enums
+public final class Const {
+    private Const() {}
+
     public final static List<Permission> RECOMMENDED_PERMS = new ArrayList<>();
     static {
         RECOMMENDED_PERMS.add(Permission.MESSAGE_READ);
@@ -31,12 +34,14 @@ public class Constants {
     static final String GUILD_SETTINGS_JSON = "settings_guild.json";
     public static final String STATUSES_JSON = "rotation.json";
 
-    public static final Integer DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-    public static final Integer EIGHT_MEGABYTES_IN_BYTES = 8 * 1024 * 1024;
-    public static final Integer STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;
+    public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+    public static final int EIGHT_MEGABYTES_IN_BYTES = 8 * 1024 * 1024;
+    public static final int STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;
+    public static final int BITS_IN_BYTE = 1024;
+    public static final int SECONDS_IN_MINUTES = 60;
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
-    public static final String[] SUPPORTED_MEDIA_FORMATS = {".jpg", ".png", ".mp4"};
+    public static final String[] SUPPORTED_MEDIA_FORMATS = {".jpg", ".png", ".mp4"}; // TODO enum
     public static final String JSON_EXTENSION = ".json";
     public static final String HTML_EXTENSION = ".html";
     public static final String TXT_EXTENSION = ".txt";
@@ -70,5 +75,4 @@ public class Constants {
     public final static String VOLUME_30_EMOJI = "\uD83D\uDD08";    // 🔈
     public final static String VOLUME_70_EMOJI = "\uD83D\uDD09";    // 🔉
     public final static String VOLUME_100_EMOJI = "\uD83D\uDD0A";   // 🔊
-
 }

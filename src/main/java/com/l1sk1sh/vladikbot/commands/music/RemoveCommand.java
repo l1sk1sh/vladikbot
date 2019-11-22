@@ -25,7 +25,7 @@ public class RemoveCommand extends MusicCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         if (audioHandler.getQueue().isEmpty()) {
             event.replyError("There is nothing in the queue!");
@@ -74,8 +74,10 @@ public class RemoveCommand extends MusicCommand {
             }
             event.replySuccess(String.format(
                     "Removed **%1$s** from the queue (requested by *%2$s*)",
-                    queuedTrack.getTrack().getInfo().title,
-                    ((user == null) ? "someone" : user.getName()))
+                        queuedTrack.getTrack().getInfo().title,
+                        ((user == null)
+                                ? "someone"
+                                : user.getName()))
             );
         } else {
             event.replyError(String.format("You cannot remove **%1$s** because you didn't add it!",

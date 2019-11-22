@@ -65,16 +65,18 @@ public class EmojiStatsService {
     }
 
     private void processArguments(String[] args) {
-        if (args.length > 0) {
-            for (String arg : args) {
-                switch (arg) {
-                    case "-iu":
-                        ignoreUnknownEmoji = true;
-                        /* falls through */
-                    case "-i":
-                        includeUnicodeEmoji = true;
-                        break;
-                }
+        if (args.length == 0) {
+            return;
+        }
+
+        for (String arg : args) {
+            switch (arg) {
+                case "-iu":
+                    ignoreUnknownEmoji = true;
+                    /* Falls through */
+                case "-i":
+                    includeUnicodeEmoji = true;
+                    break;
             }
         }
     }
@@ -89,8 +91,9 @@ public class EmojiStatsService {
         boolean present = false;
 
         for (Emote serverEmoji : serverEmojiList) {
-            if (serverEmoji.getName().toLowerCase().equals(emoji.replaceAll(":", "")))
+            if (serverEmoji.getName().equalsIgnoreCase(emoji.replaceAll(":", ""))) {
                 present = true;
+            }
         }
 
         return present;

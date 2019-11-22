@@ -8,6 +8,8 @@ import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
 
+import static com.l1sk1sh.vladikbot.settings.Const.BITS_IN_BYTE;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -28,7 +30,7 @@ public class DebugCommand extends OwnerCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected final void execute(CommandEvent event) {
         StringBuilder sb = new StringBuilder();
         sb.append("System Properties:");
         for (String key : PROPERTIES) {
@@ -48,8 +50,8 @@ public class DebugCommand extends OwnerCommand {
                 .append("\n  JDA-Utilities Version = ").append(JDAUtilitiesInfo.VERSION)
                 .append("\n  Lavaplayer Version = ").append(PlayerLibrary.VERSION);
 
-        long total = Runtime.getRuntime().totalMemory() / 1024 / 1024;
-        long used = total - (Runtime.getRuntime().freeMemory() / 1024 / 1024);
+        long total = Runtime.getRuntime().totalMemory() / BITS_IN_BYTE / BITS_IN_BYTE;
+        long used = total - (Runtime.getRuntime().freeMemory() / BITS_IN_BYTE / BITS_IN_BYTE);
         sb.append("\n\nRuntime Information:")
                 .append("\n  Total Memory = ").append(total)
                 .append("\n  Used Memory = ").append(used);

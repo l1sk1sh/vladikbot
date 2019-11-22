@@ -3,8 +3,8 @@ package com.l1sk1sh.vladikbot.commands.dj;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.commands.music.MusicCommand;
-import com.l1sk1sh.vladikbot.settings.GuildSettings;
-import com.l1sk1sh.vladikbot.settings.GuildSettingsManager;
+import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
+import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Role;
 
@@ -34,7 +34,7 @@ public abstract class DJCommand extends MusicCommand {
         }
 
         /* Intentionally calling GuildSettingsManager instead of `bot` due to strange bug in help output */
-        GuildSettings settings = (GuildSettings) new GuildSettingsManager().getSettings(event.getGuild());
+        GuildSpecificSettings settings = (GuildSpecificSettings) new GuildSpecificSettingsManager().getSettings(event.getGuild());
         Role djRole = Objects.requireNonNull(settings).getDjRole(event.getGuild());
         return djRole != null && (event.getMember().getRoles().contains(djRole)
                 || djRole.getIdLong() == event.getGuild().getIdLong());

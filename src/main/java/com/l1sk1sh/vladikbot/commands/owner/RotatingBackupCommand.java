@@ -25,8 +25,9 @@ public class RotatingBackupCommand extends OwnerCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
-        StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Backup Rotation Management Commands:\r\n");
+    protected final void execute(CommandEvent event) {
+        String message = event.getClient().getWarning() + " Backup Rotation Management Commands:\r\n";
+        StringBuilder builder = new StringBuilder(message);
         for (Command cmd : this.children) {
             builder.append("\r\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName())
                     .append(" ").append(cmd.getArguments()
@@ -44,7 +45,7 @@ public class RotatingBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             String[] args = event.getArgs().split("\\s+");
             if (args.length > 0) {
                 for (String arg : args) {
@@ -82,7 +83,7 @@ public class RotatingBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             String[] args = event.getArgs().split("\\s+");
             if (args.length > 0) {
                 for (String arg : args) {
@@ -119,7 +120,7 @@ public class RotatingBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             bot.getRotatingBackupChannelService().execute();
         }
     }
@@ -132,7 +133,7 @@ public class RotatingBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected void execute(CommandEvent event) {
+        protected final void execute(CommandEvent event) {
             bot.getRotatingBackupMediaService().execute();
         }
     }

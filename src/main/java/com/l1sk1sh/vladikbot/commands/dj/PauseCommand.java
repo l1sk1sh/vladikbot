@@ -19,7 +19,7 @@ public class PauseCommand extends DJCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         if (audioHandler.getPlayer().isPaused()) {
             event.replyWarning(String.format("The player is already paused! Use `%1$splay` to unpause!",

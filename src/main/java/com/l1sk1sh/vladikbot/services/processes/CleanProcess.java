@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.services.processes;
 
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +14,7 @@ import java.util.List;
 public class CleanProcess {
     private static final Logger log = LoggerFactory.getLogger(CleanProcess.class);
 
-    public CleanProcess(List<String> command) throws IOException, NotFound, InterruptedException {
+    public CleanProcess(List<String> command) throws IOException, IllegalStateException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
         pb.command(command);
@@ -27,7 +26,7 @@ public class CleanProcess {
         while ((line = br.readLine()) != null) {
             log.debug(line);
             if (line.contains("No such container")) {
-                throw new NotFound();
+                throw new IllegalStateException();
             } else if (line.contains("Error")) {
                 throw new IOException(line);
             }

@@ -3,10 +3,9 @@ package com.l1sk1sh.vladikbot.services;
 import com.l1sk1sh.vladikbot.services.processes.BackupProcess;
 import com.l1sk1sh.vladikbot.services.processes.CleanProcess;
 import com.l1sk1sh.vladikbot.services.processes.CopyProcess;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.models.LockService;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
-import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +48,7 @@ public class BackupChannelService {
         this.dockerPathToExport = dockerPathToExport;
         this.dockerContainerName = dockerContainerName;
         this.token = token;
-        String extension = Constants.FORMAT_EXTENSION.get(format);
+        String extension = Const.FORMAT_EXTENSION.get(format);
 
         try {
             lock.setLocked(true);
@@ -59,25 +58,25 @@ public class BackupChannelService {
 
             /* If file is absent or was made more than 24 hours ago - create new backup */
             if ((exportedFile == null)
-                    || ((System.currentTimeMillis() - exportedFile.lastModified()) > Constants.DAY_IN_MILLISECONDS)
+                    || ((System.currentTimeMillis() - exportedFile.lastModified()) > Const.DAY_IN_MILLISECONDS)
                     || forceBackup) {
 
                 log.info("Clearing docker container before launch...");
-                log.debug("Passing command {}", constructCleanCommand());
+                log.debug("CleanProcess receives command {}", constructCleanCommand());
                 try {
                     new CleanProcess(constructCleanCommand());
                     log.info("Container was running and it was cleared.");
-                } catch (NotFound notFound) {
+                } catch (IllegalStateException notFound) {
                     log.info("There was no docker container found.");
                 }
 
                 log.info("Waiting for backup to finish...");
-                log.debug("Passing command {}", constructBackupCommand());
+                log.debug("BackupProcess receives command {}", constructBackupCommand());
                 new BackupProcess(constructBackupCommand());
 
-                FileUtils.deleteFilesByIdAndExtension(localPathToExport, channelId, extension);
+                FileUtils.deleteFilesByChannelIdAndExtension(localPathToExport, channelId, extension);
                 log.info("Copying received file...");
-                log.debug("Passing command {}", constructCopyCommand());
+                log.debug("CopyProcess receives command {}", constructCopyCommand());
                 new CopyProcess(constructCopyCommand());
 
                 exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
@@ -85,6 +84,10 @@ public class BackupChannelService {
                     throw new FileNotFoundException("Failed to find or create backup of a channel");
                 }
             }
+        } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
+            String msg = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
+            log.error(msg);
+            throw new InvalidParameterException(msg);
         } catch (IOException ioe) {
             String msg = String.format("Failed to find exported file [%s]", ioe.getLocalizedMessage());
             log.error(msg);
@@ -96,11 +99,11 @@ public class BackupChannelService {
         } finally {
             try {
                 log.info("Cleaning docker container...");
-                log.debug("Passing command {}", constructCleanCommand());
+                log.debug("Final CleanProcess receives command {}", constructCleanCommand());
                 new CleanProcess(constructCleanCommand());
             } catch (InterruptedException ire) {
                 log.error("Clean process thread was interrupted {}", ire.getLocalizedMessage());
-            } catch (NotFound nf) {
+            } catch (IllegalStateException notFound) {
                 log.error("Container was not found");
             } finally {
                 lock.setLocked(false);
@@ -155,49 +158,45 @@ public class BackupChannelService {
         return command;
     }
 
-    private void processArguments(String[] args) throws InvalidParameterException {
-        try {
-            if (args.length > 0) {
-                for (int i = 0; i < args.length; i++) {
-                    switch (args[i]) {
-                        case "-b":
-                        case "-before":
-                            if (validateDateFormat(args[i + 1])) {
-                                beforeDate = (args[i + 1]);
-                            } else {
-                                throw new InvalidParameterException();
-                            }
-                            break;
-                        case "-a":
-                        case "--after":
-                            if (validateDateFormat(args[i + 1])) {
-                                afterDate = (args[i + 1]);
-                            } else {
-                                throw new InvalidParameterException();
-                            }
-                            break;
-                        case "-f":
-                        case "--force":
-                            forceBackup = true;
-                            break;
+    private void processArguments(String[] args) throws InvalidParameterException, ParseException {
+        if (args.length == 0) {
+            return;
+        }
+
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "-b":
+                case "-before":
+                    if (validateDateFormat(args[i + 1])) {
+                        beforeDate = (args[i + 1]);
+                    } else {
+                        throw new InvalidParameterException();
                     }
-                }
+                    break;
+                case "-a":
+                case "--after":
+                    if (validateDateFormat(args[i + 1])) {
+                        afterDate = (args[i + 1]);
+                    } else {
+                        throw new InvalidParameterException();
+                    }
+                    break;
+                case "-f":
+                case "--force":
+                    forceBackup = true;
+                    break;
             }
+        }
 
-            /* Check if dates are within correct period (if "before" is more than "after" date) */
-            if (beforeDate != null && afterDate != null) {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        /* Check if dates are within correct period (if "before" is more than "after" date) */
+        if (beforeDate != null && afterDate != null) {
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
 
-                Date before = simpleDateFormat.parse(beforeDate);
-                Date after = simpleDateFormat.parse(afterDate);
-                if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
-                    throw new InvalidParameterException();
-                }
+            Date before = simpleDateFormat.parse(beforeDate);
+            Date after = simpleDateFormat.parse(afterDate);
+            if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
+                throw new InvalidParameterException();
             }
-        } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
-            String msg = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
-            log.error(msg);
-            throw new InvalidParameterException(msg);
         }
     }
 
@@ -205,7 +204,7 @@ public class BackupChannelService {
         return date.matches("([0-9]{2})/([0-9]{2})/([0-9]{4})");
     }
 
-    public File getExportedFile() {
+    public final File getExportedFile() {
         return exportedFile;
     }
 }

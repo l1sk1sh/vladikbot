@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class PlaylistCommand extends OwnerCommand {
     private final Bot bot;
+    private String spacesLiteral = "\\s+";
 
     public PlaylistCommand(Bot bot) {
         this.bot = bot;
@@ -36,12 +37,22 @@ public class PlaylistCommand extends OwnerCommand {
     }
 
     @Override
+    // TODO Create separate command for listing child sub-commands
     public void execute(CommandEvent event) {
-        StringBuilder builder = new StringBuilder(event.getClient().getWarning() + " Playlist Management Commands:\r\n");
+        String message = event.getClient().getWarning() + " Playlist Management Commands:\r\n";
+        StringBuilder builder = new StringBuilder(message);
         for (Command cmd : this.children) {
-            builder.append("\r\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName())
-                    .append(" ").append(cmd.getArguments()
-                    == null ? "" : cmd.getArguments()).append("` - ").append(cmd.getHelp());
+            builder.append("\r\n`")
+                    .append(event.getClient().getPrefix())
+                    .append(name)
+                    .append(" ")
+                    .append(cmd.getName())
+                    .append(" ")
+                    .append(cmd.getArguments() == null
+                            ? ""
+                            : cmd.getArguments())
+                    .append("` - ")
+                    .append(cmd.getHelp());
         }
         event.reply(builder.toString());
     }
@@ -57,7 +68,7 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String pname = event.getArgs().replaceAll("\\s+", "_");
+            String pname = event.getArgs().replaceAll(spacesLiteral, "_");
             if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
                 try {
                     bot.getPlaylistLoader().createPlaylist(pname);
@@ -88,7 +99,8 @@ public class PlaylistCommand extends OwnerCommand {
                 } else if (list.isEmpty()) {
                     event.replyWarning("There are no playlists in the Playlists folder!");
                 } else {
-                    StringBuilder builder = new StringBuilder(event.getClient().getSuccess() + " Available playlists:\r\n");
+                    String message = event.getClient().getSuccess() + " Available playlists:\r\n";
+                    StringBuilder builder = new StringBuilder(message);
                     list.forEach(str -> builder.append("`").append(str).append("` "));
                     event.reply(builder.toString());
                 }
@@ -109,7 +121,7 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String[] parts = event.getArgs().split("\\s+", 2);
+            String[] parts = event.getArgs().split(spacesLiteral, 2);
             if (parts.length < 2) {
                 event.replyError("Please include a playlist name and URLs to add!");
                 return;
@@ -156,7 +168,7 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String pname = event.getArgs().replaceAll("\\s+", "_");
+            String pname = event.getArgs().replaceAll(spacesLiteral, "_");
             if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
                 event.replyError(String.format("Playlist `%1$s` doesn't exist!", pname));
             } else {
@@ -193,7 +205,7 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String pname = event.getArgs().replaceAll("\\s+", "_");
+            String pname = event.getArgs().replaceAll(spacesLiteral, "_");
             if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
                 event.replyError(String.format("Playlist `%1$s` doesn't exist!", pname));
             } else {

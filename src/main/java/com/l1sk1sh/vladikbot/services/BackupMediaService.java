@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.models.LockService;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
@@ -34,12 +34,19 @@ public class BackupMediaService {
 
     private boolean doZip = false;
     private boolean useSupportedMedia = true;
-    private boolean downloadComplete;
+    private boolean downloadToZipComplete;
+    private String genericFileName;
+    private String localTmpPath;
+    private String localMediaPath;
+    private String channelId;
     private File resultFile;
 
     public BackupMediaService(File exportedFile, String channelId, String localTmpPath, String localMediaPath,
-                              String genericFileName, String[] args, LockService lock)
-            throws IOException {
+                              String genericFileName, String[] args, LockService lock) throws IOException {
+        this.genericFileName = genericFileName;
+        this.localTmpPath = localTmpPath;
+        this.localMediaPath = localMediaPath;
+        this.channelId = channelId;
 
         try {
             lock.setLocked(true);
@@ -51,66 +58,23 @@ public class BackupMediaService {
             Set<String> setOfMediaUrls = new HashSet<>();
 
             while (urlAttachmentsMatcher.find()) {
-                if (useSupportedMedia) {
-                    if (StringUtils.notInArray(urlAttachmentsMatcher.group(), Constants.SUPPORTED_MEDIA_FORMATS)) {
-                        continue;
-                    }
+                if (useSupportedMedia && StringUtils.notInArray(urlAttachmentsMatcher.group(), Const.SUPPORTED_MEDIA_FORMATS)) {
+                    continue;
                 }
                 setOfMediaUrls.add(urlAttachmentsMatcher.group());
             }
 
             log.info("Writing media URLs into a file.");
             if (useSupportedMedia) {
-                StringBuilder htmlContent = new StringBuilder();
-                htmlContent.append("<!doctype html><html lang=\"en\"><head>");
-                htmlContent.append(String.format("<title>%s</title>", genericFileName));
-                htmlContent.append("</head><style>img {border: 1px solid #ddd;border-radius: 4px;");
-                htmlContent.append("padding: 5px;width: 150px;}img:hover {");
-                htmlContent.append("box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);}</style><body>");
-                for (String url : setOfMediaUrls) {
-                    htmlContent.append(String.format("<a target=\"_blank\" href=\"%s\"><img src=\"%s\"></a>", url, url));
-                }
-                htmlContent.append("</body></html>");
-                String pathToHtmlFile = localTmpPath + genericFileName + Constants.HTML_EXTENSION;
-                Files.write(Paths.get(pathToHtmlFile), htmlContent.toString().getBytes());
-                resultFile = new File(pathToHtmlFile);
+                writeHtmlMediaListFile(setOfMediaUrls);
             } else {
-                String pathToTxtFile = localTmpPath + genericFileName + Constants.TXT_EXTENSION;
+                String pathToTxtFile = localTmpPath + genericFileName + Const.TXT_EXTENSION;
                 FileUtils.writeSetToFile(pathToTxtFile, setOfMediaUrls);
                 resultFile = new File(pathToTxtFile);
             }
 
             if (doZip) {
-                log.info("Downloading media files from Discord CDN.");
-                String mediaFolderPath = localMediaPath + "/" + channelId + "/";
-
-                if (fileOrFolderIsAbsent(mediaFolderPath)) {
-                    log.info("Creating [{}] directory.", mediaFolderPath);
-                    createFolders(mediaFolderPath);
-                }
-
-                for (String mediaUrl : setOfMediaUrls) {
-                    if (useSupportedMedia) {
-                        if (StringUtils.notInArray(mediaUrl, Constants.SUPPORTED_MEDIA_FORMATS)) continue;
-                    }
-
-                    String tempUrl = StringUtils.replaceLast(mediaUrl, "/", "_"); /* Replacing last '/' */
-                    Matcher urlNameMatcher = Pattern.compile("[^/]+$").matcher(tempUrl); /* Getting exact file name */
-                    if (urlNameMatcher.find()) {
-                        String remoteFileName = urlNameMatcher.group();
-                        downloadFile(new URL(mediaUrl), mediaFolderPath + remoteFileName);
-                    }
-                }
-
-                FileOutputStream fos = new FileOutputStream(mediaFolderPath + System.currentTimeMillis() + ".zip");
-                ZipOutputStream zipOut = new ZipOutputStream(fos);
-                File fileToZip = new File(mediaFolderPath);
-
-                zipFile(fileToZip, fileToZip.getName(), zipOut);
-                zipOut.close();
-                fos.close();
-
-                downloadComplete = true;
+                downloadMediaAndSaveToZip(setOfMediaUrls);
             }
 
         } catch (IOException e) {
@@ -121,11 +85,60 @@ public class BackupMediaService {
         }
     }
 
+    private void writeHtmlMediaListFile(Set<String> setOfMediaUrls) throws IOException {
+        StringBuilder htmlContent = new StringBuilder();
+        htmlContent.append("<!doctype html><html lang=\"en\"><head>");
+        htmlContent.append(String.format("<title>%s</title>", genericFileName));
+        htmlContent.append("</head><style>img {border: 1px solid #ddd;border-radius: 4px;");
+        htmlContent.append("padding: 5px;width: 150px;}img:hover {");
+        htmlContent.append("box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);}</style><body>");
+        for (String url : setOfMediaUrls) {
+            htmlContent.append(String.format("<a target=\"_blank\" href=\"%s\"><img src=\"%s\"></a>", url, url));
+        }
+        htmlContent.append("</body></html>");
+        String pathToHtmlFile = localTmpPath + genericFileName + Const.HTML_EXTENSION;
+        Files.write(Paths.get(pathToHtmlFile), htmlContent.toString().getBytes());
+        resultFile = new File(pathToHtmlFile);
+    }
+
+    private void downloadMediaAndSaveToZip(Set<String> setOfMediaUrls) throws IOException {
+        log.info("Downloading media files from Discord CDN...");
+        String mediaFolderPath = localMediaPath + "/" + channelId + "/";
+
+        if (fileOrFolderIsAbsent(mediaFolderPath)) {
+            log.info("Creating [{}] directory.", mediaFolderPath);
+            createFolders(mediaFolderPath);
+        }
+
+        for (String mediaUrl : setOfMediaUrls) {
+            if (useSupportedMedia && StringUtils.notInArray(mediaUrl, Const.SUPPORTED_MEDIA_FORMATS)) {
+                continue;
+            }
+
+            String tempUrl = StringUtils.replaceLast(mediaUrl, "/", "_"); /* Replacing last '/' */
+            Matcher urlNameMatcher = Pattern.compile("[^/]+$").matcher(tempUrl); /* Getting exact file name */
+            if (urlNameMatcher.find()) {
+                String remoteFileName = urlNameMatcher.group();
+                downloadFile(new URL(mediaUrl), mediaFolderPath + remoteFileName);
+            }
+        }
+
+        FileOutputStream fos = new FileOutputStream(mediaFolderPath + System.currentTimeMillis() + ".zip");
+        ZipOutputStream zipOut = new ZipOutputStream(fos);
+        File fileToZip = new File(mediaFolderPath);
+
+        zipFile(fileToZip, fileToZip.getName(), zipOut);
+        zipOut.close();
+        fos.close();
+
+        downloadToZipComplete = true;
+    }
+
     private void downloadFile(URL url, String localFileNamePath) throws IOException {
         if (fileOrFolderIsAbsent(localFileNamePath)) {
-            log.info("Downloading file [{}]", localFileNamePath);
+            log.info("Downloading file [{}].", localFileNamePath);
             URLConnection connection = url.openConnection();
-            connection.setRequestProperty("User-Agent", Constants.USER_AGENT);
+            connection.setRequestProperty("User-Agent", Const.USER_AGENT);
             ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());
             FileOutputStream fileOutputStream = new FileOutputStream(localFileNamePath);
             FileChannel writeChannel = fileOutputStream.getChannel();
@@ -134,31 +147,33 @@ public class BackupMediaService {
     }
 
     private void processArguments(String[] args) {
-        if (args.length > 0) {
-            for (String arg : args) {
-                switch (arg) {
-                    case "-z":
-                    case "--zip":
-                        doZip = true;
-                        break;
-                    case "-a":
-                    case "--all":
-                        useSupportedMedia = false;
-                        break;
-                }
+        if (args.length == 0) {
+            return;
+        }
+
+        for (String arg : args) {
+            switch (arg) {
+                case "-z":
+                case "--zip":
+                    doZip = true;
+                    break;
+                case "-a":
+                case "--all":
+                    useSupportedMedia = false;
+                    break;
             }
         }
     }
 
-    public boolean doZip() {
+    public final boolean doZip() {
         return doZip;
     }
 
-    public boolean isDownloadComplete() {
-        return downloadComplete;
+    public final boolean isDownloadToZipComplete() {
+        return downloadToZipComplete;
     }
 
-    public File getMediaUrlsFile() {
+    public final File getMediaUrlsFile() {
         return resultFile;
     }
 }

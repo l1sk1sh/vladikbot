@@ -12,6 +12,7 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -23,7 +24,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class NowPlayingHandler {
     private final Bot bot;
-    private final HashMap<Long, Pair<Long, Long>> lastNP; /* guild -> channel, message */
+    private final Map<Long, Pair<Long, Long>> lastNP; /* guild -> channel, message */
 
     public NowPlayingHandler(Bot bot) {
         this.bot = bot;
@@ -45,16 +46,19 @@ public class NowPlayingHandler {
     }
 
     private void updateAll() {
+        /* Might be subject to bug connected with music playing. Review commit when this message was added */
         Set<Long> toRemove = new HashSet<>();
 
-        for (long guildId : lastNP.keySet()) {
+        for (Map.Entry<Long, Pair<Long, Long>> entry : lastNP.entrySet()) {
+            long guildId = entry.getKey();
+
             Guild guild = bot.getJDA().getGuildById(guildId);
             if (guild == null) {
                 toRemove.add(guildId);
                 continue;
             }
 
-            Pair<Long, Long> pair = lastNP.get(guildId);
+            Pair<Long, Long> pair = entry.getValue();
             TextChannel textChannel = guild.getTextChannelById(pair.getKey());
             if (textChannel == null) {
                 toRemove.add(guildId);
@@ -75,6 +79,7 @@ public class NowPlayingHandler {
                 toRemove.add(guildId);
             }
         }
+
         toRemove.forEach(lastNP::remove);
     }
 

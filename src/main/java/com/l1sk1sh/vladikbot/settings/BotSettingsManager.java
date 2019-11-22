@@ -1,12 +1,13 @@
 package com.l1sk1sh.vladikbot.settings;
 
+import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.file.Files;
 
-import static com.l1sk1sh.vladikbot.settings.Constants.BOT_SETTINGS_JSON;
+import static com.l1sk1sh.vladikbot.settings.Const.BOT_SETTINGS_JSON;
 
 /**
  * @author Oliver Johnson
@@ -23,7 +24,7 @@ public class BotSettingsManager extends AbstractSettingsManager {
             this.botSettings = new BotSettings(this);
             writeSettings();
             log.warn(String.format("Created %s. You will have to setup it manually", BOT_SETTINGS_JSON));
-            System.exit(1);
+            SystemUtils.exit(1, 5000);
         } else {
             try {
                 this.botSettings = gson.fromJson(
@@ -42,7 +43,7 @@ public class BotSettingsManager extends AbstractSettingsManager {
         }
     }
 
-    void writeSettings() {
+    final void writeSettings() {
         super.writeSettings(botSettings, botConfigFile);
     }
 

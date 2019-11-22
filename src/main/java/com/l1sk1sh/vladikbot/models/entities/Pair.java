@@ -15,11 +15,11 @@ public class Pair<K, V> {
         this.value = value;
     }
 
-    public K getKey() {
+    public final K getKey() {
         return key;
     }
 
-    public V getValue() {
+    public final V getValue() {
         return value;
     }
 }

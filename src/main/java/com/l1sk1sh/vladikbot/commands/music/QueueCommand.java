@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
@@ -94,12 +94,12 @@ public class QueueCommand extends MusicCommand {
         StringBuilder stringBuilder = new StringBuilder();
         if (audioPlayer.getPlayer().getPlayingTrack() != null) {
             stringBuilder.append(audioPlayer.getPlayer().isPaused()
-                    ? Constants.PAUSE_EMOJI : Constants.PLAY_EMOJI).append(" **")
+                    ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI).append(" **")
                     .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\r\n");
         }
 
         return FormatUtils.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)
                 .append(" entries | `").append(FormatUtils.formatTime(total)).append("` ")
-                .append(repeatmode ? "| " + Constants.REPEAT_EMOJI : "").toString());
+                .append(repeatmode ? "| " + Const.REPEAT_EMOJI : "").toString());
     }
 }

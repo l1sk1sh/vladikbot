@@ -17,20 +17,20 @@ public class ReactionRule {
         this.reactWithList = reactWithList;
     }
 
-    public String getRuleName() {
+    public final String getRuleName() {
         return ruleName;
     }
 
-    public List<String> getReactToList() {
+    public final List<String> getReactToList() {
         return reactToList;
     }
 
-    public List<String> getReactWithList() {
+    public final List<String> getReactWithList() {
         return reactWithList;
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return ruleName + ":" + Arrays.toString(reactToList.toArray())
                 + "  " + Arrays.toString(reactWithList.toArray());
     }

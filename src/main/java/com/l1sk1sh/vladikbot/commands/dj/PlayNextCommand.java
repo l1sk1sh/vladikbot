@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.commands.dj;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -105,7 +105,7 @@ public class PlayNextCommand extends DJCommand {
                 ).queue();
             } else {
                 bot.getPlayerManager().loadItemOrdered(event.getGuild(),
-                        Constants.YT_SEARCH_PREFIX + event.getArgs(), new ResultHandler(message, event, true));
+                        Const.YT_SEARCH_PREFIX + event.getArgs(), new ResultHandler(message, event, true));
             }
         }
 

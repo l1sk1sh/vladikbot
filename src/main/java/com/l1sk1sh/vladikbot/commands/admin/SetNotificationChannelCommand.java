@@ -22,7 +22,7 @@ public class SetNotificationChannelCommand extends AdminCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected final void execute(CommandEvent event) {
         if (event.getArgs().isEmpty()) {
             event.replyError("Please include a text channel or *none*.");
             return;

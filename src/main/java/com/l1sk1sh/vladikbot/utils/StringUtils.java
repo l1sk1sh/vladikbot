@@ -8,7 +8,9 @@ import java.util.Date;
 /**
  * @author Oliver Johnson
  */
-public class StringUtils {
+public final class StringUtils {
+    private StringUtils() {}
+
     public static String replaceLast(String string, String find, String replace) {
         int lastIndex = string.lastIndexOf(find);
 

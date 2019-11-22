@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.services;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
-import com.l1sk1sh.vladikbot.settings.Constants;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import net.dv8tion.jda.core.entities.Game;
 import org.slf4j.Logger;
@@ -25,6 +25,7 @@ import static com.l1sk1sh.vladikbot.utils.FileUtils.fileOrFolderIsAbsent;
 /**
  * @author Oliver Johnson
  */
+// TODO Rewrite using custom Class for Game + Status, not Map
 public class ActionAndGameRotationManager {
     private static final Logger log = LoggerFactory.getLogger(ActionAndGameRotationManager.class);
 
@@ -60,7 +61,7 @@ public class ActionAndGameRotationManager {
 
             pairs = new HashMap<>();
             for (File file : Objects.requireNonNull(folder.listFiles())) {
-                if (file.getName().equals(Constants.STATUSES_JSON)) {
+                if (file.getName().equals(Const.STATUSES_JSON)) {
 
                     //noinspection unchecked
                     pairs = gson.fromJson(new FileReader(bot.getBotSettings().getRotationFolder()
@@ -81,18 +82,20 @@ public class ActionAndGameRotationManager {
         }
     }
 
-    private String[] getRandomStatusAndGame() {
+    private Map.Entry<String, String> getRandomStatusAndGame() {
         try {
             Map<String, String> pairs = getActionsAndGames();
             Object[] keySet = pairs.keySet().toArray();
 
             String chosenGame = (String) keySet[new Random().nextInt(keySet.length)];
 
-            log.debug("Chosen randomly: action - {}, game - {}", pairs.get(chosenGame), chosenGame);
-            return new String[]{pairs.get(chosenGame), chosenGame};
+            Map.Entry<String, String> randomPair = new HashMap.SimpleEntry<>(chosenGame, pairs.get(chosenGame));
+            log.debug("Chosen randomly: action - {}, game - {}", randomPair.getValue(), randomPair.getKey());
+
+            return randomPair;
         } catch (IOException e) {
             log.error("Failed to get random action and game {}", e.getLocalizedMessage());
-            return null;
+            return new HashMap.SimpleEntry<>("Company of Heroes 2", Const.ACTION_PLAYING);
         }
     }
 
@@ -119,37 +122,33 @@ public class ActionAndGameRotationManager {
 
     private void writeJson(Map<String, String> pairs) throws IOException {
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getBotSettings().getRotationFolder() + Constants.STATUSES_JSON));
+                new FileWriter(bot.getBotSettings().getRotationFolder() + Const.STATUSES_JSON));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(pairs, pairs.getClass(), writer);
         writer.close();
     }
 
-    public void activateRotation() {
-        log.debug("Rotating actions-games of the bot");
-        try {
-            Runnable rotation = () -> {
-                String[] chosenPair = getRandomStatusAndGame(); /* [0] - chosen action; [1] - chosen game */
-                log.debug("Trying to set new action and game: {}", Arrays.toString(chosenPair));
-                switch (Objects.requireNonNull(chosenPair)[0]) {
-                    case Constants.ACTION_PLAYING:
-                        bot.getJDA().getPresence().setGame(Game.playing(chosenPair[1]));
-                        break;
-                    case Constants.ACTION_LISTENING:
-                        bot.getJDA().getPresence().setGame(Game.listening(chosenPair[1]));
-                        break;
-                    case Constants.ACTION_WATCHING:
-                        bot.getJDA().getPresence().setGame(Game.watching(chosenPair[1]));
-                        break;
-                }
-            };
+    public final void activateRotation() {
+    log.debug("Rotating actions-games of the bot");
+        Runnable rotation = () -> {
+            Map.Entry<String, String> chosenPair = getRandomStatusAndGame(); /* [0] - chosen action; [1] - chosen game */
 
-            scheduledFuture = scheduler.scheduleWithFixedDelay(
-                    rotation, 30, Constants.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
-        } catch (NullPointerException npe) {
-            log.error("Failed to obtain and set new action-game pair!");
-        }
+            switch (chosenPair.getValue()) {
+                case Const.ACTION_PLAYING:
+                    bot.getJDA().getPresence().setGame(Game.playing(chosenPair.getKey()));
+                    break;
+                case Const.ACTION_LISTENING:
+                    bot.getJDA().getPresence().setGame(Game.listening(chosenPair.getKey()));
+                    break;
+                case Const.ACTION_WATCHING:
+                    bot.getJDA().getPresence().setGame(Game.watching(chosenPair.getKey()));
+                    break;
+            }
+        };
+
+        scheduledFuture = scheduler.scheduleWithFixedDelay(
+                rotation, 30, Const.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     public void stopRotation() {

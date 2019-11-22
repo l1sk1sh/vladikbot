@@ -21,7 +21,7 @@ public class ForceSkipCommand extends DJCommand {
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
         User user = event.getJDA().getUserById(audioHandler.getRequester());
         event.replySuccess(String.format("Skipped **%1$s** (requested by *%2$s*).",

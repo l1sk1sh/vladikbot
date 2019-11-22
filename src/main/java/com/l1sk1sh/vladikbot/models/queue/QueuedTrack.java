@@ -23,16 +23,16 @@ public class QueuedTrack implements Queueable {
     }
 
     @Override
-    public long getIdentifier() {
+    public final long getIdentifier() {
         return track.getUserData(Long.class);
     }
 
-    public AudioTrack getTrack() {
+    public final AudioTrack getTrack() {
         return track;
     }
 
     @Override
-    public String toString() {
+    public final String toString() {
         return "`[" + FormatUtils.formatTime(track.getDuration())
                 + "]` **" + track.getInfo().title + "** - <@" + track.getUserData(Long.class) + ">";
     }
