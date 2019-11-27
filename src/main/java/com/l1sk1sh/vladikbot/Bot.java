@@ -81,6 +81,7 @@ public class Bot {
     }
 
     public void shutdown() {
+        // TODO Why using System.exit Try shutting down all threads
         if (shuttingDown) {
             return;
         }

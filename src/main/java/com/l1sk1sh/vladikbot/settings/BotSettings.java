@@ -14,37 +14,36 @@ public class BotSettings extends AbstractSettings {
     private transient BotSettingsManager manager;
 
     /* Finish all paths with file system separator! */
-    private String token = "MY_BOT_TOKEN";                      // Bot token taken from discord developer portal
-    private long ownerId = 0L;                                  // Id of the person, who is hosting the bot
-    private String dockerContainerName = "disbackup";           // Docker container name
-    private String dockerPathToExport = "/app/out/";            // Docker disbackup workdir (check repository if fails)
-    private String localPathToExport = "./app/tmp/";            // Local workdir
-    private String localMediaFolder = "./app/saved_media/";     // Local storage for downloaded media
-    private String moderationRulesFolder = "app/rules/";        // Local storage for automoderation settings
-    private String prefix = "~";                                // Bot prefix
-    private String helpWord = "help";                           // Help word used for help command
-    private String successEmoji = "\uD83D\uDC4C";               // 👌
-    private String warningEmoji = "\uD83D\uDD95";               // 🖕
-    private String errorEmoji = "\uD83D\uDCA2";                 // 💢
-    private String loadingEmoji = "\uD83E\uDDF6";               // 🧶
-    private String searchingEmoji = "\uD83D\uDD0E";             // 🔎
-    private String game = "watching Ubisoft conference";        // Current name of the 'game' being played by the bot
-    private String onlineStatus = "ONLINE";                     // "online", "idle", "dnd", "invisible", "offline", ""
-    private boolean leaveChannel = true;                        // Leave channel if no one is listening
-    private boolean songInGame = false;                         // Show song as status
-    private boolean npImages = true;                            // Display search images
-    private long maxSeconds = 0L;                               // Maximum song length
-    private String playlistsFolder = "./app/playlists/";        // Local folder for playlists to be stored
-    private boolean repeat = true;                              // If repeat mode is available
-    private boolean autoModeration = false;                     // If to use moderation feature
-    private boolean rotateActionsAndGames = false;              // If bot should change statuses by himself
-    private String rotationListFolder = "./app/rules/rotation/";// Folder that stores statuses.json
-    private boolean rotateTextBackup = true;                    // Automatically create backups of all available chats
-    private boolean rotateMediaBackup = true;                   // Automatically save media from all available chats
-    private int targetHourForTextBackup = 0;                   // Set local TZ hour for text backup to be started
-    private int targetHourForMediaBackup = 0;                  // Set local TZ hour for media backup to be started
-    private int delayDaysForTextBackup = 0;                     // Set delay in days between text backups
-    private int delayDaysForMediaBackup = 0;                    // Set delay in days between text backups
+    private String token = "MY_BOT_TOKEN";                              // Bot token taken from discord developer portal
+    private long ownerId = 0L;                                          // Id of the person, who is hosting the bot
+    private String dockerContainerName = "disbackup";                   // Docker container name
+    private String dockerPathToExport = "/app/out/";                    // Docker disbackup workdir (check repository if fails)
+    private String localTmpPath = "./app/tmp/";                         // Local workdir
+    private String moderationRulesFolder = "./app/rules/";              // Local storage for automoderation settings
+    private String prefix = "~";                                        // Bot prefix
+    private String helpWord = "help";                                   // Help word used for help command
+    private String successEmoji = "\uD83D\uDC4C";                       // 👌
+    private String warningEmoji = "\uD83D\uDD95";                       // 🖕
+    private String errorEmoji = "\uD83D\uDCA2";                         // 💢
+    private String loadingEmoji = "\uD83E\uDDF6";                       // 🧶
+    private String searchingEmoji = "\uD83D\uDD0E";                     // 🔎
+    private String game = "watching Ubisoft conference";                // Current name of the 'game' being played by the bot
+    private String onlineStatus = "ONLINE";                             // "online", "idle", "dnd", "invisible", "offline", ""
+    private boolean leaveChannel = true;                                // Leave channel if no one is listening
+    private boolean songInGame = false;                                 // Show song as status
+    private boolean npImages = true;                                    // Display search images
+    private long maxSeconds = 0L;                                       // Maximum song length
+    private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
+    private boolean repeat = true;                                      // If repeat mode is available
+    private boolean autoModeration = false;                             // If to use moderation feature
+    private boolean rotateActionsAndGames = false;                      // If bot should change statuses by himself
+    private String rotationListFolder = "./app/rules/rotation/";        // Folder that stores statuses.json
+    private boolean rotateTextBackup = true;                            // Automatically create backups of all available chats
+    private boolean rotateMediaBackup = true;                           // Automatically save media from all available chats
+    private int targetHourForTextBackup = 0;                            // Set local TZ hour for text backup to be started
+    private int targetHourForMediaBackup = 0;                           // Set local TZ hour for media backup to be started
+    private int delayDaysForTextBackup = 0;                             // Set delay in days between text backups
+    private int delayDaysForMediaBackup = 0;                            // Set delay in days between text backups
 
     BotSettings(BotSettingsManager manager) {
         this.manager = manager;
@@ -70,8 +69,8 @@ public class BotSettings extends AbstractSettings {
         return dockerPathToExport;
     }
 
-    public final String getLocalPathToExport() {
-        return localPathToExport;
+    public final String getLocalTmpPath() {
+        return localTmpPath;
     }
 
     public final String getPrefix() {
@@ -146,10 +145,6 @@ public class BotSettings extends AbstractSettings {
     public final void setAutoModeration(boolean autoModeration) {
         this.autoModeration = autoModeration;
         manager.writeSettings();
-    }
-
-    public final String getLocalMediaFolder() {
-        return localMediaFolder;
     }
 
     public final String getModerationRulesFolder() {

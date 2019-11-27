@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.RotatingTask;
 import com.l1sk1sh.vladikbot.models.RotatingTaskExecutor;
@@ -44,12 +43,14 @@ public class RotatingBackupChannelService implements RotatingTask {
                 log.info("Starting text backup of {}", channel.getName());
                 bot.getNotificationService().sendMessage(channel.getGuild(),
                         String.format("Starting text backup of channel `%s`", channel.getName()));
+
                 try {
-                    String pathToBackup = bot.getBotSettings().getLocalPathToExport() + "/backup/text/"
+                    String pathToBackup = bot.getBotSettings().getLocalTmpPath() + "/backup/text/"
                             + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
                     FileUtils.createFolders(pathToBackup);
 
-                    new BackupChannelService(
+                    // TODO fix rotation
+                    /*new BackupTextChannelService(
                             channel.getId(),
                             bot.getBotSettings().getToken(),
                             Const.BACKUP_PLAIN_TEXT,
@@ -58,7 +59,7 @@ public class RotatingBackupChannelService implements RotatingTask {
                             bot.getBotSettings().getDockerContainerName(),
                             new String[]{"-f"},
                             bot::setLockedBackup
-                    );
+                    );*/
 
                     log.info("Finished text backup of {}", channel.getName());
                     bot.getNotificationService().sendMessage(channel.getGuild(),

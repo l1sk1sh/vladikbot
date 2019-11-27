@@ -45,6 +45,8 @@ public final class Const {
     public static final String JSON_EXTENSION = ".json";
     public static final String HTML_EXTENSION = ".html";
     public static final String TXT_EXTENSION = ".txt";
+    public static final String CSV_EXTENSION = ".csv";
+    public static final String ZIP_EXTENSION = ".zip";
 
     public static final String ACTION_PLAYING = "playing";
     public static final String ACTION_WATCHING = "watching";
@@ -54,13 +56,17 @@ public final class Const {
     public static final String YT_SEARCH_PREFIX = "ytsearch:";
     public static final String SC_SEARCH_PREFIX = "scsearch:";
 
+    public static final String BACKUP_CSV = "Csv";
     public static final String BACKUP_HTML_DARK = "HtmlDark";
     public static final String BACKUP_PLAIN_TEXT = "PlainText";
+    public static final String BACKUP_HTML_LIGHT = "HtmlLight";
     public static final Map<String, String> FORMAT_EXTENSION;
     static {
         FORMAT_EXTENSION = new HashMap<>();
         FORMAT_EXTENSION.put(BACKUP_HTML_DARK, HTML_EXTENSION);
         FORMAT_EXTENSION.put(BACKUP_PLAIN_TEXT, TXT_EXTENSION);
+        FORMAT_EXTENSION.put(BACKUP_HTML_LIGHT, HTML_EXTENSION);
+        FORMAT_EXTENSION.put(BACKUP_CSV, CSV_EXTENSION);
     }
 
     public final static String PLAY_EMOJI = "\u25B6";               // ▶

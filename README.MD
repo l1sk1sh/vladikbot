@@ -43,9 +43,8 @@ Bot is written using JDA library and common sense.
 18. Separate AutoModeration per guild
 19. Separate status rotation per guild
 20. Extend logger to every error\warning reply
-22. Organize all folder used by bot (especially, used in backup)
 23. Perform code analysis and fix issues (especially duplicates)
-24. Embedded message could тще be switched using emoji after certain time
+24. Embedded message could be switched using emoji after certain time
 25. Rewrite emoji stats to work with time frame as well
 26. Create backup folders rotation and clearing
 27. Cyclomatic complexity

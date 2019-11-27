@@ -25,6 +25,8 @@ import javax.security.auth.login.LoginException;
 /**
  * @author Oliver Johnson
  */
+// TODO Move logs to config
+// TODO Decide whether to static import fileUtils and Const or use direct calls
 final class VladikBot {
     private VladikBot() {}
 
@@ -62,7 +64,7 @@ final class VladikBot {
 
                             new PermissionsCommand(),
                             new BackupMediaCommand(bot),
-                            new BackupChannelCommand(bot),
+                            new BackupTextChannelCommand(bot),
                             new EmojiStatsCommand(waiter, bot),
                             new AutoModerationCommand(bot),
                             new RotatingActionAndGameCommand(bot),

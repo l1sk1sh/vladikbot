@@ -17,7 +17,7 @@ import static com.l1sk1sh.vladikbot.settings.Const.BITS_IN_BYTE;
 public final class FileUtils {
     private FileUtils() {}
 
-    public static File getFileByIdAndExtension(String pathToDir, String id, String extension) throws IOException {
+    public static File getFileByChannelIdAndExtension(String pathToDir, String channelId, String extension) throws IOException {
         Files.createDirectories(Paths.get(pathToDir));
         File folder = new File(pathToDir);
         File[] paths = folder.listFiles();
@@ -25,7 +25,7 @@ public final class FileUtils {
 
         if (paths != null) {
             for (File path : paths) {
-                if (path.toString().contains(id) && path.toString().contains(extension)) {
+                if (path.toString().contains(channelId) && path.toString().contains(extension)) {
                     if (file != null) {
                         file = (file.lastModified() > path.lastModified()) ? file : path;
                     } else {

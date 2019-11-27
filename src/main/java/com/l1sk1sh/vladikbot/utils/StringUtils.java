@@ -24,11 +24,13 @@ public final class StringUtils {
         return beginString + replace + endString;
     }
 
-    public static boolean notInArray(String input, String[] check) {
+    public static boolean inArray(String input, String[] check) {
         for (String value : check) {
-            if (input.contains(value)) return false;
+            if (input.contains(value)) {
+                return true;
+            }
         }
-        return true;
+        return false;
     }
 
     public static String getCurrentDate() {

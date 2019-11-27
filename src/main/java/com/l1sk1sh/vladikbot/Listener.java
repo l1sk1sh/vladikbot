@@ -81,6 +81,11 @@ class Listener extends ListenerAdapter {
             log.info("Enabling Rotation text backup service...");
             bot.getRotatingBackupChannelService().enableExecution();
         }
+
+        if (botSettings.shouldRotateActionsAndGames()) {
+            log.info("Enabling Rotation of Action and Game");
+            bot.getActionAndGameRotationManager().activateRotation();
+        }
     }
 
     @Override

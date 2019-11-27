@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.services;
 
+import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.processes.BackupProcess;
 import com.l1sk1sh.vladikbot.services.processes.CleanProcess;
 import com.l1sk1sh.vladikbot.services.processes.CopyProcess;
 import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.models.LockService;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,90 +23,106 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class BackupChannelService {
-    private static final Logger log = LoggerFactory.getLogger(BackupChannelService.class);
+public class BackupTextChannelService implements Runnable {
+    private static final Logger log = LoggerFactory.getLogger(BackupTextChannelService.class);
 
-    private File exportedFile;
-    private final String channelId;
-    private final String format;
+    private final Bot bot;
+    private File backupFile;
     private String beforeDate;
     private String afterDate;
+    private String failMessage;
+    private String[] args;
+    private final String channelId;
+    private final String format;
     private final String localPathToExport;
     private final String dockerPathToExport;
     private final String dockerContainerName;
     private final String token;
-    private boolean forceBackup = false;
+    private final String extension;
+    private boolean ignoreExisting = true;
+    private boolean hasFailed = false;
 
-    public BackupChannelService(String channelId, String token, String format,
-                                String localPathToExport, String dockerPathToExport,
-                                String dockerContainerName, String[] args, LockService lock)
-            throws InvalidParameterException, InterruptedException, IOException {
-
+    public BackupTextChannelService(Bot bot, String channelId, String format, String localPathToExport, String[] args) {
+        this.bot = bot;
+        this.args = args;
         this.channelId = channelId;
+        this.token = bot.getBotSettings().getToken();
         this.format = format;
-        this.localPathToExport = localPathToExport;
-        this.dockerPathToExport = dockerPathToExport;
-        this.dockerContainerName = dockerContainerName;
-        this.token = token;
-        String extension = Const.FORMAT_EXTENSION.get(format);
+        this.extension = Const.FORMAT_EXTENSION.get(format);
+        this.localPathToExport = localPathToExport + "text/"; /* Always moving text backups to separate folder */
+        this.dockerPathToExport = bot.getBotSettings().getDockerPathToExport();
+        this.dockerContainerName = bot.getBotSettings().getDockerContainerName();
+    }
 
+    @Override
+    public void run() {
         try {
-            lock.setLocked(true);
+            if (FileUtils.fileOrFolderIsAbsent(localPathToExport)) {
+                FileUtils.createFolders(localPathToExport);
+            }
+
+            bot.setLockedBackup(true);
             processArguments(args);
 
-            exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
+            backupFile = FileUtils.getFileByChannelIdAndExtension(localPathToExport, channelId, extension);
 
-            /* If file is absent or was made more than 24 hours ago - create new backup */
-            if ((exportedFile == null)
-                    || ((System.currentTimeMillis() - exportedFile.lastModified()) > Const.DAY_IN_MILLISECONDS)
-                    || forceBackup) {
-
-                log.info("Clearing docker container before launch...");
-                log.debug("CleanProcess receives command {}", constructCleanCommand());
-                try {
-                    new CleanProcess(constructCleanCommand());
-                    log.info("Container was running and it was cleared.");
-                } catch (IllegalStateException notFound) {
-                    log.info("There was no docker container found.");
-                }
-
-                log.info("Waiting for backup to finish...");
-                log.debug("BackupProcess receives command {}", constructBackupCommand());
-                new BackupProcess(constructBackupCommand());
-
-                FileUtils.deleteFilesByChannelIdAndExtension(localPathToExport, channelId, extension);
-                log.info("Copying received file...");
-                log.debug("CopyProcess receives command {}", constructCopyCommand());
-                new CopyProcess(constructCopyCommand());
-
-                exportedFile = FileUtils.getFileByIdAndExtension(localPathToExport, channelId, extension);
-                if (exportedFile == null) {
-                    throw new FileNotFoundException("Failed to find or create backup of a channel");
-                }
+            /* If file is present or was made less than 24 hours ago - exit */
+            if ((backupFile != null && ((System.currentTimeMillis() - backupFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
+                    && ignoreExisting) {
+                log.info("Text backup has already been made [{}]", backupFile.getAbsolutePath());
+                return;
             }
+
+            log.info("Creating new backup for channel with ID {}", channelId);
+
+            log.info("Clearing docker container before execution...");
+            log.debug("CleanProcess receives command {}", constructCleanCommand());
+            try {
+                new CleanProcess(constructCleanCommand());
+                log.info("Container was running and it was cleared.");
+            } catch (IllegalStateException notFound) {
+                log.info("There was no docker container found.");
+            }
+
+            log.info("Waiting for backup to finish...");
+            log.debug("BackupProcess receives command {}", constructBackupCommand());
+            new BackupProcess(constructBackupCommand());
+
+            FileUtils.getFileByChannelIdAndExtension(localPathToExport, channelId, extension);
+            log.info("Copying received file...");
+            log.debug("CopyProcess receives command {}", constructCopyCommand());
+            new CopyProcess(constructCopyCommand());
+
+            backupFile = FileUtils.getFileByChannelIdAndExtension(localPathToExport, channelId, extension);
+            if (backupFile == null) {
+                throw new FileNotFoundException("Failed to find or create backup of a channel");
+            }
+
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
-            String msg = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
-            log.error(msg);
-            throw new InvalidParameterException(msg);
+            failMessage = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
+            log.error(failMessage);
+            hasFailed = true;
         } catch (IOException ioe) {
-            String msg = String.format("Failed to find exported file [%s]", ioe.getLocalizedMessage());
-            log.error(msg);
-            throw new IOException(msg);
+            failMessage = String.format("Failed to find exported file [%s]", ioe.getLocalizedMessage());
+            log.error(failMessage);
+            hasFailed = true;
         } catch (InterruptedException ie) {
-            String msg = String.format("Backup thread interrupted on services level [%s]", ie.getLocalizedMessage());
-            log.error(msg);
-            throw new InterruptedException(msg);
+            failMessage = String.format("Backup thread interrupted on services level [%s]", ie.getLocalizedMessage());
+            log.error(failMessage);
+            hasFailed = true;
         } finally {
             try {
-                log.info("Cleaning docker container...");
+                log.info("Cleaning docker container after execution...");
                 log.debug("Final CleanProcess receives command {}", constructCleanCommand());
                 new CleanProcess(constructCleanCommand());
             } catch (InterruptedException ire) {
                 log.error("Clean process thread was interrupted {}", ire.getLocalizedMessage());
+            } catch (IOException ioe) {
+                log.error("Cleaning failed due to IO", ioe);
             } catch (IllegalStateException notFound) {
-                log.error("Container was not found");
+                log.warn("Container for final cleaning was not found");
             } finally {
-                lock.setLocked(false);
+                bot.setLockedBackup(false);
             }
         }
     }
@@ -183,7 +199,9 @@ public class BackupChannelService {
                     break;
                 case "-f":
                 case "--force":
-                    forceBackup = true;
+
+                    /* If force is specified - ignore existing files  */
+                    ignoreExisting = false;
                     break;
             }
         }
@@ -204,7 +222,15 @@ public class BackupChannelService {
         return date.matches("([0-9]{2})/([0-9]{2})/([0-9]{4})");
     }
 
-    public final File getExportedFile() {
-        return exportedFile;
+    public final File getBackupFile() {
+        return backupFile;
+    }
+
+    public final String getFailMessage() {
+        return failMessage;
+    }
+
+    public final boolean hasFailed() {
+        return hasFailed;
     }
 }

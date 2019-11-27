@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.services.BackupChannelService;
+import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.services.EmojiStatsService;
 import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.core.entities.ChannelType;
@@ -66,7 +66,8 @@ public class EmojiStatsCommand extends AdminCommand {
 
         new Thread(() -> {
             try {
-                File exportedFile = new BackupChannelService(
+                // TODO Fix emojis
+                /*File exportedFile = new BackupTextChannelService(
                         event.getChannel().getId(),
                         bot.getBotSettings().getToken(),
                         Const.BACKUP_PLAIN_TEXT,
@@ -75,10 +76,10 @@ public class EmojiStatsCommand extends AdminCommand {
                         bot.getBotSettings().getDockerContainerName(),
                         event.getArgs().split(" "),
                         bot::setLockedBackup
-                ).getExportedFile();
+                ).getBackupFile();*/
 
                 EmojiStatsService emojiStatsService = new EmojiStatsService(
-                        exportedFile,
+                        null,
                         event.getGuild().getEmotes(),
                         event.getArgs().split(" "),
                         bot::setLockedBackup
@@ -88,8 +89,8 @@ public class EmojiStatsCommand extends AdminCommand {
                     throw new IllegalStateException("Emoji Statistics Service failed!");
                 }
                 sendStatisticsMessage(event, emojiStatsService.getEmojiList());
-            } catch (InterruptedException | IOException e) {
-                event.replyError(String.format("Backup **has failed**! `[%1$s]`", e.getLocalizedMessage()));
+            /*} catch (InterruptedException | IOException e) {
+                event.replyError(String.format("Backup **has failed**! `[%1$s]`", e.getLocalizedMessage()));*/
             } catch (InvalidParameterException ipe) {
                 event.replyError(ipe.getLocalizedMessage());
             } catch (IllegalStateException ise) {

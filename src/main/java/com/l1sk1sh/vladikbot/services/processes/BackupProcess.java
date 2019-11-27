@@ -17,7 +17,7 @@ public class BackupProcess {
     public BackupProcess(List<String> command) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
-        boolean failed = true;
+        // boolean failed = true;
         pb.command(command);
 
         final Process process = pb.start();
@@ -26,14 +26,18 @@ public class BackupProcess {
         String line;
         while ((line = br.readLine()) != null) {
             log.debug(line);
-            if (line.contains("Completed ✓")) {
+
+            // TODO Monitor creator of Discord backup to fix this issue
+            /* tyrrrz/discordchatexporter stopped giving success response for CLI, so, here we go */
+            /*if (line.contains("Completed ✓")) {
                 failed = false;
-            } else if (line.contains("Error")) {
+            } else */
+            if (line.contains("Error")) {
                 throw new IOException(line);
             }
         }
         process.waitFor();
 
-        if (failed) throw new IOException("Backup has not been completed");
+        // if (failed) throw new IOException("Backup has not been completed");
     }
 }

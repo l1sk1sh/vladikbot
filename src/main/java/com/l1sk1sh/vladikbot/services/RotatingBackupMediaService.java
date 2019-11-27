@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.RotatingTask;
 import com.l1sk1sh.vladikbot.models.RotatingTaskExecutor;
@@ -10,7 +9,6 @@ import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.util.List;
 
 /**
@@ -45,12 +43,15 @@ public class RotatingBackupMediaService implements RotatingTask {
                 log.info("Starting text backup of {}", channel.getName());
                 bot.getNotificationService().sendMessage(channel.getGuild(),
                         String.format("Starting media backup of channel %s", channel.getName()));
+
                 try {
-                    String pathToBackup = bot.getBotSettings().getLocalPathToExport() + "/backup/media/"
+                    String pathToBackup = bot.getBotSettings().getLocalTmpPath() + "/backup/media/"
                             + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
                     FileUtils.createFolders(pathToBackup);
 
-                    File exportedFile = new BackupChannelService(
+                    //TODO Fix rotation
+
+                    /*File exportedFile = new BackupTextChannelService(
                             channel.getId(),
                             bot.getBotSettings().getToken(),
                             Const.BACKUP_PLAIN_TEXT,
@@ -59,7 +60,7 @@ public class RotatingBackupMediaService implements RotatingTask {
                             bot.getBotSettings().getDockerContainerName(),
                             new String[]{"-f"},
                             bot::setLockedBackup
-                    ).getExportedFile();
+                    ).getBackupFile();
 
                     new BackupMediaService(
                             exportedFile,
@@ -72,7 +73,7 @@ public class RotatingBackupMediaService implements RotatingTask {
                                     channel.getId()),
                             new String[]{"-f", "-z"},
                             bot::setLockedBackup
-                    );
+                    );*/
 
                     log.info("Finished text backup of {}", channel.getName());
                     bot.getNotificationService().sendMessage(channel.getGuild(),

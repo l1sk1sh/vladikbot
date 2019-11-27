@@ -18,6 +18,9 @@ import java.util.regex.Pattern;
 /**
  * @author Oliver Johnson
  */
+// TODO Ignore emojis from Bot (take real name Владик)
+// TODO Rewrite using CSV as it way easier
+// TODO Research why paginator doesn't work for longer time (5 min or so)
 public class EmojiStatsService {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 

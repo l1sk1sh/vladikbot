@@ -38,11 +38,6 @@ public class ActionAndGameRotationManager {
         this.bot = bot;
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-
-        /* If rotation enabled - start rotation right away */
-        if (bot.getBotSettings().shouldRotateActionsAndGames()) {
-            activateRotation();
-        }
     }
 
     public Map<String, String> getActionsAndGames() throws IOException {

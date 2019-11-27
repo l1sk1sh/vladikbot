@@ -5,7 +5,6 @@ import com.l1sk1sh.vladikbot.services.ClearTmpService;
 import com.l1sk1sh.vladikbot.Bot;
 
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 
 /**
  * @author Oliver Johnson
@@ -30,7 +29,7 @@ public class ClearTmpCommand extends OwnerCommand {
             }
             event.replyWarning("Clearing tmp folder, my master!");
 
-            new ClearTmpService(bot.getBotSettings().getLocalPathToExport(), bot::setLockedBackup).clear();
+            new ClearTmpService(bot.getBotSettings().getLocalTmpPath(), bot::setLockedBackup).clear();
 
         } catch (IOException ioe) {
             event.replyError(String.format("Something went wrong during clearing of tmp folder! `[%s][%s]`",
