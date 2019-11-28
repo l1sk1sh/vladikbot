@@ -125,7 +125,7 @@ public class ActionAndGameRotationManager {
     }
 
     public final void activateRotation() {
-    log.debug("Rotating actions-games of the bot");
+        log.debug("Rotating actions-games of the bot");
         Runnable rotation = () -> {
             Map.Entry<String, String> chosenPair = getRandomStatusAndGame(); /* [0] - chosen action; [1] - chosen game */
 

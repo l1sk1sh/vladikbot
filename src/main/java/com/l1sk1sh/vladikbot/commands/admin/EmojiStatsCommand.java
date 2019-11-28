@@ -64,40 +64,57 @@ public class EmojiStatsCommand extends AdminCommand {
         }
         event.reply("Initializing emoji statistics calculation. Be patient...");
 
+        BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
+                bot,
+                event.getChannel().getId(),
+                Const.BACKUP_PLAIN_TEXT,
+                bot.getBotSettings().getLocalTmpPath(),
+                event.getArgs().split(" ")
+        );
+
+        /* This thread will wait for backup to finish. Separating allows using bot while backup is running */
         new Thread(() -> {
+
+            /* Creating new thread from text backup service and waiting for it to finish */
+            Thread backupChannelServiceThread = new Thread(backupTextChannelService);
+            backupChannelServiceThread.start();
             try {
-                // TODO Fix emojis
-                /*File exportedFile = new BackupTextChannelService(
-                        event.getChannel().getId(),
-                        bot.getBotSettings().getToken(),
-                        Const.BACKUP_PLAIN_TEXT,
-                        bot.getBotSettings().getLocalPathToExport(),
-                        bot.getBotSettings().getDockerPathToExport(),
-                        bot.getBotSettings().getDockerContainerName(),
-                        event.getArgs().split(" "),
-                        bot::setLockedBackup
-                ).getBackupFile();*/
-
-                EmojiStatsService emojiStatsService = new EmojiStatsService(
-                        null,
-                        event.getGuild().getEmotes(),
-                        event.getArgs().split(" "),
-                        bot::setLockedBackup
-                );
-
-                if (emojiStatsService.getEmojiList() == null) {
-                    throw new IllegalStateException("Emoji Statistics Service failed!");
-                }
-                sendStatisticsMessage(event, emojiStatsService.getEmojiList());
-            /*} catch (InterruptedException | IOException e) {
-                event.replyError(String.format("Backup **has failed**! `[%1$s]`", e.getLocalizedMessage()));*/
-            } catch (InvalidParameterException ipe) {
-                event.replyError(ipe.getLocalizedMessage());
-            } catch (IllegalStateException ise) {
-                event.replyError(String.format("Calculation failed! `[%1$s]`", ise.getLocalizedMessage()));
-            } catch (Exception e) {
-                event.replyError(String.format("Crap! Whatever happened, it wasn't expected! `[%1$s]`", e.getLocalizedMessage()));
+                backupChannelServiceThread.join();
+            } catch (InterruptedException e) {
+                event.replyError("Backup process was interrupted!");
+                return;
             }
+
+            if (backupTextChannelService.hasFailed()) {
+                event.replyError(String.format("Text channel backup has failed: `[%s]`", backupTextChannelService.getFailMessage()));
+                return;
+            }
+
+            File exportedTextFile = backupTextChannelService.getBackupFile();
+
+            /* Creating new thread from text backup service and waiting for it to finish */
+            EmojiStatsService emojiStatsService = new EmojiStatsService(
+                    bot,
+                    exportedTextFile,
+                    event.getGuild().getEmotes(),
+                    event.getArgs().split(" ")
+            );
+
+            Thread emojiStatsServiceThread = new Thread(emojiStatsService);
+            emojiStatsServiceThread.start();
+            try {
+                emojiStatsServiceThread.join();
+            } catch (InterruptedException e) {
+                event.replyError("Emoji Service was interrupted!");
+                return;
+            }
+
+            if (emojiStatsService.hasFailed()) {
+                event.replyError(String.format("Emoji Statistics Service has failed: `[%s]`", emojiStatsService.getFailMessage()));
+                return;
+            }
+            sendStatisticsMessage(event, emojiStatsService.getEmojiList());
+
         }).start();
     }
 

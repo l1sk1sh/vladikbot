@@ -1,25 +1,25 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.models.LockService;
+import com.l1sk1sh.vladikbot.Bot;
 
 import java.io.IOException;
 import java.nio.file.*;
 
 public class ClearTmpService {
     private final String localTmpPath;
-    private final LockService lock;
+    private final Bot bot;
 
-    public ClearTmpService(String localTmpPath, LockService lock) {
-        this.localTmpPath = localTmpPath;
-        this.lock = lock;
+    public ClearTmpService(Bot bot) {
+        this.bot = bot;
+        this.localTmpPath = bot.getBotSettings().getLocalTmpPath();
     }
 
     public final void clear() throws IOException {
         try {
-            lock.setLocked(true);
+            bot.setLockedBackup(true);
             deleteDirectoryRecursion(Paths.get(localTmpPath));
         } finally {
-            lock.setLocked(false);
+            bot.setLockedBackup(false);
         }
     }
 

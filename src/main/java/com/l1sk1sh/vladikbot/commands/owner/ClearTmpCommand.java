@@ -29,7 +29,7 @@ public class ClearTmpCommand extends OwnerCommand {
             }
             event.replyWarning("Clearing tmp folder, my master!");
 
-            new ClearTmpService(bot.getBotSettings().getLocalTmpPath(), bot::setLockedBackup).clear();
+            new ClearTmpService(bot).clear();
 
         } catch (IOException ioe) {
             event.replyError(String.format("Something went wrong during clearing of tmp folder! `[%s][%s]`",

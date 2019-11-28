@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.models.LockService;
+import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Emote;
 import org.slf4j.Logger;
@@ -21,29 +21,39 @@ import java.util.regex.Pattern;
 // TODO Ignore emojis from Bot (take real name Владик)
 // TODO Rewrite using CSV as it way easier
 // TODO Research why paginator doesn't work for longer time (5 min or so)
-public class EmojiStatsService {
+public class EmojiStatsService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 
-    private final Map<String, Integer> emojiList = new HashMap<>();
-
+    private final Bot bot;
+    private final String[] args;
+    private final Map<String, Integer> emojiList;
     private final List<Emote> serverEmojiList;
+    private final File exportedTextFile;
+    private String failMessage;
     private boolean includeUnicodeEmoji = false;
     private boolean ignoreUnknownEmoji = false;
+    private boolean hasFailed = false;
 
-    public EmojiStatsService(File exportedFile, List<Emote> serverEmojiList, String[] args, LockService lock) {
+    public EmojiStatsService(Bot bot, File exportedTextFile, List<Emote> serverEmojiList, String[] args) {
+        this.bot = bot;
+        this.args = args;
+        this.exportedTextFile = exportedTextFile;
         this.serverEmojiList = serverEmojiList;
+        this.emojiList = new HashMap<>();
+    }
 
+    @Override
+    public void run() {
         try {
-            lock.setLocked(true);
+            bot.setLockedBackup(true);
             processArguments(args);
-            String input = FileUtils.readFile(exportedFile, StandardCharsets.UTF_8);
+            String input = FileUtils.readFile(exportedTextFile, StandardCharsets.UTF_8);
 
             /* Custom :emoji: matcher */
             Matcher customEmojiMatcher = Pattern.compile(":(::|[^:\\r\n\\s/()])+:").matcher(input);
             while (customEmojiMatcher.find()) {
-                if (ignoreUnknownEmoji) {
-                    if (isEmojiInList(customEmojiMatcher.group()))
-                        addElementToList(customEmojiMatcher.group());
+                if (ignoreUnknownEmoji && isEmojiInList(customEmojiMatcher.group())) {
+                    addElementToList(customEmojiMatcher.group());
                 } else {
                     addElementToList(customEmojiMatcher.group());
                 }
@@ -52,18 +62,22 @@ public class EmojiStatsService {
             if (!includeUnicodeEmoji) {
 
                 /* Unicode \ud83c\udc00 matcher */
-                Matcher unicodeEmojiMathcer =
-                        Pattern.compile("[\ud83c\udc00-\ud83d\udfff]|[\u2600-\u27ff]",
-                                Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE).matcher(input);
+                Matcher unicodeEmojiMathcer = Pattern.compile("[\ud83c\udc00-\ud83d\udfff]|[\u2600-\u27ff]",
+                        Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE).matcher(input);
                 while (unicodeEmojiMathcer.find()) {
                     addElementToList(unicodeEmojiMathcer.group());
                 }
             }
 
+            if (getEmojiList() == null) {
+                failMessage = "Emoji list is empty at the end of execution!";
+                hasFailed = true;
+            }
+
         } catch (IOException e) {
             log.error("Failed to read exportedFile. {}", e.getLocalizedMessage());
         } finally {
-            lock.setLocked(false);
+            bot.setLockedBackup(false);
         }
     }
 
@@ -76,6 +90,7 @@ public class EmojiStatsService {
             switch (arg) {
                 case "-iu":
                     ignoreUnknownEmoji = true;
+
                     /* Falls through */
                 case "-i":
                     includeUnicodeEmoji = true;
@@ -104,5 +119,13 @@ public class EmojiStatsService {
 
     public Map<String, Integer> getEmojiList() {
         return emojiList;
+    }
+
+    public String getFailMessage() {
+        return failMessage;
+    }
+
+    public boolean hasFailed() {
+        return hasFailed;
     }
 }
