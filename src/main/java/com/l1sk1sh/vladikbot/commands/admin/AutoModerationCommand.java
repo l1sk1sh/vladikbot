@@ -35,7 +35,7 @@ public class AutoModerationCommand extends AdminCommand {
         event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
-    class CreateCommand extends AdminCommand {
+    private final class CreateCommand extends AdminCommand {
         CreateCommand() {
             this.name = "make";
             this.aliases = new String[]{"create", "add"};
@@ -86,7 +86,7 @@ public class AutoModerationCommand extends AdminCommand {
 
     }
 
-    class ReadCommand extends AdminCommand {
+    private final class ReadCommand extends AdminCommand {
         ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list"};
@@ -114,7 +114,7 @@ public class AutoModerationCommand extends AdminCommand {
         }
     }
 
-    class DeleteCommand extends AdminCommand {
+    private final class DeleteCommand extends AdminCommand {
         DeleteCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};
@@ -139,7 +139,7 @@ public class AutoModerationCommand extends AdminCommand {
         }
     }
 
-    class SwitchCommand extends AdminCommand {
+    private final class SwitchCommand extends AdminCommand {
         SwitchCommand() {
             this.name = "switch";
             this.aliases = new String[]{"change"};

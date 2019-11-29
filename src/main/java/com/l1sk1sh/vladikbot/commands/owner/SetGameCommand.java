@@ -10,7 +10,6 @@ import net.dv8tion.jda.core.entities.Game;
  * - Reformating code
  * @author John Grosh
  */
-// TODO Research why classes are static
 public class SetGameCommand extends OwnerCommand {
     private static String gameNotSetMessage = "The game could not be set!";
 
