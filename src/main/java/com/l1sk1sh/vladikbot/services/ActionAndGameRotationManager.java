@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Game;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
-import static com.l1sk1sh.vladikbot.utils.FileUtils.createFolders;
-import static com.l1sk1sh.vladikbot.utils.FileUtils.fileOrFolderIsAbsent;
 
 /**
  * @author Oliver Johnson
@@ -43,8 +41,8 @@ public class ActionAndGameRotationManager {
     public Map<String, String> getActionsAndGames() throws IOException {
         Map<String, String> pairs;
 
-        if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
-            createFolders(bot.getBotSettings().getRotationFolder());
+        if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
+            FileUtils.createFolders(bot.getBotSettings().getRotationFolder());
             log.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
             return null;
         } else {
@@ -95,8 +93,8 @@ public class ActionAndGameRotationManager {
     }
 
     public void writeActionAndGame(String action, String gameName) throws IOException {
-        if (fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
-            createFolders(bot.getBotSettings().getRotationFolder());
+        if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getRotationFolder())) {
+            FileUtils.createFolders(bot.getBotSettings().getRotationFolder());
             log.info("Creating folder {}", bot.getBotSettings().getRotationFolder());
         }
 

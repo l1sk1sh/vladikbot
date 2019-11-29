@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.utils.CommandUtils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -33,22 +33,7 @@ public class RotatingActionAndGameCommand extends AdminCommand {
 
     @Override
     protected final void execute(CommandEvent event) {
-        String message = event.getClient().getWarning() + " Action & Game Rotation Management Commands:\r\n";
-        StringBuilder builder = new StringBuilder(message);
-        for (Command cmd : this.children) {
-            builder.append("\r\n`")
-                    .append(event.getClient().getPrefix())
-                    .append(name)
-                    .append(" ")
-                    .append(cmd.getName())
-                    .append(" ")
-                    .append(cmd.getArguments() == null
-                            ? ""
-                            : cmd.getArguments())
-                    .append("` - ")
-                    .append(cmd.getHelp());
-        }
-        event.reply(builder.toString());
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
     class CreateCommand extends AdminCommand {

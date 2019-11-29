@@ -11,7 +11,6 @@ import java.io.File;
 /**
  * @author Oliver Johnson
  */
-// TODO Process arguments and work with zip from here
 public class BackupMediaCommand extends AdminCommand {
     private final Bot bot;
 
@@ -34,11 +33,6 @@ public class BackupMediaCommand extends AdminCommand {
             return;
         }
         event.reply("Getting attachments. Be patient...");
-
-        String fileName = String.format("%s - %s [%s] - media list",
-                event.getGuild().getName(),
-                event.getChannel().getName(),
-                event.getChannel().getId());
 
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                 bot,

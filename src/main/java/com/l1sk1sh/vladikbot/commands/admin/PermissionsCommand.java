@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.BotUtils;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.Permission;
@@ -9,9 +10,6 @@ import net.dv8tion.jda.core.Permission;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.l1sk1sh.vladikbot.utils.BotUtils.getMissingPermissions;
-import static com.l1sk1sh.vladikbot.utils.BotUtils.getGrantedAndRequiredPermissions;
 
 /**
  * @author Oliver Johnson
@@ -29,9 +27,9 @@ public class PermissionsCommand extends AdminCommand {
         MessageBuilder builder = new MessageBuilder();
 
         List<Permission> grantedPermissions =
-                getGrantedAndRequiredPermissions(event.getSelfMember().getPermissions(), Const.RECOMMENDED_PERMS);
+                BotUtils.getGrantedAndRequiredPermissions(event.getSelfMember().getPermissions(), Const.RECOMMENDED_PERMS);
         List<Permission> missingPermissions =
-                getMissingPermissions(event.getSelfMember().getPermissions(), Const.RECOMMENDED_PERMS);
+                BotUtils.getMissingPermissions(event.getSelfMember().getPermissions(), Const.RECOMMENDED_PERMS);
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                 .setColor(new Color(244, 160, 0))

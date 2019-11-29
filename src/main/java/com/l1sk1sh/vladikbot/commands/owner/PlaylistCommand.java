@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.PlaylistLoader;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.utils.CommandUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,24 +37,8 @@ public class PlaylistCommand extends OwnerCommand {
     }
 
     @Override
-    // TODO Create separate command for listing child sub-commands
     public void execute(CommandEvent event) {
-        String message = event.getClient().getWarning() + " Playlist Management Commands:\r\n";
-        StringBuilder builder = new StringBuilder(message);
-        for (Command cmd : this.children) {
-            builder.append("\r\n`")
-                    .append(event.getClient().getPrefix())
-                    .append(name)
-                    .append(" ")
-                    .append(cmd.getName())
-                    .append(" ")
-                    .append(cmd.getArguments() == null
-                            ? ""
-                            : cmd.getArguments())
-                    .append("` - ")
-                    .append(cmd.getHelp());
-        }
-        event.reply(builder.toString());
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
     class CreateCommand extends OwnerCommand {
@@ -191,7 +175,6 @@ public class PlaylistCommand extends OwnerCommand {
             this.arguments = "<name|none>";
             this.guildOnly = true;
         }
-
     }
 
     class ShuffleCommand extends OwnerCommand {

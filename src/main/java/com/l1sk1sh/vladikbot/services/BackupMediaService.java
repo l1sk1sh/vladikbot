@@ -24,8 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipOutputStream;
 
-import static com.l1sk1sh.vladikbot.utils.FileUtils.*;
-
 /**
  * @author Oliver Johnson
  */
@@ -165,7 +163,7 @@ public class BackupMediaService implements Runnable {
         ZipOutputStream zipOut = new ZipOutputStream(fos);
         File attachmentsFolderToZip = new File(attachmentsFolderPath);
 
-        zipFile(attachmentsFolderToZip, attachmentsFolderToZip.getName(), zipOut);
+        FileUtils.zipFile(attachmentsFolderToZip, attachmentsFolderToZip.getName(), zipOut);
         zipOut.close();
         fos.close();
     }
@@ -173,9 +171,9 @@ public class BackupMediaService implements Runnable {
     private void downloadAttachments() throws IOException {
         attachmentsFolderPath = localAttachmentsPath + channelId + "/";
 
-        if (fileOrFolderIsAbsent(attachmentsFolderPath)) {
+        if (FileUtils.fileOrFolderIsAbsent(attachmentsFolderPath)) {
             log.info("Creating [{}] directory.", attachmentsFolderPath);
-            createFolders(attachmentsFolderPath);
+            FileUtils.createFolders(attachmentsFolderPath);
         }
 
         for (String attachmentUrl : setOfAllAttachmentsUrls) {
@@ -189,7 +187,7 @@ public class BackupMediaService implements Runnable {
     }
 
     private void downloadFile(URL url, String localFileNamePath) throws IOException {
-        if (fileOrFolderIsAbsent(localFileNamePath)) {
+        if (FileUtils.fileOrFolderIsAbsent(localFileNamePath)) {
             log.info("Downloading file [{}].", localFileNamePath);
             URLConnection connection = url.openConnection();
             connection.setRequestProperty("User-Agent", Const.USER_AGENT);

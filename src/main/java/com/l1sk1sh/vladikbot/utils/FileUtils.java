@@ -1,5 +1,7 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import com.l1sk1sh.vladikbot.settings.Const;
+
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -8,8 +10,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import static com.l1sk1sh.vladikbot.settings.Const.BITS_IN_BYTE;
 
 /**
  * @author Oliver Johnson
@@ -105,7 +105,7 @@ public final class FileUtils {
         FileInputStream fis = new FileInputStream(fileToZip);
         ZipEntry zipEntry = new ZipEntry(fileName);
         zipOut.putNextEntry(zipEntry);
-        byte[] bytes = new byte[BITS_IN_BYTE];
+        byte[] bytes = new byte[Const.BITS_IN_BYTE];
         int length;
         while ((length = fis.read(bytes)) >= 0) {
             zipOut.write(bytes, 0, length);

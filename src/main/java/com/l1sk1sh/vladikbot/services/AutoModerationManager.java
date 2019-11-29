@@ -6,6 +6,7 @@ import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.ReactionRule;
+import com.l1sk1sh.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +16,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-
-import static com.l1sk1sh.vladikbot.utils.FileUtils.*;
 
 /**
  * @author Oliver Johnson
@@ -55,8 +54,8 @@ public class AutoModerationManager {
     }
 
     public List<ReactionRule> getRules() throws IOException {
-        if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
-            createFolders(bot.getBotSettings().getModerationRulesFolder());
+        if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
+            FileUtils.createFolders(bot.getBotSettings().getModerationRulesFolder());
             return null;
         } else {
             File folder = new File(bot.getBotSettings().getModerationRulesFolder());
@@ -78,8 +77,8 @@ public class AutoModerationManager {
 
     public ReactionRule getRule(String name) {
         try {
-            if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
-                createFolders(bot.getBotSettings().getModerationRulesFolder());
+            if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
+                FileUtils.createFolders(bot.getBotSettings().getModerationRulesFolder());
                 return null;
             } else {
                 return gson.fromJson(new FileReader(bot.getBotSettings().getModerationRulesFolder()
@@ -91,12 +90,12 @@ public class AutoModerationManager {
     }
 
     public void deleteRule(String name) throws IOException {
-        deleteFile(bot.getBotSettings().getModerationRulesFolder() + name + extension);
+        FileUtils.deleteFile(bot.getBotSettings().getModerationRulesFolder() + name + extension);
     }
 
     public void writeRule(ReactionRule rule) throws IOException {
-        if (fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
-            createFolders(bot.getBotSettings().getModerationRulesFolder());
+        if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getModerationRulesFolder())) {
+            FileUtils.createFolders(bot.getBotSettings().getModerationRulesFolder());
             log.info("Creating folder {}", bot.getBotSettings().getModerationRulesFolder());
         }
 

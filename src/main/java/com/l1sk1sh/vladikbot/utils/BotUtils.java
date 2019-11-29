@@ -19,7 +19,9 @@ import java.util.stream.Collectors;
  * - Removal of update version methods
  * @author John Grosh
  */
-public class BotUtils {
+public final class BotUtils {
+    private BotUtils() {}
+
     public static InputStream imageFromUrl(String url) {
         if (url == null)
             return null;

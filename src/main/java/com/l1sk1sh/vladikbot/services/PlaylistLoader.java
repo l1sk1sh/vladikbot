@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -20,8 +21,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
-import static com.l1sk1sh.vladikbot.utils.FileUtils.*;
 
 /**
  * @author Oliver Johnson
@@ -44,8 +43,8 @@ public class PlaylistLoader {
     }
 
     public List<String> getPlaylistNames() throws IOException {
-        if (fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
-            createFolders(bot.getBotSettings().getPlaylistsFolder());
+        if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
+            FileUtils.createFolders(bot.getBotSettings().getPlaylistsFolder());
 
             //noinspection unchecked
             return Collections.EMPTY_LIST;
@@ -59,12 +58,12 @@ public class PlaylistLoader {
     }
 
     public void createPlaylist(String name) throws IOException {
-        createFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
+        FileUtils.createFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
         log.info("Created new playlist {}", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
-        deleteFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
+        FileUtils.deleteFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
         log.info("Deleted playlist {}", name);
     }
 
@@ -82,8 +81,9 @@ public class PlaylistLoader {
             if (!getPlaylistNames().contains(name)) {
                 return null;
             }
-            if (fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
-                createFolders(bot.getBotSettings().getPlaylistsFolder());
+
+            if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
+                FileUtils.createFolders(bot.getBotSettings().getPlaylistsFolder());
                 return null;
             } else {
 

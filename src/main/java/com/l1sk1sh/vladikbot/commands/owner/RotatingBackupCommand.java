@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.utils.CommandUtils;
 
 /**
  * @author Oliver Johnson
@@ -26,14 +26,7 @@ public class RotatingBackupCommand extends OwnerCommand {
 
     @Override
     protected final void execute(CommandEvent event) {
-        String message = event.getClient().getWarning() + " Backup Rotation Management Commands:\r\n";
-        StringBuilder builder = new StringBuilder(message);
-        for (Command cmd : this.children) {
-            builder.append("\r\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName())
-                    .append(" ").append(cmd.getArguments()
-                    == null ? "" : cmd.getArguments()).append("` - ").append(cmd.getHelp());
-        }
-        event.reply(builder.toString());
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
     class SwitchTextCommand extends OwnerCommand {

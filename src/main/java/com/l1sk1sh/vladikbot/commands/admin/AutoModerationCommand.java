@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.ReactionRule;
+import com.l1sk1sh.vladikbot.utils.CommandUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -32,14 +32,7 @@ public class AutoModerationCommand extends AdminCommand {
 
     @Override
     protected void execute(CommandEvent event) {
-        String message = event.getClient().getWarning() + " AutoModerationService Management Commands:\r\n";
-        StringBuilder builder = new StringBuilder(message);
-        for (Command cmd : this.children) {
-            builder.append("\r\n`").append(event.getClient().getPrefix()).append(name).append(" ").append(cmd.getName())
-                    .append(" ").append(cmd.getArguments()
-                    == null ? "" : cmd.getArguments()).append("` - ").append(cmd.getHelp());
-        }
-        event.reply(builder.toString());
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
     class CreateCommand extends AdminCommand {
@@ -72,8 +65,13 @@ public class AutoModerationCommand extends AdminCommand {
                         array[i] = array[i].trim().replaceAll("[{}]", "");
                     }
 
-                    if (count == 1) Collections.addAll(reactTo, array);
-                    if (count == 2) Collections.addAll(reactWith, array);
+                    if (count == 1) {
+                        Collections.addAll(reactTo, array);
+                    }
+
+                    if (count == 2) {
+                        Collections.addAll(reactWith, array);
+                    }
                 }
 
                 ReactionRule rule = new ReactionRule(name, reactTo, reactWith);
