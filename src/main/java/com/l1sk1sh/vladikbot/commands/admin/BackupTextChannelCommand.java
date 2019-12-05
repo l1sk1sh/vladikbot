@@ -36,7 +36,7 @@ public class BackupTextChannelCommand extends AdminCommand {
                 bot,
                 event.getChannel().getId(),
                 Const.BACKUP_HTML_DARK,
-                bot.getBotSettings().getLocalTmpPath(),
+                bot.getBotSettings().getLocalTmpFolder(),
                 event.getArgs().split(" ")
         );
 

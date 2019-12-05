@@ -29,7 +29,7 @@ public class RotatingBackupChannelService implements RotatingTask {
             return;
         }
 
-        if (bot.isLockedRotationBackup()) {
+        if (bot.isLockedBackup()) {
             /* pool-4-thread-1 is trying to call "execute" multiple times */
             return;
         }
@@ -37,7 +37,7 @@ public class RotatingBackupChannelService implements RotatingTask {
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
 
         new Thread(() -> {
-            bot.setLockedRotationBackup(false);
+            bot.setLockedBackup(true);
 
             for (TextChannel channel : availableChannels) {
                 log.info("Starting text backup of {}", channel.getName());
@@ -45,7 +45,7 @@ public class RotatingBackupChannelService implements RotatingTask {
                         String.format("Starting text backup of channel `%s`", channel.getName()));
 
                 try {
-                    String pathToBackup = bot.getBotSettings().getLocalTmpPath() + "/backup/text/"
+                    String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "/text/"
                             + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
                     FileUtils.createFolders(pathToBackup);
 
@@ -70,7 +70,7 @@ public class RotatingBackupChannelService implements RotatingTask {
                             String.format("Automatic text rotation backup has failed due to: %s", e.getLocalizedMessage()));
                     break;
                 } finally {
-                    bot.setLockedRotationBackup(true);
+                    bot.setLockedBackup(false);
                 }
             }
         }).start();
@@ -82,7 +82,7 @@ public class RotatingBackupChannelService implements RotatingTask {
         int targetMin = 0;
         int targetSec = 0;
         rotatingTaskExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
-        log.info(String.format("Text backup will be performed at %s:%s:%s local time", targetHour, targetMin, targetSec));
+        log.info(String.format("Text backup will be performed in %2d days at %02d:%02d:%02d local time", dayDelay, targetHour, targetMin, targetSec));
     }
 
     public void disableExecution() throws InterruptedException {

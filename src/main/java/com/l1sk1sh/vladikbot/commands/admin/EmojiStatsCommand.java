@@ -13,8 +13,6 @@ import net.dv8tion.jda.core.exceptions.PermissionException;
 
 import java.awt.*;
 import java.io.File;
-import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -68,7 +66,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 bot,
                 event.getChannel().getId(),
                 Const.BACKUP_PLAIN_TEXT,
-                bot.getBotSettings().getLocalTmpPath(),
+                bot.getBotSettings().getLocalTmpFolder(),
                 event.getArgs().split(" ")
         );
 

@@ -11,7 +11,7 @@ public class ClearTmpService {
 
     public ClearTmpService(Bot bot) {
         this.bot = bot;
-        this.localTmpPath = bot.getBotSettings().getLocalTmpPath();
+        this.localTmpPath = bot.getBotSettings().getLocalTmpFolder();
     }
 
     public final void clear() throws IOException {

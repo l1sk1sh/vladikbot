@@ -62,13 +62,40 @@ class Listener extends ListenerAdapter {
             }
         });
 
+        // TODO Maybe, this should be moved to settingsManager or rotationManager
         if (botSettings.shouldRotateTextBackup() && botSettings.shouldRotateMediaBackup()) {
-            int timeDifference = Math.abs(botSettings.getTargetHourForTextBackup()
-                    - botSettings.getTargetHourForMediaBackup());
-            if (timeDifference < 1) {
+            int minimumTimeDifference = 1;
+            int maximumDayHour = 23;
+            int defaultTextBackupDaysDelay = 2;
+            int defaultMediaBackupDaysDelay = 7;
+            int defaultTextBackupTargetHour = 10;
+            int defaultMediaBackupTargetHour = 12;
+            int extensionMediaHoursDelay = 2;
+
+            if (botSettings.getDelayDaysForTextBackup() <= 0) {
+                log.warn("Rotation text backup delay should be more than 0");
+                botSettings.setDelayDaysForTextBackup(defaultTextBackupDaysDelay);
+            }
+
+            if (botSettings.getDelayDaysForMediaBackup() <= 0) {
+                log.warn("Rotation text backup delay should be more than 0");
+                botSettings.setDelayDaysForMediaBackup(defaultMediaBackupDaysDelay);
+            }
+
+            if (botSettings.getTargetHourForTextBackup() > maximumDayHour || botSettings.getTargetHourForTextBackup() < 0) {
+                log.warn("Allowed target hour for text backup is between 1 and 24");
+                botSettings.setTargetHourForTextBackup(defaultTextBackupTargetHour);
+            }
+
+            if (botSettings.getTargetHourForMediaBackup() > maximumDayHour || botSettings.getTargetHourForMediaBackup() < 0) {
+                log.warn("Allowed target hour for media backup is between 1 and 24");
+                botSettings.setTargetHourForTextBackup(defaultMediaBackupTargetHour);
+            }
+
+            int timeDifference = Math.abs(botSettings.getTargetHourForTextBackup() - botSettings.getTargetHourForMediaBackup());
+            if (timeDifference < minimumTimeDifference) {
                 log.warn("Rotation backups should have at least 1 hour difference");
-                botSettings.setTargetHourForTextBackup(botSettings.getTargetHourForTextBackup() - 1);
-                botSettings.setTargetHourForMediaBackup(botSettings.getTargetHourForMediaBackup() + 2);
+                botSettings.setTargetHourForMediaBackup(botSettings.getTargetHourForMediaBackup() + extensionMediaHoursDelay);
             }
         }
 
@@ -80,6 +107,7 @@ class Listener extends ListenerAdapter {
         if (botSettings.shouldRotateTextBackup()) {
             log.info("Enabling Rotation text backup service...");
             bot.getRotatingBackupChannelService().enableExecution();
+            bot.getRotatingBackupChannelService().execute();
         }
 
         if (botSettings.shouldRotateActionsAndGames()) {

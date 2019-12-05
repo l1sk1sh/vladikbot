@@ -21,7 +21,7 @@ public class RotatingBackupMediaService implements RotatingTask {
 
     public RotatingBackupMediaService(Bot bot) {
         this.bot = bot;
-        rotatingTaskExecutor = new RotatingTaskExecutor(this);
+        this.rotatingTaskExecutor = new RotatingTaskExecutor(this);
     }
 
     public void execute() {
@@ -29,7 +29,7 @@ public class RotatingBackupMediaService implements RotatingTask {
             return;
         }
 
-        if (bot.isLockedRotationBackup()) {
+        if (bot.isLockedBackup()) {
             /* pool-4-thread-1 is trying to call "execute" multiple times */
             return;
         }
@@ -37,7 +37,7 @@ public class RotatingBackupMediaService implements RotatingTask {
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
 
         new Thread(() -> {
-            bot.setLockedRotationBackup(false);
+            bot.setLockedBackup(true);
 
             for (TextChannel channel : availableChannels) {
                 log.info("Starting text backup of {}", channel.getName());
@@ -45,7 +45,7 @@ public class RotatingBackupMediaService implements RotatingTask {
                         String.format("Starting media backup of channel %s", channel.getName()));
 
                 try {
-                    String pathToBackup = bot.getBotSettings().getLocalTmpPath() + "/backup/media/"
+                    String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "/media/"
                             + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
                     FileUtils.createFolders(pathToBackup);
 
@@ -84,7 +84,7 @@ public class RotatingBackupMediaService implements RotatingTask {
                             String.format("Automatic media rotation backup has failed due to: %s", e.getLocalizedMessage()));
                     break;
                 } finally {
-                    bot.setLockedRotationBackup(true);
+                    bot.setLockedBackup(false);
                 }
             }
         }).start();
@@ -96,7 +96,7 @@ public class RotatingBackupMediaService implements RotatingTask {
         int targetMin = 0;
         int targetSec = 0;
         rotatingTaskExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
-        log.info(String.format("Media backup will be performed at %s:%s:%s local time", targetHour, targetMin, targetSec));
+        log.info(String.format("Media backup will be performed in %2d days at %02d:%02d:%02d local time", dayDelay, targetHour, targetMin, targetSec));
     }
 
     public void disableExecution() throws InterruptedException {

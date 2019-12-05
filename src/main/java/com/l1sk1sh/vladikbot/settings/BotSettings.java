@@ -17,9 +17,12 @@ public class BotSettings extends AbstractSettings {
     private String token = "MY_BOT_TOKEN";                              // Bot token taken from discord developer portal
     private long ownerId = 0L;                                          // Id of the person, who is hosting the bot
     private String dockerContainerName = "disbackup";                   // Docker container name
+    private String localTmpFolder = "./app/tmp/";                       // Local tmp for workdir
     private String dockerPathToExport = "/app/out/";                    // Docker disbackup workdir (check repository if fails)
-    private String localTmpPath = "./app/tmp/";                         // Local workdir
+    private String rotationBackupFolder = "./app/backup/";              // Local rotation backup folder (that will be stored)
+    private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
     private String moderationRulesFolder = "./app/rules/";              // Local storage for automoderation settings
+    private String rotationListFolder = "./app/rules/rotation/";        // Folder that stores statuses.json
     private String prefix = "~";                                        // Bot prefix
     private String helpWord = "help";                                   // Help word used for help command
     private String successEmoji = "\uD83D\uDC4C";                       // 👌
@@ -29,15 +32,13 @@ public class BotSettings extends AbstractSettings {
     private String searchingEmoji = "\uD83D\uDD0E";                     // 🔎
     private String game = "watching Ubisoft conference";                // Current name of the 'game' being played by the bot
     private String onlineStatus = "ONLINE";                             // "online", "idle", "dnd", "invisible", "offline", ""
+    private long maxSeconds = 0L;                                       // Maximum song length
     private boolean leaveChannel = true;                                // Leave channel if no one is listening
     private boolean songInGame = false;                                 // Show song as status
     private boolean npImages = true;                                    // Display search images
-    private long maxSeconds = 0L;                                       // Maximum song length
-    private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
     private boolean repeat = true;                                      // If repeat mode is available
     private boolean autoModeration = false;                             // If to use moderation feature
     private boolean rotateActionsAndGames = false;                      // If bot should change statuses by himself
-    private String rotationListFolder = "./app/rules/rotation/";        // Folder that stores statuses.json
     private boolean rotateTextBackup = true;                            // Automatically create backups of all available chats
     private boolean rotateMediaBackup = true;                           // Automatically save media from all available chats
     private int targetHourForTextBackup = 0;                            // Set local TZ hour for text backup to be started
@@ -69,8 +70,12 @@ public class BotSettings extends AbstractSettings {
         return dockerPathToExport;
     }
 
-    public final String getLocalTmpPath() {
-        return localTmpPath;
+    public final String getLocalTmpFolder() {
+        return localTmpFolder;
+    }
+
+    public String getRotationBackupFolder() {
+        return rotationBackupFolder;
     }
 
     public final String getPrefix() {
@@ -198,6 +203,7 @@ public class BotSettings extends AbstractSettings {
 
     public final void setTargetHourForTextBackup(int targetHourForTextBackup) {
         this.targetHourForTextBackup = targetHourForTextBackup;
+        manager.writeSettings();
     }
 
     public final int getTargetHourForMediaBackup() {
@@ -206,13 +212,24 @@ public class BotSettings extends AbstractSettings {
 
     public final void setTargetHourForMediaBackup(int targetHourForMediaBackup) {
         this.targetHourForMediaBackup = targetHourForMediaBackup;
+        manager.writeSettings();
     }
 
     public final int getDelayDaysForTextBackup() {
         return delayDaysForTextBackup;
     }
 
+    public void setDelayDaysForTextBackup(int delayDaysForTextBackup) {
+        this.delayDaysForTextBackup = delayDaysForTextBackup;
+        manager.writeSettings();
+    }
+
     public final int getDelayDaysForMediaBackup() {
         return delayDaysForMediaBackup;
+    }
+
+    public void setDelayDaysForMediaBackup(int delayDaysForMediaBackup) {
+        this.delayDaysForMediaBackup = delayDaysForMediaBackup;
+        manager.writeSettings();
     }
 }

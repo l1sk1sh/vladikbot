@@ -35,7 +35,7 @@ public final class StringUtils {
 
     public static String getCurrentDate() {
         Date date = Calendar.getInstance().getTime();
-        DateFormat dateFormat = new SimpleDateFormat("ddmmyyyy");
+        DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy");
         return dateFormat.format(date);
     }
 }

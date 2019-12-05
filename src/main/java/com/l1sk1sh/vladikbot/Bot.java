@@ -43,7 +43,6 @@ public class Bot {
     private final ChatNotificationService notificationService;
 
     private boolean lockedBackup = false;
-    private boolean lockedRotationBackup = false;
     private boolean shuttingDown = false;
     private JDA jda;
 
@@ -145,14 +144,6 @@ public class Bot {
 
     public void setLockedBackup(boolean lockedBackup) {
         this.lockedBackup = lockedBackup;
-    }
-
-    public boolean isLockedRotationBackup() {
-        return lockedRotationBackup;
-    }
-
-    public void setLockedRotationBackup(boolean lockedRotationBackup) {
-        this.lockedRotationBackup = lockedRotationBackup;
     }
 
     public AutoModerationManager getAutoModerationManager() {
