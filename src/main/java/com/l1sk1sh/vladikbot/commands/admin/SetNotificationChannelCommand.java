@@ -5,6 +5,8 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -12,6 +14,7 @@ import java.util.List;
  * @author Oliver Johnson
  */
 public class SetNotificationChannelCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(SetNotificationChannelCommand.class);
     private final Bot bot;
 
     public SetNotificationChannelCommand(Bot bot) {
@@ -39,6 +42,7 @@ public class SetNotificationChannelCommand extends AdminCommand {
                 event.replyWarning(FormatUtils.listOfTextChannels(list, event.getArgs()));
             } else {
                 bot.getGuildSettings(event.getGuild()).setNotificationChannelId(list.get(0));
+                log.info("Notification channel was set to {}. Set by {}:[{}]", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
                 event.replySuccess(String.format("Notifications are being displayed in <#%1$s>.", list.get(0).getId()));
             }
         }

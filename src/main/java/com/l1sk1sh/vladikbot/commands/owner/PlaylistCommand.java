@@ -18,7 +18,7 @@ import java.util.List;
  */
 public class PlaylistCommand extends OwnerCommand {
     private final Bot bot;
-    private String spacesLiteral = "\\s+";
+    private final String spacesLiteral = "\\s+";
 
     public PlaylistCommand(Bot bot) {
         this.bot = bot;
@@ -89,7 +89,7 @@ public class PlaylistCommand extends OwnerCommand {
                     event.reply(builder.toString());
                 }
             } catch (IOException ioe) {
-                event.replyError(String.format("Local folder couldn't be processed! `[%s]`", ioe.getLocalizedMessage()));
+                event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
     }

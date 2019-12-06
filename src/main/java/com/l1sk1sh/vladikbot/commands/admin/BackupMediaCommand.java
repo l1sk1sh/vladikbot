@@ -5,6 +5,8 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.services.BackupMediaService;
 import com.l1sk1sh.vladikbot.settings.Const;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
@@ -12,6 +14,7 @@ import java.io.File;
  * @author Oliver Johnson
  */
 public class BackupMediaCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(BackupMediaCommand.class);
     private final Bot bot;
 
     public BackupMediaCommand(Bot bot) {
@@ -28,6 +31,10 @@ public class BackupMediaCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
+        if (bot.isDockerFailed()) {
+            return;
+        }
+
         if (bot.isLockedBackup()) {
             event.replyWarning("Can't backup media - another backup is in progress!");
             return;
@@ -47,16 +54,19 @@ public class BackupMediaCommand extends AdminCommand {
 
             /* Creating new thread from text backup service and waiting for it to finish */
             Thread backupTextChannelServiceThread = new Thread(backupTextChannelService);
+            log.info("Starting backupTextChannelService...");
             backupTextChannelServiceThread.start();
             try {
                 backupTextChannelServiceThread.join();
             } catch (InterruptedException e) {
+                log.error("BackupTextChannel was interrupted.", e);
                 event.replyError("Text channel backup process was interrupted!");
                 return;
             }
 
             if (backupTextChannelService.hasFailed()) {
-                event.replyError(String.format("Text channel backup has failed: `[%s]`", backupTextChannelService.getFailMessage()));
+                log.error("BackupTextChannelService has failed: {}", backupTextChannelService.getFailMessage());
+                event.replyError(String.format("Text channel backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
                 return;
             }
 
@@ -72,6 +82,7 @@ public class BackupMediaCommand extends AdminCommand {
 
             /* Creating new thread from media backup service and waiting for it to finish */
             Thread backupMediaServiceThread = new Thread(backupMediaService);
+            log.info("Starting backupMediaService...");
             backupMediaServiceThread.start();
             try {
                 backupMediaServiceThread.join();
@@ -81,7 +92,8 @@ public class BackupMediaCommand extends AdminCommand {
             }
 
             if (backupMediaService.hasFailed()) {
-                event.replyError(String.format("Media backup has filed: `[%s]`", backupMediaService.getFailMessage()));
+                log.error("BackupMediaService has failed: {}", backupTextChannelService.getFailMessage());
+                event.replyError(String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
                 return;
             }
 
@@ -89,6 +101,7 @@ public class BackupMediaCommand extends AdminCommand {
             File attachmentTxtFile = backupMediaService.getAttachmentsTxtFile();
 
             if (!attachmentHtmlFile.exists() || !attachmentTxtFile.exists()) {
+                log.error("Media files are absent, however services reported success.");
                 event.replyError("Failed to find media files!");
                 return;
             }
@@ -102,7 +115,9 @@ public class BackupMediaCommand extends AdminCommand {
                         "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
             }
 
-            if (backupMediaService.doZip()) {
+            if (backupMediaService.doZip() && backupMediaService.getZipWithAttachmentsFile().length() < Const.EIGHT_MEGABYTES_IN_BYTES) {
+                event.getTextChannel().sendFile(backupMediaService.getZipWithAttachmentsFile(), backupMediaService.getZipWithAttachmentsFile().getName()).queue();
+            } else if (backupMediaService.doZip()) {
                 event.replySuccess("Zip with uploaded media files could now be downloaded from local storage.");
             }
         }).start();

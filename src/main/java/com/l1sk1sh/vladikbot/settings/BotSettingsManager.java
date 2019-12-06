@@ -7,8 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.nio.file.Files;
 
-import static com.l1sk1sh.vladikbot.settings.Const.BOT_SETTINGS_JSON;
-
 /**
  * @author Oliver Johnson
  */
@@ -18,12 +16,12 @@ public class BotSettingsManager extends AbstractSettingsManager {
     private final File botConfigFile;
 
     public BotSettingsManager() {
-        botConfigFile = new File(BOT_SETTINGS_JSON);
+        botConfigFile = new File(Const.BOT_SETTINGS_JSON);
 
         if (!botConfigFile.exists()) {
             this.botSettings = new BotSettings(this);
             writeSettings();
-            log.warn(String.format("Created %s. You will have to setup it manually", BOT_SETTINGS_JSON));
+            log.warn(String.format("Created %1$s. You will have to setup it manually", Const.BOT_SETTINGS_JSON));
             SystemUtils.exit(1, 5000);
         } else {
             try {
@@ -37,7 +35,7 @@ public class BotSettingsManager extends AbstractSettingsManager {
                 );
                 this.botSettings.setManager(this);
             } catch (IOException e) {
-                log.error(String.format("Error while reading %s file.", BOT_SETTINGS_JSON),
+                log.error(String.format("Error while reading %1$s file.", Const.BOT_SETTINGS_JSON),
                         e.getLocalizedMessage(), e.getCause());
             }
         }

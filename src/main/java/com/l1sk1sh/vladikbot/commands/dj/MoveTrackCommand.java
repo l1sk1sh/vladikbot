@@ -61,7 +61,7 @@ public class MoveTrackCommand extends DJCommand {
         /* Move the track */
         QueuedTrack track = queue.moveItem(from - 1, to - 1);
         String trackTitle = track.getTrack().getInfo().title;
-        String reply = String.format("Moved **%s** from position `%d` to `%d`.", trackTitle, from, to);
+        String reply = String.format("Moved **%1$s** from position `%2$d` to `%3$d`.", trackTitle, from, to);
         event.replySuccess(reply);
     }
 

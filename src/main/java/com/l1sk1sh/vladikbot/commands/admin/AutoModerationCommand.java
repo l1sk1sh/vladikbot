@@ -3,7 +3,10 @@ package com.l1sk1sh.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.ReactionRule;
+import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.*;
@@ -14,6 +17,8 @@ import java.util.regex.Pattern;
  * @author Oliver Johnson
  */
 public class AutoModerationCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(AutoModerationCommand.class);
+
     private final Bot bot;
 
     public AutoModerationCommand(Bot bot) {
@@ -76,10 +81,12 @@ public class AutoModerationCommand extends AdminCommand {
 
                 ReactionRule rule = new ReactionRule(name, reactTo, reactWith);
                 bot.getAutoModerationManager().writeRule(rule);
+                log.info("Added new auto moderation rule {}", rule.toString());
                 event.replySuccess(String.format("Rule was added: `[%1$s]`", rule.toString()));
             } catch (IllegalArgumentException iae) {
                 event.replyWarning(String.format("Input arguments were incorrect `[%1$s]`", event.getArgs()));
             } catch (IOException ioe) {
+                log.error("IO error during CreateCommand execution", ioe);
                 event.replyError(String.format("Failed to write new rule! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -109,6 +116,7 @@ public class AutoModerationCommand extends AdminCommand {
                     event.reply(builder.toString());
                 }
             } catch (IOException ioe) {
+                log.error("IO error during ReadCommand execution", ioe);
                 event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -131,8 +139,10 @@ public class AutoModerationCommand extends AdminCommand {
             } else {
                 try {
                     bot.getAutoModerationManager().deleteRule(name);
+                    log.info("Deleted rule {} by {}[{}]", name, event.getAuthor().getName(), event.getAuthor().getId());
                     event.replySuccess(String.format("Successfully deleted rule `%1$s`!", name));
                 } catch (IOException e) {
+                    log.error("Failed to delete moderation rule {}", name, e);
                     event.replyError(String.format("Unable to delete the rule: `[%1$s]`!", e.getLocalizedMessage()));
                 }
             }
@@ -157,11 +167,13 @@ public class AutoModerationCommand extends AdminCommand {
                         case "on":
                         case "enable":
                             bot.getBotSettings().setAutoModeration(true);
+                            log.info("AutoModerationManager was enabled by {}", event.getAuthor().getName());
                             event.replySuccess("AutoModerationManager is now enabled!");
                             break;
                         case "off":
                         case "disable":
                             bot.getBotSettings().setAutoModeration(false);
+                            log.info("AutoModerationManager was disabled by {}", event.getAuthor().getName());
                             event.replySuccess("AutoModerationManager is now disabled!");
                             break;
                     }

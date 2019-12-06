@@ -12,10 +12,10 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class CopyProcess {
+public class DockerCallProcess {
     private static final Logger log = LoggerFactory.getLogger(CopyProcess.class);
 
-    public CopyProcess(List<String> command) throws IOException, InterruptedException {
+    public DockerCallProcess(List<String> command) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
         pb.command(command);
@@ -26,10 +26,8 @@ public class CopyProcess {
         String line;
         while ((line = br.readLine()) != null) {
             log.debug(line);
-            if (line.contains("No such container:path")) {
-                throw new FileNotFoundException(line);
-            } else if (line.contains("Error")) {
-                throw new IOException(line);
+            if (line.contains("command not found")) {
+                throw new FileNotFoundException("Command not found on line [" + line + "]");
             }
         }
         process.waitFor();

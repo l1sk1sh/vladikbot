@@ -38,12 +38,15 @@ public class Bot {
     private final NowPlayingHandler nowPlayingHandler;
     private final AutoModerationManager autoModerationManager;
     private final ActionAndGameRotationManager actionAndGameRotationManager;
-    private final RotatingBackupChannelService rotatingBackupChannelService;
-    private final RotatingBackupMediaService rotatingBackupMediaService;
+    private final RotatingTextBackupDaemon rotatingTextBackupDaemon;
+    private final RotatingMediaBackupDaemon rotatingMediaBackupDaemon;
     private final ChatNotificationService notificationService;
+    private final DockerVerificationService dockerVerificationService;
 
     private boolean lockedBackup = false;
+    private boolean lockedRotationBackup = false;
     private boolean shuttingDown = false;
+    private boolean dockerFailed = false;
     private JDA jda;
 
     public Bot(EventWaiter waiter, BotSettingsManager botSettingsManager, GuildSpecificSettingsManager guildSpecificSettingsManager) {
@@ -58,9 +61,10 @@ public class Bot {
         this.nowPlayingHandler.init();
         this.autoModerationManager = new AutoModerationManager(this);
         this.actionAndGameRotationManager = new ActionAndGameRotationManager(this);
-        this.rotatingBackupChannelService = new RotatingBackupChannelService(this);
-        this.rotatingBackupMediaService = new RotatingBackupMediaService(this);
+        this.rotatingTextBackupDaemon = new RotatingTextBackupDaemon(this);
+        this.rotatingMediaBackupDaemon = new RotatingMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
+        this.dockerVerificationService = new DockerVerificationService();
     }
 
     public void closeAudioConnection(long guildId) {
@@ -107,7 +111,7 @@ public class Bot {
     }
 
     public GuildSpecificSettings getGuildSettings(Guild guild) {
-        return (GuildSpecificSettings) guildSpecificSettingsManager.getSettings(guild);
+        return guildSpecificSettingsManager.getSettings(guild);
     }
 
     public EventWaiter getWaiter() {
@@ -146,6 +150,14 @@ public class Bot {
         this.lockedBackup = lockedBackup;
     }
 
+    public boolean isLockedRotationBackup() {
+        return lockedRotationBackup;
+    }
+
+    public void setLockedRotationBackup(boolean lockedRotationBackup) {
+        this.lockedRotationBackup = lockedRotationBackup;
+    }
+
     public AutoModerationManager getAutoModerationManager() {
         return autoModerationManager;
     }
@@ -154,16 +166,28 @@ public class Bot {
         return actionAndGameRotationManager;
     }
 
-    public RotatingBackupChannelService getRotatingBackupChannelService() {
-        return rotatingBackupChannelService;
+    public RotatingTextBackupDaemon getRotatingTextBackupDaemon() {
+        return rotatingTextBackupDaemon;
     }
 
-    public RotatingBackupMediaService getRotatingBackupMediaService() {
-        return rotatingBackupMediaService;
+    public RotatingMediaBackupDaemon getRotatingMediaBackupDaemon() {
+        return rotatingMediaBackupDaemon;
     }
 
     public ChatNotificationService getNotificationService() {
         return notificationService;
+    }
+
+    public DockerVerificationService getDockerVerificationService() {
+        return dockerVerificationService;
+    }
+
+    public boolean isDockerFailed() {
+        return dockerFailed;
+    }
+
+    public void setDockerFailed(boolean dockerFailed) {
+        this.dockerFailed = dockerFailed;
     }
 
     private List<TextChannel> getAllTextChannels() {

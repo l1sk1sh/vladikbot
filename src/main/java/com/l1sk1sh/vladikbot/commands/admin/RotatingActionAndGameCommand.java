@@ -4,6 +4,8 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -14,6 +16,7 @@ import java.util.Map;
  * @author Oliver Johnson
  */
 public class RotatingActionAndGameCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(RotatingActionAndGameCommand.class);
     private final Bot bot;
 
     public RotatingActionAndGameCommand(Bot bot) {
@@ -69,8 +72,10 @@ public class RotatingActionAndGameCommand extends AdminCommand {
 
                 bot.getActionAndGameRotationManager()
                         .writeActionAndGame(action, event.getArgs().substring(action.length()).trim());
+                log.info("Added new pair to rotation manager {}:{}", action, event.getArgs().substring(action.length()).trim());
                 event.replySuccess("New *action:game* pair was added.");
             } catch (IOException ioe) {
+                log.error("IO error during addition of new rotation pair", ioe);
                 event.replyError(String.format("Failed to write new *action:game*! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -113,8 +118,10 @@ public class RotatingActionAndGameCommand extends AdminCommand {
                     event.reply(builder.toString());
                 }
             } catch (UnsupportedEncodingException e) {
+                log.error("UTF-8 exception for");
                 event.replyError("Action requires UTF-8 encoding support!");
             } catch (IOException ioe) {
+                log.error("IO exception during reading of rotation pair", ioe);
                 event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -174,9 +181,11 @@ public class RotatingActionAndGameCommand extends AdminCommand {
                 try {
                     bot.getActionAndGameRotationManager()
                             .deleteActionAndGame(bot.getActionAndGameRotationManager().getActionByGameTitle(gameName), gameName);
+                    log.info("Pair with game {} was removed by {}:[{}]", gameName, event.getAuthor().getName(), event.getAuthor().getId());
                     event.replySuccess(String.format("Successfully deleted *action:game* `%1$s`!", gameName));
-                } catch (IOException e) {
-                    event.replyError(String.format("Unable to delete this *action:game*: `[%1$s]`.", e.getLocalizedMessage()));
+                } catch (IOException ioe) {
+                    log.error("IO error during removal of rotation pair", ioe);
+                    event.replyError(String.format("Unable to delete this *action:game*: `[%1$s]`.", ioe.getLocalizedMessage()));
                 }
             }
         }

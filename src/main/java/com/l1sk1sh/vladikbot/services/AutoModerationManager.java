@@ -24,7 +24,6 @@ public class AutoModerationManager {
     private static final Logger log = LoggerFactory.getLogger(AutoModerationManager.class);
 
     private final Bot bot;
-    private final String extension = Const.JSON_EXTENSION;
     private final Gson gson;
 
     public AutoModerationManager(Bot bot) {
@@ -66,8 +65,8 @@ public class AutoModerationManager {
             }
 
             for (File file : Objects.requireNonNull(folder.listFiles())) {
-                if (getRule(file.getName().replace(extension, "")) != null) {
-                    rules.add(getRule(file.getName().replace(extension, "")));
+                if (getRule(file.getName().replace(Const.JSON_EXTENSION, "")) != null) {
+                    rules.add(getRule(file.getName().replace(Const.JSON_EXTENSION, "")));
                 }
             }
 
@@ -82,7 +81,7 @@ public class AutoModerationManager {
                 return null;
             } else {
                 return gson.fromJson(new FileReader(bot.getBotSettings().getModerationRulesFolder()
-                        + name + extension), ReactionRule.class);
+                        + name + Const.JSON_EXTENSION), ReactionRule.class);
             }
         } catch (IOException e) {
             return null;
@@ -90,7 +89,7 @@ public class AutoModerationManager {
     }
 
     public void deleteRule(String name) throws IOException {
-        FileUtils.deleteFile(bot.getBotSettings().getModerationRulesFolder() + name + extension);
+        FileUtils.deleteFile(bot.getBotSettings().getModerationRulesFolder() + name + Const.JSON_EXTENSION);
     }
 
     public void writeRule(ReactionRule rule) throws IOException {
@@ -101,7 +100,7 @@ public class AutoModerationManager {
 
         log.debug("Adding rule {}", rule.toString());
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getBotSettings().getModerationRulesFolder() + rule.getRuleName() + extension));
+                new FileWriter(bot.getBotSettings().getModerationRulesFolder() + rule.getRuleName() + Const.JSON_EXTENSION));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(rule, rule.getClass(), writer);

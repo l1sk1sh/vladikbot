@@ -38,6 +38,7 @@ public final class FileUtils {
         return file;
     }
 
+    @SuppressWarnings("unused")
     public static void deleteFilesByChannelIdAndExtension(String pathToDir, String id, String extension) {
         File f = new File(pathToDir);
         File[] paths = f.listFiles();
@@ -88,23 +89,26 @@ public final class FileUtils {
         if (fileToZip.isHidden()) {
             return;
         }
+
         if (fileToZip.isDirectory()) {
             if (fileName.endsWith("/")) {
                 zipOut.putNextEntry(new ZipEntry(fileName));
-                zipOut.closeEntry();
             } else {
                 zipOut.putNextEntry(new ZipEntry(fileName + "/"));
-                zipOut.closeEntry();
             }
+            zipOut.closeEntry();
+
             File[] children = fileToZip.listFiles();
             for (File childFile : Objects.requireNonNull(children)) {
                 zipFile(childFile, fileName + "/" + childFile.getName(), zipOut);
             }
             return;
         }
+
         FileInputStream fis = new FileInputStream(fileToZip);
         ZipEntry zipEntry = new ZipEntry(fileName);
         zipOut.putNextEntry(zipEntry);
+
         byte[] bytes = new byte[Const.BITS_IN_BYTE];
         int length;
         while ((length = fis.read(bytes)) >= 0) {

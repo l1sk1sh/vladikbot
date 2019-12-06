@@ -44,6 +44,11 @@ class Listener extends ListenerAdapter {
             log.warn(event.getJDA().asBot().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
 
+        if (!bot.getDockerVerificationService().isDockerRunning()) {
+            log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
+            bot.setDockerFailed(true);
+        }
+
         event.getJDA().getGuilds().forEach((guild) ->
         {
             try {
@@ -63,7 +68,7 @@ class Listener extends ListenerAdapter {
         });
 
         // TODO Maybe, this should be moved to settingsManager or rotationManager
-        if (botSettings.shouldRotateTextBackup() && botSettings.shouldRotateMediaBackup()) {
+        if (botSettings.shouldRotateTextBackup() || botSettings.shouldRotateMediaBackup()) {
             int minimumTimeDifference = 1;
             int maximumDayHour = 23;
             int defaultTextBackupDaysDelay = 2;
@@ -101,13 +106,13 @@ class Listener extends ListenerAdapter {
 
         if (botSettings.shouldRotateMediaBackup()) {
             log.info("Enabling Rotation media backup service...");
-            bot.getRotatingBackupMediaService().enableExecution();
+            bot.getRotatingMediaBackupDaemon().enableExecution();
         }
 
         if (botSettings.shouldRotateTextBackup()) {
             log.info("Enabling Rotation text backup service...");
-            bot.getRotatingBackupChannelService().enableExecution();
-            bot.getRotatingBackupChannelService().execute();
+            bot.getRotatingTextBackupDaemon().enableExecution();
+            bot.getRotatingTextBackupDaemon().execute();
         }
 
         if (botSettings.shouldRotateActionsAndGames()) {

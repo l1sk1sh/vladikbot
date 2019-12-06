@@ -34,7 +34,6 @@ public class PlaylistLoader {
     private static final Logger log = LoggerFactory.getLogger(PlaylistLoader.class);
 
     private final Bot bot;
-    private final String extension = Const.JSON_EXTENSION;
     private final Gson gson;
 
     public PlaylistLoader(Bot bot) {
@@ -51,25 +50,25 @@ public class PlaylistLoader {
         } else {
             File folder = new File(bot.getBotSettings().getPlaylistsFolder());
             return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) ->
-                    pathname.getName().endsWith(extension))))
+                    pathname.getName().endsWith(Const.JSON_EXTENSION))))
                     .map(f ->
-                            f.getName().substring(0, f.getName().length() - extension.length())).collect(Collectors.toList());
+                            f.getName().substring(0, f.getName().length() - Const.JSON_EXTENSION.length())).collect(Collectors.toList());
         }
     }
 
     public void createPlaylist(String name) throws IOException {
-        FileUtils.createFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
+        FileUtils.createFile(bot.getBotSettings().getPlaylistsFolder() + name + Const.JSON_EXTENSION);
         log.info("Created new playlist {}", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
-        FileUtils.deleteFile(bot.getBotSettings().getPlaylistsFolder() + name + extension);
+        FileUtils.deleteFile(bot.getBotSettings().getPlaylistsFolder() + name + Const.JSON_EXTENSION);
         log.info("Deleted playlist {}", name);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getBotSettings().getPlaylistsFolder() + name + extension));
+                new FileWriter(bot.getBotSettings().getPlaylistsFolder() + name + Const.JSON_EXTENSION));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(listToWrite, listToWrite.getClass(), writer);
@@ -89,7 +88,7 @@ public class PlaylistLoader {
 
                 //noinspection unchecked
                 List<String> list = gson.fromJson(new FileReader(bot.getBotSettings().getPlaylistsFolder()
-                        + name + extension), List.class);
+                        + name + Const.JSON_EXTENSION), List.class);
                 return new Playlist(name, list);
             }
         } catch (IOException e) {

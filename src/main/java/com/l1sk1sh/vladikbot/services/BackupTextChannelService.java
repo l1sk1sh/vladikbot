@@ -31,7 +31,7 @@ public class BackupTextChannelService implements Runnable {
     private String beforeDate;
     private String afterDate;
     private String failMessage;
-    private String[] args;
+    private final String[] args;
     private final String channelId;
     private final String format;
     private final String localPathToExport;
@@ -99,15 +99,15 @@ public class BackupTextChannelService implements Runnable {
             }
 
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
-            failMessage = String.format("Failed to processes provided arguments: %s", Arrays.toString(args));
+            failMessage = String.format("Failed to processes provided arguments: %1$s", Arrays.toString(args));
             log.error(failMessage);
             hasFailed = true;
         } catch (IOException ioe) {
-            failMessage = String.format("Failed to find exported file [%s]", ioe.getLocalizedMessage());
+            failMessage = String.format("Failed to find exported file [%1$s]", ioe.getLocalizedMessage());
             log.error(failMessage);
             hasFailed = true;
         } catch (InterruptedException ie) {
-            failMessage = String.format("Backup thread interrupted on services level [%s]", ie.getLocalizedMessage());
+            failMessage = String.format("Backup thread interrupted on services level [%1$s]", ie.getLocalizedMessage());
             log.error(failMessage);
             hasFailed = true;
         } finally {

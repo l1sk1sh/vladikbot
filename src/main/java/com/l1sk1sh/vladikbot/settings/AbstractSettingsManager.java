@@ -25,7 +25,7 @@ class AbstractSettingsManager {
             gson.toJson(settings, settings.getClass(), writer);
             writer.close();
         } catch (IOException e) {
-            log.error(String.format("Error while writing %s file.", configFile.getName()),
+            log.error(String.format("Error while writing %1$s file.", configFile.getName()),
                     e.getLocalizedMessage(), e.getCause());
         }
     }

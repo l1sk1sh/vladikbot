@@ -38,7 +38,7 @@ public class SettingsCommand extends Command {
     @Override
     @SuppressWarnings("ConstantConditions") /* Suppressed as inspector can't detect null verification further in the code  */
     protected void execute(CommandEvent event) {
-        GuildSpecificSettings guildSpecificSettings = (GuildSpecificSettings) guildSpecificSettingsManager.getSettings(event.getGuild());
+        GuildSpecificSettings guildSpecificSettings = guildSpecificSettingsManager.getSettings(event.getGuild());
         MessageBuilder builder = new MessageBuilder()
                 .append(Const.HEADPHONES_EMOJI + " **")
                 .append(FormatUtils.filter(event.getSelfUser().getName()))

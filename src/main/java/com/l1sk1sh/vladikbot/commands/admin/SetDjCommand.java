@@ -5,6 +5,8 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.entities.Role;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
  * @author John Grosh
  */
 public class SetDjCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(SetDjCommand.class);
     private final Bot bot;
 
     public SetDjCommand(Bot bot) {
@@ -42,6 +45,7 @@ public class SetDjCommand extends AdminCommand {
                 event.replyWarning(FormatUtils.listOfRoles(list, event.getArgs()));
             } else {
                 bot.getGuildSettings(event.getGuild()).setDjRoleId(list.get(0));
+                log.info("DJ role now available for {}. Set by {}:[{}]", list.get(0).getName(), event.getAuthor().getName(), event.getAuthor().getId());
                 event.replySuccess(String.format("DJ commands can now be used by users with the **%1$s** role.",
                         list.get(0).getName()));
             }

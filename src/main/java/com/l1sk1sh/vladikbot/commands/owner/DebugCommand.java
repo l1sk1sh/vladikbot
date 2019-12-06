@@ -3,12 +3,13 @@ package com.l1sk1sh.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.sedmelluq.discord.lavaplayer.tools.PlayerLibrary;
 import net.dv8tion.jda.core.JDAInfo;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.ChannelType;
-
-import static com.l1sk1sh.vladikbot.settings.Const.BITS_IN_BYTE;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Oliver Johnson
@@ -17,6 +18,7 @@ import static com.l1sk1sh.vladikbot.settings.Const.BITS_IN_BYTE;
  * @author John Grosh (john.a.grosh@gmail.com)
  */
 public class DebugCommand extends OwnerCommand {
+    private static final Logger log = LoggerFactory.getLogger(DebugCommand.class);
     private final static String[] PROPERTIES = {"java.version", "java.vm.name", "java.vm.specification.version",
             "java.runtime.name", "java.runtime.version", "java.specification.version", "os.arch", "os.name"};
 
@@ -50,8 +52,8 @@ public class DebugCommand extends OwnerCommand {
                 .append("\n  JDA-Utilities Version = ").append(JDAUtilitiesInfo.VERSION)
                 .append("\n  Lavaplayer Version = ").append(PlayerLibrary.VERSION);
 
-        long total = Runtime.getRuntime().totalMemory() / BITS_IN_BYTE / BITS_IN_BYTE;
-        long used = total - (Runtime.getRuntime().freeMemory() / BITS_IN_BYTE / BITS_IN_BYTE);
+        long total = Runtime.getRuntime().totalMemory() / Const.BITS_IN_BYTE / Const.BITS_IN_BYTE;
+        long used = total - (Runtime.getRuntime().freeMemory() / Const.BITS_IN_BYTE / Const.BITS_IN_BYTE);
         sb.append("\n\nRuntime Information:")
                 .append("\n  Total Memory = ").append(total)
                 .append("\n  Used Memory = ").append(used);
@@ -67,5 +69,7 @@ public class DebugCommand extends OwnerCommand {
         } else {
             event.reply("Debug Information: ```\n" + sb.toString() + "\n```");
         }
+
+        log.info("Debug command was sent to {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
     }
 }

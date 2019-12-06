@@ -40,7 +40,7 @@ public class PlaylistsCommand extends MusicCommand {
                 event.reply(builder.toString());
             }
         } catch (IOException ioe) {
-            event.replyError(String.format("Local folder couldn't be processed! `[%s]`", ioe.getLocalizedMessage()));
+            event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
         }
     }
 }

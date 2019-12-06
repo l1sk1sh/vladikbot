@@ -36,14 +36,14 @@ public class BackupMediaService implements Runnable {
     private File attachmentsHtmlFile;
     private File attachmentsTxtFile;
     private File zipWithAttachmentsFile;
-    private String localAttachmentsListName;
-    private String localAttachmentsListPath;
-    private String localAttachmentsPath;
-    private String channelId;
+    private final String localAttachmentsListName;
+    private final String localAttachmentsListPath;
+    private final String localAttachmentsPath;
+    private final String channelId;
     private String failMessage;
     private String attachmentsFolderPath;
     private boolean doZip = false;
-    private boolean ignoreExisting = true;
+    private boolean ignoreExistingFiles = true;
     private boolean hasFailed = false;
     private Set<String> setOfAllAttachmentsUrls;
     private Set<String> setOfSupportedAttachmentsUrls;
@@ -77,7 +77,7 @@ public class BackupMediaService implements Runnable {
 
             /* If file is present or was made less than 24 hours ago - exit */
             if ((attachmentsTxtFile != null && ((System.currentTimeMillis() - attachmentsTxtFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
-                    && ignoreExisting) {
+                    && ignoreExistingFiles) {
                 log.info("Media TXT list has already been made [{}]", attachmentsTxtFile.getAbsolutePath());
                 return;
             }
@@ -109,7 +109,7 @@ public class BackupMediaService implements Runnable {
             }
 
         } catch (IOException e) {
-            failMessage = String.format("Something bad with files happened... [%s]", e.getLocalizedMessage());
+            failMessage = String.format("Something bad with files happened... [%1$s]", e.getLocalizedMessage());
             log.error("Failed to read exported file, to write local file or to download media. {}", e.getLocalizedMessage());
             hasFailed = true;
         } finally {
@@ -129,12 +129,12 @@ public class BackupMediaService implements Runnable {
 
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<!doctype html><html lang=\"en\"><head>");
-        htmlContent.append(String.format("<title>%s</title>", localAttachmentsListName));
+        htmlContent.append(String.format("<title>%1$s</title>", localAttachmentsListName));
         htmlContent.append("</head><style>img {border: 1px solid #ddd;border-radius: 4px;");
         htmlContent.append("padding: 5px;width: 150px;}img:hover {");
         htmlContent.append("box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);}</style><body>");
         for (String url : setOfSupportedAttachmentsUrls) {
-            htmlContent.append(String.format("<a target=\"_blank\" href=\"%s\"><img src=\"%s\"></a>", url, url));
+            htmlContent.append(String.format("<a target=\"_blank\" href=\"%1$s\"><img src=\"%2$s\"></a>", url, url));
         }
         htmlContent.append("</body></html>");
         Files.write(Paths.get(pathToHtmlFile), htmlContent.toString().getBytes());
@@ -211,9 +211,7 @@ public class BackupMediaService implements Runnable {
                     break;
                 case "-f":
                 case "--force":
-
-                    /* If force is specified - ignore existing files  */
-                    ignoreExisting = false;
+                    ignoreExistingFiles = false;
                     break;
             }
         }

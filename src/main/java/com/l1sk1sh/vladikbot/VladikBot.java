@@ -25,8 +25,7 @@ import javax.security.auth.login.LoginException;
 /**
  * @author Oliver Johnson
  */
-// TODO Move logs to config
-// TODO Decide whether to static import fileUtils and Const or use direct calls
+// TODO Rewrite all processes
 final class VladikBot {
     private VladikBot() {}
 

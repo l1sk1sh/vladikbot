@@ -4,14 +4,16 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 
 /**
  * @author Oliver Johnson
  */
-// TODO Add logging to commands as they contain part of logic
 public class BackupTextChannelCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(BackupTextChannelCommand.class);
     private final Bot bot;
 
     public BackupTextChannelCommand(Bot bot) {
@@ -26,6 +28,10 @@ public class BackupTextChannelCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
+        if (bot.isDockerFailed()) {
+            return;
+        }
+
         if (bot.isLockedBackup()) {
             event.replyWarning("Can't perform backup, because another backup is already running!");
             return;
@@ -45,16 +51,19 @@ public class BackupTextChannelCommand extends AdminCommand {
 
             /* Creating new thread from service and waiting for it to finish */
             Thread backupChannelServiceThread = new Thread(backupTextChannelService);
+            log.info("Starting backupTextChannelService...");
             backupChannelServiceThread.start();
             try {
                 backupChannelServiceThread.join();
             } catch (InterruptedException e) {
+                log.error("BackupTextChannel was interrupted.", e);
                 event.replyError("Backup process was interrupted!");
                 return;
             }
 
             if (backupTextChannelService.hasFailed()) {
-                event.replyError(String.format("Text channel backup has failed: `[%s]`", backupTextChannelService.getFailMessage()));
+                log.error("BackupTextChannelService has failed: {}", backupTextChannelService.getFailMessage());
+                event.replyError(String.format("Text channel backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
                 return;
             }
 

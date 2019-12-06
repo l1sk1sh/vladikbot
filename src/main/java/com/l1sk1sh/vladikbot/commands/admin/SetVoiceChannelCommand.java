@@ -5,6 +5,8 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.entities.VoiceChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,6 +17,7 @@ import java.util.List;
  * @author John Grosh
  */
 public class SetVoiceChannelCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(SetVoiceChannelCommand.class);
     private final Bot bot;
 
     public SetVoiceChannelCommand(Bot bot) {
@@ -42,6 +45,7 @@ public class SetVoiceChannelCommand extends AdminCommand {
                 event.replyWarning(FormatUtils.listOfVoiceChannels(list, event.getArgs()));
             } else {
                 bot.getGuildSettings(event.getGuild()).setVoiceChannelId(list.get(0));
+                log.info("Music can be used played in {}. Set by {}:[{}]", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
                 event.replySuccess(String.format("Music can now only be played in **%1$s**.", list.get(0).getName()));
             }
         }

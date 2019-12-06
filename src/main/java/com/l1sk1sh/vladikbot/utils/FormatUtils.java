@@ -7,8 +7,6 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 
 import java.util.List;
 
-import static com.l1sk1sh.vladikbot.settings.Const.SECONDS_IN_MINUTES;
-
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -25,10 +23,10 @@ public final class FormatUtils {
             return "LIVE";
         }
         long seconds = Math.round(duration / durationDivider);
-        long hours = seconds / (SECONDS_IN_MINUTES * SECONDS_IN_MINUTES);
-        seconds %= SECONDS_IN_MINUTES * SECONDS_IN_MINUTES;
-        long minutes = seconds / SECONDS_IN_MINUTES;
-        seconds %= SECONDS_IN_MINUTES;
+        long hours = seconds / (Const.SECONDS_IN_MINUTES * Const.SECONDS_IN_MINUTES);
+        seconds %= Const.SECONDS_IN_MINUTES * Const.SECONDS_IN_MINUTES;
+        long minutes = seconds / Const.SECONDS_IN_MINUTES;
+        seconds %= Const.SECONDS_IN_MINUTES;
         return (hours > 0 ? hours + ":" : "") + (minutes < thresholdTime ? "0" + minutes : minutes)
                 + ":" + (seconds < thresholdTime ? "0" + seconds : seconds);
     }

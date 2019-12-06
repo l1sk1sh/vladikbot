@@ -3,11 +3,14 @@ package com.l1sk1sh.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Oliver Johnson
  */
 public class RotatingBackupCommand extends OwnerCommand {
+    private static final Logger log = LoggerFactory.getLogger(RotatingBackupCommand.class);
     private final Bot bot;
 
     public RotatingBackupCommand(Bot bot) {
@@ -46,17 +49,17 @@ public class RotatingBackupCommand extends OwnerCommand {
                         case "on":
                         case "enable":
                             bot.getBotSettings().setRotateTextBackup(true);
-                            bot.getRotatingBackupChannelService().enableExecution();
+                            bot.getRotatingTextBackupDaemon().enableExecution();
                             event.replySuccess("Rotating Text Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
                             bot.getBotSettings().setRotateTextBackup(false);
                             try {
-                                bot.getRotatingBackupChannelService().disableExecution();
+                                bot.getRotatingTextBackupDaemon().disableExecution();
                                 event.replySuccess("Rotating Text Backup is now disabled!");
                             } catch (InterruptedException e) {
-                                event.replyError(String.format("Failed to disable text rotation service! [%s]", e.getLocalizedMessage()));
+                                event.replyError(String.format("Failed to disable text rotation service! [%1$s]", e.getLocalizedMessage()));
                             }
                             break;
                     }
@@ -84,17 +87,19 @@ public class RotatingBackupCommand extends OwnerCommand {
                         case "on":
                         case "enable":
                             bot.getBotSettings().setRotateMediaBackup(true);
-                            bot.getRotatingBackupMediaService().enableExecution();
+                            bot.getRotatingMediaBackupDaemon().enableExecution();
+                            log.info("Rotation backup was enabled by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
                             event.replySuccess("Rotating Media Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
                             bot.getBotSettings().setRotateMediaBackup(false);
                             try {
-                                bot.getRotatingBackupMediaService().disableExecution();
+                                bot.getRotatingMediaBackupDaemon().disableExecution();
+                                log.info("Rotation backup was disabled by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
                                 event.replySuccess("Rotating Media Backup is now disabled!");
                             } catch (InterruptedException e) {
-                                event.replyError(String.format("Failed to disable media rotation service! [%s]", e.getLocalizedMessage()));
+                                event.replyError(String.format("Failed to disable media rotation service! [%1$s]", e.getLocalizedMessage()));
                             }
                             break;
                     }
@@ -114,7 +119,8 @@ public class RotatingBackupCommand extends OwnerCommand {
 
         @Override
         protected final void execute(CommandEvent event) {
-            bot.getRotatingBackupChannelService().execute();
+            log.info("Full text backup is about to be executed by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
+            bot.getRotatingTextBackupDaemon().execute();
         }
     }
 
@@ -127,7 +133,8 @@ public class RotatingBackupCommand extends OwnerCommand {
 
         @Override
         protected final void execute(CommandEvent event) {
-            bot.getRotatingBackupMediaService().execute();
+            log.info("Full media backup is about to be executed by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
+            bot.getRotatingMediaBackupDaemon().execute();
         }
     }
 }

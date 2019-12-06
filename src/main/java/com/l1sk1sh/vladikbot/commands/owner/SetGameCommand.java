@@ -3,6 +3,8 @@ package com.l1sk1sh.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.core.entities.Game;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Oliver Johnson
@@ -11,7 +13,7 @@ import net.dv8tion.jda.core.entities.Game;
  * @author John Grosh
  */
 public class SetGameCommand extends OwnerCommand {
-    private static String gameNotSetMessage = "The game could not be set!";
+    private static final String gameNotSetMessage = "The game could not be set!";
 
     public SetGameCommand() {
         this.name = "setgame";
