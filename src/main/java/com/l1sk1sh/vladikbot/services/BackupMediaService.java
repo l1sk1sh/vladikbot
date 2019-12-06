@@ -53,7 +53,7 @@ public class BackupMediaService implements Runnable {
         this.args = args;
         this.channelId = channelId;
         this.textBackupFile = textBackupFile;
-        this.localAttachmentsListName = textBackupFile.getName().replace(Const.TXT_EXTENSION, "") + " - media list";
+        this.localAttachmentsListName = textBackupFile.getName().replace(Const.FileType.txt.name(), "") + " - media list";
         this.localAttachmentsListPath = localAttachmentsListPath + "media/"; /* Always moving list files to separate folder */
         this.localAttachmentsPath = localAttachmentsListPath + "attachments/"; /* Always moving attachments to separate folder */
     }
@@ -61,19 +61,14 @@ public class BackupMediaService implements Runnable {
     @Override
     public void run() {
         try {
-            if (FileUtils.fileOrFolderIsAbsent(localAttachmentsListPath)) {
-                FileUtils.createFolders(localAttachmentsListPath);
-            }
-
-            if (FileUtils.fileOrFolderIsAbsent(localAttachmentsPath)) {
-                FileUtils.createFolders(localAttachmentsPath);
-            }
+            FileUtils.createFolderIfAbsent(localAttachmentsListPath);
+            FileUtils.createFolderIfAbsent(localAttachmentsPath);
 
             bot.setLockedBackup(true);
             processArguments(args);
 
-            attachmentsTxtFile = FileUtils.getFileByChannelIdAndExtension(localAttachmentsListPath, channelId, Const.TXT_EXTENSION);
-            attachmentsHtmlFile = FileUtils.getFileByChannelIdAndExtension(localAttachmentsListPath, channelId, Const.HTML_EXTENSION);
+            attachmentsTxtFile = FileUtils.getFileByChannelIdAndExtension(localAttachmentsListPath, channelId, Const.FileType.txt);
+            attachmentsHtmlFile = FileUtils.getFileByChannelIdAndExtension(localAttachmentsListPath, channelId, Const.FileType.html);
 
             /* If file is present or was made less than 24 hours ago - exit */
             if ((attachmentsTxtFile != null && ((System.currentTimeMillis() - attachmentsTxtFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
@@ -89,7 +84,7 @@ public class BackupMediaService implements Runnable {
             setOfSupportedAttachmentsUrls = new HashSet<>();
 
             while (urlAttachmentsMatcher.find()) {
-                if (StringUtils.inArray(urlAttachmentsMatcher.group(), Const.SUPPORTED_MEDIA_FORMATS)) {
+                if (StringUtils.inArray(urlAttachmentsMatcher.group(), (String[]) Const.FileType.getRawSupportedMediaFormats().toArray())) {
                     setOfSupportedAttachmentsUrls.add(urlAttachmentsMatcher.group());
                 }
                 setOfAllAttachmentsUrls.add(urlAttachmentsMatcher.group());
@@ -118,14 +113,14 @@ public class BackupMediaService implements Runnable {
     }
 
     private void writeAttachmentsListTxtFile() throws IOException {
-        String pathToTxtFile = localAttachmentsListPath + localAttachmentsListName + Const.TXT_EXTENSION;
+        String pathToTxtFile = localAttachmentsListPath + localAttachmentsListName + "." + Const.FileType.txt.name();
 
         FileUtils.writeSetToFile(pathToTxtFile, setOfAllAttachmentsUrls);
         attachmentsTxtFile = new File(pathToTxtFile);
     }
 
     private void writeAttachmentsListHtmlFile() throws IOException {
-        String pathToHtmlFile = localAttachmentsListPath + localAttachmentsListName + Const.HTML_EXTENSION;
+        String pathToHtmlFile = localAttachmentsListPath + localAttachmentsListName + "." + Const.FileType.html.name();
 
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<!doctype html><html lang=\"en\"><head>");
@@ -142,12 +137,10 @@ public class BackupMediaService implements Runnable {
     }
 
     private void archiveAttachments() throws IOException {
-        String zipWithAttachmentsName = channelId + Const.ZIP_EXTENSION;
+        String zipWithAttachmentsName = channelId + "." + Const.FileType.zip.name();
         String zipFolderPath = attachmentsFolderPath + "../archives"; /* Placing archives into parent folder */
 
-        if (FileUtils.fileOrFolderIsAbsent(zipFolderPath)) {
-            FileUtils.createFolders(zipFolderPath);
-        }
+        FileUtils.createFolderIfAbsent(zipFolderPath);
 
         zipWithAttachmentsFile = new File(zipFolderPath + "/" + zipWithAttachmentsName);
         if (zipWithAttachmentsFile.exists() && zipWithAttachmentsFile.delete()) {
@@ -171,10 +164,7 @@ public class BackupMediaService implements Runnable {
     private void downloadAttachments() throws IOException {
         attachmentsFolderPath = localAttachmentsPath + channelId + "/";
 
-        if (FileUtils.fileOrFolderIsAbsent(attachmentsFolderPath)) {
-            log.info("Creating [{}] directory.", attachmentsFolderPath);
-            FileUtils.createFolders(attachmentsFolderPath);
-        }
+        FileUtils.createFolderIfAbsent(attachmentsFolderPath);
 
         for (String attachmentUrl : setOfAllAttachmentsUrls) {
             String tempUrl = StringUtils.replaceLast(attachmentUrl, "/", "_"); /* Replacing last '/' */

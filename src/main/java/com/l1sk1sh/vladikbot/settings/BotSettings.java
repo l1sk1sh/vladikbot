@@ -174,7 +174,7 @@ public class BotSettings extends AbstractSettings {
         return rotateActionsAndGames;
     }
 
-    public final void setRotateActionsAndGames(boolean rotateActionAndGames) {
+    public final void setRotateGameAndAction(boolean rotateActionAndGames) {
         this.rotateActionsAndGames = rotateActionAndGames;
         manager.writeSettings();
     }

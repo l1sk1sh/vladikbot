@@ -29,8 +29,8 @@ public class SetGameCommand extends OwnerCommand {
 
     @Override
     protected final void execute(CommandEvent event) {
-        String title = event.getArgs().toLowerCase().startsWith(Const.ACTION_PLAYING)
-                ? event.getArgs().substring(Const.ACTION_PLAYING.length()).trim()
+        String title = event.getArgs().toLowerCase().startsWith(Const.StatusAction.playing.name())
+                ? event.getArgs().substring(Const.StatusAction.playing.name().length()).trim()
                 : event.getArgs();
         try {
             event.getJDA().getPresence().setGame(title.isEmpty() ? null : Game.playing(title));
@@ -48,7 +48,7 @@ public class SetGameCommand extends OwnerCommand {
     private final static class SetStreamCommand extends OwnerCommand {
         private SetStreamCommand() {
             this.name = "stream";
-            this.aliases = new String[]{"twitch", Const.ACTION_STREAMING};
+            this.aliases = new String[]{"twitch", Const.StatusAction.streaming.name()};
             this.help = "sets the game the bot is playing to a stream";
             this.arguments = "<username> <game>";
             this.guildOnly = false;
@@ -74,7 +74,7 @@ public class SetGameCommand extends OwnerCommand {
     private final static class SetListenCommand extends OwnerCommand {
         private SetListenCommand() {
             this.name = "listen";
-            this.aliases = new String[]{Const.ACTION_LISTENING};
+            this.aliases = new String[]{Const.StatusAction.listening.name()};
             this.help = "sets the game the bot is listening to";
             this.arguments = "<title>";
             this.guildOnly = false;
@@ -102,7 +102,7 @@ public class SetGameCommand extends OwnerCommand {
     private final static class SetWatchCommand extends OwnerCommand {
         private SetWatchCommand() {
             this.name = "watch";
-            this.aliases = new String[]{Const.ACTION_WATCHING};
+            this.aliases = new String[]{Const.StatusAction.watching.name()};
             this.help = "sets the game the bot is watching";
             this.arguments = "<title>";
             this.guildOnly = false;

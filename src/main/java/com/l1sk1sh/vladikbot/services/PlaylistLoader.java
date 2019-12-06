@@ -35,40 +35,42 @@ public class PlaylistLoader {
 
     private final Bot bot;
     private final Gson gson;
+    private final String playlistFolder;
 
     public PlaylistLoader(Bot bot) {
         this.bot = bot;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
+        this.playlistFolder = bot.getBotSettings().getPlaylistsFolder();
     }
 
     public List<String> getPlaylistNames() throws IOException {
-        if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
-            FileUtils.createFolders(bot.getBotSettings().getPlaylistsFolder());
+        if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
+            FileUtils.createFolders(playlistFolder);
 
             //noinspection unchecked
             return Collections.EMPTY_LIST;
         } else {
-            File folder = new File(bot.getBotSettings().getPlaylistsFolder());
+            File folder = new File(playlistFolder);
             return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) ->
-                    pathname.getName().endsWith(Const.JSON_EXTENSION))))
+                    pathname.getName().endsWith("." + Const.FileType.json))))
                     .map(f ->
-                            f.getName().substring(0, f.getName().length() - Const.JSON_EXTENSION.length())).collect(Collectors.toList());
+                            f.getName().substring(0, f.getName().length() - ("." + Const.FileType.json.name()).length())).collect(Collectors.toList());
         }
     }
 
     public void createPlaylist(String name) throws IOException {
-        FileUtils.createFile(bot.getBotSettings().getPlaylistsFolder() + name + Const.JSON_EXTENSION);
+        FileUtils.createFile(playlistFolder + name + "." + Const.FileType.json.name());
         log.info("Created new playlist {}", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
-        FileUtils.deleteFile(bot.getBotSettings().getPlaylistsFolder() + name + Const.JSON_EXTENSION);
+        FileUtils.deleteFile(playlistFolder + name + "." + Const.FileType.json.name());
         log.info("Deleted playlist {}", name);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {
         JsonWriter writer = new JsonWriter(
-                new FileWriter(bot.getBotSettings().getPlaylistsFolder() + name + Const.JSON_EXTENSION));
+                new FileWriter(playlistFolder + name + "." + Const.FileType.json.name()));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(listToWrite, listToWrite.getClass(), writer);
@@ -81,14 +83,15 @@ public class PlaylistLoader {
                 return null;
             }
 
-            if (FileUtils.fileOrFolderIsAbsent(bot.getBotSettings().getPlaylistsFolder())) {
-                FileUtils.createFolders(bot.getBotSettings().getPlaylistsFolder());
+            if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
+                FileUtils.createFolders(playlistFolder);
+                
                 return null;
             } else {
 
                 //noinspection unchecked
-                List<String> list = gson.fromJson(new FileReader(bot.getBotSettings().getPlaylistsFolder()
-                        + name + Const.JSON_EXTENSION), List.class);
+                List<String> list = gson.fromJson(new FileReader(playlistFolder
+                        + name + "." + Const.FileType.json.name()), List.class);
                 return new Playlist(name, list);
             }
         } catch (IOException e) {

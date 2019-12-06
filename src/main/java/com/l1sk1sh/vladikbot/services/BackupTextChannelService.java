@@ -33,22 +33,22 @@ public class BackupTextChannelService implements Runnable {
     private String failMessage;
     private final String[] args;
     private final String channelId;
-    private final String format;
+    private final Const.BackupFileType format;
     private final String localPathToExport;
     private final String dockerPathToExport;
     private final String dockerContainerName;
     private final String token;
-    private final String extension;
+    private final Const.FileType extension;
     private boolean ignoreExisting = true;
     private boolean hasFailed = false;
 
-    public BackupTextChannelService(Bot bot, String channelId, String format, String localPathToExport, String[] args) {
+    public BackupTextChannelService(Bot bot, String channelId, Const.BackupFileType format, String localPathToExport, String[] args) {
         this.bot = bot;
         this.args = args;
         this.channelId = channelId;
         this.token = bot.getBotSettings().getToken();
         this.format = format;
-        this.extension = Const.FORMAT_EXTENSION.get(format);
+        this.extension = format.getFileType();
         this.localPathToExport = localPathToExport + "text/"; /* Always moving text backups to separate folder */
         this.dockerPathToExport = bot.getBotSettings().getDockerPathToExport();
         this.dockerContainerName = bot.getBotSettings().getDockerContainerName();
@@ -57,9 +57,7 @@ public class BackupTextChannelService implements Runnable {
     @Override
     public void run() {
         try {
-            if (FileUtils.fileOrFolderIsAbsent(localPathToExport)) {
-                FileUtils.createFolders(localPathToExport);
-            }
+            FileUtils.createFolderIfAbsent(localPathToExport);
 
             bot.setLockedBackup(true);
             processArguments(args);
@@ -136,7 +134,7 @@ public class BackupTextChannelService implements Runnable {
         command.add("tyrrrz/discordchatexporter");
         command.add("export");
         command.add("-f");
-        command.add(format);
+        command.add(format.getBackupTypeName());
         if (beforeDate != null) {
             command.add("--before");
             command.add(beforeDate);

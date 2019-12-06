@@ -55,7 +55,7 @@ public class RotatingTextBackupDaemon implements RotatingTask {
                     BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                             bot,
                             channel.getId(),
-                            Const.BACKUP_PLAIN_TEXT,
+                            Const.BackupFileType.PLAIN_TEXT,
                             pathToBackup,
                             new String[]{}
                     );

@@ -66,7 +66,7 @@ final class VladikBot {
                             new BackupTextChannelCommand(bot),
                             new EmojiStatsCommand(waiter, bot),
                             new AutoModerationCommand(bot),
-                            new RotatingActionAndGameCommand(bot),
+                            new RotatingGameAndActionCommand(bot),
 
                             new ForceSkipCommand(bot),
                             new PauseCommand(bot),

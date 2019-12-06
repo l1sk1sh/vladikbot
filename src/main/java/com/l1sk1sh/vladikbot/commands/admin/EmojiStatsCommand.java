@@ -72,7 +72,7 @@ public class EmojiStatsCommand extends AdminCommand {
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                 bot,
                 event.getChannel().getId(),
-                Const.BACKUP_PLAIN_TEXT,
+                Const.BackupFileType.PLAIN_TEXT,
                 bot.getBotSettings().getLocalTmpFolder(),
                 event.getArgs().split(" ")
         );

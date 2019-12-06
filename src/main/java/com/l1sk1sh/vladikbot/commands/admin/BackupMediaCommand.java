@@ -44,7 +44,7 @@ public class BackupMediaCommand extends AdminCommand {
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                 bot,
                 event.getChannel().getId(),
-                Const.BACKUP_HTML_DARK,
+                Const.BackupFileType.HTML_DARK,
                 bot.getBotSettings().getLocalTmpFolder(),
                 event.getArgs().split(" ")
         );
@@ -116,7 +116,7 @@ public class BackupMediaCommand extends AdminCommand {
             }
 
             if (backupMediaService.doZip() && backupMediaService.getZipWithAttachmentsFile().length() < Const.EIGHT_MEGABYTES_IN_BYTES) {
-                event.getTextChannel().sendFile(backupMediaService.getZipWithAttachmentsFile(), backupMediaService.getZipWithAttachmentsFile().getName()).queue();
+                event.getTextChannel().sendFile(backupMediaService.getZipWithAttachmentsFile(), attachmentTxtFile.getName()).queue();
             } else if (backupMediaService.doZip()) {
                 event.replySuccess("Zip with uploaded media files could now be downloaded from local storage.");
             }

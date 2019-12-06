@@ -37,7 +37,7 @@ public class Bot {
     private final PlaylistLoader playlistLoader;
     private final NowPlayingHandler nowPlayingHandler;
     private final AutoModerationManager autoModerationManager;
-    private final ActionAndGameRotationManager actionAndGameRotationManager;
+    private final GameAndActionRotationManager gameAndActionRotationManager;
     private final RotatingTextBackupDaemon rotatingTextBackupDaemon;
     private final RotatingMediaBackupDaemon rotatingMediaBackupDaemon;
     private final ChatNotificationService notificationService;
@@ -60,7 +60,7 @@ public class Bot {
         this.nowPlayingHandler = new NowPlayingHandler(this);
         this.nowPlayingHandler.init();
         this.autoModerationManager = new AutoModerationManager(this);
-        this.actionAndGameRotationManager = new ActionAndGameRotationManager(this);
+        this.gameAndActionRotationManager = new GameAndActionRotationManager(this);
         this.rotatingTextBackupDaemon = new RotatingTextBackupDaemon(this);
         this.rotatingMediaBackupDaemon = new RotatingMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
@@ -162,8 +162,8 @@ public class Bot {
         return autoModerationManager;
     }
 
-    public ActionAndGameRotationManager getActionAndGameRotationManager() {
-        return actionAndGameRotationManager;
+    public GameAndActionRotationManager getGameAndActionRotationManager() {
+        return gameAndActionRotationManager;
     }
 
     public RotatingTextBackupDaemon getRotatingTextBackupDaemon() {

@@ -41,7 +41,7 @@ public class BackupTextChannelCommand extends AdminCommand {
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                 bot,
                 event.getChannel().getId(),
-                Const.BACKUP_HTML_DARK,
+                Const.BackupFileType.HTML_DARK,
                 bot.getBotSettings().getLocalTmpFolder(),
                 event.getArgs().split(" ")
         );

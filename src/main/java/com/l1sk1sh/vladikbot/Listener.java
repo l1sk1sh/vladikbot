@@ -117,7 +117,7 @@ class Listener extends ListenerAdapter {
 
         if (botSettings.shouldRotateActionsAndGames()) {
             log.info("Enabling Rotation of Action and Game");
-            bot.getActionAndGameRotationManager().activateRotation();
+            bot.getGameAndActionRotationManager().startRotation();
         }
     }
 
