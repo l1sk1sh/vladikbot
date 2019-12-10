@@ -30,7 +30,6 @@ Bot is written using JDA library and common sense.
    21. `whois [user mention]` - Get user information
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
-   25. `game` - manages list of games saved by us
    26. `findpicture` - looks for google picture using given search string
 7. Test lyrics command
 8. Add [code analyzer](https://dzone.com/articles/intellij-idea-finds-bugs)
@@ -48,3 +47,5 @@ Bot is written using JDA library and common sense.
 25. Rewrite emoji stats to work with time frame as well
 27. Cyclomatic complexity
 28. Make bot reply to `@Владик`
+29. Understand how ownership of commands works
+30. Create test bot that will be launched separately

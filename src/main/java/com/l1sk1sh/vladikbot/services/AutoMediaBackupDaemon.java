@@ -31,7 +31,7 @@ public class AutoMediaBackupDaemon implements RotatingTask {
             return;
         }
 
-        if (!bot.getBotSettings().shouldRotateMediaBackup()) {
+        if (!bot.getBotSettings().shouldAutoMediaBackup()) {
             return;
         }
 
@@ -124,8 +124,8 @@ public class AutoMediaBackupDaemon implements RotatingTask {
     }
 
     public void enableExecution() {
-        int dayDelay = bot.getBotSettings().getDelayDaysForMediaBackup();
-        int targetHour = bot.getBotSettings().getTargetHourForMediaBackup();
+        int dayDelay = bot.getBotSettings().getDelayDaysForAutoMediaBackup();
+        int targetHour = bot.getBotSettings().getTargetHourForAutoMediaBackup();
         int targetMin = 0;
         int targetSec = 0;
         rotatingTaskExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);

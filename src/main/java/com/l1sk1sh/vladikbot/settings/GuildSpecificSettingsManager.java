@@ -14,18 +14,20 @@ import java.nio.file.Files;
  * @author Oliver Johnson
  */
 public class GuildSpecificSettingsManager extends AbstractSettingsManager implements GuildSettingsManager<GuildSpecificSettings> {
-
     private static final Logger log = LoggerFactory.getLogger(GuildSpecificSettingsManager.class);
+
+    private static final String GUILD_SETTINGS_JSON = "settings_guild.json";
+    
     private GuildSpecificSettings guildSpecificSettings;
     private final File guildConfigFile;
 
     public GuildSpecificSettingsManager() {
-        guildConfigFile = new File(Const.GUILD_SETTINGS_JSON);
+        guildConfigFile = new File(GUILD_SETTINGS_JSON);
 
         if (!guildConfigFile.exists()) {
             this.guildSpecificSettings = new GuildSpecificSettings(this);
             writeSettings();
-            log.warn(String.format("Created %1$s.", Const.GUILD_SETTINGS_JSON));
+            log.warn(String.format("Created %1$s.", GUILD_SETTINGS_JSON));
         } else {
             try {
                 this.guildSpecificSettings = gson.fromJson(
@@ -38,7 +40,7 @@ public class GuildSpecificSettingsManager extends AbstractSettingsManager implem
                 );
                 this.guildSpecificSettings.setManager(this);
             } catch (IOException e) {
-                log.error(String.format("Error while reading %1$s file.", Const.GUILD_SETTINGS_JSON),
+                log.error(String.format("Error while reading %1$s file.", GUILD_SETTINGS_JSON),
                         e.getLocalizedMessage(), e.getCause());
             }
         }

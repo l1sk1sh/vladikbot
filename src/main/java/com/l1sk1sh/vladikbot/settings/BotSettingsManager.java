@@ -12,16 +12,19 @@ import java.nio.file.Files;
  */
 public class BotSettingsManager extends AbstractSettingsManager {
     private static final Logger log = LoggerFactory.getLogger(BotSettingsManager.class);
+    
+    private static final String BOT_SETTINGS_JSON = "settings_bot.json";
+    
     private BotSettings botSettings;
     private final File botConfigFile;
 
     public BotSettingsManager() {
-        botConfigFile = new File(Const.BOT_SETTINGS_JSON);
+        botConfigFile = new File(BOT_SETTINGS_JSON);
 
         if (!botConfigFile.exists()) {
             this.botSettings = new BotSettings(this);
             writeSettings();
-            log.warn(String.format("Created %1$s. You will have to setup it manually", Const.BOT_SETTINGS_JSON));
+            log.warn(String.format("Created %1$s. You will have to setup it manually", BOT_SETTINGS_JSON));
             SystemUtils.exit(1, 5000);
         } else {
             try {
@@ -35,7 +38,7 @@ public class BotSettingsManager extends AbstractSettingsManager {
                 );
                 this.botSettings.setManager(this);
             } catch (IOException e) {
-                log.error(String.format("Error while reading %1$s file.", Const.BOT_SETTINGS_JSON),
+                log.error(String.format("Error while reading %1$s file.", BOT_SETTINGS_JSON),
                         e.getLocalizedMessage(), e.getCause());
             }
         }

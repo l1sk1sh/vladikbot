@@ -9,8 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.List;
 
 /**
@@ -44,7 +42,7 @@ public class GameAndActionSimulationCommand extends AdminCommand {
         CreateCommand() {
             this.name = "create";
             this.aliases = new String[]{"make", "add"};
-            this.help = "creates new *game and action* pair";
+            this.help = "creates new *game and action* rule";
             this.arguments = "<action> <game>"; /* Used twisted to simplify UX (for ex. 'playing WoW', instead of 'WoW playing') */
             this.guildOnly = false;
         }
@@ -72,17 +70,15 @@ public class GameAndActionSimulationCommand extends AdminCommand {
                     return;
                 }
 
-                // TODO It serializes "+" instead of " "
                 GameAndAction newPair = new GameAndAction(
-                        event.getArgs().substring(action.name().length()).trim(),
-                        action);
+                        event.getArgs().substring(action.name().length()).trim(), action);
 
-                bot.getGameAndActionSimulationManager().writeGameAndAction(newPair);
-                log.info("Added new pair to rotation manager {}", newPair);
-                event.replySuccess("New game and action pair was added.");
+                bot.getGameAndActionSimulationManager().writeRule(newPair);
+                log.info("Added new rule to GAASimulation {}", newPair);
+                event.replySuccess("New rule was added.");
             } catch (IOException ioe) {
-                log.error("IO error during addition of new rotation pair", ioe);
-                event.replyError(String.format("Failed to write new game and action! `[%1$s]`", ioe.getLocalizedMessage()));
+                log.error("IO error during addition of new GAASimulation rule", ioe);
+                event.replyError(String.format("Failed to write new game and action rule! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
     }
@@ -91,44 +87,26 @@ public class GameAndActionSimulationCommand extends AdminCommand {
         ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list", "read"};
-            this.help = "lists all available rotation pairs";
+            this.help = "lists all available rules";
             this.guildOnly = true;
         }
 
         @Override
         protected final void execute(CommandEvent event) {
             try {
-                List<GameAndAction> pairs = bot.getGameAndActionSimulationManager().getAllGamesAndActions();
-                if (pairs == null) {
-                    event.replyError("Failed to load available pairs!");
-                } else if (pairs.isEmpty()) {
+                List<GameAndAction> list = bot.getGameAndActionSimulationManager().getAllRules();
+                if (list == null) {
+                    event.replyError("Failed to load available rules!");
+                } else if (list.isEmpty()) {
                     event.replyWarning("There are no records available!");
                 } else {
-                    String message = event.getClient().getSuccess() + " Acting pairs:\r\n";
+                    String message = event.getClient().getSuccess() + " Acting rules:\r\n";
                     StringBuilder builder = new StringBuilder(message);
-
-                    builder.append("`Action`");
-                    builder.append("  ");
-                    builder.append("`Game`");
-
-                    // TODO It throws fatal
-                    for (GameAndAction pair : pairs) {
-                        if (builder.length() > 0) {
-                            builder.append("\r\n");
-                        }
-
-                        builder.append(pair.getAction() != null ? URLEncoder.encode(pair.getAction().name(), "UTF-8") : "");
-                        builder.append(" = ");
-                        builder.append((pair.getGameName() != null ? URLEncoder.encode(pair.getGameName(), "UTF-8") : ""));
-                    }
-
+                    list.forEach(rule -> builder.append("`").append(rule.getAction()).append(" ").append(rule.getGameName()).append("`").append("\r\n"));
                     event.reply(builder.toString());
                 }
-            } catch (UnsupportedEncodingException e) {
-                log.error("UTF-8 exception", e);
-                event.replyError("Action requires UTF-8 encoding support!");
             } catch (IOException ioe) {
-                log.error("IO exception during reading of rotation pair", ioe);
+                log.error("IO exception during reading of GAASimulation rules", ioe);
                 event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -151,14 +129,20 @@ public class GameAndActionSimulationCommand extends AdminCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getBotSettings().setRotateGameAndAction(true);
-                            event.replySuccess("Rotation is now enabled!");
-                            bot.getGameAndActionSimulationManager().enableSimulation();
-                            break;
+                            try {
+                                bot.getBotSettings().setSimulateActionAndGameActivity(true);
+                                event.replySuccess("Simulation of bot's activity is now enabled!");
+                                bot.getGameAndActionSimulationManager().enableSimulation();
+                                break;
+                            } catch (IOException ioe) {
+                                log.error("Failed to enable GAASimulation", ioe);
+                                event.replyError(String.format("Failed to enable Game and Activity Simulation! `[%1$s]`", ioe.getLocalizedMessage()));
+                                bot.getBotSettings().setSimulateActionAndGameActivity(false);
+                            }
                         case "off":
                         case "disable":
-                            bot.getBotSettings().setRotateGameAndAction(false);
-                            event.replySuccess("Rotation is now disabled!");
+                            bot.getBotSettings().setSimulateActionAndGameActivity(false);
+                            event.replySuccess("Simulation of bot's activity is now disabled!");
                             bot.getGameAndActionSimulationManager().disableSimulation();
                             break;
                     }
@@ -173,7 +157,7 @@ public class GameAndActionSimulationCommand extends AdminCommand {
         DeleteCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};
-            this.help = "deletes an existing rotation pair";
+            this.help = "deletes an existing game and action rule";
             this.arguments = "<game>";
             this.guildOnly = false;
         }
@@ -181,19 +165,14 @@ public class GameAndActionSimulationCommand extends AdminCommand {
         @Override
         protected final void execute(CommandEvent event) {
             String gameName = event.getArgs().replaceAll("\\s+", "_");
-            GameAndAction targetPair = bot.getGameAndActionSimulationManager().getGameAndActionByGameName(gameName);
 
-            if (targetPair == null) {
-                event.replyError(String.format("Game `%1$s` doesn't exist!", gameName));
-            } else {
-                try {
-                    bot.getGameAndActionSimulationManager().deleteGameAndAction(targetPair);
-                    log.info("Pair {} was removed by {}:[{}]", targetPair, event.getAuthor().getName(), event.getAuthor().getId());
-                    event.replySuccess(String.format("Successfully deleted pair with game `%1$s`!", gameName));
-                } catch (IOException ioe) {
-                    log.error("IO error during removal of rotation pair", ioe);
-                    event.replyError(String.format("Unable to delete this pair, that has game: `[%1$s]`.", ioe.getLocalizedMessage()));
-                }
+            try {
+                bot.getGameAndActionSimulationManager().deleteRule(gameName);
+                log.info("GAASimulation rule with game {} was removed by {}:[{}]", gameName, event.getAuthor().getName(), event.getAuthor().getId());
+                event.replySuccess(String.format("Successfully deleted rule with game `%1$s`!", gameName));
+            } catch (IOException ioe) {
+                log.error("IO error during removal of GAASimulation rule", ioe);
+                event.replyError(String.format("Unable to delete this rule, that has game: `[%1$s]`.", ioe.getLocalizedMessage()));
             }
         }
     }

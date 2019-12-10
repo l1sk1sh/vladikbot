@@ -30,7 +30,7 @@ public class AutoTextBackupDaemon implements RotatingTask {
             return;
         }
 
-        if (!bot.getBotSettings().shouldRotateTextBackup()) {
+        if (!bot.getBotSettings().shouldAutoTextBackup()) {
             return;
         }
 
@@ -95,8 +95,8 @@ public class AutoTextBackupDaemon implements RotatingTask {
     }
 
     public void enableExecution() {
-        int dayDelay = bot.getBotSettings().getDelayDaysForTextBackup();
-        int targetHour = bot.getBotSettings().getTargetHourForTextBackup();
+        int dayDelay = bot.getBotSettings().getDelayDaysForAutoTextBackup();
+        int targetHour = bot.getBotSettings().getTargetHourForAutoTextBackup();
         int targetMin = 0;
         int targetSec = 0;
         rotatingTaskExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);

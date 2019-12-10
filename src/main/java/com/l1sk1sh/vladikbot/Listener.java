@@ -14,6 +14,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,7 +68,7 @@ class Listener extends ListenerAdapter {
             }
         });
 
-        if (botSettings.shouldRotateTextBackup() || botSettings.shouldRotateMediaBackup()) {
+        if (botSettings.shouldAutoTextBackup() || botSettings.shouldAutoMediaBackup()) {
             int minimumTimeDifference = 1;
             int maximumDayHour = 23;
             int defaultTextBackupDaysDelay = 2;
@@ -76,46 +77,51 @@ class Listener extends ListenerAdapter {
             int defaultMediaBackupTargetHour = 12;
             int extensionMediaHoursDelay = 2;
 
-            if (botSettings.getDelayDaysForTextBackup() <= 0) {
-                log.warn("Rotation text backup delay should be more than 0");
-                botSettings.setDelayDaysForTextBackup(defaultTextBackupDaysDelay);
+            if (botSettings.getDelayDaysForAutoTextBackup() <= 0) {
+                log.warn("Auto text backup delay should be more than 0");
+                botSettings.setDelayDaysForAutoTextBackup(defaultTextBackupDaysDelay);
             }
 
-            if (botSettings.getDelayDaysForMediaBackup() <= 0) {
-                log.warn("Rotation text backup delay should be more than 0");
-                botSettings.setDelayDaysForMediaBackup(defaultMediaBackupDaysDelay);
+            if (botSettings.getDelayDaysForAutoMediaBackup() <= 0) {
+                log.warn("Auto text backup delay should be more than 0");
+                botSettings.setDelayDaysForAutoMediaBackup(defaultMediaBackupDaysDelay);
             }
 
-            if (botSettings.getTargetHourForTextBackup() > maximumDayHour || botSettings.getTargetHourForTextBackup() < 0) {
+            if (botSettings.getTargetHourForAutoTextBackup() > maximumDayHour || botSettings.getTargetHourForAutoTextBackup() < 0) {
                 log.warn("Allowed target hour for text backup is between 1 and 24");
-                botSettings.setTargetHourForTextBackup(defaultTextBackupTargetHour);
+                botSettings.setTargetHourForAutoTextBackup(defaultTextBackupTargetHour);
             }
 
-            if (botSettings.getTargetHourForMediaBackup() > maximumDayHour || botSettings.getTargetHourForMediaBackup() < 0) {
+            if (botSettings.getTargetHourForAutoMediaBackup() > maximumDayHour || botSettings.getTargetHourForAutoMediaBackup() < 0) {
                 log.warn("Allowed target hour for media backup is between 1 and 24");
-                botSettings.setTargetHourForTextBackup(defaultMediaBackupTargetHour);
+                botSettings.setTargetHourForAutoTextBackup(defaultMediaBackupTargetHour);
             }
 
-            int timeDifference = Math.abs(botSettings.getTargetHourForTextBackup() - botSettings.getTargetHourForMediaBackup());
+            int timeDifference = Math.abs(botSettings.getTargetHourForAutoTextBackup() - botSettings.getTargetHourForAutoMediaBackup());
             if (timeDifference < minimumTimeDifference) {
-                log.warn("Rotation backups should have at least 1 hour difference");
-                botSettings.setTargetHourForMediaBackup(botSettings.getTargetHourForMediaBackup() + extensionMediaHoursDelay);
+                log.warn("Auto backups should have at least 1 hour difference");
+                botSettings.setTargetHourForAutoMediaBackup(botSettings.getTargetHourForAutoMediaBackup() + extensionMediaHoursDelay);
             }
         }
 
-        if (botSettings.shouldRotateMediaBackup()) {
-            log.info("Enabling Rotation media backup service...");
+        if (botSettings.shouldAutoMediaBackup()) {
+            log.info("Enabling auto media backup service...");
             bot.getAutoMediaBackupDaemon().enableExecution();
         }
 
-        if (botSettings.shouldRotateTextBackup()) {
-            log.info("Enabling Rotation text backup service...");
+        if (botSettings.shouldAutoTextBackup()) {
+            log.info("Enabling auto text backup service...");
             bot.getAutoTextBackupDaemon().enableExecution();
         }
 
-        if (botSettings.shouldRotateActionsAndGames()) {
-            log.info("Enabling Rotation of Action and Game");
-            bot.getGameAndActionSimulationManager().enableSimulation();
+        if (botSettings.shouldSimulateActionsAndGamesActivity()) {
+            log.info("Enabling Simulation of Action and Game");
+            try {
+                bot.getGameAndActionSimulationManager().enableSimulation();
+            } catch (IOException ioe) {
+                log.error("Failed to enable GAASimulation", ioe);
+                botSettings.setAutoReply(false);
+            }
         }
     }
 
@@ -128,12 +134,7 @@ class Listener extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
 
-        if (message.getMentionedMembers().contains(event.getGuild().getSelfMember())) {
-            // TODO Move it to autoreply
-            event.getTextChannel().sendMessage("Твоя мамка").queue();
-        }
-
-        if (!message.getAuthor().isBot()) {
+        if (!message.getAuthor().isBot() && bot.getBotSettings().shouldAutoReply()) {
             bot.getAutoReplyManager().reply(message);
         }
     }

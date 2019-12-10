@@ -48,14 +48,14 @@ public class AutoBackupCommand extends OwnerCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getBotSettings().setRotateTextBackup(true);
+                            bot.getBotSettings().setAutoTextBackup(true);
                             bot.getAutoTextBackupDaemon().enableExecution();
                             log.info("Auto text backup was enabled by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
                             event.replySuccess("Auto Text Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
-                            bot.getBotSettings().setRotateTextBackup(false);
+                            bot.getBotSettings().setAutoTextBackup(false);
                             try {
                                 log.info("Auto text backup was disabled by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
                                 bot.getAutoTextBackupDaemon().disableExecution();
@@ -88,14 +88,14 @@ public class AutoBackupCommand extends OwnerCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getBotSettings().setRotateMediaBackup(true);
+                            bot.getBotSettings().setAutoMediaBackup(true);
                             bot.getAutoMediaBackupDaemon().enableExecution();
                             log.info("Auto media backup was enabled by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
                             event.replySuccess("Auto Media Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
-                            bot.getBotSettings().setRotateMediaBackup(false);
+                            bot.getBotSettings().setAutoMediaBackup(false);
                             try {
                                 bot.getAutoMediaBackupDaemon().disableExecution();
                                 log.info("Auto media backup was disabled by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());

@@ -28,119 +28,124 @@ import java.util.concurrent.TimeUnit;
 public class GameAndActionSimulationManager {
     private static final Logger log = LoggerFactory.getLogger(GameAndActionSimulationManager.class);
 
+    public static final String GAME_AND_ACTION_SIMULATION_RULES_JSON = "simulations.json";
+
     private final Bot bot;
     private final Gson gson;
     private final ScheduledExecutorService scheduler;
-    private final String rotationFolder;
+    private final String rulesFolder;
     private ScheduledFuture<?> scheduledFuture;
+    private List<GameAndAction> simulationRules;
 
     public GameAndActionSimulationManager(Bot bot) {
         this.bot = bot;
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.rotationFolder = bot.getBotSettings().getRotationFolder();
+        this.rulesFolder = bot.getBotSettings().getRulesFolder();
+        this.simulationRules = new ArrayList<>();
     }
 
-    public List<GameAndAction> getAllGamesAndActions() throws IOException {
-        List<GameAndAction> pairs;
+    private GameAndAction getRuleByGameName(String gameName) {
+        for (GameAndAction rule : simulationRules) {
+            if (rule.getGameName().equals(gameName)) {
 
-        if (FileUtils.fileOrFolderIsAbsent(rotationFolder)) {
-            FileUtils.createFolders(rotationFolder);
-
-            return null;
+                return rule;
+            }
         }
 
-        File folder = new File(rotationFolder);
+        return null;
+    }
+
+    private GameAndAction getRandomRule() {
+        Random rand = new Random();
+        GameAndAction randomRule = simulationRules.get(rand.nextInt(simulationRules.size()));
+        log.debug("Chosen GAASimulation rule {}", randomRule);
+
+        return (randomRule == null)
+                ? new GameAndAction("Company of Heroes 2", Const.StatusAction.playing)
+                : randomRule;
+    }
+
+    public void writeRule(GameAndAction rule) throws IOException {
+        log.debug("Writing new GAASimulation rule {}", rule);
+
+        if (getRuleByGameName(rule.getGameName()) != null) {
+            log.info("Rule {} already exists. Removing", rule.getGameName());
+            deleteRule(rule.getGameName());
+        }
+
+        simulationRules.add(rule);
+        writeRules();
+    }
+
+    public void deleteRule(String gameName) throws IOException {
+        GameAndAction rule = getRuleByGameName(gameName);
+
+        if (rule == null) {
+            throw new IOException("Rule was not found");
+        }
+
+        log.info("Trying to remove GAASimulation rule {}", rule);
+        simulationRules.remove(rule);
+        writeRules();
+    }
+
+    public List<GameAndAction> getAllRules() throws IOException {
+        if (simulationRules.isEmpty()) {
+            readRules();
+        }
+
+        return simulationRules;
+    }
+
+    public void readRules() throws IOException {
+        if (FileUtils.fileOrFolderIsAbsent(rulesFolder)) {
+            FileUtils.createFolders(rulesFolder);
+
+            return;
+        }
+
+        File folder = new File(rulesFolder);
 
         if (folder.listFiles() == null) {
-            return null;
+            return;
         }
 
-        pairs = new ArrayList<>();
-        for (File file : Objects.requireNonNull(folder.listFiles())) {
-            if (file.getName().equals(Const.GAME_AND_ACTION_SIMULATION_JSON)) {
-                pairs = gson.fromJson(new FileReader(rotationFolder + file.getName()), new TypeToken<List<GameAndAction>>(){}.getType());
-            }
+        File rulesFile = new File(rulesFolder + GAME_AND_ACTION_SIMULATION_RULES_JSON);
+
+        if (!rulesFile.exists()) {
+            return;
         }
 
-        return pairs;
+        simulationRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<GameAndAction>>(){}.getType());
     }
 
-    public GameAndAction getGameAndActionByGameName(String gameName) {
-        try {
-            List<GameAndAction> pairs = getAllGamesAndActions();
-
-            for (GameAndAction pair : pairs) {
-                if (pair.getGameName().equals(gameName)) {
-                    return pair;
-                }
-            }
-
-            return null;
-        } catch (IOException e) {
-            log.error("Failed to get action and game {}", e.getLocalizedMessage());
-
-            return null;
-        }
-    }
-
-    private GameAndAction getRandomGameAndAction() {
-        try {
-            List<GameAndAction> pairs = getAllGamesAndActions();
-
-            Random rand = new Random();
-            GameAndAction randomPair = pairs.get(rand.nextInt(pairs.size()));
-            log.debug("Chosen pair {}", randomPair);
-
-            return randomPair;
-        } catch (IOException e) {
-            log.error("Failed to get random action and game {}", e.getLocalizedMessage());
-
-            return new GameAndAction("Company of Heroes 2", Const.StatusAction.playing);
-        }
-    }
-
-    public void writeGameAndAction(GameAndAction pair) throws IOException {
-        FileUtils.createFolderIfAbsent(rotationFolder);
-
-        log.debug("Writing new pair {}", pair);
-        List<GameAndAction> pairs = getAllGamesAndActions();
-
-        pairs.add(pair);
-        writeJson(pairs);
-    }
-
-    public void deleteGameAndAction(GameAndAction pair) throws IOException {
-        List<GameAndAction> pairs = getAllGamesAndActions();
-        log.info("Trying to remove rotation pair {}", pair);
-
-        pairs.remove(pair);
-        writeJson(pairs);
-    }
-
-    private void writeJson(List<GameAndAction> pairs) throws IOException {
-        JsonWriter writer = new JsonWriter(new FileWriter(rotationFolder + Const.GAME_AND_ACTION_SIMULATION_JSON));
+    private void writeRules() throws IOException {
+        File rulesFile = new File(rulesFolder + GAME_AND_ACTION_SIMULATION_RULES_JSON);
+        JsonWriter writer = new JsonWriter(new FileWriter(rulesFile));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
-        gson.toJson(pairs, pairs.getClass(), writer);
+        gson.toJson(simulationRules, simulationRules.getClass(), writer);
         writer.close();
     }
 
-    public final void enableSimulation() {
-        log.info("Changing Game And Action of the bot...");
+    public final void enableSimulation() throws IOException {
+        log.info("Enabling GAASimulation of the bot...");
+
+        readRules();
 
         Runnable rotation = () -> {
-            GameAndAction chosenPair = getRandomGameAndAction();
+            GameAndAction rule = getRandomRule();
 
-            switch (chosenPair.getAction()) {
+            switch (rule.getAction()) {
                 case playing:
-                    bot.getJDA().getPresence().setGame(Game.playing(chosenPair.getGameName()));
+                    bot.getJDA().getPresence().setGame(Game.playing(rule.getGameName()));
                     break;
                 case listening:
-                    bot.getJDA().getPresence().setGame(Game.listening(chosenPair.getGameName()));
+                    bot.getJDA().getPresence().setGame(Game.listening(rule.getGameName()));
                     break;
                 case watching:
-                    bot.getJDA().getPresence().setGame(Game.watching(chosenPair.getGameName()));
+                    bot.getJDA().getPresence().setGame(Game.watching(rule.getGameName()));
                     break;
             }
         };
@@ -150,7 +155,7 @@ public class GameAndActionSimulationManager {
     }
 
     public void disableSimulation() {
-        log.info("Cancelling rotation of actions-games");
+        log.info("Disabling GAASimulation of the bot...");
         scheduledFuture.cancel(false);
         scheduler.shutdown();
     }

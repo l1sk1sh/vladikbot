@@ -29,10 +29,6 @@ public final class Const {
         RECOMMENDED_PERMS.add(Permission.NICKNAME_CHANGE);
     }
 
-    static final String BOT_SETTINGS_JSON = "settings_bot.json";
-    static final String GUILD_SETTINGS_JSON = "settings_guild.json";
-    public static final String GAME_AND_ACTION_SIMULATION_JSON = "sim_activity.json";
-
     public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
     public static final int EIGHT_MEGABYTES_IN_BYTES = 8 * 1024 * 1024;
     public static final int STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;

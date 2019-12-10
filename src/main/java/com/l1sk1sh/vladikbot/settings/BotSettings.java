@@ -22,7 +22,6 @@ public class BotSettings extends AbstractSettings {
     private String rotationBackupFolder = "./app/backup/";              // Local rotation backup folder (that will be stored)
     private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
     private String rulesFolder = "./app/rules/";                        // Local storage for automoderation settings
-    private String rotationListFolder = "./app/rules/rotation/";        // Folder that stores statuses.json
     private String prefix = "~";                                        // Bot prefix
     private String helpWord = "help";                                   // Help word used for help command
     private String successEmoji = "\uD83D\uDC4C";                       // 👌
@@ -38,13 +37,13 @@ public class BotSettings extends AbstractSettings {
     private boolean npImages = true;                                    // Display search images
     private boolean repeat = true;                                      // If repeat mode is available
     private boolean autoReply = false;                                  // If to automatically reply to certain phrases
-    private boolean simulateActivity = false;                           // If bot should change statuses by himself
-    private boolean rotateTextBackup = true;                            // Automatically create backups of all available chats
-    private boolean rotateMediaBackup = true;                           // Automatically save media from all available chats
-    private int targetHourForTextBackup = 0;                            // Set local TZ hour for text backup to be started
-    private int targetHourForMediaBackup = 0;                           // Set local TZ hour for media backup to be started
-    private int delayDaysForTextBackup = 0;                             // Set delay in days between text backups
-    private int delayDaysForMediaBackup = 0;                            // Set delay in days between text backups
+    private boolean simulateActionAndGamesActivity = false;             // If bot should change statuses by himself
+    private boolean autoTextBackup = true;                              // Automatically create backups of all available chats
+    private boolean autoMediaBackup = true;                             // Automatically save media from all available chats
+    private int targetHourForAutoTextBackup = 0;                        // Set local TZ hour for text backup to be started
+    private int targetHourForAutoMediaBackup = 0;                       // Set local TZ hour for media backup to be started
+    private int delayDaysForAutoTextBackup = 0;                         // Set delay in days between text backups
+    private int delayDaysForAutoMediaBackup = 0;                        // Set delay in days between text backups
 
     BotSettings(BotSettingsManager manager) {
         this.manager = manager;
@@ -166,70 +165,66 @@ public class BotSettings extends AbstractSettings {
         return (maxSeconds > 0) && (Math.round(track.getDuration() / trackDurationDivider) > maxSeconds);
     }
 
-    public final String getRotationFolder() {
-        return rotationListFolder;
+    public boolean shouldSimulateActionsAndGamesActivity() {
+        return simulateActionAndGamesActivity;
     }
 
-    public boolean shouldRotateActionsAndGames() {
-        return simulateActivity;
-    }
-
-    public final void setRotateGameAndAction(boolean rotateActionAndGames) {
-        this.simulateActivity = rotateActionAndGames;
+    public final void setSimulateActionAndGameActivity(boolean simulateActionAndGamesActivity) {
+        this.simulateActionAndGamesActivity = simulateActionAndGamesActivity;
         manager.writeSettings();
     }
 
-    public final boolean shouldRotateTextBackup() {
-        return rotateTextBackup;
+    public final boolean shouldAutoTextBackup() {
+        return autoTextBackup;
     }
 
-    public final void setRotateTextBackup(boolean rotateTextBackup) {
-        this.rotateTextBackup = rotateTextBackup;
+    public final void setAutoTextBackup(boolean autoTextBackup) {
+        this.autoTextBackup = autoTextBackup;
         manager.writeSettings();
     }
 
-    public final boolean shouldRotateMediaBackup() {
-        return rotateMediaBackup;
+    public final boolean shouldAutoMediaBackup() {
+        return autoMediaBackup;
     }
 
-    public final void setRotateMediaBackup(boolean rotateMediaBackup) {
-        this.rotateMediaBackup = rotateMediaBackup;
+    public final void setAutoMediaBackup(boolean autoMediaBackup) {
+        this.autoMediaBackup = autoMediaBackup;
         manager.writeSettings();
     }
 
-    public final int getTargetHourForTextBackup() {
-        return targetHourForTextBackup;
+    public final int getTargetHourForAutoTextBackup() {
+        return targetHourForAutoTextBackup;
     }
 
-    public final void setTargetHourForTextBackup(int targetHourForTextBackup) {
-        this.targetHourForTextBackup = targetHourForTextBackup;
+    public final void setTargetHourForAutoTextBackup(int targetHourForAutoTextBackup) {
+        this.targetHourForAutoTextBackup = targetHourForAutoTextBackup;
         manager.writeSettings();
     }
 
-    public final int getTargetHourForMediaBackup() {
-        return targetHourForMediaBackup;
+    public final int getTargetHourForAutoMediaBackup() {
+        return targetHourForAutoMediaBackup;
     }
 
-    public final void setTargetHourForMediaBackup(int targetHourForMediaBackup) {
-        this.targetHourForMediaBackup = targetHourForMediaBackup;
+    public final void setTargetHourForAutoMediaBackup(int targetHourForAutoMediaBackup) {
+        this.targetHourForAutoMediaBackup = targetHourForAutoMediaBackup;
         manager.writeSettings();
     }
 
-    public final int getDelayDaysForTextBackup() {
-        return delayDaysForTextBackup;
+    public final int getDelayDaysForAutoTextBackup() {
+        return delayDaysForAutoTextBackup;
     }
 
-    public void setDelayDaysForTextBackup(int delayDaysForTextBackup) {
-        this.delayDaysForTextBackup = delayDaysForTextBackup;
+    public void setDelayDaysForAutoTextBackup(int delayDaysForAutoTextBackup) {
+        this.delayDaysForAutoTextBackup = delayDaysForAutoTextBackup;
         manager.writeSettings();
     }
 
-    public final int getDelayDaysForMediaBackup() {
-        return delayDaysForMediaBackup;
+    public final int getDelayDaysForAutoMediaBackup() {
+        return delayDaysForAutoMediaBackup;
     }
 
-    public void setDelayDaysForMediaBackup(int delayDaysForMediaBackup) {
-        this.delayDaysForMediaBackup = delayDaysForMediaBackup;
+    public void setDelayDaysForAutoMediaBackup(int delayDaysForMediaBackup) {
+        this.delayDaysForAutoMediaBackup = delayDaysForMediaBackup;
         manager.writeSettings();
     }
 }

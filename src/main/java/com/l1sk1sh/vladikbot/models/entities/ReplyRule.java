@@ -6,19 +6,17 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class ReactionRule {
-    private final String ruleName;
+public class ReplyRule {
     private final List<String> reactToList;
     private final List<String> reactWithList;
 
-    public ReactionRule(String ruleName, List<String> reactToList, List<String> reactWithList) {
-        this.ruleName = ruleName;
+    public ReplyRule(List<String> reactToList, List<String> reactWithList) {
         this.reactToList = reactToList;
         this.reactWithList = reactWithList;
     }
 
-    public final String getRuleName() {
-        return ruleName;
+    public final int getRuleId() {
+        return Arrays.toString(reactToList.toArray()).hashCode();
     }
 
     public final List<String> getReactToList() {
@@ -31,7 +29,7 @@ public class ReactionRule {
 
     @Override
     public final String toString() {
-        return ruleName + ":" + Arrays.toString(reactToList.toArray())
+        return getRuleId() + ":" + Arrays.toString(reactToList.toArray())
                 + "  " + Arrays.toString(reactWithList.toArray());
     }
 }

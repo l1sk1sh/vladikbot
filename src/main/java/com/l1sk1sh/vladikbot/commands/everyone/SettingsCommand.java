@@ -51,26 +51,26 @@ public class SettingsCommand extends Command {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(new Color(244, 160, 0))
                 .setDescription(
-                        "Text Channel: "
-                                + ((textChannel == null) ? "Any" : "**#" + textChannel.getName() + "**")
-                        + "\r\nVoice Channel: "
-                                + ((voiceChannel == null) ? "Any" : "**" + voiceChannel.getName() + "**")
-                                + "\r\nNotification Channel: "
-                                + ((notificationChannel == null) ? "Any" : "**" + notificationChannel.getName() + "**")
-                        + "\r\nDJ Role: "
-                                + ((djRole == null) ? "None" : "**" + djRole.getName() + "**")
+                        "Text Channel: **"
+                                + ((textChannel == null) ? "Any" : "#" + textChannel.getName()) + "**"
+                        + "\r\nVoice Channel: **"
+                                + ((voiceChannel == null) ? "Any" : voiceChannel.getName()) + "**"
+                        + "\r\nNotification Channel: **"
+                                + ((notificationChannel == null) ? "Any" : notificationChannel.getName()) + "**"
+                        + "\r\nDJ Role: **"
+                                + ((djRole == null) ? "None" : djRole.getName()) + "**"
                         + "\r\nRepeat Mode: **"
                                 + (botSettings.shouldRepeat() ? on : off) + "**"
-                        + "\r\nDefault Playlist: "
-                                + ((guildSpecificSettings.getDefaultPlaylist() == null) ? "None" : "**" + guildSpecificSettings.getDefaultPlaylist() + "**")
-                        + "\r\nAuto Moderation: **"
+                        + "\r\nDefault Playlist: **"
+                                + ((guildSpecificSettings.getDefaultPlaylist() == null) ? "None" : guildSpecificSettings.getDefaultPlaylist()) + "**"
+                        + "\r\nAuto Reply: **"
                                 + (botSettings.shouldAutoReply() ? on : off) + "**"
-                        + "\r\nStatuses rotation: **"
-                                + (botSettings.shouldRotateActionsAndGames() ? on : off) + "**"
-                        + "\r\nText backup rotation: **"
-                                + (botSettings.shouldRotateTextBackup() ? on : off) + "**"
-                        + "\r\nMedia backup rotation: **"
-                                + (botSettings.shouldRotateMediaBackup() ? on : off) + "**"
+                        + "\r\nGame And Action Simulation: **"
+                                + (botSettings.shouldSimulateActionsAndGamesActivity() ? on : off) + "**"
+                        + "\r\nAuto text backup: **"
+                                + (botSettings.shouldAutoTextBackup() ? on : off) + "**"
+                        + "\r\nAuto media backup: **"
+                                + (botSettings.shouldAutoMediaBackup() ? on : off) + "**"
                 )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()
