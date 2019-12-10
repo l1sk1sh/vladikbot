@@ -12,7 +12,7 @@ import java.util.List;
  * @author Oliver Johnson
  */
 public class DockerVerificationService {
-    private static final Logger log = LoggerFactory.getLogger(RotatingMediaBackupDaemon.class);
+    private static final Logger log = LoggerFactory.getLogger(AutoMediaBackupDaemon.class);
 
     public DockerVerificationService() {}
 

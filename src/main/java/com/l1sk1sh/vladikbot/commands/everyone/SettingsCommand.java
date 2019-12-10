@@ -64,7 +64,7 @@ public class SettingsCommand extends Command {
                         + "\r\nDefault Playlist: "
                                 + ((guildSpecificSettings.getDefaultPlaylist() == null) ? "None" : "**" + guildSpecificSettings.getDefaultPlaylist() + "**")
                         + "\r\nAuto Moderation: **"
-                                + (botSettings.isAutoModeration() ? on : off) + "**"
+                                + (botSettings.shouldAutoReply() ? on : off) + "**"
                         + "\r\nStatuses rotation: **"
                                 + (botSettings.shouldRotateActionsAndGames() ? on : off) + "**"
                         + "\r\nText backup rotation: **"

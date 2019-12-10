@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 // TODO Rewrite using CSV as it way easier
 // TODO Research why paginator doesn't work for longer time (5 min or so)
 // TODO By default emoji should calculate only present at the moment at the server emoji
+// TODO FinderUtil from JDA
 public class EmojiStatsService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 

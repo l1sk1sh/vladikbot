@@ -29,10 +29,13 @@ public class StatusCommand extends Command {
     protected void execute(CommandEvent event) {
         MessageBuilder builder = new MessageBuilder();
 
+
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                 .setColor(new Color(244, 160, 0))
-                .addField("Owner", event.getGuild().getMemberById(settings.getOwnerId()).getUser().getAsTag(), true)
+                .addField("Owner", (settings.getOwnerId() == 0)
+                        ? "Owner is not set"
+                        : event.getGuild().getMemberById(settings.getOwnerId()).getUser().getAsTag(), true)
                 .addField("Region", event.getGuild().getRegionRaw(), true)
                 .addField("Channel Categories", Integer.toString(event.getGuild().getCategories().size()), true)
                 .addField("Text Channels", Integer.toString(event.getGuild().getTextChannels().size()), true)

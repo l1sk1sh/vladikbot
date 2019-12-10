@@ -3,7 +3,6 @@ package com.l1sk1sh.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.ReactionRule;
-import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,15 +15,15 @@ import java.util.regex.Pattern;
 /**
  * @author Oliver Johnson
  */
-public class AutoModerationCommand extends AdminCommand {
-    private static final Logger log = LoggerFactory.getLogger(AutoModerationCommand.class);
+public class AutoReplyCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(AutoReplyCommand.class);
 
     private final Bot bot;
 
-    public AutoModerationCommand(Bot bot) {
+    public AutoReplyCommand(Bot bot) {
         this.bot = bot;
-        this.name = "automod";
-        this.help = "auto moderation management";
+        this.name = "areply";
+        this.help = "auto reply management";
         this.arguments = "<add|list|switch|delete>";
         this.guildOnly = false;
         this.children = new AdminCommand[]{
@@ -67,7 +66,7 @@ public class AutoModerationCommand extends AdminCommand {
                     count++;
                     String[] array = matcher.group().split(";");
                     for (int i = 0; i < array.length; i++) {
-                        array[i] = array[i].trim().replaceAll("[{}]", "");
+                        array[i] = array[i].trim().replaceAll("[{}]", "").replaceAll("[\"]", "");
                     }
 
                     if (count == 1) {
@@ -80,7 +79,7 @@ public class AutoModerationCommand extends AdminCommand {
                 }
 
                 ReactionRule rule = new ReactionRule(name, reactTo, reactWith);
-                bot.getAutoModerationManager().writeRule(rule);
+                bot.getAutoReplyManager().writeRule(rule);
                 log.info("Added new auto moderation rule {}", rule.toString());
                 event.replySuccess(String.format("Rule was added: `[%1$s]`", rule.toString()));
             } catch (IllegalArgumentException iae) {
@@ -104,7 +103,7 @@ public class AutoModerationCommand extends AdminCommand {
         @Override
         protected void execute(CommandEvent event) {
             try {
-                List<ReactionRule> list = bot.getAutoModerationManager().getRules();
+                List<ReactionRule> list = bot.getAutoReplyManager().getRules();
                 if (list == null) {
                     event.replyError("Failed to load available rules!");
                 } else if (list.isEmpty()) {
@@ -134,11 +133,11 @@ public class AutoModerationCommand extends AdminCommand {
         @Override
         protected void execute(CommandEvent event) {
             String name = event.getArgs().replaceAll("\\s+", "_");
-            if (bot.getAutoModerationManager().getRule(name) == null) {
+            if (bot.getAutoReplyManager().getRule(name) == null) {
                 event.replyError(String.format("Rule `%1$s` doesn't exist!", name));
             } else {
                 try {
-                    bot.getAutoModerationManager().deleteRule(name);
+                    bot.getAutoReplyManager().deleteRule(name);
                     log.info("Deleted rule {} by {}[{}]", name, event.getAuthor().getName(), event.getAuthor().getId());
                     event.replySuccess(String.format("Successfully deleted rule `%1$s`!", name));
                 } catch (IOException e) {
@@ -166,13 +165,13 @@ public class AutoModerationCommand extends AdminCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getBotSettings().setAutoModeration(true);
+                            bot.getBotSettings().setAutoReply(true);
                             log.info("AutoModerationManager was enabled by {}", event.getAuthor().getName());
                             event.replySuccess("AutoModerationManager is now enabled!");
                             break;
                         case "off":
                         case "disable":
-                            bot.getBotSettings().setAutoModeration(false);
+                            bot.getBotSettings().setAutoReply(false);
                             log.info("AutoModerationManager was disabled by {}", event.getAuthor().getName());
                             event.replySuccess("AutoModerationManager is now disabled!");
                             break;

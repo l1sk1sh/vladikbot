@@ -12,20 +12,19 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Oliver Johnson
  */
-public class RotatingGameAndActionCommand extends AdminCommand {
-    private static final Logger log = LoggerFactory.getLogger(RotatingGameAndActionCommand.class);
+public class GameAndActionSimulationCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(GameAndActionSimulationCommand.class);
     private final Bot bot;
 
-    public RotatingGameAndActionCommand(Bot bot) {
+    public GameAndActionSimulationCommand(Bot bot) {
         this.bot = bot;
         this.name = "simactivity";
         this.aliases = new String[]{"simactivity"};
-        this.help = "Game and action rotation management (simulates activity of bot)";
+        this.help = "Game and action simulation management (simulates activity of bot)";
         this.arguments = "<add|list|switch|delete>";
         this.guildOnly = false;
         this.children = new AdminCommand[]{
@@ -73,11 +72,12 @@ public class RotatingGameAndActionCommand extends AdminCommand {
                     return;
                 }
 
+                // TODO It serializes "+" instead of " "
                 GameAndAction newPair = new GameAndAction(
                         event.getArgs().substring(action.name().length()).trim(),
                         action);
 
-                bot.getGameAndActionRotationManager().writeGameAndAction(newPair);
+                bot.getGameAndActionSimulationManager().writeGameAndAction(newPair);
                 log.info("Added new pair to rotation manager {}", newPair);
                 event.replySuccess("New game and action pair was added.");
             } catch (IOException ioe) {
@@ -98,7 +98,7 @@ public class RotatingGameAndActionCommand extends AdminCommand {
         @Override
         protected final void execute(CommandEvent event) {
             try {
-                List<GameAndAction> pairs = bot.getGameAndActionRotationManager().getAllGamesAndActions();
+                List<GameAndAction> pairs = bot.getGameAndActionSimulationManager().getAllGamesAndActions();
                 if (pairs == null) {
                     event.replyError("Failed to load available pairs!");
                 } else if (pairs.isEmpty()) {
@@ -111,6 +111,7 @@ public class RotatingGameAndActionCommand extends AdminCommand {
                     builder.append("  ");
                     builder.append("`Game`");
 
+                    // TODO It throws fatal
                     for (GameAndAction pair : pairs) {
                         if (builder.length() > 0) {
                             builder.append("\r\n");
@@ -152,13 +153,13 @@ public class RotatingGameAndActionCommand extends AdminCommand {
                         case "enable":
                             bot.getBotSettings().setRotateGameAndAction(true);
                             event.replySuccess("Rotation is now enabled!");
-                            bot.getGameAndActionRotationManager().startRotation();
+                            bot.getGameAndActionSimulationManager().enableSimulation();
                             break;
                         case "off":
                         case "disable":
                             bot.getBotSettings().setRotateGameAndAction(false);
                             event.replySuccess("Rotation is now disabled!");
-                            bot.getGameAndActionRotationManager().stopRotation();
+                            bot.getGameAndActionSimulationManager().disableSimulation();
                             break;
                     }
                 }
@@ -180,13 +181,13 @@ public class RotatingGameAndActionCommand extends AdminCommand {
         @Override
         protected final void execute(CommandEvent event) {
             String gameName = event.getArgs().replaceAll("\\s+", "_");
-            GameAndAction targetPair = bot.getGameAndActionRotationManager().getGameAndActionByGameName(gameName);
+            GameAndAction targetPair = bot.getGameAndActionSimulationManager().getGameAndActionByGameName(gameName);
 
             if (targetPair == null) {
                 event.replyError(String.format("Game `%1$s` doesn't exist!", gameName));
             } else {
                 try {
-                    bot.getGameAndActionRotationManager().deleteGameAndAction(targetPair);
+                    bot.getGameAndActionSimulationManager().deleteGameAndAction(targetPair);
                     log.info("Pair {} was removed by {}:[{}]", targetPair, event.getAuthor().getName(), event.getAuthor().getId());
                     event.replySuccess(String.format("Successfully deleted pair with game `%1$s`!", gameName));
                 } catch (IOException ioe) {

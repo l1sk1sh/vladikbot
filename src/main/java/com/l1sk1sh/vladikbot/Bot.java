@@ -36,15 +36,15 @@ public class Bot {
     private final PlayerManager playerManager;
     private final PlaylistLoader playlistLoader;
     private final NowPlayingHandler nowPlayingHandler;
-    private final AutoModerationManager autoModerationManager;
-    private final GameAndActionRotationManager gameAndActionRotationManager;
-    private final RotatingTextBackupDaemon rotatingTextBackupDaemon;
-    private final RotatingMediaBackupDaemon rotatingMediaBackupDaemon;
+    private final AutoReplyManager autoReplyManager;
+    private final GameAndActionSimulationManager gameAndActionSimulationManager;
+    private final AutoTextBackupDaemon autoTextBackupDaemon;
+    private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final ChatNotificationService notificationService;
     private final DockerVerificationService dockerVerificationService;
 
     private boolean lockedBackup = false;
-    private boolean lockedRotationBackup = false;
+    private boolean lockedAutoBackup = false;
     private boolean shuttingDown = false;
     private boolean dockerFailed = false;
     private JDA jda;
@@ -59,10 +59,10 @@ public class Bot {
         this.playerManager.init();
         this.nowPlayingHandler = new NowPlayingHandler(this);
         this.nowPlayingHandler.init();
-        this.autoModerationManager = new AutoModerationManager(this);
-        this.gameAndActionRotationManager = new GameAndActionRotationManager(this);
-        this.rotatingTextBackupDaemon = new RotatingTextBackupDaemon(this);
-        this.rotatingMediaBackupDaemon = new RotatingMediaBackupDaemon(this);
+        this.autoReplyManager = new AutoReplyManager(this);
+        this.gameAndActionSimulationManager = new GameAndActionSimulationManager(this);
+        this.autoTextBackupDaemon = new AutoTextBackupDaemon(this);
+        this.autoMediaBackupDaemon = new AutoMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
         this.dockerVerificationService = new DockerVerificationService();
     }
@@ -150,28 +150,28 @@ public class Bot {
         this.lockedBackup = lockedBackup;
     }
 
-    public boolean isLockedRotationBackup() {
-        return lockedRotationBackup;
+    public boolean isLockedAutoBackup() {
+        return lockedAutoBackup;
     }
 
-    public void setLockedRotationBackup(boolean lockedRotationBackup) {
-        this.lockedRotationBackup = lockedRotationBackup;
+    public void setLockedAutoBackup(boolean lockedAutoBackup) {
+        this.lockedAutoBackup = lockedAutoBackup;
     }
 
-    public AutoModerationManager getAutoModerationManager() {
-        return autoModerationManager;
+    public AutoReplyManager getAutoReplyManager() {
+        return autoReplyManager;
     }
 
-    public GameAndActionRotationManager getGameAndActionRotationManager() {
-        return gameAndActionRotationManager;
+    public GameAndActionSimulationManager getGameAndActionSimulationManager() {
+        return gameAndActionSimulationManager;
     }
 
-    public RotatingTextBackupDaemon getRotatingTextBackupDaemon() {
-        return rotatingTextBackupDaemon;
+    public AutoTextBackupDaemon getAutoTextBackupDaemon() {
+        return autoTextBackupDaemon;
     }
 
-    public RotatingMediaBackupDaemon getRotatingMediaBackupDaemon() {
-        return rotatingMediaBackupDaemon;
+    public AutoMediaBackupDaemon getAutoMediaBackupDaemon() {
+        return autoMediaBackupDaemon;
     }
 
     public ChatNotificationService getNotificationService() {

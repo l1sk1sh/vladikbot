@@ -96,6 +96,8 @@ public class BackupTextChannelService implements Runnable {
                 throw new FileNotFoundException("Failed to find or create backup of a channel");
             }
 
+            log.debug("Text Channel Backup Service has finished its execution.");
+
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
             failMessage = String.format("Failed to processes provided arguments: %1$s", Arrays.toString(args));
             log.error(failMessage);

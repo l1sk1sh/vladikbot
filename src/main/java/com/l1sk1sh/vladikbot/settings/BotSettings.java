@@ -21,7 +21,7 @@ public class BotSettings extends AbstractSettings {
     private String dockerPathToExport = "/app/out/";                    // Docker disbackup workdir (check repository if fails)
     private String rotationBackupFolder = "./app/backup/";              // Local rotation backup folder (that will be stored)
     private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
-    private String moderationRulesFolder = "./app/rules/";              // Local storage for automoderation settings
+    private String rulesFolder = "./app/rules/";                        // Local storage for automoderation settings
     private String rotationListFolder = "./app/rules/rotation/";        // Folder that stores statuses.json
     private String prefix = "~";                                        // Bot prefix
     private String helpWord = "help";                                   // Help word used for help command
@@ -37,8 +37,8 @@ public class BotSettings extends AbstractSettings {
     private boolean songInGame = false;                                 // Show song as status
     private boolean npImages = true;                                    // Display search images
     private boolean repeat = true;                                      // If repeat mode is available
-    private boolean autoModeration = false;                             // If to use moderation feature
-    private boolean rotateActionsAndGames = false;                      // If bot should change statuses by himself
+    private boolean autoReply = false;                                  // If to automatically reply to certain phrases
+    private boolean simulateActivity = false;                           // If bot should change statuses by himself
     private boolean rotateTextBackup = true;                            // Automatically create backups of all available chats
     private boolean rotateMediaBackup = true;                           // Automatically save media from all available chats
     private int targetHourForTextBackup = 0;                            // Set local TZ hour for text backup to be started
@@ -143,17 +143,17 @@ public class BotSettings extends AbstractSettings {
         manager.writeSettings();
     }
 
-    public final boolean isAutoModeration() {
-        return autoModeration;
+    public final boolean shouldAutoReply() {
+        return autoReply;
     }
 
-    public final void setAutoModeration(boolean autoModeration) {
-        this.autoModeration = autoModeration;
+    public final void setAutoReply(boolean autoReply) {
+        this.autoReply = autoReply;
         manager.writeSettings();
     }
 
-    public final String getModerationRulesFolder() {
-        return moderationRulesFolder;
+    public final String getRulesFolder() {
+        return rulesFolder;
     }
 
     public final String getMaxTime() {
@@ -171,11 +171,11 @@ public class BotSettings extends AbstractSettings {
     }
 
     public boolean shouldRotateActionsAndGames() {
-        return rotateActionsAndGames;
+        return simulateActivity;
     }
 
     public final void setRotateGameAndAction(boolean rotateActionAndGames) {
-        this.rotateActionsAndGames = rotateActionAndGames;
+        this.simulateActivity = rotateActionAndGames;
         manager.writeSettings();
     }
 

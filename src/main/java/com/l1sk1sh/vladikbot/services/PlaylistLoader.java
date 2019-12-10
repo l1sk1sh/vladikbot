@@ -2,7 +2,9 @@ package com.l1sk1sh.vladikbot.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
+import com.l1sk1sh.vladikbot.models.entities.GameAndAction;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
@@ -47,6 +49,7 @@ public class PlaylistLoader {
         if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
             FileUtils.createFolders(playlistFolder);
 
+            // TODO inspection
             //noinspection unchecked
             return Collections.EMPTY_LIST;
         } else {
@@ -88,10 +91,8 @@ public class PlaylistLoader {
                 
                 return null;
             } else {
-
-                //noinspection unchecked
                 List<String> list = gson.fromJson(new FileReader(playlistFolder
-                        + name + "." + Const.FileType.json.name()), List.class);
+                        + name + "." + Const.FileType.json.name()), new TypeToken<List<String>>(){}.getType());
                 return new Playlist(name, list);
             }
         } catch (IOException e) {

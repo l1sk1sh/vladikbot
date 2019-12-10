@@ -67,7 +67,6 @@ class Listener extends ListenerAdapter {
             }
         });
 
-        // TODO Maybe, this should be moved to settingsManager or rotationManager
         if (botSettings.shouldRotateTextBackup() || botSettings.shouldRotateMediaBackup()) {
             int minimumTimeDifference = 1;
             int maximumDayHour = 23;
@@ -106,18 +105,17 @@ class Listener extends ListenerAdapter {
 
         if (botSettings.shouldRotateMediaBackup()) {
             log.info("Enabling Rotation media backup service...");
-            bot.getRotatingMediaBackupDaemon().enableExecution();
+            bot.getAutoMediaBackupDaemon().enableExecution();
         }
 
         if (botSettings.shouldRotateTextBackup()) {
             log.info("Enabling Rotation text backup service...");
-            bot.getRotatingTextBackupDaemon().enableExecution();
-            bot.getRotatingTextBackupDaemon().execute();
+            bot.getAutoTextBackupDaemon().enableExecution();
         }
 
         if (botSettings.shouldRotateActionsAndGames()) {
             log.info("Enabling Rotation of Action and Game");
-            bot.getGameAndActionRotationManager().startRotation();
+            bot.getGameAndActionSimulationManager().enableSimulation();
         }
     }
 
@@ -130,8 +128,13 @@ class Listener extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
 
+        if (message.getMentionedMembers().contains(event.getGuild().getSelfMember())) {
+            // TODO Move it to autoreply
+            event.getTextChannel().sendMessage("Твоя мамка").queue();
+        }
+
         if (!message.getAuthor().isBot()) {
-            bot.getAutoModerationManager().moderate(message);
+            bot.getAutoReplyManager().reply(message);
         }
     }
 

@@ -15,12 +15,12 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class RotatingTextBackupDaemon implements RotatingTask {
-    private static final Logger log = LoggerFactory.getLogger(RotatingTextBackupDaemon.class);
+public class AutoTextBackupDaemon implements RotatingTask {
+    private static final Logger log = LoggerFactory.getLogger(AutoTextBackupDaemon.class);
     private final RotatingTaskExecutor rotatingTaskExecutor;
     private final Bot bot;
 
-    public RotatingTextBackupDaemon(Bot bot) {
+    public AutoTextBackupDaemon(Bot bot) {
         this.bot = bot;
         rotatingTaskExecutor = new RotatingTaskExecutor(this);
     }
@@ -34,7 +34,12 @@ public class RotatingTextBackupDaemon implements RotatingTask {
             return;
         }
 
-        if (bot.isLockedBackup() || bot.isLockedRotationBackup()) {
+        if (bot.isLockedAutoBackup()) {
+            log.debug("Rotation text channel backup is already running. Exiting...");
+            return;
+        }
+
+        if (bot.isLockedBackup()) {
             /* pool-4-thread-1 is trying to call "execute" multiple times */
             return;
         }
@@ -42,16 +47,17 @@ public class RotatingTextBackupDaemon implements RotatingTask {
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
 
         new Thread(() -> {
-            bot.setLockedRotationBackup(true);
+            bot.setLockedAutoBackup(true);
 
             for (TextChannel channel : availableChannels) {
-                log.info("Starting text backup of {}", channel.getName());
+                log.info("Starting rotation text backup of channel {} at guild {}", channel.getName(), channel.getGuild());
 
                 try {
-                    String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "/text/"
+                    String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
                             + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
                     FileUtils.createFolders(pathToBackup);
 
+                    /* Creating new thread from text backup service and waiting for it to finish */
                     BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                             bot,
                             channel.getId(),
@@ -75,15 +81,14 @@ public class RotatingTextBackupDaemon implements RotatingTask {
                         return;
                     }
 
-                    log.info("Finished text backup of {}", channel.getName());
-                    bot.getNotificationService().sendMessage(channel.getGuild(),
-                            String.format("Text rotation backup of chat `%1$s` has finished.", channel.getName()));
+                    log.info("Finished rotation text backup of {}", channel.getName());
+
                 } catch (Exception e) {
                     log.error("Failed to create rotation backup", e);
                     bot.getNotificationService().sendMessage(channel.getGuild(),
                             String.format("Text rotation backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
                 } finally {
-                    bot.setLockedRotationBackup(false);
+                    bot.setLockedAutoBackup(false);
                 }
             }
         }).start();

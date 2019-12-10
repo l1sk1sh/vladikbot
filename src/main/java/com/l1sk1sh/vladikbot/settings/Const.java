@@ -31,7 +31,7 @@ public final class Const {
 
     static final String BOT_SETTINGS_JSON = "settings_bot.json";
     static final String GUILD_SETTINGS_JSON = "settings_guild.json";
-    public static final String STATUS_ROTATION_JSON = "rotation.json";
+    public static final String GAME_AND_ACTION_SIMULATION_JSON = "sim_activity.json";
 
     public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
     public static final int EIGHT_MEGABYTES_IN_BYTES = 8 * 1024 * 1024;
@@ -77,6 +77,9 @@ public final class Const {
             return Arrays.stream(values()).filter(FileType::isSupportedMediaFormat).collect(Collectors.toList());
         }
 
+        public static String[] getRawSupportedMediaFormatsAsArray() {
+            return getRawSupportedMediaFormats().stream().map(Enum::name).toArray(String[]::new);
+        }
         private boolean isSupportedMediaFormat() {
             return supportedMediaFormat;
         }

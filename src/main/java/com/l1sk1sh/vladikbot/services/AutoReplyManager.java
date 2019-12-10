@@ -20,22 +20,26 @@ import java.util.*;
 /**
  * @author Oliver Johnson
  */
-public class AutoModerationManager {
-    private static final Logger log = LoggerFactory.getLogger(AutoModerationManager.class);
+/* TODO Rewrite to
+     {"good_code" : {"reactToList": ["Ага"], "reactWithList": ["Хуйга"]},
+      {"bad_code": {"reactToList": ["Нога"], "reactWithList": ["Хуйга"]}
+ */
+public class AutoReplyManager {
+    private static final Logger log = LoggerFactory.getLogger(AutoReplyManager.class);
 
     private final Bot bot;
     private final Gson gson;
     private String moderationRulesFolder;
 
-    public AutoModerationManager(Bot bot) {
+    public AutoReplyManager(Bot bot) {
         this.bot = bot;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
-        this.moderationRulesFolder = bot.getBotSettings().getModerationRulesFolder();
+        this.moderationRulesFolder = bot.getBotSettings().getRulesFolder();
     }
 
-    public void moderate(Message message) {
+    public void reply(Message message) {
         try {
-            if (bot.getBotSettings().isAutoModeration()) {
+            if (bot.getBotSettings().shouldAutoReply()) {
                 List<ReactionRule> allRules = getRules();
 
                 for (ReactionRule rule : allRules) {

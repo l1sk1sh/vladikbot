@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.services;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.models.entities.GameAndAction;
 import com.l1sk1sh.vladikbot.settings.Const;
@@ -24,9 +25,8 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Oliver Johnson
  */
-// TODO Rewrite using custom Class for Game + Status, not Map
-public class GameAndActionRotationManager {
-    private static final Logger log = LoggerFactory.getLogger(GameAndActionRotationManager.class);
+public class GameAndActionSimulationManager {
+    private static final Logger log = LoggerFactory.getLogger(GameAndActionSimulationManager.class);
 
     private final Bot bot;
     private final Gson gson;
@@ -34,7 +34,7 @@ public class GameAndActionRotationManager {
     private final String rotationFolder;
     private ScheduledFuture<?> scheduledFuture;
 
-    public GameAndActionRotationManager(Bot bot) {
+    public GameAndActionSimulationManager(Bot bot) {
         this.bot = bot;
         this.scheduler = Executors.newScheduledThreadPool(1);
         this.gson = new GsonBuilder().setPrettyPrinting().create();
@@ -58,10 +58,8 @@ public class GameAndActionRotationManager {
 
         pairs = new ArrayList<>();
         for (File file : Objects.requireNonNull(folder.listFiles())) {
-            if (file.getName().equals(Const.STATUS_ROTATION_JSON)) {
-
-                //noinspection unchecked
-                pairs = gson.fromJson(new FileReader(rotationFolder + file.getName()), List.class);
+            if (file.getName().equals(Const.GAME_AND_ACTION_SIMULATION_JSON)) {
+                pairs = gson.fromJson(new FileReader(rotationFolder + file.getName()), new TypeToken<List<GameAndAction>>(){}.getType());
             }
         }
 
@@ -121,18 +119,18 @@ public class GameAndActionRotationManager {
     }
 
     private void writeJson(List<GameAndAction> pairs) throws IOException {
-        JsonWriter writer = new JsonWriter(new FileWriter(rotationFolder + Const.STATUS_ROTATION_JSON));
+        JsonWriter writer = new JsonWriter(new FileWriter(rotationFolder + Const.GAME_AND_ACTION_SIMULATION_JSON));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
         gson.toJson(pairs, pairs.getClass(), writer);
         writer.close();
     }
 
-    public final void startRotation() {
-        log.debug("Rotating actions-games of the bot");
+    public final void enableSimulation() {
+        log.info("Changing Game And Action of the bot...");
 
         Runnable rotation = () -> {
-            GameAndAction chosenPair = getRandomGameAndAction(); /* [0] - chosen action; [1] - chosen game */
+            GameAndAction chosenPair = getRandomGameAndAction();
 
             switch (chosenPair.getAction()) {
                 case playing:
@@ -151,7 +149,7 @@ public class GameAndActionRotationManager {
                 rotation, 30, Const.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
     }
 
-    public void stopRotation() {
+    public void disableSimulation() {
         log.info("Cancelling rotation of actions-games");
         scheduledFuture.cancel(false);
         scheduler.shutdown();

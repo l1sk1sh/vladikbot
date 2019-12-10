@@ -65,8 +65,8 @@ final class VladikBot {
                             new BackupMediaCommand(bot),
                             new BackupTextChannelCommand(bot),
                             new EmojiStatsCommand(waiter, bot),
-                            new AutoModerationCommand(bot),
-                            new RotatingGameAndActionCommand(bot),
+                            new AutoReplyCommand(bot),
+                            new GameAndActionSimulationCommand(bot),
 
                             new ForceSkipCommand(bot),
                             new PauseCommand(bot),
@@ -84,7 +84,7 @@ final class VladikBot {
                             new SetNameCommand(),
                             new SetStatusCommand(),
                             new ClearTmpCommand(bot),
-                            new RotatingBackupCommand(bot),
+                            new AutoBackupCommand(bot),
 
                             new LyricsCommand(bot),
                             new NowPlayingCommand(bot),

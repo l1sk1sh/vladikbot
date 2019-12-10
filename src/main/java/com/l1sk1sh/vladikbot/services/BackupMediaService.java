@@ -6,6 +6,7 @@ import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.zip.ZipOutputStream;
 
 /**
  * @author Oliver Johnson
@@ -53,8 +53,8 @@ public class BackupMediaService implements Runnable {
         this.args = args;
         this.channelId = channelId;
         this.textBackupFile = textBackupFile;
-        this.localAttachmentsListName = textBackupFile.getName().replace(Const.FileType.txt.name(), "") + " - media list";
-        this.localAttachmentsListPath = localAttachmentsListPath + "media/"; /* Always moving list files to separate folder */
+        this.localAttachmentsListName = textBackupFile.getName().replace("." + Const.FileType.txt.name(), "") + " - media list";
+        this.localAttachmentsListPath = localAttachmentsListPath + "media-lists/"; /* Always moving list files to separate folder */
         this.localAttachmentsPath = localAttachmentsListPath + "attachments/"; /* Always moving attachments to separate folder */
     }
 
@@ -74,6 +74,7 @@ public class BackupMediaService implements Runnable {
             if ((attachmentsTxtFile != null && ((System.currentTimeMillis() - attachmentsTxtFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
                     && ignoreExistingFiles) {
                 log.info("Media TXT list has already been made [{}]", attachmentsTxtFile.getAbsolutePath());
+
                 return;
             }
 
@@ -84,7 +85,7 @@ public class BackupMediaService implements Runnable {
             setOfSupportedAttachmentsUrls = new HashSet<>();
 
             while (urlAttachmentsMatcher.find()) {
-                if (StringUtils.inArray(urlAttachmentsMatcher.group(), (String[]) Const.FileType.getRawSupportedMediaFormats().toArray())) {
+                if (StringUtils.inArray(urlAttachmentsMatcher.group(), Const.FileType.getRawSupportedMediaFormatsAsArray())) {
                     setOfSupportedAttachmentsUrls.add(urlAttachmentsMatcher.group());
                 }
                 setOfAllAttachmentsUrls.add(urlAttachmentsMatcher.group());
@@ -99,9 +100,11 @@ public class BackupMediaService implements Runnable {
             if (doZip) {
                 log.info("Downloading media files from Discord CDN...");
                 downloadAttachments();
-                log.info("Archiving medias into .zip...");
+                log.info("Archiving media into .zip...");
                 archiveAttachments();
             }
+
+            log.debug("Media Backup Service has finished its execution.");
 
         } catch (IOException e) {
             failMessage = String.format("Something bad with files happened... [%1$s]", e.getLocalizedMessage());
@@ -152,13 +155,8 @@ public class BackupMediaService implements Runnable {
             throw new IOException("Failed to create zip file at " + zipWithAttachmentsFile.getAbsolutePath());
         }
 
-        FileOutputStream fos = new FileOutputStream(zipWithAttachmentsFile);
-        ZipOutputStream zipOut = new ZipOutputStream(fos);
         File attachmentsFolderToZip = new File(attachmentsFolderPath);
-
-        FileUtils.zipFile(attachmentsFolderToZip, attachmentsFolderToZip.getName(), zipOut);
-        zipOut.close();
-        fos.close();
+        ZipUtil.pack(attachmentsFolderToZip, zipWithAttachmentsFile);
     }
 
     private void downloadAttachments() throws IOException {
