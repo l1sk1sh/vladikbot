@@ -35,7 +35,6 @@ public class AutoTextBackupDaemon implements RotatingTask {
         }
 
         if (bot.isLockedAutoBackup()) {
-            log.debug("Rotation text channel backup is already running. Exiting...");
             return;
         }
 
@@ -48,9 +47,10 @@ public class AutoTextBackupDaemon implements RotatingTask {
 
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
+            log.info("Automatic text backup has started it's execution.");
 
             for (TextChannel channel : availableChannels) {
-                log.info("Starting rotation text backup of channel {} at guild {}", channel.getName(), channel.getGuild());
+                log.info("Starting auto text backup of channel {} at guild {}", channel.getName(), channel.getGuild());
 
                 try {
                     String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
@@ -81,16 +81,17 @@ public class AutoTextBackupDaemon implements RotatingTask {
                         return;
                     }
 
-                    log.info("Finished rotation text backup of {}", channel.getName());
+                    log.info("Finished auto text backup of {}", channel.getName());
 
                 } catch (Exception e) {
-                    log.error("Failed to create rotation backup", e);
+                    log.error("Failed to create auto backup", e);
                     bot.getNotificationService().sendMessage(channel.getGuild(),
-                            String.format("Text rotation backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
+                            String.format("Auto text rotation of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
                 } finally {
                     bot.setLockedAutoBackup(false);
                 }
             }
+            log.info("Automatic text backup has finished it's execution.");
         }).start();
     }
 

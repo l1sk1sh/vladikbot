@@ -36,7 +36,6 @@ public class AutoMediaBackupDaemon implements RotatingTask {
         }
 
         if (bot.isLockedAutoBackup()) {
-            log.debug("Rotation media backup is already running. Exiting...");
             return;
         }
 
@@ -49,9 +48,10 @@ public class AutoMediaBackupDaemon implements RotatingTask {
 
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
+            log.info("Automatic media backup has started it's execution.");
 
             for (TextChannel channel : availableChannels) {
-                log.info("Starting text backup for media rotation backup of channel {} at guild {}", channel.getName(), channel.getGuild());
+                log.info("Starting text backup for auto media backup of channel {} at guild {}", channel.getName(), channel.getGuild());
 
                 try {
                     String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
@@ -109,17 +109,19 @@ public class AutoMediaBackupDaemon implements RotatingTask {
                         return;
                     }
 
-                    log.info("Finished rotation media backup of {}", channel.getName());
+                    log.info("Finished auto media backup of {}", channel.getName());
 
                 } catch (Exception e) {
-                    log.error("Failed to create rotation backup", e);
+                    log.error("Failed to create auto backup", e);
                     bot.getNotificationService().sendMessage(channel.getGuild(),
-                            String.format("Media rotation backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
+                            String.format("Auto media backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
                     break;
                 } finally {
                     bot.setLockedAutoBackup(false);
                 }
             }
+
+            log.info("Automatic media backup has finished it's execution.");
         }).start();
     }
 
