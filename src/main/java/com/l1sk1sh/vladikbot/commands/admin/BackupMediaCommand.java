@@ -31,7 +31,7 @@ public class BackupMediaCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        if (bot.isDockerFailed()) {
+        if (!bot.isDockerRunning()) {
             return;
         }
 
@@ -59,14 +59,14 @@ public class BackupMediaCommand extends AdminCommand {
             try {
                 backupTextChannelServiceThread.join();
             } catch (InterruptedException e) {
-                log.error("BackupTextChannel was interrupted.", e);
+                log.error("BackupTextChannel was interrupted:", e);
                 event.replyError("Text channel backup process was interrupted!");
                 return;
             }
 
             if (backupTextChannelService.hasFailed()) {
-                log.error("BackupTextChannelService has failed: {}", backupTextChannelService.getFailMessage());
-                event.replyError(String.format("Text channel backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
+                log.error("BackupTextChannelService has failed: [{}].", backupTextChannelService.getFailMessage());
+                event.replyError(String.format("Text channel backup has failed! `[%1$s]`", backupTextChannelService.getFailMessage()));
                 return;
             }
 
@@ -92,8 +92,8 @@ public class BackupMediaCommand extends AdminCommand {
             }
 
             if (backupMediaService.hasFailed()) {
-                log.error("BackupMediaService has failed: {}", backupTextChannelService.getFailMessage());
-                event.replyError(String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
+                log.error("BackupMediaService has failed: [{}].", backupTextChannelService.getFailMessage());
+                event.replyError(String.format("Media backup has filed! `[%1$s]`", backupMediaService.getFailMessage()));
                 return;
             }
 

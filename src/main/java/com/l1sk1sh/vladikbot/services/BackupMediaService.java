@@ -73,7 +73,7 @@ public class BackupMediaService implements Runnable {
             /* If file is present or was made less than 24 hours ago - exit */
             if ((attachmentsTxtFile != null && ((System.currentTimeMillis() - attachmentsTxtFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
                     && ignoreExistingFiles) {
-                log.info("Media TXT list has already been made [{}]", attachmentsTxtFile.getAbsolutePath());
+                log.info("Media TXT list has already been made [{}].", attachmentsTxtFile.getAbsolutePath());
 
                 return;
             }

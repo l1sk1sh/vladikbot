@@ -25,7 +25,6 @@ import javax.security.auth.login.LoginException;
 /**
  * @author Oliver Johnson
  */
-// TODO Rewrite all processes
 final class VladikBot {
     private VladikBot() {}
 

@@ -20,10 +20,6 @@ import java.util.*;
 /**
  * @author Oliver Johnson
  */
-/* TODO Rewrite to
-     {"good_code" : {"reactToList": ["Ага"], "reactWithList": ["Хуйга"]},
-      {"bad_code": {"reactToList": ["Нога"], "reactWithList": ["Хуйга"]}
- */
 public class AutoReplyManager {
     private static final Logger log = LoggerFactory.getLogger(AutoReplyManager.class);
 
@@ -70,10 +66,10 @@ public class AutoReplyManager {
     }
 
     public void writeRule(ReplyRule rule) throws IOException {
-        log.debug("Writing new reply rule {}", rule);
+        log.debug("Writing new reply rule '{}'.", rule);
 
         if (getRuleById(rule.getRuleId()) != null) {
-            log.info("Rule {} already exists. Removing", rule.getRuleId());
+            log.info("Rule '{}' already exists. Removing...", rule.getRuleId());
             deleteRule(rule.getRuleId());
         }
 
@@ -89,7 +85,7 @@ public class AutoReplyManager {
             throw new IOException("Reply rule was not found");
         }
 
-        log.info("Trying to remove reply rule {}", rule);
+        log.info("Trying to remove reply rule '{}'...", rule);
         replyRules.remove(rule);
         writeRules();
     }

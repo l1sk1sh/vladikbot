@@ -28,7 +28,7 @@ public class BackupTextChannelCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        if (bot.isDockerFailed()) {
+        if (!bot.isDockerRunning()) {
             return;
         }
 
@@ -56,14 +56,14 @@ public class BackupTextChannelCommand extends AdminCommand {
             try {
                 backupChannelServiceThread.join();
             } catch (InterruptedException e) {
-                log.error("BackupTextChannel was interrupted.", e);
+                log.error("BackupTextChannel was interrupted:", e);
                 event.replyError("Backup process was interrupted!");
                 return;
             }
 
             if (backupTextChannelService.hasFailed()) {
-                log.error("BackupTextChannelService has failed: {}", backupTextChannelService.getFailMessage());
-                event.replyError(String.format("Text channel backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
+                log.error("BackupTextChannelService has failed: [{}].", backupTextChannelService.getFailMessage());
+                event.replyError(String.format("Text channel backup has failed! `[%1$s]`", backupTextChannelService.getFailMessage()));
                 return;
             }
 

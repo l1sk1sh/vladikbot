@@ -63,12 +63,12 @@ public class PlaylistLoader {
 
     public void createPlaylist(String name) throws IOException {
         FileUtils.createFile(playlistFolder + name + "." + Const.FileType.json.name());
-        log.info("Created new playlist {}", name);
+        log.info("Created new playlist '{}'.", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
         FileUtils.deleteFile(playlistFolder + name + "." + Const.FileType.json.name());
-        log.info("Deleted playlist {}", name);
+        log.info("Deleted playlist '{}'.", name);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {

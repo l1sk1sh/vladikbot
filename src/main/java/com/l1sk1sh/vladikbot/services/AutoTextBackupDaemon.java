@@ -26,7 +26,7 @@ public class AutoTextBackupDaemon implements RotatingTask {
     }
 
     public void execute() {
-        if (bot.isDockerFailed()) {
+        if (!bot.isDockerRunning()) {
             return;
         }
 
@@ -50,7 +50,7 @@ public class AutoTextBackupDaemon implements RotatingTask {
             log.info("Automatic text backup has started it's execution.");
 
             for (TextChannel channel : availableChannels) {
-                log.info("Starting auto text backup of channel {} at guild {}", channel.getName(), channel.getGuild());
+                log.info("Starting auto text backup of channel '{}' at guild '{}'.", channel.getName(), channel.getGuild());
 
                 try {
                     String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
@@ -81,12 +81,12 @@ public class AutoTextBackupDaemon implements RotatingTask {
                         return;
                     }
 
-                    log.info("Finished auto text backup of {}", channel.getName());
+                    log.info("Finished auto text backup of '{}'.", channel.getName());
 
                 } catch (Exception e) {
-                    log.error("Failed to create auto backup", e);
+                    log.error("Failed to create auto backup:", e);
                     bot.getNotificationService().sendMessage(channel.getGuild(),
-                            String.format("Auto text rotation of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
+                            String.format("Auto text rotation of chat `%1$s` has failed due to: `%2$s`!", channel.getName(), e.getLocalizedMessage()));
                 } finally {
                     bot.setLockedAutoBackup(false);
                 }
@@ -101,7 +101,7 @@ public class AutoTextBackupDaemon implements RotatingTask {
         int targetMin = 0;
         int targetSec = 0;
         rotatingTaskExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
-        log.info(String.format("Text backup will be performed in %2d days at %02d:%02d:%02d local time", dayDelay, targetHour, targetMin, targetSec));
+        log.info(String.format("Text backup will be performed in %2d days at %02d:%02d:%02d local time.", dayDelay, targetHour, targetMin, targetSec));
     }
 
     public void disableExecution() throws InterruptedException {

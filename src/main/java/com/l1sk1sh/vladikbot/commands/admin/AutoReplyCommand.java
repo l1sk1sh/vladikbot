@@ -95,10 +95,10 @@ public class AutoReplyCommand extends AdminCommand {
 
                 ReplyRule rule = new ReplyRule(reactTo, reactWith);
                 bot.getAutoReplyManager().writeRule(rule);
-                log.info("Added new reply rule {}", rule.toString());
+                log.info("Added new reply rule: {}.", rule.toString());
                 event.replySuccess(String.format("Reply rule was added: `[%1$s]`", rule.toString()));
             } catch (IOException ioe) {
-                log.error("IO error during addition of new reply rule execution", ioe);
+                log.error("IO error during addition of new reply rule execution:", ioe);
                 event.replyError(String.format("Failed to write new reply rule! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -129,7 +129,7 @@ public class AutoReplyCommand extends AdminCommand {
                     event.reply(builder.toString());
                 }
             } catch (IOException ioe) {
-                log.error("IO error during reading of existing reply rules execution", ioe);
+                log.error("IO error during reading of existing reply rules execution:", ioe);
                 event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -152,10 +152,10 @@ public class AutoReplyCommand extends AdminCommand {
             } else {
                 try {
                     bot.getAutoReplyManager().deleteRule(id);
-                    log.info("Deleted rule {} by {}[{}]", id, event.getAuthor().getName(), event.getAuthor().getId());
+                    log.info("Deleted rule {} by {}[{}].", id, event.getAuthor().getName(), event.getAuthor().getId());
                     event.replySuccess(String.format("Successfully deleted rule `%1$s`!", id));
                 } catch (IOException e) {
-                    log.error("Failed to delete moderation rule {}", id, e);
+                    log.error("Failed to delete moderation rule by id '{}'.", id, e);
                     event.replyError(String.format("Unable to delete the rule: `[%1$s]`!", e.getLocalizedMessage()));
                 }
             }
@@ -180,13 +180,13 @@ public class AutoReplyCommand extends AdminCommand {
                         case "on":
                         case "enable":
                             bot.getBotSettings().setAutoReply(true);
-                            log.info("Auto Reply was enabled by {}", event.getAuthor().getName());
+                            log.info("Auto Reply was enabled by '{}'.", event.getAuthor().getName());
                             event.replySuccess("Auto Reply is now enabled!");
                             break;
                         case "off":
                         case "disable":
                             bot.getBotSettings().setAutoReply(false);
-                            log.info("Auto Reply was disabled by {}", event.getAuthor().getName());
+                            log.info("Auto Reply was disabled by '{}'.", event.getAuthor().getName());
                             event.replySuccess("Auto Reply is now disabled!");
                             break;
                     }

@@ -41,12 +41,12 @@ public class Bot {
     private final AutoTextBackupDaemon autoTextBackupDaemon;
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final ChatNotificationService notificationService;
-    private final DockerVerificationService dockerVerificationService;
+    private final DockerAvailabilityVerificationService dockerAvailabilityVerificationService;
 
     private boolean lockedBackup = false;
     private boolean lockedAutoBackup = false;
     private boolean shuttingDown = false;
-    private boolean dockerFailed = false;
+    private boolean dockerRunning = false;
     private JDA jda;
 
     public Bot(EventWaiter waiter, BotSettingsManager botSettingsManager, GuildSpecificSettingsManager guildSpecificSettingsManager) {
@@ -64,7 +64,7 @@ public class Bot {
         this.autoTextBackupDaemon = new AutoTextBackupDaemon(this);
         this.autoMediaBackupDaemon = new AutoMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
-        this.dockerVerificationService = new DockerVerificationService();
+        this.dockerAvailabilityVerificationService = new DockerAvailabilityVerificationService();
     }
 
     public void closeAudioConnection(long guildId) {
@@ -178,16 +178,16 @@ public class Bot {
         return notificationService;
     }
 
-    public DockerVerificationService getDockerVerificationService() {
-        return dockerVerificationService;
+    public DockerAvailabilityVerificationService getDockerAvailabilityVerificationService() {
+        return dockerAvailabilityVerificationService;
     }
 
-    public boolean isDockerFailed() {
-        return dockerFailed;
+    public boolean isDockerRunning() {
+        return dockerRunning;
     }
 
-    public void setDockerFailed(boolean dockerFailed) {
-        this.dockerFailed = dockerFailed;
+    public void setDockerRunning(boolean dockerRunning) {
+        this.dockerRunning = dockerRunning;
     }
 
     private List<TextChannel> getAllTextChannels() {

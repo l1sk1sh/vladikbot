@@ -74,10 +74,10 @@ public class GameAndActionSimulationCommand extends AdminCommand {
                         event.getArgs().substring(action.name().length()).trim(), action);
 
                 bot.getGameAndActionSimulationManager().writeRule(newPair);
-                log.info("Added new rule to GAASimulation {}", newPair);
+                log.info("Added new rule to GAASimulation: {}.", newPair);
                 event.replySuccess("New rule was added.");
             } catch (IOException ioe) {
-                log.error("IO error during addition of new GAASimulation rule", ioe);
+                log.error("IO error during addition of new GAASimulation rule:", ioe);
                 event.replyError(String.format("Failed to write new game and action rule! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -106,7 +106,7 @@ public class GameAndActionSimulationCommand extends AdminCommand {
                     event.reply(builder.toString());
                 }
             } catch (IOException ioe) {
-                log.error("IO exception during reading of GAASimulation rules", ioe);
+                log.error("IO exception during reading of GAASimulation rules:", ioe);
                 event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
             }
         }
@@ -135,7 +135,7 @@ public class GameAndActionSimulationCommand extends AdminCommand {
                                 bot.getGameAndActionSimulationManager().enableSimulation();
                                 break;
                             } catch (IOException ioe) {
-                                log.error("Failed to enable GAASimulation", ioe);
+                                log.error("Failed to enable GAASimulation:", ioe);
                                 event.replyError(String.format("Failed to enable Game and Activity Simulation! `[%1$s]`", ioe.getLocalizedMessage()));
                                 bot.getBotSettings().setSimulateActionAndGameActivity(false);
                             }
@@ -168,11 +168,11 @@ public class GameAndActionSimulationCommand extends AdminCommand {
 
             try {
                 bot.getGameAndActionSimulationManager().deleteRule(gameName);
-                log.info("GAASimulation rule with game {} was removed by {}:[{}]", gameName, event.getAuthor().getName(), event.getAuthor().getId());
-                event.replySuccess(String.format("Successfully deleted rule with game `%1$s`!", gameName));
+                log.info("GAASimulation rule with game {} was removed by {}:[{}].", gameName, event.getAuthor().getName(), event.getAuthor().getId());
+                event.replySuccess(String.format("Successfully deleted rule with game `[%1$s]`.", gameName));
             } catch (IOException ioe) {
                 log.error("IO error during removal of GAASimulation rule", ioe);
-                event.replyError(String.format("Unable to delete this rule, that has game: `[%1$s]`.", ioe.getLocalizedMessage()));
+                event.replyError(String.format("Unable to delete this rule, that has game `[%1$s]`.", ioe.getLocalizedMessage()));
             }
         }
     }

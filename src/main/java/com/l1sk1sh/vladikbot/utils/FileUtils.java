@@ -68,7 +68,7 @@ public final class FileUtils {
     }
 
     public static void createFolders(String path) throws IOException {
-        log.info("Creating folders {}", path);
+        log.info("Creating folders '{}'...", path);
         Files.createDirectories(Paths.get(path));
     }
 

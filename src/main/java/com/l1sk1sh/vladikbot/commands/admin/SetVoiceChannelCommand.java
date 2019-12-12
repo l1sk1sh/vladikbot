@@ -45,7 +45,7 @@ public class SetVoiceChannelCommand extends AdminCommand {
                 event.replyWarning(FormatUtils.listOfVoiceChannels(list, event.getArgs()));
             } else {
                 bot.getGuildSettings(event.getGuild()).setVoiceChannelId(list.get(0));
-                log.info("Music can be used played in {}. Set by {}:[{}]", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
+                log.info("Music can be used played in {}. Set by {}:[{}].", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
                 event.replySuccess(String.format("Music can now only be played in **%1$s**.", list.get(0).getName()));
             }
         }

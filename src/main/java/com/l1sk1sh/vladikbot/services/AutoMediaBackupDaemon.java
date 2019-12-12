@@ -27,7 +27,7 @@ public class AutoMediaBackupDaemon implements RotatingTask {
     }
 
     public void execute() {
-        if (bot.isDockerFailed()) {
+        if (!bot.isDockerRunning()) {
             return;
         }
 

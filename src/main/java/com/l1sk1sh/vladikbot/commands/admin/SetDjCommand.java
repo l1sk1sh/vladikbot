@@ -45,7 +45,7 @@ public class SetDjCommand extends AdminCommand {
                 event.replyWarning(FormatUtils.listOfRoles(list, event.getArgs()));
             } else {
                 bot.getGuildSettings(event.getGuild()).setDjRoleId(list.get(0));
-                log.info("DJ role now available for {}. Set by {}:[{}]", list.get(0).getName(), event.getAuthor().getName(), event.getAuthor().getId());
+                log.info("DJ role now available for {}. Set by {}:[{}].", list.get(0).getName(), event.getAuthor().getName(), event.getAuthor().getId());
                 event.replySuccess(String.format("DJ commands can now be used by users with the **%1$s** role.",
                         list.get(0).getName()));
             }

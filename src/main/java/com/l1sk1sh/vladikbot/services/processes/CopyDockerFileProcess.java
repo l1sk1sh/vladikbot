@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -13,19 +14,21 @@ import java.util.concurrent.Callable;
 /**
  * @author Oliver Johnson
  */
-public class DockerCallProcess implements Callable<Integer> {
-    private static final Logger log = LoggerFactory.getLogger(DockerCallProcess.class);
+public class CopyDockerFileProcess implements Callable<Integer> {
+    private static final Logger log = LoggerFactory.getLogger(CopyDockerFileProcess.class);
     private final List<String> command;
 
-    public DockerCallProcess() {
+    public CopyDockerFileProcess(String dockerContainerName, String dockerPathToExport, String localPathToExport) {
         command = new ArrayList<>();
         command.add("docker");
-        command.add("ps");
+        command.add("cp");
+        command.add(dockerContainerName + ":" + dockerPathToExport + ".");
+        command.add(localPathToExport);
     }
 
     @Override
     public Integer call() throws IOException, InterruptedException {
-        log.debug("DockerCall receives command '{}'...", command);
+        log.debug("CopyProcess receives command '{}'...", command);
         int exitCode;
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
@@ -38,10 +41,10 @@ public class DockerCallProcess implements Callable<Integer> {
         while ((line = br.readLine()) != null) {
             log.debug(line);
 
-            if (line.contains("command not found")) {
+            if (line.contains("No such container:path")) {
                 return 2;
-            } else if (line.contains("Cannot connect to the Docker daemon")) {
-                return 3;
+            } else if (line.contains("Error")) {
+                throw new IOException(line);
             }
         }
 

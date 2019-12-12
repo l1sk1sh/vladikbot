@@ -70,6 +70,6 @@ public class DebugCommand extends OwnerCommand {
             event.reply("Debug Information: ```\n" + sb.toString() + "\n```");
         }
 
-        log.info("Debug command was sent to {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
+        log.info("Debug command was sent to {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
     }
 }

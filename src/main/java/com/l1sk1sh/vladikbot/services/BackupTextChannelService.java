@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.services;
 
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.services.processes.BackupProcess;
-import com.l1sk1sh.vladikbot.services.processes.CleanProcess;
-import com.l1sk1sh.vladikbot.services.processes.CopyProcess;
+import com.l1sk1sh.vladikbot.services.processes.BackupDockerProcess;
+import com.l1sk1sh.vladikbot.services.processes.CleanDockerContainerProcess;
+import com.l1sk1sh.vladikbot.services.processes.CopyDockerFileProcess;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import org.slf4j.Logger;
@@ -67,29 +67,20 @@ public class BackupTextChannelService implements Runnable {
             /* If file is present or was made less than 24 hours ago - exit */
             if ((backupFile != null && ((System.currentTimeMillis() - backupFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
                     && ignoreExisting) {
-                log.info("Text backup has already been made [{}]", backupFile.getAbsolutePath());
+                log.info("Text backup has already been made [{}].", backupFile.getAbsolutePath());
                 return;
             }
 
-            log.info("Creating new backup for channel with ID {}", channelId);
+            log.info("Creating new backup for channel with ID '{}'.", channelId);
 
             log.info("Clearing docker container before execution...");
-            log.debug("CleanProcess receives command {}", constructCleanCommand());
-            try {
-                new CleanProcess(constructCleanCommand());
-                log.info("Container was running and it was cleared.");
-            } catch (IllegalStateException notFound) {
-                log.info("There was no docker container found.");
-            }
+            runCleanProcess();
 
             log.info("Waiting for backup to finish...");
-            log.debug("BackupProcess receives command {}", constructBackupCommand());
-            new BackupProcess(constructBackupCommand());
+            runBackupProcess();
 
-            FileUtils.getFileByChannelIdAndExtension(localPathToExport, channelId, extension);
-            log.info("Copying received file...");
-            log.debug("CopyProcess receives command {}", constructCopyCommand());
-            new CopyProcess(constructCopyCommand());
+            log.info("Copying received backup file...");
+            runCopyProcess();
 
             backupFile = FileUtils.getFileByChannelIdAndExtension(localPathToExport, channelId, extension);
             if (backupFile == null) {
@@ -99,79 +90,74 @@ public class BackupTextChannelService implements Runnable {
             log.debug("Text Channel Backup Service has finished its execution.");
 
         } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
-            failMessage = String.format("Failed to processes provided arguments: %1$s", Arrays.toString(args));
+            failMessage = String.format("Failed to processes provided arguments: [%1$s].", Arrays.toString(args));
             log.error(failMessage);
             hasFailed = true;
         } catch (IOException ioe) {
-            failMessage = String.format("Failed to find exported file [%1$s]", ioe.getLocalizedMessage());
+            failMessage = String.format("Failed to find exported file [%1$s].", ioe.getLocalizedMessage());
             log.error(failMessage);
             hasFailed = true;
         } catch (InterruptedException ie) {
-            failMessage = String.format("Backup thread interrupted on services level [%1$s]", ie.getLocalizedMessage());
+            failMessage = String.format("Backup thread interrupted on services level [%1$s].", ie.getLocalizedMessage());
             log.error(failMessage);
             hasFailed = true;
         } finally {
             try {
                 log.info("Cleaning docker container after execution...");
-                log.debug("Final CleanProcess receives command {}", constructCleanCommand());
-                new CleanProcess(constructCleanCommand());
+                runCleanProcess();
             } catch (InterruptedException ire) {
-                log.error("Clean process thread was interrupted {}", ire.getLocalizedMessage());
+                log.error("Clean process thread was interrupted:", ire);
             } catch (IOException ioe) {
-                log.error("Cleaning failed due to IO", ioe);
-            } catch (IllegalStateException notFound) {
-                log.warn("Container for final cleaning was not found");
+                log.error("Cleaning failed due to IO:", ioe);
             } finally {
                 bot.setLockedBackup(false);
             }
         }
     }
 
-    private List<String> constructBackupCommand() {
-        List<String> command = new ArrayList<>();
-        command.add("docker");
-        command.add("run");
-        command.add("--name");
-        command.add(dockerContainerName);
-        command.add("tyrrrz/discordchatexporter");
-        command.add("export");
-        command.add("-f");
-        command.add(format.getBackupTypeName());
-        if (beforeDate != null) {
-            command.add("--before");
-            command.add(beforeDate);
+    private void runCleanProcess() throws IOException, InterruptedException {
+        CleanDockerContainerProcess cleanProcess = new CleanDockerContainerProcess(dockerContainerName);
+        int exitCode = cleanProcess.call();
+        switch (exitCode) {
+            case 0:
+                log.info("Container was running and it was cleared.");
+                break;
+            case 2:
+                log.info("Container for clearing was not found.");
+                break;
+            default:
+                log.warn("Unhandled exit code for clear command: {}.", exitCode);
+                break;
         }
-        if (afterDate != null) {
-            command.add("--after");
-            command.add(afterDate);
-        }
-        command.add("--channel");
-        command.add(channelId);
-        command.add("--token");
-        command.add(token);
-        command.add("--bot");
-        command.add("true");
-
-        return command;
     }
 
-    private List<String> constructCopyCommand() {
-        List<String> command = new ArrayList<>();
-        command.add("docker");
-        command.add("cp");
-        command.add(dockerContainerName + ":" + dockerPathToExport + ".");
-        command.add(localPathToExport);
-
-        return command;
+    private void runBackupProcess() throws IOException, InterruptedException {
+        BackupDockerProcess backupProcess = new BackupDockerProcess(dockerContainerName, format,
+                beforeDate, afterDate, channelId, token);
+        int exitCode = backupProcess.call();
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (exitCode) {
+            case 0:
+                log.info("BackupProcess returned exit code successful.");
+                break;
+            default:
+                log.warn("Unhandled exit code for backup command: {}.", exitCode);
+                break;
+        }
     }
 
-    private List<String> constructCleanCommand() {
-        List<String> command = new ArrayList<>();
-        command.add("docker");
-        command.add("rm");
-        command.add(dockerContainerName);
-
-        return command;
+    private void runCopyProcess() throws IOException, InterruptedException {
+        CopyDockerFileProcess copyProcess = new CopyDockerFileProcess(dockerContainerName, dockerPathToExport, localPathToExport);
+        int exitCode = copyProcess.call();
+        //noinspection SwitchStatementWithTooFewBranches
+        switch (exitCode) {
+            case 0:
+                log.info("CopyProcess returned exit code successful.");
+                break;
+            default:
+                log.warn("Unhandled exit code for copy command: {}.", exitCode);
+                break;
+        }
     }
 
     private void processArguments(String[] args) throws InvalidParameterException, ParseException {

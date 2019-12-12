@@ -45,7 +45,7 @@ public class SetTextChannelCommand extends AdminCommand {
                 event.replyWarning(FormatUtils.listOfTextChannels(list, event.getArgs()));
             } else {
                 bot.getGuildSettings(event.getGuild()).setTextChannelId(list.get(0));
-                log.info("Music commands now can be used only in {}. Set by {}:[{}]", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
+                log.info("Music commands now can be used only in {}. Set by {}:[{}].", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
                 event.replySuccess(String.format("Music commands can now only be used in <#%1$s>.", list.get(0).getId()));
             }
         }

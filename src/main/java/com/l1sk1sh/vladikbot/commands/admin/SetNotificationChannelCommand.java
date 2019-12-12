@@ -42,7 +42,7 @@ public class SetNotificationChannelCommand extends AdminCommand {
                 event.replyWarning(FormatUtils.listOfTextChannels(list, event.getArgs()));
             } else {
                 bot.getGuildSettings(event.getGuild()).setNotificationChannelId(list.get(0));
-                log.info("Notification channel was set to {}. Set by {}:[{}]", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
+                log.info("Notification channel was set to {}. Set by {}:[{}].", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
                 event.replySuccess(String.format("Notifications are being displayed in <#%1$s>.", list.get(0).getId()));
             }
         }

@@ -23,8 +23,8 @@ import java.util.List;
  * Changes from original source:
  * - Reformating code
  * - Removal of update
- * - Addition of moderation Listener
  * - Addition of permission handler
+ * - Addition of multiple services executors and verifications
  * @author John Grosh
  */
 class Listener extends ListenerAdapter {
@@ -45,9 +45,9 @@ class Listener extends ListenerAdapter {
             log.warn(event.getJDA().asBot().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
 
-        if (!bot.getDockerVerificationService().isDockerRunning()) {
+        if (bot.getDockerAvailabilityVerificationService().isDockerRunning()) {
             log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
-            bot.setDockerFailed(true);
+            bot.setDockerRunning(true);
         }
 
         event.getJDA().getGuilds().forEach((guild) ->
@@ -63,7 +63,7 @@ class Listener extends ListenerAdapter {
             List<Permission> missingPermissions =
                     BotUtils.getMissingPermissions(guild.getSelfMember().getPermissions(), Const.RECOMMENDED_PERMS);
             if (missingPermissions != null) {
-                log.warn("Bot in guild '{}' doesn't have following recommended permissions {}.",
+                log.warn("Bot in guild '{}' doesn't have following recommended permissions '{}'.",
                         guild.getName(), Arrays.toString(missingPermissions.toArray()));
             }
         });
@@ -78,48 +78,48 @@ class Listener extends ListenerAdapter {
             int extensionMediaHoursDelay = 2;
 
             if (botSettings.getDelayDaysForAutoTextBackup() <= 0) {
-                log.warn("Auto text backup delay should be more than 0");
+                log.warn("Auto text backup delay should be more than 0.");
                 botSettings.setDelayDaysForAutoTextBackup(defaultTextBackupDaysDelay);
             }
 
             if (botSettings.getDelayDaysForAutoMediaBackup() <= 0) {
-                log.warn("Auto text backup delay should be more than 0");
+                log.warn("Auto text backup delay should be more than 0.");
                 botSettings.setDelayDaysForAutoMediaBackup(defaultMediaBackupDaysDelay);
             }
 
             if (botSettings.getTargetHourForAutoTextBackup() > maximumDayHour || botSettings.getTargetHourForAutoTextBackup() < 0) {
-                log.warn("Allowed target hour for text backup is between 1 and 24");
+                log.warn("Allowed target hour for text backup is between 1 and 24.");
                 botSettings.setTargetHourForAutoTextBackup(defaultTextBackupTargetHour);
             }
 
             if (botSettings.getTargetHourForAutoMediaBackup() > maximumDayHour || botSettings.getTargetHourForAutoMediaBackup() < 0) {
-                log.warn("Allowed target hour for media backup is between 1 and 24");
+                log.warn("Allowed target hour for media backup is between 1 and 24.");
                 botSettings.setTargetHourForAutoTextBackup(defaultMediaBackupTargetHour);
             }
 
             int timeDifference = Math.abs(botSettings.getTargetHourForAutoTextBackup() - botSettings.getTargetHourForAutoMediaBackup());
             if (timeDifference < minimumTimeDifference) {
-                log.warn("Auto backups should have at least 1 hour difference");
+                log.warn("Auto backups should have at least 1 hour difference.");
                 botSettings.setTargetHourForAutoMediaBackup(botSettings.getTargetHourForAutoMediaBackup() + extensionMediaHoursDelay);
             }
         }
 
-        if (botSettings.shouldAutoMediaBackup()) {
+        if (botSettings.shouldAutoMediaBackup() && bot.isDockerRunning()) {
             log.info("Enabling auto media backup service...");
             bot.getAutoMediaBackupDaemon().enableExecution();
         }
 
-        if (botSettings.shouldAutoTextBackup()) {
+        if (botSettings.shouldAutoTextBackup() && bot.isDockerRunning()) {
             log.info("Enabling auto text backup service...");
             bot.getAutoTextBackupDaemon().enableExecution();
         }
 
         if (botSettings.shouldSimulateActionsAndGamesActivity()) {
-            log.info("Enabling Simulation of Action and Game");
+            log.info("Enabling GAASimulation...");
             try {
                 bot.getGameAndActionSimulationManager().enableSimulation();
             } catch (IOException ioe) {
-                log.error("Failed to enable GAASimulation", ioe);
+                log.error("Failed to enable GAASimulation:", ioe);
                 botSettings.setAutoReply(false);
             }
         }

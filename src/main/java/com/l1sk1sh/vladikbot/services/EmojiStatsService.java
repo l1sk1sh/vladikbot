@@ -77,7 +77,7 @@ public class EmojiStatsService implements Runnable {
             }
 
         } catch (IOException e) {
-            log.error("Failed to read exportedFile. {}", e.getLocalizedMessage());
+            log.error("Failed to read exportedFile:", e);
         } finally {
             bot.setLockedBackup(false);
         }

@@ -26,7 +26,7 @@ public class ShutdownCommand extends OwnerCommand {
 
     @Override
     protected final void execute(CommandEvent event) {
-        log.info("Bot is being shutdown by {}:[{}]", event.getAuthor().getName(), event.getAuthor().getId());
+        log.info("Bot is being shutdown by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
         event.replyWarning("Shutting down...");
         bot.shutdown();
     }

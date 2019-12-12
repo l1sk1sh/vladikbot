@@ -33,9 +33,9 @@ public class ClearTmpCommand extends OwnerCommand {
             event.replyWarning("Clearing temp folder...");
 
             new ClearTmpService(bot).clear();
-            log.info("{} folder was cleared", bot.getBotSettings().getLocalTmpFolder());
+            log.info("'{}' folder was cleared.", bot.getBotSettings().getLocalTmpFolder());
         } catch (IOException ioe) {
-            log.error("Failed to clear {} folder", bot.getBotSettings().getLocalTmpFolder(), ioe);
+            log.error("Failed to clear '{}' folder.", bot.getBotSettings().getLocalTmpFolder(), ioe);
             event.replyError(String.format("Something went wrong during clearing of tmp folder! `[%1$s][%2$s]`",
                     ioe.getClass().getSimpleName(), ioe.getLocalizedMessage()));
         }

@@ -59,7 +59,7 @@ public class GameAndActionSimulationManager {
     private GameAndAction getRandomRule() {
         Random rand = new Random();
         GameAndAction randomRule = simulationRules.get(rand.nextInt(simulationRules.size()));
-        log.debug("Chosen GAASimulation rule {}", randomRule);
+        log.debug("Chosen GAASimulation rule '{}'.", randomRule);
 
         return (randomRule == null)
                 ? new GameAndAction("Company of Heroes 2", Const.StatusAction.playing)
@@ -67,10 +67,10 @@ public class GameAndActionSimulationManager {
     }
 
     public void writeRule(GameAndAction rule) throws IOException {
-        log.debug("Writing new GAASimulation rule {}", rule);
+        log.debug("Writing new GAASimulation rule '{}'.", rule);
 
         if (getRuleByGameName(rule.getGameName()) != null) {
-            log.info("Rule {} already exists. Removing", rule.getGameName());
+            log.info("Rule '{}' already exists. Removing...", rule.getGameName());
             deleteRule(rule.getGameName());
         }
 
@@ -85,7 +85,7 @@ public class GameAndActionSimulationManager {
             throw new IOException("Rule was not found");
         }
 
-        log.info("Trying to remove GAASimulation rule {}", rule);
+        log.info("Trying to remove GAASimulation rule '{}'...", rule);
         simulationRules.remove(rule);
         writeRules();
     }
