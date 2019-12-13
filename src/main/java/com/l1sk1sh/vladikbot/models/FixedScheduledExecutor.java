@@ -4,19 +4,21 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Oliver Johnson
  */
-public class RotatingTaskExecutor {
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-    private final RotatingTask task;
+public class FixedScheduledExecutor {
+    private final ScheduledExecutorService executorService;
+    private ScheduledFuture<?> scheduledFuture;
+    private final ScheduledTask task;
 
-    public RotatingTaskExecutor(RotatingTask task) {
+    public FixedScheduledExecutor(ScheduledTask task, ScheduledExecutorService executorService) {
         this.task = task;
+        this.executorService = executorService;
     }
 
     public void startExecutionAt(int dayDelay, int targetHour, int targetMin, int targetSec) {
@@ -25,7 +27,7 @@ public class RotatingTaskExecutor {
             startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
         };
         long delay = computeNextDelay(dayDelay, targetHour, targetMin, targetSec);
-        executorService.schedule(taskWrapper, delay, TimeUnit.SECONDS);
+        scheduledFuture = executorService.schedule(taskWrapper, delay, TimeUnit.SECONDS);
     }
 
     private long computeNextDelay(int dayDelay,int targetHour, int targetMin, int targetSec) {
@@ -41,8 +43,7 @@ public class RotatingTaskExecutor {
         return duration.getSeconds();
     }
 
-    public void stop() throws InterruptedException {
-        executorService.shutdown();
-        executorService.awaitTermination(1, TimeUnit.DAYS);
+    public void stop() {
+        scheduledFuture.cancel(false);
     }
 }

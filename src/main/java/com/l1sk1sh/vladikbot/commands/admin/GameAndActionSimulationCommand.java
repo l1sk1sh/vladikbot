@@ -132,7 +132,7 @@ public class GameAndActionSimulationCommand extends AdminCommand {
                             try {
                                 bot.getBotSettings().setSimulateActionAndGameActivity(true);
                                 event.replySuccess("Simulation of bot's activity is now enabled!");
-                                bot.getGameAndActionSimulationManager().enableSimulation();
+                                bot.getGameAndActionSimulationManager().start();
                                 break;
                             } catch (IOException ioe) {
                                 log.error("Failed to enable GAASimulation:", ioe);
@@ -143,7 +143,7 @@ public class GameAndActionSimulationCommand extends AdminCommand {
                         case "disable":
                             bot.getBotSettings().setSimulateActionAndGameActivity(false);
                             event.replySuccess("Simulation of bot's activity is now disabled!");
-                            bot.getGameAndActionSimulationManager().disableSimulation();
+                            bot.getGameAndActionSimulationManager().stop();
                             break;
                     }
                 }

@@ -17,8 +17,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -32,14 +30,12 @@ public class GameAndActionSimulationManager {
 
     private final Bot bot;
     private final Gson gson;
-    private final ScheduledExecutorService scheduler;
     private final String rulesFolder;
     private ScheduledFuture<?> scheduledFuture;
     private List<GameAndAction> simulationRules;
 
     public GameAndActionSimulationManager(Bot bot) {
         this.bot = bot;
-        this.scheduler = Executors.newScheduledThreadPool(1);
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.rulesFolder = bot.getBotSettings().getRulesFolder();
         this.simulationRules = new ArrayList<>();
@@ -128,7 +124,7 @@ public class GameAndActionSimulationManager {
         writer.close();
     }
 
-    public final void enableSimulation() throws IOException {
+    public final void start() throws IOException {
         log.info("Enabling GAASimulation of the bot...");
 
         readRules();
@@ -149,13 +145,11 @@ public class GameAndActionSimulationManager {
             }
         };
 
-        scheduledFuture = scheduler.scheduleWithFixedDelay(
-                rotation, 30, Const.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
+        scheduledFuture = bot.getThreadPool().scheduleWithFixedDelay(rotation, 30, Const.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
     }
 
-    public void disableSimulation() {
+    public void stop() {
         log.info("Disabling GAASimulation of the bot...");
         scheduledFuture.cancel(false);
-        scheduler.shutdown();
     }
 }

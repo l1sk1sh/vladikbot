@@ -49,9 +49,7 @@ public class PlaylistLoader {
         if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
             FileUtils.createFolders(playlistFolder);
 
-            // TODO inspection
-            //noinspection unchecked
-            return Collections.EMPTY_LIST;
+            return Collections.emptyList();
         } else {
             File folder = new File(playlistFolder);
             return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) ->

@@ -49,20 +49,16 @@ public class AutoBackupCommand extends OwnerCommand {
                         case "on":
                         case "enable":
                             bot.getBotSettings().setAutoTextBackup(true);
-                            bot.getAutoTextBackupDaemon().enableExecution();
+                            bot.getAutoTextBackupDaemon().start();
                             log.info("Auto text backup was enabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
                             event.replySuccess("Auto Text Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
                             bot.getBotSettings().setAutoTextBackup(false);
-                            try {
-                                log.info("Auto text backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
-                                bot.getAutoTextBackupDaemon().disableExecution();
-                                event.replySuccess("Auto Text Backup is now disabled!");
-                            } catch (InterruptedException e) {
-                                event.replyError(String.format("Failed to disable auto text backup service! [%1$s]", e.getLocalizedMessage()));
-                            }
+                            log.info("Auto text backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
+                            bot.getAutoTextBackupDaemon().stop();
+                            event.replySuccess("Auto Text Backup is now disabled!");
                             break;
                     }
                 }
@@ -89,20 +85,16 @@ public class AutoBackupCommand extends OwnerCommand {
                         case "on":
                         case "enable":
                             bot.getBotSettings().setAutoMediaBackup(true);
-                            bot.getAutoMediaBackupDaemon().enableExecution();
+                            bot.getAutoMediaBackupDaemon().start();
                             log.info("Auto media backup was enabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
                             event.replySuccess("Auto Media Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
                             bot.getBotSettings().setAutoMediaBackup(false);
-                            try {
-                                bot.getAutoMediaBackupDaemon().disableExecution();
-                                log.info("Auto media backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
-                                event.replySuccess("Auto Media Backup is now disabled!");
-                            } catch (InterruptedException e) {
-                                event.replyError(String.format("Failed to disable auto media backup service! [%1$s]", e.getLocalizedMessage()));
-                            }
+                            bot.getAutoMediaBackupDaemon().start();
+                            log.info("Auto media backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
+                            event.replySuccess("Auto Media Backup is now disabled!");
                             break;
                     }
                 }

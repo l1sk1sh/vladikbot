@@ -3,6 +3,8 @@ package com.l1sk1sh.vladikbot.models;
 /**
  * @author Oliver Johnson
  */
-public interface RotatingTask {
+public interface ScheduledTask {
     void execute();
+    void start();
+    void stop();
 }

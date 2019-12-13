@@ -21,6 +21,8 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Oliver Johnson
@@ -29,6 +31,8 @@ import net.dv8tion.jda.core.entities.TextChannel;
  * @author John Grosh
  */
 public class Bot {
+    private static final Logger log = LoggerFactory.getLogger(Bot.class);
+
     private final EventWaiter waiter;
     private final ScheduledExecutorService threadPool;
     private final BotSettingsManager botSettingsManager;
@@ -86,10 +90,10 @@ public class Bot {
     }
 
     public void shutdown() {
-        // TODO Why using System.exit Try shutting down all threads
         if (shuttingDown) {
             return;
         }
+
         shuttingDown = true;
         threadPool.shutdownNow();
         if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
@@ -105,6 +109,13 @@ public class Bot {
 
             jda.shutdown();
         }
+
+        for (Thread t: Thread.getAllStackTraces().keySet()) {
+            log.debug(t.toString());
+        }
+
+        /* Unfortunately, JDA doesn't close all it's connection, even though bot technically is shut down and doesn't
+        * receive commands. Might be subject for further research */
         SystemUtils.exit(0, 5000);
     }
 

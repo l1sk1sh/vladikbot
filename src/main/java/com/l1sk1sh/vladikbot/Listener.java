@@ -45,9 +45,9 @@ class Listener extends ListenerAdapter {
             log.warn(event.getJDA().asBot().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
 
-        if (bot.getDockerAvailabilityVerificationService().isDockerRunning()) {
+        if (!bot.getDockerAvailabilityVerificationService().isDockerRunning()) {
             log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
-            bot.setDockerRunning(true);
+            bot.setDockerRunning(false);
         }
 
         event.getJDA().getGuilds().forEach((guild) ->
@@ -106,18 +106,18 @@ class Listener extends ListenerAdapter {
 
         if (botSettings.shouldAutoMediaBackup() && bot.isDockerRunning()) {
             log.info("Enabling auto media backup service...");
-            bot.getAutoMediaBackupDaemon().enableExecution();
+            bot.getAutoMediaBackupDaemon().start();
         }
 
         if (botSettings.shouldAutoTextBackup() && bot.isDockerRunning()) {
             log.info("Enabling auto text backup service...");
-            bot.getAutoTextBackupDaemon().enableExecution();
+            bot.getAutoTextBackupDaemon().start();
         }
 
         if (botSettings.shouldSimulateActionsAndGamesActivity()) {
             log.info("Enabling GAASimulation...");
             try {
-                bot.getGameAndActionSimulationManager().enableSimulation();
+                bot.getGameAndActionSimulationManager().start();
             } catch (IOException ioe) {
                 log.error("Failed to enable GAASimulation:", ioe);
                 botSettings.setAutoReply(false);

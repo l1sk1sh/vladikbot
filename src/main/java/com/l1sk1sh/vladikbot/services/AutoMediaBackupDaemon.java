@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.services;
 
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.RotatingTask;
-import com.l1sk1sh.vladikbot.models.RotatingTaskExecutor;
+import com.l1sk1sh.vladikbot.models.ScheduledTask;
+import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
@@ -16,14 +16,14 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class AutoMediaBackupDaemon implements RotatingTask {
+public class AutoMediaBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoMediaBackupDaemon.class);
-    private final RotatingTaskExecutor rotatingTaskExecutor;
+    private final FixedScheduledExecutor fixedScheduledExecutor;
     private final Bot bot;
 
     public AutoMediaBackupDaemon(Bot bot) {
         this.bot = bot;
-        this.rotatingTaskExecutor = new RotatingTaskExecutor(this);
+        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getThreadPool());
     }
 
     public void execute() {
@@ -125,16 +125,17 @@ public class AutoMediaBackupDaemon implements RotatingTask {
         }).start();
     }
 
-    public void enableExecution() {
+    public void start() {
         int dayDelay = bot.getBotSettings().getDelayDaysForAutoMediaBackup();
         int targetHour = bot.getBotSettings().getTargetHourForAutoMediaBackup();
         int targetMin = 0;
         int targetSec = 0;
-        rotatingTaskExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
+        fixedScheduledExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
         log.info(String.format("Media backup will be performed in %2d days at %02d:%02d:%02d local time", dayDelay, targetHour, targetMin, targetSec));
     }
 
-    public void disableExecution() throws InterruptedException {
-        rotatingTaskExecutor.stop();
+    public void stop() {
+        log.info("Cancelling scheduled auto media task...");
+        fixedScheduledExecutor.stop();
     }
 }
