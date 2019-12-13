@@ -5,10 +5,14 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.services.BackupMediaService;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Oliver Johnson
@@ -16,6 +20,9 @@ import java.io.File;
 public class BackupMediaCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(BackupMediaCommand.class);
     private final Bot bot;
+    private String beforeDate;
+    private String afterDate;
+    private boolean ignoreExistingBackup;
 
     public BackupMediaCommand(Bot bot) {
         this.bot = bot;
@@ -23,8 +30,8 @@ public class BackupMediaCommand extends AdminCommand {
         this.help = "exports all attachments of the current channel\r\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which export would be done\r\n"
                 + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which export would be done\r\n"
-                + "\t\t `-f` - creates new backup ignoring existing files\r\n"
-                + "\t\t `-z, --zip` - zip flag that creates local copy of files from media links";
+                + "\t\t `-z, --zip` - zip flag that creates local copy of files from media links\r\n"
+                + "\t\t `--format <csv|html>` - desired format of backup";
         this.arguments = "-a, -b, -f, -a, -z";
         this.guildOnly = true;
     }
@@ -41,12 +48,18 @@ public class BackupMediaCommand extends AdminCommand {
         }
         event.reply("Getting attachments. Be patient...");
 
+        if (!processArguments(event.getArgs().split(" "))) {
+            event.replyError(String.format("Failed to processes provided arguments: [%1$s].", event.getArgs()));
+        }
+
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                 bot,
                 event.getChannel().getId(),
                 Const.BackupFileType.HTML_DARK,
                 bot.getBotSettings().getLocalTmpFolder(),
-                event.getArgs().split(" ")
+                beforeDate,
+                afterDate,
+                ignoreExistingBackup
         );
 
         /* Creating separate thread to allow users to work with the Bot while backup is running */
@@ -121,5 +134,60 @@ public class BackupMediaCommand extends AdminCommand {
                 event.replySuccess("Zip with uploaded media files could now be downloaded from local storage.");
             }
         }).start();
+    }
+
+    private boolean processArguments(String... args) {
+        if (args.length == 0) {
+            return true;
+        }
+
+        try {
+            for (int i = 0; i < args.length; i++) {
+                switch (args[i]) {
+                    case "-b":
+                    case "-before":
+                        if (CommandUtils.validateBackupDateFormat(args[i + 1])) {
+                            beforeDate = (args[i + 1]);
+                        } else {
+                            return false;
+                        }
+                        break;
+                    case "-a":
+                    case "--after":
+                        if (CommandUtils.validateBackupDateFormat(args[i + 1])) {
+                            afterDate = (args[i + 1]);
+                        } else {
+                            return false;
+                        }
+                        break;
+                    case "-f":
+                    case "--force":
+
+                        /* If force is specified - do not ignore existing files  */
+                        ignoreExistingBackup = false;
+                        break;
+                }
+            }
+        } catch (IndexOutOfBoundsException iobe) {
+            return false;
+        }
+
+        /* Check if dates are within correct period (if "before" is more than "after" date) */
+        if (beforeDate != null && afterDate != null) {
+            try {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+                Date before = simpleDateFormat.parse(beforeDate);
+                Date after = simpleDateFormat.parse(afterDate);
+
+                if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
+                    return false;
+                }
+            } catch (ParseException e) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

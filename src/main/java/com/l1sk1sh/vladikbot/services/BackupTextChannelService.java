@@ -12,13 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
 /**
  * @author Oliver Johnson
@@ -31,7 +24,6 @@ public class BackupTextChannelService implements Runnable {
     private String beforeDate;
     private String afterDate;
     private String failMessage;
-    private final String[] args;
     private final String channelId;
     private final Const.BackupFileType format;
     private final String localPathToExport;
@@ -39,12 +31,12 @@ public class BackupTextChannelService implements Runnable {
     private final String dockerContainerName;
     private final String token;
     private final Const.FileType extension;
-    private boolean ignoreExisting = true;
+    private boolean ignoreExistingBackup;
     private boolean hasFailed = false;
 
-    public BackupTextChannelService(Bot bot, String channelId, Const.BackupFileType format, String localPathToExport, String[] args) {
+    public BackupTextChannelService(Bot bot, String channelId, Const.BackupFileType format, String localPathToExport,
+                                    String beforeDate, String afterDate, boolean ignoreExistingBackup) {
         this.bot = bot;
-        this.args = args;
         this.channelId = channelId;
         this.token = bot.getBotSettings().getToken();
         this.format = format;
@@ -52,6 +44,9 @@ public class BackupTextChannelService implements Runnable {
         this.localPathToExport = localPathToExport + "text/"; /* Always moving text backups to separate folder */
         this.dockerPathToExport = bot.getBotSettings().getDockerPathToExport();
         this.dockerContainerName = bot.getBotSettings().getDockerContainerName();
+        this.beforeDate = beforeDate;
+        this.afterDate = afterDate;
+        this.ignoreExistingBackup = ignoreExistingBackup;
     }
 
     @Override
@@ -60,13 +55,12 @@ public class BackupTextChannelService implements Runnable {
             FileUtils.createFolderIfAbsent(localPathToExport);
 
             bot.setLockedBackup(true);
-            processArguments(args);
 
             backupFile = FileUtils.getFileByChannelIdAndExtension(localPathToExport, channelId, extension);
 
             /* If file is present or was made less than 24 hours ago - exit */
             if ((backupFile != null && ((System.currentTimeMillis() - backupFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
-                    && ignoreExisting) {
+                    && ignoreExistingBackup) {
                 log.info("Text backup has already been made [{}].", backupFile.getAbsolutePath());
                 return;
             }
@@ -89,10 +83,6 @@ public class BackupTextChannelService implements Runnable {
 
             log.debug("Text Channel Backup Service has finished its execution.");
 
-        } catch (ParseException | InvalidParameterException | IndexOutOfBoundsException e) {
-            failMessage = String.format("Failed to processes provided arguments: [%1$s].", Arrays.toString(args));
-            log.error(failMessage);
-            hasFailed = true;
         } catch (IOException ioe) {
             failMessage = String.format("Failed to find exported file [%1$s].", ioe.getLocalizedMessage());
             log.error(failMessage);
@@ -158,54 +148,6 @@ public class BackupTextChannelService implements Runnable {
                 log.warn("Unhandled exit code for copy command: {}.", exitCode);
                 break;
         }
-    }
-
-    private void processArguments(String[] args) throws InvalidParameterException, ParseException {
-        if (args.length == 0) {
-            return;
-        }
-
-        for (int i = 0; i < args.length; i++) {
-            switch (args[i]) {
-                case "-b":
-                case "-before":
-                    if (validateDateFormat(args[i + 1])) {
-                        beforeDate = (args[i + 1]);
-                    } else {
-                        throw new InvalidParameterException();
-                    }
-                    break;
-                case "-a":
-                case "--after":
-                    if (validateDateFormat(args[i + 1])) {
-                        afterDate = (args[i + 1]);
-                    } else {
-                        throw new InvalidParameterException();
-                    }
-                    break;
-                case "-f":
-                case "--force":
-
-                    /* If force is specified - ignore existing files  */
-                    ignoreExisting = false;
-                    break;
-            }
-        }
-
-        /* Check if dates are within correct period (if "before" is more than "after" date) */
-        if (beforeDate != null && afterDate != null) {
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-
-            Date before = simpleDateFormat.parse(beforeDate);
-            Date after = simpleDateFormat.parse(afterDate);
-            if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
-                throw new InvalidParameterException();
-            }
-        }
-    }
-
-    private boolean validateDateFormat(String date) {
-        return date.matches("([0-9]{2})/([0-9]{2})/([0-9]{4})");
     }
 
     public final File getBackupFile() {

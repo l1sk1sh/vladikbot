@@ -24,4 +24,8 @@ public final class CommandUtils {
         }
         return builder;
     }
+
+    public static boolean validateBackupDateFormat(String date) {
+        return date.matches("([0-9]{2})/([0-9]{2})/([0-9]{4})");
+    }
 }

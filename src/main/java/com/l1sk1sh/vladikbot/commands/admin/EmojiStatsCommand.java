@@ -7,6 +7,7 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.services.EmojiStatsService;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import net.dv8tion.jda.core.entities.ChannelType;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.exceptions.PermissionException;
@@ -15,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +31,9 @@ public class EmojiStatsCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsCommand.class);
     private final Paginator.Builder pbuilder;
     private final Bot bot;
+    private String beforeDate;
+    private String afterDate;
+    private boolean ignoreExistingBackup;
 
     public EmojiStatsCommand(EventWaiter waiter, Bot bot) {
         this.bot = bot;
@@ -36,7 +42,6 @@ public class EmojiStatsCommand extends AdminCommand {
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done\r\n"
                 + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which statics would be done\r\n"
                 + "\t\t `-iu` - ignores unicode emoji and unknown emoji\r\n"
-                + "\t\t `-f` - creates new backup despite existing one\r\n"
                 + "\t\t `-i` - ignores unicode emoji.";
         this.arguments = "-a, -b, -iu, -i, -f";
         this.guildOnly = true;
@@ -69,12 +74,18 @@ public class EmojiStatsCommand extends AdminCommand {
         }
         event.reply("Initializing emoji statistics calculation. Be patient...");
 
+        if (!processArguments(event.getArgs().split(" "))) {
+            event.replyError(String.format("Failed to processes provided arguments: [%1$s].", event.getArgs()));
+        }
+
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                 bot,
                 event.getChannel().getId(),
-                Const.BackupFileType.PLAIN_TEXT,
+                Const.BackupFileType.HTML_DARK,
                 bot.getBotSettings().getLocalTmpFolder(),
-                event.getArgs().split(" ")
+                beforeDate,
+                afterDate,
+                ignoreExistingBackup
         );
 
         /* This thread will wait for backup to finish. Separating allows using bot while backup is running */
@@ -178,5 +189,60 @@ public class EmojiStatsCommand extends AdminCommand {
                 .build();
 
         paginator.paginate(event.getChannel(), startPageNumber);
+    }
+
+    private boolean processArguments(String... args) {
+        if (args.length == 0) {
+            return true;
+        }
+
+        try {
+            for (int i = 0; i < args.length; i++) {
+                switch (args[i]) {
+                    case "-b":
+                    case "-before":
+                        if (CommandUtils.validateBackupDateFormat(args[i + 1])) {
+                            beforeDate = (args[i + 1]);
+                        } else {
+                            return false;
+                        }
+                        break;
+                    case "-a":
+                    case "--after":
+                        if (CommandUtils.validateBackupDateFormat(args[i + 1])) {
+                            afterDate = (args[i + 1]);
+                        } else {
+                            return false;
+                        }
+                        break;
+                    case "-f":
+                    case "--force":
+
+                        /* If force is specified - do not ignore existing files  */
+                        ignoreExistingBackup = false;
+                        break;
+                }
+            }
+        } catch (IndexOutOfBoundsException iobe) {
+            return false;
+        }
+
+        /* Check if dates are within correct period (if "before" is more than "after" date) */
+        if (beforeDate != null && afterDate != null) {
+            try {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+                Date before = simpleDateFormat.parse(beforeDate);
+                Date after = simpleDateFormat.parse(afterDate);
+
+                if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
+                    return false;
+                }
+            } catch (ParseException e) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

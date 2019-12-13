@@ -63,7 +63,9 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                             channel.getId(),
                             Const.BackupFileType.PLAIN_TEXT,
                             pathToBackup,
-                            new String[]{}
+                            null,
+                            null,
+                            false
                     );
 
                     Thread backupChannelServiceThread = new Thread(backupTextChannelService);

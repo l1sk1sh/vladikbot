@@ -48,6 +48,8 @@ class Listener extends ListenerAdapter {
         if (!bot.getDockerAvailabilityVerificationService().isDockerRunning()) {
             log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
             bot.setDockerRunning(false);
+        } else {
+            bot.setDockerRunning(true);
         }
 
         event.getJDA().getGuilds().forEach((guild) ->

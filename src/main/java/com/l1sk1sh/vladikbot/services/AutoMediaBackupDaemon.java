@@ -64,7 +64,9 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                             channel.getId(),
                             Const.BackupFileType.HTML_DARK,
                             bot.getBotSettings().getLocalTmpFolder(),
-                            new String[]{}
+                            null,
+                            null,
+                            false
                     );
 
                     Thread backupChannelServiceThread = new Thread(backupTextChannelService);
