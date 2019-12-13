@@ -27,41 +27,40 @@ public class EmojiStatsService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 
     private final Bot bot;
-    private final String[] args;
     private final Map<String, Integer> emojiList;
     private final List<Emote> serverEmojiList;
     private final File exportedTextFile;
     private String failMessage;
-    private boolean includeUnicodeEmoji = false;
-    private boolean ignoreUnknownEmoji = false;
+    private boolean includeUnicodeEmoji;
+    private boolean includeUnknownEmoji;
     private boolean hasFailed = false;
 
-    public EmojiStatsService(Bot bot, File exportedTextFile, List<Emote> serverEmojiList, String[] args) {
+    public EmojiStatsService(Bot bot, File exportedTextFile, List<Emote> serverEmojiList, boolean includeUnicodeEmoji, boolean includeUnknownEmoji) {
         this.bot = bot;
-        this.args = args;
         this.exportedTextFile = exportedTextFile;
         this.serverEmojiList = serverEmojiList;
         this.emojiList = new HashMap<>();
+        this.includeUnicodeEmoji = includeUnicodeEmoji;
+        this.includeUnknownEmoji = includeUnknownEmoji;
     }
 
     @Override
     public void run() {
         try {
             bot.setLockedBackup(true);
-            processArguments(args);
             String input = FileUtils.readFile(exportedTextFile, StandardCharsets.UTF_8);
 
             /* Custom :emoji: matcher */
             Matcher customEmojiMatcher = Pattern.compile(":(::|[^:\\r\n\\s/()])+:").matcher(input);
             while (customEmojiMatcher.find()) {
-                if (ignoreUnknownEmoji && isEmojiInList(customEmojiMatcher.group())) {
+                if (includeUnknownEmoji && isEmojiInList(customEmojiMatcher.group())) {
                     addElementToList(customEmojiMatcher.group());
                 } else {
                     addElementToList(customEmojiMatcher.group());
                 }
             }
 
-            if (!includeUnicodeEmoji) {
+            if (includeUnicodeEmoji) {
 
                 /* Unicode \ud83c\udc00 matcher */
                 Matcher unicodeEmojiMathcer = Pattern.compile("[\ud83c\udc00-\ud83d\udfff]|[\u2600-\u27ff]",
@@ -80,24 +79,6 @@ public class EmojiStatsService implements Runnable {
             log.error("Failed to read exportedFile:", e);
         } finally {
             bot.setLockedBackup(false);
-        }
-    }
-
-    private void processArguments(String[] args) {
-        if (args.length == 0) {
-            return;
-        }
-
-        for (String arg : args) {
-            switch (arg) {
-                case "-iu":
-                    ignoreUnknownEmoji = true;
-
-                    /* Falls through */
-                case "-i":
-                    includeUnicodeEmoji = true;
-                    break;
-            }
         }
     }
 

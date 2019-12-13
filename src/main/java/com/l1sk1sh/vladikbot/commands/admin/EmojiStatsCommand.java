@@ -34,6 +34,8 @@ public class EmojiStatsCommand extends AdminCommand {
     private String beforeDate;
     private String afterDate;
     private boolean ignoreExistingBackup;
+    private boolean includeUnknownEmoji;
+    private boolean includeUnicodeEmoji;
 
     public EmojiStatsCommand(EventWaiter waiter, Bot bot) {
         this.bot = bot;
@@ -41,10 +43,12 @@ public class EmojiStatsCommand extends AdminCommand {
         this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\r\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done\r\n"
                 + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which statics would be done\r\n"
-                + "\t\t `-iu` - ignores unicode emoji and unknown emoji\r\n"
-                + "\t\t `-i` - ignores unicode emoji.";
-        this.arguments = "-a, -b, -iu, -i, -f";
+                + "\t\t `-i` - includes unknown and unicode emoji.";
+        this.arguments = "-a, -b, -i, -f";
         this.guildOnly = true;
+
+        this.includeUnicodeEmoji = false;
+        this.includeUnknownEmoji = false;
 
         pbuilder = new Paginator.Builder().setColumns(1)
                 .setItemsPerPage(20)
@@ -81,7 +85,7 @@ public class EmojiStatsCommand extends AdminCommand {
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                 bot,
                 event.getChannel().getId(),
-                Const.BackupFileType.HTML_DARK,
+                Const.BackupFileType.CSV,
                 bot.getBotSettings().getLocalTmpFolder(),
                 beforeDate,
                 afterDate,
@@ -116,7 +120,8 @@ public class EmojiStatsCommand extends AdminCommand {
                     bot,
                     exportedTextFile,
                     event.getGuild().getEmotes(),
-                    event.getArgs().split(" ")
+                    includeUnicodeEmoji,
+                    includeUnknownEmoji
             );
 
             Thread emojiStatsServiceThread = new Thread(emojiStatsService);
@@ -221,6 +226,11 @@ public class EmojiStatsCommand extends AdminCommand {
                         /* If force is specified - do not ignore existing files  */
                         ignoreExistingBackup = false;
                         break;
+                    case "-i":
+                        includeUnknownEmoji = true;
+                        includeUnicodeEmoji = true;
+                        break;
+
                 }
             }
         } catch (IndexOutOfBoundsException iobe) {
