@@ -1,13 +1,16 @@
 package com.l1sk1sh.vladikbot.services;
 
 import com.l1sk1sh.vladikbot.Bot;
+import net.dv8tion.jda.core.EmbedBuilder;
+import net.dv8tion.jda.core.MessageBuilder;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+
+import java.awt.*;
 
 /**
  * @author Oliver Johnson
  */
-// TODO Make embedded notification
 public class ChatNotificationService {
     private final Bot bot;
 
@@ -15,11 +18,43 @@ public class ChatNotificationService {
         this.bot = bot;
     }
 
-    public final void sendMessage(Guild guild, String message) {
+    public final void sendRawMessage(Guild guild, String message) {
         TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
 
-        if (notificationChannel != null) {
-            notificationChannel.sendMessage(message).queue();
+        if (notificationChannel == null) {
+            return;
         }
+
+        notificationChannel.sendMessage(message).queue();
+    }
+
+    public final void sendEmbeddedSuccess(Guild guild, String message) {
+        TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
+
+        if (notificationChannel == null) {
+            return;
+        }
+
+        MessageBuilder builder = new MessageBuilder();
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setColor(new Color(25, 167, 23))
+                .setDescription(message);
+
+        notificationChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+    }
+
+    public final void sendEmbeddedError(Guild guild, String message) {
+        TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
+
+        if (notificationChannel == null) {
+            return;
+        }
+
+        MessageBuilder builder = new MessageBuilder();
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setColor(new Color(172, 25, 23))
+                .setDescription(message);
+
+        notificationChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
     }
 }

@@ -71,12 +71,12 @@ public class AutoTextBackupDaemon implements RotatingTask {
                     try {
                         backupChannelServiceThread.join();
                     } catch (InterruptedException e) {
-                        bot.getNotificationService().sendMessage(channel.getGuild(), "Text backup process was interrupted!");
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process was interrupted!");
                         return;
                     }
 
                     if (backupTextChannelService.hasFailed()) {
-                        bot.getNotificationService().sendMessage(channel.getGuild(),
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
                                 String.format("Text channel backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
                         return;
                     }
@@ -85,7 +85,7 @@ public class AutoTextBackupDaemon implements RotatingTask {
 
                 } catch (Exception e) {
                     log.error("Failed to create auto backup:", e);
-                    bot.getNotificationService().sendMessage(channel.getGuild(),
+                    bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
                             String.format("Auto text rotation of chat `%1$s` has failed due to: `%2$s`!", channel.getName(), e.getLocalizedMessage()));
                 } finally {
                     bot.setLockedAutoBackup(false);

@@ -72,12 +72,12 @@ public class AutoMediaBackupDaemon implements RotatingTask {
                     try {
                         backupChannelServiceThread.join();
                     } catch (InterruptedException e) {
-                        bot.getNotificationService().sendMessage(channel.getGuild(), "Text backup process required for media backup was interrupted!");
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process required for media backup was interrupted!");
                         return;
                     }
 
                     if (backupTextChannelService.hasFailed()) {
-                        bot.getNotificationService().sendMessage(channel.getGuild(),
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
                                 String.format("Text channel backup required for media backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
                         return;
                     }
@@ -99,13 +99,13 @@ public class AutoMediaBackupDaemon implements RotatingTask {
                     try {
                         backupMediaServiceThread.join();
                     } catch (InterruptedException e) {
-                        bot.getNotificationService().sendMessage(channel.getGuild(), "Media backup process was interrupted!");
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Media backup process was interrupted!");
                         return;
                     }
 
                     if (backupMediaService.hasFailed()) {
                         log.error("BackupMediaService has failed: {}", backupTextChannelService.getFailMessage());
-                        bot.getNotificationService().sendMessage(channel.getGuild(),String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(),String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
                         return;
                     }
 
@@ -113,7 +113,7 @@ public class AutoMediaBackupDaemon implements RotatingTask {
 
                 } catch (Exception e) {
                     log.error("Failed to create auto backup", e);
-                    bot.getNotificationService().sendMessage(channel.getGuild(),
+                    bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
                             String.format("Auto media backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
                     break;
                 } finally {
