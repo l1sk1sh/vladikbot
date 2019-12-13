@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.domain.Quote;
 import com.l1sk1sh.vladikbot.models.entities.ReplyRule;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Message;
@@ -25,11 +26,13 @@ public class AutoReplyManager {
 
     private static final String REPLY_RULES_JSON = "replies.json";
 
+    private final Bot bot;
     private final Gson gson;
     private String rulesFolder;
     private List<ReplyRule> replyRules;
 
     public AutoReplyManager(Bot bot) {
+        this.bot = bot;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.rulesFolder = bot.getBotSettings().getRulesFolder();
         this.replyRules = new ArrayList<>();
@@ -38,8 +41,17 @@ public class AutoReplyManager {
     public void reply(Message message) {
         Random rand = new Random();
         if (message.getMentionedMembers().contains(message.getGuild().getSelfMember())) {
-            //TODO Make something more fascinate like random citation
-            message.getTextChannel().sendMessage("Что тебе мне нада мент?").queue();
+            try {
+                Quote quote = bot.getRandomQuoteRetriever().call();
+                message.getTextChannel().sendMessage(String.format("\"%1$s\" %2$s",
+                        quote.getContent(),
+                        quote.getAuthor())).queue();
+            } catch (IOException e) {
+                log.error("Failed to retrieve random quote for reply to mention:", e);
+                message.getTextChannel().sendMessage("\"Кто буйный — ты буйный, ёпту бля!\" Интересная личность").queue();
+            }
+
+            return;
         }
 
         List<ReplyRule> matchingRules = new ArrayList<>();
@@ -131,8 +143,7 @@ public class AutoReplyManager {
             return;
         }
 
-        replyRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>() {
-        }.getType());
+        replyRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>(){}.getType());
     }
 
     public void writeRules() throws IOException {

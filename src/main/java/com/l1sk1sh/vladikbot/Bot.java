@@ -42,6 +42,7 @@ public class Bot {
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final ChatNotificationService notificationService;
     private final DockerAvailabilityVerificationService dockerAvailabilityVerificationService;
+    private final RandomQuoteRetriever randomQuoteRetriever;
 
     private boolean lockedBackup = false;
     private boolean lockedAutoBackup = false;
@@ -65,6 +66,7 @@ public class Bot {
         this.autoMediaBackupDaemon = new AutoMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
         this.dockerAvailabilityVerificationService = new DockerAvailabilityVerificationService();
+        this.randomQuoteRetriever = new RandomQuoteRetriever();
     }
 
     public void closeAudioConnection(long guildId) {
@@ -180,6 +182,10 @@ public class Bot {
 
     public DockerAvailabilityVerificationService getDockerAvailabilityVerificationService() {
         return dockerAvailabilityVerificationService;
+    }
+
+    public RandomQuoteRetriever getRandomQuoteRetriever() {
+        return randomQuoteRetriever;
     }
 
     public boolean isDockerRunning() {

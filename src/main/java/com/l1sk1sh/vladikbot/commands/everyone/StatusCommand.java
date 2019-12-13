@@ -29,7 +29,6 @@ public class StatusCommand extends Command {
     protected void execute(CommandEvent event) {
         MessageBuilder builder = new MessageBuilder();
 
-
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                 .setColor(new Color(244, 160, 0))

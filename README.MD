@@ -8,7 +8,6 @@ Bot is written using JDA library and common sense.
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
    1. `itunes [song name]` - Get info on a song
-   2. `quote` - Get a random quote
    3. `joke` - Get a joke
    4. `dogfact` - Get random Dog Facts with this command
    5. `dog` - Find some cute dog pictures
