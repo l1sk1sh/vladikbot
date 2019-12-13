@@ -36,22 +36,36 @@ public class AutoReplyManager {
     }
 
     public void reply(Message message) {
+        Random rand = new Random();
         if (message.getMentionedMembers().contains(message.getGuild().getSelfMember())) {
-            //TODO Make something more fasionate like random citation
-            message.getTextChannel().sendMessage("Твоя мамка").queue();
+            //TODO Make something more fascinate like random citation
+            message.getTextChannel().sendMessage("Что тебе мне нада мент?").queue();
         }
 
-        // TODO If more than one rule contain same word - choose randomly
+        List<ReplyRule> matchingRules = new ArrayList<>();
+        ReplyRule chosenRule;
+
         for (ReplyRule rule : replyRules) {
             if (Arrays.stream(rule.getReactToList().toArray(new String[0])).parallel()
                     .anyMatch(message.toString()::contains)) {
-
-                message.getTextChannel().sendMessage(
-                        rule.getReactWithList().get(
-                                new Random().nextInt(rule.getReactWithList().size()))
-                ).queue();
+                matchingRules.add(rule);
             }
         }
+
+        if (matchingRules.isEmpty()) {
+            return;
+        }
+
+        if (matchingRules.size() > 1) {
+            chosenRule = matchingRules.get(rand.nextInt(matchingRules.size()));
+        } else {
+            chosenRule = matchingRules.get(0);
+        }
+
+        message.getTextChannel().sendMessage(
+                chosenRule.getReactWithList().get(
+                        rand.nextInt(chosenRule.getReactWithList().size()))
+        ).queue();
     }
 
     public ReplyRule getRuleById(int id) {
@@ -117,7 +131,8 @@ public class AutoReplyManager {
             return;
         }
 
-        replyRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>(){}.getType());
+        replyRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>() {
+        }.getType());
     }
 
     public void writeRules() throws IOException {

@@ -57,8 +57,7 @@ public class GameAndActionSimulationManager {
     }
 
     private GameAndAction getRandomRule() {
-        Random rand = new Random();
-        GameAndAction randomRule = simulationRules.get(rand.nextInt(simulationRules.size()));
+        GameAndAction randomRule = simulationRules.get(new Random().nextInt(simulationRules.size()));
         log.debug("Chosen GAASimulation rule '{}'.", randomRule);
 
         return (randomRule == null)
