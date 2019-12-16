@@ -40,11 +40,11 @@ public class BackupMediaService implements Runnable {
     private final String localAttachmentsListPath;
     private final String localAttachmentsPath;
     private final String channelId;
-    private String failMessage;
+    private String failMessage = "Failed due to unknown reason";
     private String attachmentsFolderPath;
     private boolean doZip = false;
     private boolean ignoreExistingFiles = true;
-    private boolean hasFailed = false;
+    private boolean hasFailed = true;
     private Set<String> setOfAllAttachmentsUrls;
     private Set<String> setOfSupportedAttachmentsUrls;
 
@@ -74,6 +74,7 @@ public class BackupMediaService implements Runnable {
             if ((attachmentsTxtFile != null && ((System.currentTimeMillis() - attachmentsTxtFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
                     && ignoreExistingFiles) {
                 log.info("Media TXT list has already been made [{}].", attachmentsTxtFile.getAbsolutePath());
+                hasFailed = false;
 
                 return;
             }
@@ -105,11 +106,11 @@ public class BackupMediaService implements Runnable {
             }
 
             log.debug("Media Backup Service has finished its execution.");
+            hasFailed = false;
 
         } catch (IOException e) {
             failMessage = String.format("Something bad with files happened... [%1$s]", e.getLocalizedMessage());
             log.error("Failed to read exported file, to write local file or to download media. {}", e.getLocalizedMessage());
-            hasFailed = true;
         } finally {
             bot.setLockedBackup(false);
         }

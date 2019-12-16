@@ -89,13 +89,7 @@ public class BackupTextChannelCommand extends AdminCommand {
             }
 
             File exportedFile = backupTextChannelService.getBackupFile();
-            if (exportedFile.length() > Const.EIGHT_MEGABYTES_IN_BYTES) {
-                event.replyWarning(
-                        "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\r\n" +
-                                "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
-            } else {
-                event.getTextChannel().sendFile(exportedFile, backupTextChannelService.getBackupFile().getName()).queue();
-            }
+            CommandUtils.sendFileInMessage(event, exportedFile);
         }).start();
     }
 

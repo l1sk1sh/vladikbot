@@ -23,7 +23,7 @@ public class BackupTextChannelService implements Runnable {
     private File backupFile;
     private String beforeDate;
     private String afterDate;
-    private String failMessage;
+    private String failMessage = "Failed due to unknown reason";
     private final String channelId;
     private final Const.BackupFileType format;
     private final String localPathToExport;
@@ -32,7 +32,7 @@ public class BackupTextChannelService implements Runnable {
     private final String token;
     private final Const.FileType extension;
     private boolean ignoreExistingBackup;
-    private boolean hasFailed = false;
+    private boolean hasFailed = true;
 
     public BackupTextChannelService(Bot bot, String channelId, Const.BackupFileType format, String localPathToExport,
                                     String beforeDate, String afterDate, boolean ignoreExistingBackup) {
@@ -62,6 +62,8 @@ public class BackupTextChannelService implements Runnable {
             if ((backupFile != null && ((System.currentTimeMillis() - backupFile.lastModified()) < Const.DAY_IN_MILLISECONDS))
                     && ignoreExistingBackup) {
                 log.info("Text backup has already been made [{}].", backupFile.getAbsolutePath());
+                hasFailed = false;
+
                 return;
             }
 
@@ -82,15 +84,14 @@ public class BackupTextChannelService implements Runnable {
             }
 
             log.debug("Text Channel Backup Service has finished its execution.");
+            hasFailed = false;
 
         } catch (IOException ioe) {
             failMessage = String.format("Failed to find exported file [%1$s].", ioe.getLocalizedMessage());
             log.error(failMessage);
-            hasFailed = true;
         } catch (InterruptedException ie) {
             failMessage = String.format("Backup thread interrupted on services level [%1$s].", ie.getLocalizedMessage());
             log.error(failMessage);
-            hasFailed = true;
         } finally {
             try {
                 log.info("Cleaning docker container after execution...");

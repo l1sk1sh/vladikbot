@@ -34,8 +34,9 @@ public class EmojiStatsCommand extends AdminCommand {
     private String beforeDate;
     private String afterDate;
     private boolean ignoreExistingBackup;
-    private boolean includeUnknownEmoji;
-    private boolean includeUnicodeEmoji;
+    private boolean ignoreUnknownEmoji;
+    private boolean ignoreUnicodeEmoji;
+    private boolean exportCsv;
 
     public EmojiStatsCommand(EventWaiter waiter, Bot bot) {
         this.bot = bot;
@@ -43,12 +44,15 @@ public class EmojiStatsCommand extends AdminCommand {
         this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\r\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done\r\n"
                 + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which statics would be done\r\n"
-                + "\t\t `-i` - includes unknown and unicode emoji.";
+                + "\t\t `-i` - includes unknown and unicode emoji\r\n"
+                + "\t\t `--export` - export file that contains full list of used emojis for advanced data analysis.";
         this.arguments = "-a, -b, -i, -f";
         this.guildOnly = true;
 
-        this.includeUnicodeEmoji = false;
-        this.includeUnknownEmoji = false;
+        this.ignoreExistingBackup = true;
+        this.ignoreUnicodeEmoji = true;
+        this.ignoreUnknownEmoji = true;
+        this.exportCsv = false;
 
         pbuilder = new Paginator.Builder().setColumns(1)
                 .setItemsPerPage(20)
@@ -120,8 +124,9 @@ public class EmojiStatsCommand extends AdminCommand {
                     bot,
                     exportedTextFile,
                     event.getGuild().getEmotes(),
-                    includeUnicodeEmoji,
-                    includeUnknownEmoji
+                    ignoreUnicodeEmoji,
+                    ignoreUnknownEmoji,
+                    exportCsv
             );
 
             Thread emojiStatsServiceThread = new Thread(emojiStatsService);
@@ -140,7 +145,14 @@ public class EmojiStatsCommand extends AdminCommand {
                 event.replyError(String.format("Emoji Statistics Service has failed! `[%1$s]`", emojiStatsService.getFailMessage()));
                 return;
             }
+
             sendStatisticsMessage(event, emojiStatsService.getEmojiList());
+
+            if (exportCsv) {
+                File exportedCsvFile = emojiStatsService.getUsedEmojisCsv();
+                CommandUtils.sendFileInMessage(event, exportedCsvFile);
+            }
+
         }).start();
     }
 
@@ -227,10 +239,12 @@ public class EmojiStatsCommand extends AdminCommand {
                         ignoreExistingBackup = false;
                         break;
                     case "-i":
-                        includeUnknownEmoji = true;
-                        includeUnicodeEmoji = true;
+                        ignoreUnknownEmoji = false;
+                        ignoreUnicodeEmoji = false;
                         break;
-
+                    case "--export":
+                        exportCsv = true;
+                        break;
                 }
             }
         } catch (IndexOutOfBoundsException iobe) {
