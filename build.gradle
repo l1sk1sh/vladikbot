@@ -24,7 +24,7 @@ version '1.1.1'
 
 jar {
     manifest {
-        attributes 'Main-Class': 'l1.multiheaded.vladikbot.VladikBot'
+        attributes 'Main-Class': 'сom.l1sk1sh.vladikbot.VladikBot'
     }
 }
 
