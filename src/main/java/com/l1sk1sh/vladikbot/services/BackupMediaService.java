@@ -145,6 +145,12 @@ public class BackupMediaService implements Runnable {
         String zipFolderPath = attachmentsFolderPath + "../archives"; /* Placing archives into parent folder */
 
         FileUtils.createFolderIfAbsent(zipFolderPath);
+        File attachmentsFolderToZip = new File(attachmentsFolderPath);
+
+        if (FileUtils.isDirEmpty(attachmentsFolderToZip.toPath())) {
+            log.warn("Target directory '{}' is empty.", attachmentsFolderToZip.getPath());
+            return;
+        }
 
         zipWithAttachmentsFile = new File(zipFolderPath + "/" + zipWithAttachmentsName);
         if (zipWithAttachmentsFile.exists() && zipWithAttachmentsFile.delete()) {
@@ -156,7 +162,6 @@ public class BackupMediaService implements Runnable {
             throw new IOException("Failed to create zip file at " + zipWithAttachmentsFile.getAbsolutePath());
         }
 
-        File attachmentsFolderToZip = new File(attachmentsFolderPath);
         ZipUtil.pack(attachmentsFolderToZip, zipWithAttachmentsFile);
     }
 
