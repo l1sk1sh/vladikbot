@@ -48,7 +48,7 @@ public class AutoReplyManager {
                         quote.getAuthor())).queue();
             } catch (IOException e) {
                 log.error("Failed to retrieve random quote for reply to mention:", e);
-                message.getTextChannel().sendMessage("\"Кто буйный — ты буйный, ёпту бля!\" Интересная личность").queue();
+                message.getTextChannel().sendMessage("\"I'm sorry, I don't take orders. I barely take suggestions.\"").queue();
             }
 
             return;
