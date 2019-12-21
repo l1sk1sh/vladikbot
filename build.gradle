@@ -19,12 +19,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
-group 'l1.multiheaded'
+group 'сom.l1sk1sh'
 version '1.1.1'
 
 jar {
     manifest {
-        attributes 'Main-Class': 'сom.l1sk1sh.vladikbot.VladikBot'
+        attributes 'Main-Class': 'com.l1sk1sh.vladikbot.VladikBot'
     }
 }
 
