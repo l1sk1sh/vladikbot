@@ -21,7 +21,6 @@ public class ShutdownCommand extends OwnerCommand {
         this.name = "shutdown";
         this.help = "safely shuts down";
         this.guildOnly = false;
-        this.ownerCommand = true;
     }
 
     @Override
