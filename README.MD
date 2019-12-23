@@ -46,3 +46,4 @@ Bot is written using JDA library and common sense.
 31. Remove IOException for certain types (like rule not found)
 32. Fix encoding for initial emojis writing, or remove emojis from file (runtime only)
 33. Fix Jenkins logging symbols
+34. Automatically terminate task for coh and bot https://wiki.jenkins.io/display/JENKINS/Build-timeout+Plugin (or, probably, design bot proper launch)
