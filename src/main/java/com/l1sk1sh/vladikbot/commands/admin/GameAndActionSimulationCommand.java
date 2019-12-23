@@ -164,7 +164,7 @@ public class GameAndActionSimulationCommand extends AdminCommand {
 
         @Override
         protected final void execute(CommandEvent event) {
-            String gameName = event.getArgs().replaceAll("\\s+", "_");
+            String gameName = event.getArgs().replaceAll("\\s+", " ");
 
             try {
                 bot.getGameAndActionSimulationManager().deleteRule(gameName);

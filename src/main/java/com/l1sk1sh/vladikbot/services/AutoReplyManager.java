@@ -94,6 +94,8 @@ public class AutoReplyManager {
     public void writeRule(ReplyRule rule) throws IOException {
         log.debug("Writing new reply rule '{}'.", rule);
 
+        FileUtils.createFolders(rulesFolder);
+
         if (getRuleById(rule.getRuleId()) != null) {
             log.info("Rule '{}' already exists. Removing...", rule.getRuleId());
             deleteRule(rule.getRuleId());

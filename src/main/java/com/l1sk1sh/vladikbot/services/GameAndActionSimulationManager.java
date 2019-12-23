@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class GameAndActionSimulationManager {
     private static final Logger log = LoggerFactory.getLogger(GameAndActionSimulationManager.class);
 
-    public static final String GAME_AND_ACTION_SIMULATION_RULES_JSON = "simulations.json";
+    private static final String GAME_AND_ACTION_SIMULATION_RULES_JSON = "simulations.json";
 
     private final Bot bot;
     private final Gson gson;
@@ -64,6 +64,8 @@ public class GameAndActionSimulationManager {
     public void writeRule(GameAndAction rule) throws IOException {
         log.debug("Writing new GAASimulation rule '{}'.", rule);
 
+        FileUtils.createFolders(rulesFolder);
+
         if (getRuleByGameName(rule.getGameName()) != null) {
             log.info("Rule '{}' already exists. Removing...", rule.getGameName());
             deleteRule(rule.getGameName());
@@ -93,7 +95,7 @@ public class GameAndActionSimulationManager {
         return simulationRules;
     }
 
-    public void readRules() throws IOException {
+    private void readRules() throws IOException {
         if (FileUtils.fileOrFolderIsAbsent(rulesFolder)) {
             FileUtils.createFolders(rulesFolder);
 
