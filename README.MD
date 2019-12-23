@@ -32,8 +32,6 @@ Bot is written using JDA library and common sense.
    26. `findpicture` - looks for google picture using given search string
 7. Test lyrics command
 8. Add [code analyzer](https://dzone.com/articles/intellij-idea-finds-bugs)
-9. Package the bot
-10. Deploy the bot
 13. Shorten command names (like `findpicture` -> `fp`) and add aliases
 14. Implement wordFrequencyAnalyzer
 16. Separate backup files per guild
@@ -43,8 +41,8 @@ Bot is written using JDA library and common sense.
 20. Extend logger to every error\warning reply
 23. Perform code analysis and fix issues (especially duplicates)
 24. Embedded message couldn't be switched using emoji after certain time
-25. Rewrite emoji stats to work with time frame as well
 27. Cyclomatic complexity
-28. Make bot reply to `@Владик`
 29. Understand how ownership of commands works
-30. Create test bot that will be launched separately
+31. Remove IOException for certain types (like rule not found)
+32. Fix encoding for initial emojis writing, or remove emojis from file (runtime only)
+33. Fix Jenkins logging symbols
