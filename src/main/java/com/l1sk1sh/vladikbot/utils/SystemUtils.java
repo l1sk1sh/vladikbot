@@ -37,6 +37,7 @@ public final class SystemUtils {
         }
     }
 
+    /* This method compromises security of JVM instantiation. Might be used only in case when -D options cannot be set */
     public static void setRuntimeEncoding() throws IllegalAccessException, NoSuchFieldException {
         System.setProperty("file.encoding", "UTF-8");
         Field charset = Charset.class.getDeclaredField("defaultCharset");

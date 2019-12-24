@@ -13,7 +13,6 @@ import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
-import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -23,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.nio.charset.Charset;
 
 /**
  * @author Oliver Johnson
@@ -33,11 +33,11 @@ final class VladikBot {
     private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
     public static void main(String[] args) {
-        try {
-            //TODO Find more elegant solution
-            SystemUtils.setRuntimeEncoding();
-        }   catch (NoSuchFieldException | IllegalAccessException e) {
-            log.error("Encoding setup failed, thus, bot is prune to multiple encoding issues:", e);
+        Charset defaultCharset = Charset.defaultCharset();
+        String utf9canonical = "utf-8";
+
+        if (!defaultCharset.toString().equalsIgnoreCase(utf9canonical)) {
+            log.warn("Default charset is '{}'. Consider changing to 'UTF-8' by setting JVM options '-Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8'.", defaultCharset);
         }
 
         try {
