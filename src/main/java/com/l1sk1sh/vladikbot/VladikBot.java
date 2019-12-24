@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot;
 
+import com.google.gson.GsonBuilder;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
@@ -13,6 +14,7 @@ import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
+import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -22,7 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.security.auth.login.LoginException;
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.Random;
 
 /**
  * @author Oliver Johnson
@@ -40,10 +44,16 @@ final class VladikBot {
             log.warn("Default charset is '{}'. Consider changing to 'UTF-8' by setting JVM options '-Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8'.", defaultCharset);
         }
 
+        Bot.rand = new Random();
+        Bot.gson = new GsonBuilder().setPrettyPrinting().create();
+
         try {
             EventWaiter waiter = new EventWaiter();
             BotSettingsManager botSettingsManager = new BotSettingsManager();
             GuildSpecificSettingsManager guildSpecificSettingsManager = new GuildSpecificSettingsManager();
+            botSettingsManager.readSettings();
+            guildSpecificSettingsManager.readSettings();
+
             BotSettings botSettings = botSettingsManager.getSettings();
 
             Bot bot = new Bot(waiter, botSettingsManager, guildSpecificSettingsManager);
@@ -122,10 +132,13 @@ final class VladikBot {
             bot.setJDA(jda);
         } catch (ExceptionInInitializerError e) {
             log.error("Problematic botSettings input.");
-            System.exit(1);
+            SystemUtils.exit(1, 5000);
         } catch (LoginException le) {
             log.error("Invalid username and/or password.");
-            System.exit(1);
+            SystemUtils.exit(1, 5000);
+        }  catch (IOException e) {
+            log.error("Error while reading or writing a file %1$s file:", e);
+            SystemUtils.exit(1, 5000);
         }
     }
 }

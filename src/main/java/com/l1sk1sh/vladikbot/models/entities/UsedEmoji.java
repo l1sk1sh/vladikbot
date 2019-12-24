@@ -4,11 +4,11 @@ import java.util.Date;
 
 @SuppressWarnings("unused")
 public class UsedEmoji {
-    private long authorId;
-    private String author;
-    private Date date;
-    private String emoji;
-    private boolean reaction;
+    private final long authorId;
+    private final String author;
+    private final Date date;
+    private final String emoji;
+    private final boolean reaction;
     private boolean unicode;
 
     public UsedEmoji(long authorId, String author, Date date, String emoji, boolean reaction, boolean unicode) {

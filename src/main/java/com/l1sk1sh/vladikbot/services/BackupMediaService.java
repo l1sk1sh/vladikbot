@@ -8,9 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeroturnaround.zip.ZipUtil;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.channels.Channels;
@@ -119,7 +117,15 @@ public class BackupMediaService implements Runnable {
     private void writeAttachmentsListTxtFile() throws IOException {
         String pathToTxtFile = localAttachmentsListPath + localAttachmentsListName + "." + Const.FileType.txt.name();
 
-        FileUtils.writeSetToFile(pathToTxtFile, setOfAllAttachmentsUrls);
+        BufferedWriter out = new BufferedWriter(new FileWriter(pathToTxtFile));
+
+        for (String raw : setOfAllAttachmentsUrls) {
+            out.write(raw);
+            out.newLine();
+        }
+
+        out.close();
+
         attachmentsTxtFile = new File(pathToTxtFile);
     }
 

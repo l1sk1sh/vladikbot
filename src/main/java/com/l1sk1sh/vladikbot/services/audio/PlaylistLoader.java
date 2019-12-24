@@ -1,10 +1,6 @@
-package com.l1sk1sh.vladikbot.services;
+package com.l1sk1sh.vladikbot.services.audio;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonWriter;
-import com.l1sk1sh.vladikbot.models.entities.GameAndAction;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
@@ -20,6 +16,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -36,12 +34,10 @@ public class PlaylistLoader {
     private static final Logger log = LoggerFactory.getLogger(PlaylistLoader.class);
 
     private final Bot bot;
-    private final Gson gson;
     private final String playlistFolder;
 
     public PlaylistLoader(Bot bot) {
         this.bot = bot;
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.playlistFolder = bot.getBotSettings().getPlaylistsFolder();
     }
 
@@ -60,22 +56,17 @@ public class PlaylistLoader {
     }
 
     public void createPlaylist(String name) throws IOException {
-        FileUtils.createFile(playlistFolder + name + "." + Const.FileType.json.name());
+        Files.createFile(Paths.get(playlistFolder + name + "." + Const.FileType.json.name()));
         log.info("Created new playlist '{}'.", name);
     }
 
     public void deletePlaylist(String name) throws IOException {
-        FileUtils.deleteFile(playlistFolder + name + "." + Const.FileType.json.name());
+        Files.delete(Paths.get(playlistFolder + name + "." + Const.FileType.json.name()));
         log.info("Deleted playlist '{}'.", name);
     }
 
     public void writePlaylist(String name, List<String> listToWrite) throws IOException {
-        JsonWriter writer = new JsonWriter(
-                new FileWriter(playlistFolder + name + "." + Const.FileType.json.name()));
-        writer.setIndent("  ");
-        writer.setHtmlSafe(false);
-        gson.toJson(listToWrite, listToWrite.getClass(), writer);
-        writer.close();
+        FileUtils.writeGson(listToWrite, new File(playlistFolder + name + "." + Const.FileType.json.name()));
     }
 
     public Playlist getPlaylist(String name) {
@@ -89,7 +80,7 @@ public class PlaylistLoader {
                 
                 return null;
             } else {
-                List<String> list = gson.fromJson(new FileReader(playlistFolder
+                List<String> list = Bot.gson.fromJson(new FileReader(playlistFolder
                         + name + "." + Const.FileType.json.name()), new TypeToken<List<String>>(){}.getType());
                 return new Playlist(name, list);
             }

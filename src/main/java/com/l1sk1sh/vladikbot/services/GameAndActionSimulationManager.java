@@ -1,9 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.models.entities.GameAndAction;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
@@ -14,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ScheduledFuture;
@@ -23,20 +19,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Oliver Johnson
  */
-public class GameAndActionSimulationManager {
+public class GameAndActionSimulationManager extends AbstractRulesManager {
     private static final Logger log = LoggerFactory.getLogger(GameAndActionSimulationManager.class);
 
     private static final String GAME_AND_ACTION_SIMULATION_RULES_JSON = "simulations.json";
 
     private final Bot bot;
-    private final Gson gson;
     private final String rulesFolder;
     private ScheduledFuture<?> scheduledFuture;
     private List<GameAndAction> simulationRules;
 
     public GameAndActionSimulationManager(Bot bot) {
         this.bot = bot;
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.rulesFolder = bot.getBotSettings().getRulesFolder();
         this.simulationRules = new ArrayList<>();
     }
@@ -53,7 +47,7 @@ public class GameAndActionSimulationManager {
     }
 
     private GameAndAction getRandomRule() {
-        GameAndAction randomRule = simulationRules.get(new Random().nextInt(simulationRules.size()));
+        GameAndAction randomRule = simulationRules.get(Bot.rand.nextInt(simulationRules.size()));
         log.debug("Chosen GAASimulation rule '{}'.", randomRule);
 
         return (randomRule == null)
@@ -64,7 +58,11 @@ public class GameAndActionSimulationManager {
     public void writeRule(GameAndAction rule) throws IOException {
         log.debug("Writing new GAASimulation rule '{}'.", rule);
 
-        FileUtils.createFolders(rulesFolder);
+        FileUtils.createFolderIfAbsent(rulesFolder);
+
+        if (simulationRules.isEmpty()) {
+            readRules();
+        }
 
         if (getRuleByGameName(rule.getGameName()) != null) {
             log.info("Rule '{}' already exists. Removing...", rule.getGameName());
@@ -96,34 +94,13 @@ public class GameAndActionSimulationManager {
     }
 
     private void readRules() throws IOException {
-        if (FileUtils.fileOrFolderIsAbsent(rulesFolder)) {
-            FileUtils.createFolders(rulesFolder);
+        File rulesFile = super.getRulesFile(rulesFolder, GAME_AND_ACTION_SIMULATION_RULES_JSON);
 
-            return;
-        }
-
-        File folder = new File(rulesFolder);
-
-        if (folder.listFiles() == null) {
-            return;
-        }
-
-        File rulesFile = new File(rulesFolder + GAME_AND_ACTION_SIMULATION_RULES_JSON);
-
-        if (!rulesFile.exists()) {
-            return;
-        }
-
-        simulationRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<GameAndAction>>(){}.getType());
+        simulationRules = Bot.gson.fromJson(new FileReader(rulesFile), new TypeToken<List<GameAndAction>>(){}.getType());
     }
 
     private void writeRules() throws IOException {
-        File rulesFile = new File(rulesFolder + GAME_AND_ACTION_SIMULATION_RULES_JSON);
-        JsonWriter writer = new JsonWriter(new FileWriter(rulesFile));
-        writer.setIndent("  ");
-        writer.setHtmlSafe(false);
-        gson.toJson(simulationRules, simulationRules.getClass(), writer);
-        writer.close();
+        FileUtils.writeGson(simulationRules, new File(rulesFolder + GAME_AND_ACTION_SIMULATION_RULES_JSON));
     }
 
     public final void start() throws IOException {

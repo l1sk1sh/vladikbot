@@ -9,7 +9,7 @@ import net.dv8tion.jda.core.entities.VoiceChannel;
 /**
  * @author Oliver Johnson
  */
-public class GuildSpecificSettings extends AbstractSettings {
+public class GuildSpecificSettings {
     private transient GuildSpecificSettingsManager manager;
 
     private long textChannelId = 0L;                            // Only one channel id for bot's texting

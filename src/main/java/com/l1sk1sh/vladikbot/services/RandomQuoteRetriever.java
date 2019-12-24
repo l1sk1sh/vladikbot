@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.google.gson.Gson;
+import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.Quote;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -16,11 +16,9 @@ import java.util.concurrent.Callable;
  */
 public class RandomQuoteRetriever implements Callable<Quote> {
     private final OkHttpClient client;
-    private final Gson gson;
 
     public RandomQuoteRetriever() {
         this.client = new OkHttpClient();
-        this.gson = new Gson();
     }
 
     @Override
@@ -36,6 +34,6 @@ public class RandomQuoteRetriever implements Callable<Quote> {
             return null;
         }
 
-        return gson.fromJson(body.string(), Quote.class);
+        return Bot.gson.fromJson(body.string(), Quote.class);
     }
 }

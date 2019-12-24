@@ -1,9 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.Quote;
 import com.l1sk1sh.vladikbot.models.entities.ReplyRule;
@@ -15,37 +12,29 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 /**
  * @author Oliver Johnson
  */
-public class AutoReplyManager {
+public class AutoReplyManager extends AbstractRulesManager {
     private static final Logger log = LoggerFactory.getLogger(AutoReplyManager.class);
 
     private static final String REPLY_RULES_JSON = "replies.json";
     public static final int MIN_REPLY_TO_LENGTH = 3;
 
     private final Bot bot;
-    private final Gson gson;
-    private String rulesFolder;
+    private final String rulesFolder;
     private List<ReplyRule> replyRules;
-    private Random rand;
 
     public AutoReplyManager(Bot bot) {
         this.bot = bot;
-        this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.rulesFolder = bot.getBotSettings().getRulesFolder();
         this.replyRules = new ArrayList<>();
-        this.rand = new Random();
     }
 
     public void reply(Message message) {
-        log.trace("Replying to '{}'.", message.toString());
-
         if (replyRules.isEmpty()) {
             try {
                 readRules();
@@ -71,18 +60,13 @@ public class AutoReplyManager {
         }
 
         /* Replying only with certain chance */
-        double randomChance = rand.nextDouble();
-        log.trace("Random chance is - {}. Should be less than {} to proceed.", randomChance, bot.getBotSettings().getReplyChange());
-        if (rand.nextDouble() > bot.getBotSettings().getReplyChange()) {
-            log.trace("Reply change is not satisfactory. Would not reply.");
-
+        if (Bot.rand.nextDouble() > bot.getBotSettings().getReplyChange()) {
             return;
         }
 
         List<ReplyRule> matchingRules = new ArrayList<>();
         ReplyRule chosenRule;
 
-        log.trace("Listing matching rules for '{}'.", message.toString());
         List<ReplyRule> toRemoveRules = new ArrayList<>();
         for (ReplyRule rule : replyRules) {
             List<String> reactToList = rule.getReactToList();
@@ -97,13 +81,13 @@ public class AutoReplyManager {
 
                 if ((bot.getBotSettings().getMatchingStrategy() == Const.MatchingStrategy.inline)
                         && message.getContentStripped().contains(singleReact)) {
-                    log.trace("Reacting to trigger '{}' that was found in '{}'.", singleReact, message.toString());
+                    log.trace("Inline react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
                     matchingRules.add(rule);
                 }
 
                 if ((bot.getBotSettings().getMatchingStrategy() == Const.MatchingStrategy.full)
                         && message.getContentStripped().equals(singleReact)) {
-                    log.trace("Reacting to trigger '{}' that was found in '{}'.", singleReact, message.toString());
+                    log.trace("Full react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
                     matchingRules.add(rule);
                 }
             }
@@ -114,7 +98,7 @@ public class AutoReplyManager {
                 try {
                     writeRules();
                     log.info("Reply rules were automatically removed due to shortness.");
-                    log.trace("Removed rules:{}", Arrays.toString(toRemoveRules.toArray()));
+                    log.trace("Removed rules: {}", Arrays.toString(toRemoveRules.toArray()));
                 } catch (IOException e) {
                     log.error("Failed to remove rules that should be removed!", e);
                 }
@@ -128,7 +112,7 @@ public class AutoReplyManager {
         }
 
         if (matchingRules.size() > 1) {
-            chosenRule = matchingRules.get(rand.nextInt(matchingRules.size()));
+            chosenRule = matchingRules.get(Bot.rand.nextInt(matchingRules.size()));
         } else {
             chosenRule = matchingRules.get(0);
         }
@@ -136,7 +120,7 @@ public class AutoReplyManager {
         log.trace("Sending reply to '{}' with '{}'.", message.toString(), chosenRule);
         message.getTextChannel().sendMessage(
                 chosenRule.getReactWithList().get(
-                        rand.nextInt(chosenRule.getReactWithList().size()))
+                        Bot.rand.nextInt(chosenRule.getReactWithList().size()))
         ).queue();
     }
 
@@ -154,7 +138,7 @@ public class AutoReplyManager {
     public void writeRule(ReplyRule rule) throws IOException {
         log.debug("Writing new reply rule '{}'.", rule);
 
-        FileUtils.createFolders(rulesFolder);
+        FileUtils.createFolderIfAbsent(rulesFolder);
 
         if (replyRules.isEmpty()) {
             readRules();
@@ -191,33 +175,12 @@ public class AutoReplyManager {
     }
 
     private void readRules() throws IOException {
-        if (FileUtils.fileOrFolderIsAbsent(rulesFolder)) {
-            FileUtils.createFolders(rulesFolder);
+        File rulesFile = super.getRulesFile(rulesFolder, REPLY_RULES_JSON);
 
-            return;
-        }
-
-        File folder = new File(rulesFolder);
-
-        if (folder.listFiles() == null) {
-            return;
-        }
-
-        File rulesFile = new File(rulesFolder + REPLY_RULES_JSON);
-
-        if (!rulesFile.exists()) {
-            return;
-        }
-
-        replyRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>(){}.getType());
+        replyRules = Bot.gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>(){}.getType());
     }
 
     private void writeRules() throws IOException {
-        File rulesFile = new File(rulesFolder + REPLY_RULES_JSON);
-        JsonWriter writer = new JsonWriter(new FileWriter(rulesFile));
-        writer.setIndent("  ");
-        writer.setHtmlSafe(false);
-        gson.toJson(replyRules, replyRules.getClass(), writer);
-        writer.close();
+        FileUtils.writeGson(replyRules, new File(rulesFolder + REPLY_RULES_JSON));
     }
 }

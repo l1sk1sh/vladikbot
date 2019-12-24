@@ -6,8 +6,8 @@ import com.l1sk1sh.vladikbot.settings.Const;
  * @author Oliver Johnson
  */
 public class GameAndAction {
-    private String gameName;
-    private Const.StatusAction action;
+    private final String gameName;
+    private final Const.StatusAction action;
 
     public GameAndAction(String gameName, Const.StatusAction action) {
         this.gameName = gameName;

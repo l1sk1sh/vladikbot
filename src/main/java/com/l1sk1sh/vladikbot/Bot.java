@@ -2,16 +2,20 @@ package com.l1sk1sh.vladikbot;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.l1sk1sh.vladikbot.services.*;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
@@ -47,6 +51,9 @@ public class Bot {
     private final ChatNotificationService notificationService;
     private final DockerAvailabilityVerificationService dockerAvailabilityVerificationService;
     private final RandomQuoteRetriever randomQuoteRetriever;
+
+    public static Random rand;
+    public static Gson gson;
 
     private boolean lockedBackup = false;
     private boolean lockedAutoBackup = false;
@@ -191,7 +198,7 @@ public class Bot {
         return notificationService;
     }
 
-    public DockerAvailabilityVerificationService getDockerAvailabilityVerificationService() {
+    DockerAvailabilityVerificationService getDockerAvailabilityVerificationService() {
         return dockerAvailabilityVerificationService;
     }
 
@@ -203,7 +210,7 @@ public class Bot {
         return dockerRunning;
     }
 
-    public void setDockerRunning(boolean dockerRunning) {
+    void setDockerRunning(boolean dockerRunning) {
         this.dockerRunning = dockerRunning;
     }
 

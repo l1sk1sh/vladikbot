@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.domain;
 
 public class Quote {
-    private String _id;
-    private String content;
-    private String author;
+    private final String _id;
+    private final String content;
+    private final String author;
 
     public Quote(String _id, String content, String author) {
         this._id = _id;

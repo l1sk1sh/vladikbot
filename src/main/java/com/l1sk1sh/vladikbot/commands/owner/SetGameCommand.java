@@ -3,8 +3,6 @@ package com.l1sk1sh.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.core.entities.Game;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Oliver Johnson

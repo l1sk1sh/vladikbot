@@ -31,16 +31,16 @@ public class EmojiStatsService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 
     private final Bot bot;
-    private Map<String, Integer> emojiList;
-    private List<UsedEmoji> allUsedEmojis;
+    private final Map<String, Integer> emojiList;
+    private final List<UsedEmoji> allUsedEmojis;
     private final List<Emote> serverEmojiList;
     private final File exportedTextFile;
     private final String localUsedEmojisName;
     private final String localUsedEmojisPath;
     private String failMessage = "Failed due to unknown reason";
-    private boolean ignoreUnicodeEmoji;
-    private boolean ignoreUnknownEmoji;
-    private boolean exportCsv;
+    private final boolean ignoreUnicodeEmoji;
+    private final boolean ignoreUnknownEmoji;
+    private final boolean exportCsv;
     private boolean hasFailed = true;
     private File usedEmojisCsv;
 
@@ -69,7 +69,7 @@ public class EmojiStatsService implements Runnable {
 
             Reader reader = new StringReader(input);
 
-            @SuppressWarnings({"unchecked", "rawtypes"})
+            @SuppressWarnings({"unchecked"})
             CsvToBean<ParsedMessage> csv = new CsvToBeanBuilder(reader)
                     .withType(ParsedMessage.class)
                     .withIgnoreLeadingWhiteSpace(true)
@@ -183,7 +183,7 @@ public class EmojiStatsService implements Runnable {
         usedEmojisCsv = new File(pathToCsv);
         Writer writer = Files.newBufferedWriter(usedEmojisCsv.toPath());
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
+        @SuppressWarnings({"unchecked"})
         StatefulBeanToCsv<UsedEmoji> beanToCsv = new StatefulBeanToCsvBuilder(writer)
                 .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                 .build();

@@ -1,5 +1,8 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
+import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.settings.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +13,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Set;
 
 /**
  * @author Oliver Johnson
@@ -65,17 +67,9 @@ public final class FileUtils {
         return !Files.exists(Paths.get(path));
     }
 
-    public static void createFile(String path) throws IOException {
-        Files.createFile(Paths.get(path));
-    }
-
     public static void createFolders(String path) throws IOException {
         log.info("Creating folders '{}'...", path);
         Files.createDirectories(Paths.get(path));
-    }
-
-    public static void deleteFile(String name) throws IOException {
-        Files.delete(Paths.get(name));
     }
 
     public static String readFile(File file, Charset encoding) throws IOException {
@@ -83,20 +77,17 @@ public final class FileUtils {
         return new String(encoded, encoding);
     }
 
-    public static void writeSetToFile(String pathToFile, Set<String> set) throws IOException {
-        BufferedWriter out = new BufferedWriter(new FileWriter(pathToFile));
-
-        for (String raw : set) {
-            out.write(raw);
-            out.newLine();
-        }
-
-        out.close();
-    }
-
     public static boolean isDirEmpty(final Path directory) throws IOException {
-        try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
             return !dirStream.iterator().hasNext();
         }
+    }
+
+    public static void writeGson(Object object, File configFile) throws IOException {
+        JsonWriter writer = new JsonWriter(new FileWriter(configFile));
+        writer.setIndent("  ");
+        writer.setHtmlSafe(false);
+        Bot.gson.toJson(object, object.getClass(), writer);
+        writer.close();
     }
 }

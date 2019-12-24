@@ -1,11 +1,8 @@
 package com.l1sk1sh.vladikbot.settings;
 
-import com.google.gson.annotations.SerializedName;
 import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.utils.Checks;
 
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 /**
@@ -70,7 +67,7 @@ public final class Const {
             this.supportedMediaFormat = supportedMediaFormat;
         }
 
-        public static List<FileType> getRawSupportedMediaFormats() {
+        static List<FileType> getRawSupportedMediaFormats() {
             return Arrays.stream(values()).filter(FileType::isSupportedMediaFormat).collect(Collectors.toList());
         }
 
@@ -113,9 +110,7 @@ public final class Const {
     }
 
     public enum MatchingStrategy {
-        @SerializedName("full")
         full,
-        @SerializedName("inline")
         inline
     }
 }

@@ -10,7 +10,7 @@ import net.dv8tion.jda.core.entities.*;
  * @author Oliver Johnson
  */
 @SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
-public class BotSettings extends AbstractSettings {
+public class BotSettings {
     private transient BotSettingsManager manager;
 
     /* Finish all paths with file system separator! */

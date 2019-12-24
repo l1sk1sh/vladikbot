@@ -21,8 +21,8 @@ public class BackupTextChannelService implements Runnable {
 
     private final Bot bot;
     private File backupFile;
-    private String beforeDate;
-    private String afterDate;
+    private final String beforeDate;
+    private final String afterDate;
     private String failMessage = "Failed due to unknown reason";
     private final String channelId;
     private final Const.BackupFileType format;
@@ -31,7 +31,7 @@ public class BackupTextChannelService implements Runnable {
     private final String dockerContainerName;
     private final String token;
     private final Const.FileType extension;
-    private boolean ignoreExistingBackup;
+    private final boolean ignoreExistingBackup;
     private boolean hasFailed = true;
 
     public BackupTextChannelService(Bot bot, String channelId, Const.BackupFileType format, String localPathToExport,
