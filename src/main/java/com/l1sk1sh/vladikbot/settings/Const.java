@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.settings;
 
+import com.google.gson.annotations.SerializedName;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.utils.Checks;
 
@@ -109,5 +110,12 @@ public final class Const {
         public FileType getFileType() {
             return fileType;
         }
+    }
+
+    public enum MatchingStrategy {
+        @SerializedName("full")
+        full,
+        @SerializedName("inline")
+        inline
     }
 }

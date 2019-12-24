@@ -37,6 +37,8 @@ public class BotSettings extends AbstractSettings {
     private boolean npImages = true;                                    // Display search images
     private boolean repeat = true;                                      // If repeat mode is available
     private boolean autoReply = false;                                  // If to automatically reply to certain phrases
+    private Const.MatchingStrategy matchingStrategy = Const.MatchingStrategy.full; // How reply rules should be matched
+    private double replyChange = 1.0;                                   // Change that bot will reply
     private boolean simulateActionAndGamesActivity = false;             // If bot should change statuses by himself
     private boolean autoTextBackup = true;                              // Automatically create backups of all available chats
     private boolean autoMediaBackup = true;                             // Automatically save media from all available chats
@@ -148,6 +150,24 @@ public class BotSettings extends AbstractSettings {
 
     public final void setAutoReply(boolean autoReply) {
         this.autoReply = autoReply;
+        manager.writeSettings();
+    }
+
+    public Const.MatchingStrategy getMatchingStrategy() {
+        return matchingStrategy;
+    }
+
+    public void setMatchingStrategy(Const.MatchingStrategy matchingStrategy) {
+        this.matchingStrategy = matchingStrategy;
+        manager.writeSettings();
+    }
+
+    public double getReplyChange() {
+        return replyChange;
+    }
+
+    public void setReplyChange(double replyChange) {
+        this.replyChange = replyChange;
         manager.writeSettings();
     }
 

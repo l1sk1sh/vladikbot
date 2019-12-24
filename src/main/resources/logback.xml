@@ -30,10 +30,13 @@
         <appender-ref ref="FILE"/>
     </appender>
 
+    <logger name="net.dv8tion.jda" level="INFO" />
+
     <!-- Here you can set the base log level. If DEBUG is too chatty for you, you can use INFO -->
     <!-- Possible options are: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF -->
-    <root level="DEBUG">
+    <root level="TRACE">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="ASYNC"/>
     </root>
+
 </configuration>

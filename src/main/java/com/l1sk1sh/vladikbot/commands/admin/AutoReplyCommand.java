@@ -3,6 +3,8 @@ package com.l1sk1sh.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.ReplyRule;
+import com.l1sk1sh.vladikbot.services.AutoReplyManager;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +26,15 @@ public class AutoReplyCommand extends AdminCommand {
         this.bot = bot;
         this.name = "reply";
         this.help = "auto reply management";
-        this.arguments = "<add|list|switch|delete>";
+        this.arguments = "<add|list|switch|delete|match>";
         this.guildOnly = false;
         this.children = new AdminCommand[]{
                 new CreateCommand(),
                 new ReadCommand(),
                 new SwitchCommand(),
-                new DeleteCommand()
+                new DeleteCommand(),
+                new MatchCommand(),
+                new ChanceCommand()
         };
     }
 
@@ -89,6 +93,9 @@ public class AutoReplyCommand extends AdminCommand {
                 for (String replyWith : reactWith) {
                     if (replyWith.isEmpty()) {
                         event.replyError("Do not use empty words for the rule!");
+                        return;
+                    } else if (replyWith.length() < AutoReplyManager.MIN_REPLY_TO_LENGTH) {
+                        event.replyError("Trigger words must be more or equal 3 symbols!");
                         return;
                     }
                 }
@@ -174,25 +181,86 @@ public class AutoReplyCommand extends AdminCommand {
         @Override
         protected void execute(CommandEvent event) {
             String[] args = event.getArgs().split("\\s+");
-            if (args.length > 0) {
-                for (String arg : args) {
-                    switch (arg) {
-                        case "on":
-                        case "enable":
-                            bot.getBotSettings().setAutoReply(true);
-                            log.info("Auto Reply was enabled by '{}'.", event.getAuthor().getName());
-                            event.replySuccess("Auto Reply is now enabled!");
-                            break;
-                        case "off":
-                        case "disable":
-                            bot.getBotSettings().setAutoReply(false);
-                            log.info("Auto Reply was disabled by '{}'.", event.getAuthor().getName());
-                            event.replySuccess("Auto Reply is now disabled!");
-                            break;
-                    }
-                }
-            } else {
+            if (args.length == 0) {
                 event.replyWarning("Specify `on` or `off` argument for this command!");
+                return;
+            }
+
+            for (String arg : args) {
+                switch (arg) {
+                    case "on":
+                    case "enable":
+                        bot.getBotSettings().setAutoReply(true);
+                        log.info("Auto Reply was enabled by '{}'.", event.getAuthor().getName());
+                        event.replySuccess("Auto Reply is now enabled!");
+                        break;
+                    case "off":
+                    case "disable":
+                        bot.getBotSettings().setAutoReply(false);
+                        log.info("Auto Reply was disabled by '{}'.", event.getAuthor().getName());
+                        event.replySuccess("Auto Reply is now disabled!");
+                        break;
+                }
+            }
+        }
+    }
+
+    private final class MatchCommand extends AdminCommand {
+        MatchCommand() {
+            this.name = "match";
+            this.help = "either bot uses full message comparison of word by word";
+            this.arguments = "<full|inline>";
+            this.guildOnly = false;
+        }
+
+        @Override
+        protected void execute(CommandEvent event) {
+            String[] args = event.getArgs().split("\\s+");
+            if (args.length == 0) {
+                event.replyWarning("Specify `full` or `inline` argument for this command!");
+                return;
+            }
+
+            for (String arg : args) {
+                switch (arg) {
+                    case "full":
+                        bot.getBotSettings().setMatchingStrategy(Const.MatchingStrategy.full);
+                        log.info("Matching strategy is set to 'full' by '{}'.", event.getAuthor().getName());
+                        event.replySuccess("Whole phrase will be used for reply from now!");
+                        break;
+                    case "inline":
+                        bot.getBotSettings().setMatchingStrategy(Const.MatchingStrategy.inline);
+                        log.info("Matching strategy is set to 'inline' by '{}'.", event.getAuthor().getName());
+                        event.replySuccess("Every word will be used for reply!");
+                        break;
+                }
+            }
+        }
+    }
+
+    private final class ChanceCommand extends AdminCommand {
+        ChanceCommand() {
+            this.name = "chance";
+            this.help = "chance that bot will reply to your message. 1.0 - always replies, 0.0 - never replies";
+            this.arguments = "<0.0 - 1.0>";
+            this.guildOnly = false;
+        }
+
+        @Override
+        protected void execute(CommandEvent event) {
+            String[] args = event.getArgs().split("\\s+");
+            if (args.length == 0) {
+                event.replyWarning("Specify double value as a chance of reply!");
+                return;
+            }
+
+            String lastArgument = args[args.length - 1];
+            try {
+                double replyChance = Double.parseDouble(lastArgument);
+                bot.getBotSettings().setReplyChange(replyChance);
+                event.replySuccess(String.format("Reply chance is now %1$s%%", replyChance * 100));
+            } catch (NumberFormatException nfe) {
+                event.replyError(String.format("Invalid number specified `[%1$s]`", lastArgument));
             }
         }
     }

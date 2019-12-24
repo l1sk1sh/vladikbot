@@ -1,5 +1,7 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import java.lang.reflect.Field;
+import java.nio.charset.Charset;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,5 +35,12 @@ public final class SystemUtils {
             /* Should never get here */
             Runtime.getRuntime().halt(status);
         }
+    }
+
+    public static void setRuntimeEncoding() throws IllegalAccessException, NoSuchFieldException {
+        System.setProperty("file.encoding", "UTF-8");
+        Field charset = Charset.class.getDeclaredField("defaultCharset");
+        charset.setAccessible(true);
+        charset.set(null, null);
     }
 }

@@ -7,6 +7,7 @@ import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.Quote;
 import com.l1sk1sh.vladikbot.models.entities.ReplyRule;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.core.entities.Message;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 /**
@@ -25,21 +27,35 @@ public class AutoReplyManager {
     private static final Logger log = LoggerFactory.getLogger(AutoReplyManager.class);
 
     private static final String REPLY_RULES_JSON = "replies.json";
+    public static final int MIN_REPLY_TO_LENGTH = 3;
 
     private final Bot bot;
     private final Gson gson;
     private String rulesFolder;
     private List<ReplyRule> replyRules;
+    private Random rand;
 
     public AutoReplyManager(Bot bot) {
         this.bot = bot;
         this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.rulesFolder = bot.getBotSettings().getRulesFolder();
         this.replyRules = new ArrayList<>();
+        this.rand = new Random();
     }
 
     public void reply(Message message) {
-        Random rand = new Random();
+        log.trace("Replying to '{}'.", message.toString());
+
+        if (replyRules.isEmpty()) {
+            try {
+                readRules();
+                log.trace("Initial reading of rules to get reply.");
+            } catch (IOException e) {
+                log.error("Failed to read rules for auto reply:", e);
+                bot.getNotificationService().sendEmbeddedError(message.getGuild(), "Failed to read rules for reply message.");
+            }
+        }
+
         if (message.getMentionedMembers().contains(message.getGuild().getSelfMember())) {
             try {
                 Quote quote = bot.getRandomQuoteRetriever().call();
@@ -54,16 +70,53 @@ public class AutoReplyManager {
             return;
         }
 
+        /* Replying only with certain chance */
+        double randomChance = rand.nextDouble();
+        log.trace("Random chance is - {}. Should be less than {} to proceed.", randomChance, bot.getBotSettings().getReplyChange());
+        if (rand.nextDouble() > bot.getBotSettings().getReplyChange()) {
+            log.trace("Reply change is not satisfactory. Would not reply.");
+
+            return;
+        }
+
         List<ReplyRule> matchingRules = new ArrayList<>();
         ReplyRule chosenRule;
 
+        log.trace("Listing matching rules for '{}'.", message.toString());
+        List<ReplyRule> toRemoveRules = new ArrayList<>();
         for (ReplyRule rule : replyRules) {
             List<String> reactToList = rule.getReactToList();
 
             for (String singleReact : reactToList) {
-                if (message.toString().contains(singleReact)) {
+                if (singleReact.length() < MIN_REPLY_TO_LENGTH) {
+                    toRemoveRules.add(rule);
+                    log.trace("Rule {} will be removed due to shortness.", rule);
+
+                    continue;
+                }
+
+                if ((bot.getBotSettings().getMatchingStrategy() == Const.MatchingStrategy.inline)
+                        && message.getContentStripped().contains(singleReact)) {
                     log.trace("Reacting to trigger '{}' that was found in '{}'.", singleReact, message.toString());
                     matchingRules.add(rule);
+                }
+
+                if ((bot.getBotSettings().getMatchingStrategy() == Const.MatchingStrategy.full)
+                        && message.getContentStripped().equals(singleReact)) {
+                    log.trace("Reacting to trigger '{}' that was found in '{}'.", singleReact, message.toString());
+                    matchingRules.add(rule);
+                }
+            }
+        }
+
+        if (!toRemoveRules.isEmpty()) {
+            if (replyRules.removeAll(toRemoveRules)) {
+                try {
+                    writeRules();
+                    log.info("Reply rules were automatically removed due to shortness.");
+                    log.trace("Removed rules:{}", Arrays.toString(toRemoveRules.toArray()));
+                } catch (IOException e) {
+                    log.error("Failed to remove rules that should be removed!", e);
                 }
             }
         }
@@ -80,6 +133,7 @@ public class AutoReplyManager {
             chosenRule = matchingRules.get(0);
         }
 
+        log.trace("Sending reply to '{}' with '{}'.", message.toString(), chosenRule);
         message.getTextChannel().sendMessage(
                 chosenRule.getReactWithList().get(
                         rand.nextInt(chosenRule.getReactWithList().size()))
@@ -101,6 +155,10 @@ public class AutoReplyManager {
         log.debug("Writing new reply rule '{}'.", rule);
 
         FileUtils.createFolders(rulesFolder);
+
+        if (replyRules.isEmpty()) {
+            readRules();
+        }
 
         if (getRuleById(rule.getRuleId()) != null) {
             log.info("Rule '{}' already exists. Removing...", rule.getRuleId());
@@ -154,7 +212,7 @@ public class AutoReplyManager {
         replyRules = gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>(){}.getType());
     }
 
-    public void writeRules() throws IOException {
+    private void writeRules() throws IOException {
         File rulesFile = new File(rulesFolder + REPLY_RULES_JSON);
         JsonWriter writer = new JsonWriter(new FileWriter(rulesFile));
         writer.setIndent("  ");

@@ -13,6 +13,7 @@ import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
+import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
@@ -32,6 +33,13 @@ final class VladikBot {
     private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
     public static void main(String[] args) {
+        try {
+            //TODO Find more elegant solution
+            SystemUtils.setRuntimeEncoding();
+        }   catch (NoSuchFieldException | IllegalAccessException e) {
+            log.error("Encoding setup failed, thus, bot is prune to multiple encoding issues:", e);
+        }
+
         try {
             EventWaiter waiter = new EventWaiter();
             BotSettingsManager botSettingsManager = new BotSettingsManager();
