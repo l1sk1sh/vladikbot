@@ -30,6 +30,7 @@ Bot is written using JDA library and common sense.
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
    26. `findpicture` - looks for google picture using given search string
+   27. `fbi` - get list of most wanted criminals
 7. Test lyrics command
 8. Add [code analyzer](https://dzone.com/articles/intellij-idea-finds-bugs)
 13. Shorten command names (like `findpicture` -> `fp`) and add aliases
@@ -44,6 +45,6 @@ Bot is written using JDA library and common sense.
 27. Cyclomatic complexity
 29. Understand how ownership of commands works
 31. Remove IOException for certain types (like rule not found)
-32. Fix encoding for initial emojis writing, or remove emojis from file (runtime only)
+32. Fix encoding for initial emojis writing, or remove emojis from file (runtime only). Try -Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8
 33. Fix Jenkins logging symbols
 34. Automatically terminate task for coh and bot https://wiki.jenkins.io/display/JENKINS/Build-timeout+Plugin (or, probably, design bot proper launch)

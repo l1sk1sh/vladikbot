@@ -58,13 +58,19 @@ public class AutoReplyManager {
         ReplyRule chosenRule;
 
         for (ReplyRule rule : replyRules) {
-            if (Arrays.stream(rule.getReactToList().toArray(new String[0])).parallel()
-                    .anyMatch(message.toString()::contains)) {
-                matchingRules.add(rule);
+            List<String> reactToList = rule.getReactToList();
+
+            for (String singleReact : reactToList) {
+                if (message.toString().contains(singleReact)) {
+                    log.trace("Reacting to trigger '{}' that was found in '{}'.", singleReact, message.toString());
+                    matchingRules.add(rule);
+                }
             }
         }
 
         if (matchingRules.isEmpty()) {
+            log.trace("Matching rules are empty for message '{}'. No reply.", message.toString());
+
             return;
         }
 
