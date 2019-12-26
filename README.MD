@@ -35,9 +35,7 @@ Bot is written using JDA library and common sense.
 8. Add [code analyzer](https://dzone.com/articles/intellij-idea-finds-bugs)
 13. Shorten command names (like `findpicture` -> `fp`) and add aliases
 14. Implement wordFrequencyAnalyzer
-16. Separate backup files per guild
-17. Separate media files per guild
-18. Separate AutoModeration per guild
+18. Separate Auto Reply per guild
 19. Separate status rotation per guild
 20. Extend logger to every error\warning reply
 23. Perform code analysis and fix issues (especially duplicates)
@@ -45,10 +43,7 @@ Bot is written using JDA library and common sense.
 27. Cyclomatic complexity
 29. Understand how ownership of commands works
 31. Remove IOException for certain types (like rule not found)
-32. Fix encoding for initial emojis writing, or remove emojis from file (runtime only). Try -Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8
-33. Fix Jenkins logging symbols
-34. Automatically terminate task for coh and bot https://wiki.jenkins.io/display/JENKINS/Build-timeout+Plugin (or, probably, design bot proper launch)
-35. Calculate auto backup time from last moment of backup
+35. Calculate auto backup time from last moment of backup. Not absolute time
 
 Reply recommendations:
 3) Добавить возможность процентно задать распределение между двумя режимами ответа. Настраивается параметром извне.
