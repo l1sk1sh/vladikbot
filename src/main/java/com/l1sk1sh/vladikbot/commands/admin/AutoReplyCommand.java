@@ -122,6 +122,8 @@ public class AutoReplyCommand extends AdminCommand {
 
         @Override
         protected void execute(CommandEvent event) {
+            int MAX_LIST_SIZE_TO_SHOW = 70;
+
             try {
                 List<ReplyRule> list = bot.getAutoReplyManager().getAllRules();
 
@@ -129,6 +131,8 @@ public class AutoReplyCommand extends AdminCommand {
                     event.replyError("Failed to load available rules!");
                 } else if (list.isEmpty()) {
                     event.replyWarning("There are no rules at the moment! Add new rules with `add` command.");
+                } else if (list.size() > MAX_LIST_SIZE_TO_SHOW) {
+                    event.replyWarning("Current reply dictionary is too huge to be listed. Contact owner for more details.");
                 } else {
                     String message = event.getClient().getSuccess() + " Acting rules:\r\n";
                     StringBuilder builder = new StringBuilder(message);
