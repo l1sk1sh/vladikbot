@@ -3,10 +3,18 @@
 <configuration>
     <!-- Display the logs in your console with the following format -->
     <!-- You can learn more about this here: https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout -->
+    <variable name="ROOT_LOG_LEVEL" value="${root_log_level:-DEBUG}" />
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>false</withJansi>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{25}) - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="JENKINS" class="ch.qos.logback.core.ConsoleAppender">
+        <withJansi>false</withJansi>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] [%-5level] [%.15logger{15}] - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -34,9 +42,17 @@
 
     <!-- Here you can set the base log level. If DEBUG is too chatty for you, you can use INFO -->
     <!-- Possible options are: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF -->
-    <root level="TRACE">
-        <appender-ref ref="CONSOLE"/>
+    <root level="${ROOT_LOG_LEVEL}">
         <appender-ref ref="ASYNC"/>
+        <!-- To use enable this mode pass -Dcolor to jvm -->
+        <if condition='isDefined("jenkins")'>
+            <then>
+                <appender-ref ref="JENKINS"/>
+            </then>
+            <else>
+                <appender-ref ref="CONSOLE"/>
+            </else>
+        </if>
     </root>
 
 </configuration>
