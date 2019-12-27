@@ -48,7 +48,7 @@ public class AutoReplyCommand extends AdminCommand {
             this.name = "make";
             this.aliases = new String[]{"create", "add"};
             this.help = "makes a new reply rule (';' - used as separator)\r\n" +
-                    "Example: *automod add {fbi; open up} {POLICE, OPEN UP!; You've played your role, criminal!}*";
+                    "Example: *reply add {fbi; open up} {POLICE, OPEN UP!; You've played your role, criminal!}*";
             this.arguments = "<{react to}> <{react with}>";
             this.guildOnly = false;
         }

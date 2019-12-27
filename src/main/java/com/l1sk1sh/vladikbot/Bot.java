@@ -9,7 +9,6 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.l1sk1sh.vladikbot.services.*;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;

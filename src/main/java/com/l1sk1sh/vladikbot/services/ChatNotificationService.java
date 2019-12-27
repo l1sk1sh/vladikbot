@@ -18,6 +18,7 @@ public class ChatNotificationService {
         this.bot = bot;
     }
 
+    @SuppressWarnings("unused")
     public final void sendRawMessage(Guild guild, String message) {
         TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
 
@@ -28,6 +29,7 @@ public class ChatNotificationService {
         notificationChannel.sendMessage(message).queue();
     }
 
+    @SuppressWarnings("unused")
     public final void sendEmbeddedSuccess(Guild guild, String message) {
         TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
 

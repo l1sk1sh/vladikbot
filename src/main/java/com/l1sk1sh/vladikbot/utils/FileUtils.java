@@ -42,20 +42,6 @@ public final class FileUtils {
         return file;
     }
 
-    public static void deleteFilesByChannelIdAndExtension(String pathToDir, String id, String extension) {
-        File f = new File(pathToDir);
-        File[] paths = f.listFiles();
-
-        if (paths != null) {
-            for (File path : paths) {
-                if ((path.toString().contains(id) && path.toString().contains(extension))
-                        && !path.delete()) {
-                    throw new SecurityException();
-                }
-            }
-        }
-    }
-
     public static void createFolderIfAbsent(String path) throws IOException {
         if (fileOrFolderIsAbsent(path)) {
             log.info("Creating folders '{}'...", path);

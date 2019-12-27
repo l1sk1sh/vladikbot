@@ -55,12 +55,12 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         this.guildSpecificSettings = guildSpecificSettings;
     }
 
-    public int addTrackToFront(QueuedTrack qtrack) {
+    public int addTrackToFront(QueuedTrack queuedTrack) {
         if (audioPlayer.getPlayingTrack() == null) {
-            audioPlayer.playTrack(qtrack.getTrack());
+            audioPlayer.playTrack(queuedTrack.getTrack());
             return -1;
         } else {
-            queue.addAt(0, qtrack);
+            queue.addAt(0, queuedTrack);
             return 0;
         }
     }
@@ -149,7 +149,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                 if (botSettings.shouldLeaveChannel()) {
                     manager.getBot().closeAudioConnection(guildId);
                 }
-                /* Unpause, in the case when the player was paused and the track has been skipped.
+                /* Un-pause, in the case when the player was paused and the track has been skipped.
                 This is to prevent the player being paused next time it's being used. */
                 player.setPaused(false);
             }
@@ -231,14 +231,14 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
     String getTopicFormat(JDA jda) {
         if (isMusicPlaying(jda)) {
-            long userid = getRequester();
+            long userId = getRequester();
             AudioTrack track = audioPlayer.getPlayingTrack();
             String title = track.getInfo().title;
 
             if (title == null || title.equals("Unknown Title")) {
                 title = track.getInfo().uri;
             }
-            return "**" + title + "** [" + (userid == 0 ? "autoplay" : "<@" + userid + ">") + "]"
+            return "**" + title + "** [" + (userId == 0 ? "autoplay" : "<@" + userId + ">") + "]"
                     + "\r\n" + (audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI) + " "
                     + "[" + FormatUtils.formatTime(track.getDuration()) + "] "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume());

@@ -69,7 +69,7 @@ public class EmojiStatsService implements Runnable {
 
             Reader reader = new StringReader(input);
 
-            @SuppressWarnings({"unchecked"})
+            @SuppressWarnings({"unchecked", "rawtypes"})
             CsvToBean<ParsedMessage> csv = new CsvToBeanBuilder(reader)
                     .withType(ParsedMessage.class)
                     .withIgnoreLeadingWhiteSpace(true)
@@ -183,7 +183,7 @@ public class EmojiStatsService implements Runnable {
         usedEmojisCsv = new File(pathToCsv);
         Writer writer = Files.newBufferedWriter(usedEmojisCsv.toPath());
 
-        @SuppressWarnings({"unchecked"})
+        @SuppressWarnings({"unchecked", "rawtypes"})
         StatefulBeanToCsv<UsedEmoji> beanToCsv = new StatefulBeanToCsvBuilder(writer)
                 .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                 .build();
