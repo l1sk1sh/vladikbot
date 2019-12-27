@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * @author Oliver Johnson
  */
-public class AutoReplyManager extends AbstractRulesManager {
+public class AutoReplyManager {
     private static final Logger log = LoggerFactory.getLogger(AutoReplyManager.class);
 
     private static final String REPLY_RULES_JSON = "replies.json";
@@ -175,7 +175,13 @@ public class AutoReplyManager extends AbstractRulesManager {
     }
 
     private void readRules() throws IOException {
-        File rulesFile = super.getRulesFile(rulesFolder, REPLY_RULES_JSON);
+        File rulesFile = new File(rulesFolder + REPLY_RULES_JSON);
+
+        if (!rulesFile.exists()) {
+            FileUtils.createFolderIfAbsent(rulesFolder);
+
+            return;
+        }
 
         replyRules = Bot.gson.fromJson(new FileReader(rulesFile), new TypeToken<List<ReplyRule>>(){}.getType());
     }

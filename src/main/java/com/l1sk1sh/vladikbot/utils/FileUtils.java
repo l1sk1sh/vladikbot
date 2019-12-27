@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.utils;
 
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.settings.Const;
@@ -59,7 +58,8 @@ public final class FileUtils {
 
     public static void createFolderIfAbsent(String path) throws IOException {
         if (fileOrFolderIsAbsent(path)) {
-            createFolders(path);
+            log.info("Creating folders '{}'...", path);
+            Files.createDirectories(Paths.get(path));
         }
     }
 
@@ -67,20 +67,15 @@ public final class FileUtils {
         return !Files.exists(Paths.get(path));
     }
 
-    public static void createFolders(String path) throws IOException {
-        log.info("Creating folders '{}'...", path);
-        Files.createDirectories(Paths.get(path));
+    public static boolean isDirEmpty(final Path directory) throws IOException {
+        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
+            return !dirStream.iterator().hasNext();
+        }
     }
 
     public static String readFile(File file, Charset encoding) throws IOException {
         byte[] encoded = Files.readAllBytes(file.toPath());
         return new String(encoded, encoding);
-    }
-
-    public static boolean isDirEmpty(final Path directory) throws IOException {
-        try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(directory)) {
-            return !dirStream.iterator().hasNext();
-        }
     }
 
     public static void writeGson(Object object, File configFile) throws IOException {

@@ -43,7 +43,7 @@ public class PlaylistLoader {
 
     public List<String> getPlaylistNames() throws IOException {
         if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
-            FileUtils.createFolders(playlistFolder);
+            FileUtils.createFolderIfAbsent(playlistFolder);
 
             return Collections.emptyList();
         } else {
@@ -76,7 +76,7 @@ public class PlaylistLoader {
             }
 
             if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
-                FileUtils.createFolders(playlistFolder);
+                FileUtils.createFolderIfAbsent(playlistFolder);
                 
                 return null;
             } else {

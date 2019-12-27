@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Oliver Johnson
  */
-public class GameAndActionSimulationManager extends AbstractRulesManager {
+public class GameAndActionSimulationManager {
     private static final Logger log = LoggerFactory.getLogger(GameAndActionSimulationManager.class);
 
     private static final String GAME_AND_ACTION_SIMULATION_RULES_JSON = "simulations.json";
@@ -94,7 +94,13 @@ public class GameAndActionSimulationManager extends AbstractRulesManager {
     }
 
     private void readRules() throws IOException {
-        File rulesFile = super.getRulesFile(rulesFolder, GAME_AND_ACTION_SIMULATION_RULES_JSON);
+        File rulesFile = new File(rulesFolder + GAME_AND_ACTION_SIMULATION_RULES_JSON);
+
+        if (!rulesFile.exists()) {
+            FileUtils.createFolderIfAbsent(rulesFolder);
+
+            return;
+        }
 
         simulationRules = Bot.gson.fromJson(new FileReader(rulesFile), new TypeToken<List<GameAndAction>>(){}.getType());
     }

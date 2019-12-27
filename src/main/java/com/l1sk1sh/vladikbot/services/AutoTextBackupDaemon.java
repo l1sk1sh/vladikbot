@@ -55,7 +55,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                 try {
                     String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
                             + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
-                    FileUtils.createFolders(pathToBackup);
+                    FileUtils.createFolderIfAbsent(pathToBackup);
 
                     /* Creating new thread from text backup service and waiting for it to finish */
                     BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
