@@ -29,7 +29,7 @@ public class BotSettingsManager {
         if (!botConfigFile.exists()) {
             writeSettings();
             log.warn(String.format("Created %1$s. You will have to setup it manually", BOT_SETTINGS_JSON));
-            SystemUtils.exit(1, 5000);
+            SystemUtils.exit(1);
         } else {
             this.botSettings = Bot.gson.fromJson(
                     Files.readAllLines(botConfigFile.toPath()).stream()

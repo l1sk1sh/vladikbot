@@ -123,7 +123,7 @@ public class Bot {
 
         /* Unfortunately, JDA doesn't close all it's connection, even though bot technically is shut down and doesn't
         * receive commands. Might be subject for further research */
-        SystemUtils.exit(0, 5000);
+        SystemUtils.exit(0);
     }
 
     public BotSettings getBotSettings() {

@@ -132,13 +132,13 @@ final class VladikBot {
             bot.setJDA(jda);
         } catch (ExceptionInInitializerError e) {
             log.error("Problematic botSettings input.");
-            SystemUtils.exit(1, 5000);
+            SystemUtils.exit(1);
         } catch (LoginException le) {
             log.error("Invalid username and/or password.");
-            SystemUtils.exit(1, 5000);
+            SystemUtils.exit(1);
         }  catch (IOException e) {
             log.error("Error while reading or writing a file %1$s file:", e);
-            SystemUtils.exit(1, 5000);
+            SystemUtils.exit(1);
         }
     }
 }

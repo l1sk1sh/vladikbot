@@ -37,6 +37,11 @@ public final class SystemUtils {
         }
     }
 
+    public static void exit(final int status) {
+        long defaultMaxDelayMillis = 5000;
+        exit(status, defaultMaxDelayMillis);
+    }
+
     /* This method compromises security of JVM instantiation. Might be used only in case when -D options cannot be set */
     public static void setRuntimeEncoding() throws IllegalAccessException, NoSuchFieldException {
         System.setProperty("file.encoding", "UTF-8");
