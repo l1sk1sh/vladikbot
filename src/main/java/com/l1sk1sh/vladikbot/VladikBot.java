@@ -14,6 +14,7 @@ import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
+import com.l1sk1sh.vladikbot.settings.OfflineStorageManager;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import net.dv8tion.jda.core.AccountType;
 import net.dv8tion.jda.core.JDA;
@@ -51,12 +52,15 @@ final class VladikBot {
             EventWaiter waiter = new EventWaiter();
             BotSettingsManager botSettingsManager = new BotSettingsManager();
             GuildSpecificSettingsManager guildSpecificSettingsManager = new GuildSpecificSettingsManager();
+            OfflineStorageManager offlineStorageManager = new OfflineStorageManager();
+
             botSettingsManager.readSettings();
             guildSpecificSettingsManager.readSettings();
+            offlineStorageManager.readSettings();
 
             BotSettings botSettings = botSettingsManager.getSettings();
 
-            Bot bot = new Bot(waiter, botSettingsManager, guildSpecificSettingsManager);
+            Bot bot = new Bot(waiter, botSettingsManager, guildSpecificSettingsManager, offlineStorageManager);
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                     .setPrefix(botSettings.getPrefix())

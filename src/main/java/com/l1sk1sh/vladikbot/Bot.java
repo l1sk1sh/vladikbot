@@ -15,10 +15,7 @@ import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
-import com.l1sk1sh.vladikbot.settings.BotSettings;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
-import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
+import com.l1sk1sh.vladikbot.settings.*;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
@@ -40,6 +37,7 @@ public class Bot {
     private final ScheduledExecutorService threadPool;
     private final BotSettingsManager botSettingsManager;
     private final GuildSpecificSettingsManager guildSpecificSettingsManager;
+    private final OfflineStorageManager offlineStorageManager;
     private final PlayerManager playerManager;
     private final PlaylistLoader playlistLoader;
     private final NowPlayingHandler nowPlayingHandler;
@@ -60,10 +58,12 @@ public class Bot {
     private boolean dockerRunning = false;
     private JDA jda;
 
-    public Bot(EventWaiter waiter, BotSettingsManager botSettingsManager, GuildSpecificSettingsManager guildSpecificSettingsManager) {
+    public Bot(EventWaiter waiter, BotSettingsManager botSettingsManager,
+               GuildSpecificSettingsManager guildSpecificSettingsManager, OfflineStorageManager offlineStorageManager) {
         this.waiter = waiter;
         this.botSettingsManager = botSettingsManager;
         this.guildSpecificSettingsManager = guildSpecificSettingsManager;
+        this.offlineStorageManager = offlineStorageManager;
         this.playlistLoader = new PlaylistLoader(this);
         this.threadPool = Executors.newSingleThreadScheduledExecutor();
         this.playerManager = new PlayerManager(this);
@@ -131,6 +131,10 @@ public class Bot {
 
     public GuildSpecificSettings getGuildSettings(Guild guild) {
         return guildSpecificSettingsManager.getSettings(guild);
+    }
+
+    public OfflineStorage getOfflineStorage() {
+        return offlineStorageManager.getSettings();
     }
 
     public EventWaiter getWaiter() {
