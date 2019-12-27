@@ -4,12 +4,14 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -44,6 +46,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
         }
 
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
+        int maxAmountOfBackupsPerGuild = 3;
 
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
@@ -53,16 +56,20 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                 log.info("Starting auto text backup of channel '{}' at guild '{}'.", channel.getName(), channel.getGuild());
 
                 try {
-                    String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
-                            + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
-                    FileUtils.createFolderIfAbsent(pathToBackup);
+                    String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
+                            + BotUtils.getNormalizedGuildName(channel.getGuild()) + "/";
+
+                    String pathToDateBackup = pathToGuildBackup
+                            + StringUtils.getNormalizedCurrentDate() + "/";
+
+                    FileUtils.createFolderIfAbsent(pathToDateBackup);
 
                     /* Creating new thread from text backup service and waiting for it to finish */
                     BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                             bot,
                             channel.getId(),
                             Const.BackupFileType.PLAIN_TEXT,
-                            pathToBackup,
+                            pathToDateBackup,
                             null,
                             null,
                             false
@@ -85,10 +92,30 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
                     log.info("Finished auto text backup of '{}'.", channel.getName());
 
+                    File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
+                    if (directories != null && directories.length >= maxAmountOfBackupsPerGuild) {
+                        log.debug("Auto text backup reached limit of allowed backups. Clearing...");
+
+                        File oldestDirectory = null;
+                        long oldestDate = Long.MAX_VALUE;
+
+                        for (File directory : directories) {
+                            if (directory.lastModified() < oldestDate) {
+                                oldestDate = directory.lastModified();
+                                oldestDirectory = directory;
+                            }
+                        }
+
+                        if (oldestDirectory != null) {
+                            org.apache.commons.io.FileUtils.deleteDirectory(oldestDirectory);
+                            log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
+                        }
+                    }
+
                 } catch (Exception e) {
                     log.error("Failed to create auto backup:", e);
                     bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
-                            String.format("Auto text rotation of chat `%1$s` has failed due to: `%2$s`!", channel.getName(), e.getLocalizedMessage()));
+                            String.format("Auto text backup of chat `%1$s` has failed due to: `%2$s`!", channel.getName(), e.getLocalizedMessage()));
                 } finally {
                     bot.setLockedAutoBackup(false);
                 }
@@ -107,7 +134,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
     }
 
     public void stop() {
-        log.info("Cancelling scheduled auto text task...");
+        log.info("Cancelling scheduled auto text backup task...");
         fixedScheduledExecutor.stop();
     }
 }

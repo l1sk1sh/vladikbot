@@ -44,10 +44,8 @@ Bot is written using JDA library and common sense.
 29. Understand how ownership of commands works
 31. Remove IOException for certain types (like rule not found)
 35. Calculate auto backup time from last moment of backup. Not absolute time
-36. Recap Guild Settings and Bot Settings
-37. Consider validation of already downloaded attachments files to reduce amount of net operations. 
-Thus, auto backup must be placed always into the same folder and will upload only new or changed info
 38. Or create rotation that will automatically remove old folders
+39. Add RichPresence to game activity
 
 Reply recommendations:
 3) Добавить возможность процентно задать распределение между двумя режимами ответа. Настраивается параметром извне.
@@ -58,3 +56,4 @@ Reply recommendations:
 8) Разделить разные словари, так что бы можно было задавать отдельные правила, для отдельно подключаемых словарей.
 9) Добавити лімітацію на відповідь бота на певні канали (також, винести це в Guild Settings)
 10) При первинному зчитуванні списку reply заміняти смайли на усі доступні на сервері (або заміняти на етапі відправки повідомлення для зменшення кількості операцій ІО)
+11) Ігнорувати команди (ті які починаються з "~")

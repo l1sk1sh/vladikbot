@@ -4,6 +4,7 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -45,6 +46,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
         }
 
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
+        int maxAmountOfBackupsPerGuild = 2;
 
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
@@ -54,9 +56,13 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                 log.info("Starting text backup for auto media backup of channel {} at guild {}", channel.getName(), channel.getGuild());
 
                 try {
-                    String pathToBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
-                            + channel.getGuild().getName() + "/" + StringUtils.getCurrentDate() + "/";
-                    FileUtils.createFolderIfAbsent(pathToBackup);
+                    String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
+                            + BotUtils.getNormalizedGuildName(channel.getGuild()) + "/";
+
+                    String pathToDateBackup = pathToGuildBackup
+                            + StringUtils.getNormalizedCurrentDate() + "/";
+
+                    FileUtils.createFolderIfAbsent(pathToDateBackup);
 
                     /* Creating new thread from text backup service and waiting for it to finish */
                     BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
@@ -90,8 +96,8 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                             bot,
                             channel.getId(),
                             exportedTextFile,
-                            pathToBackup,
-                            new String[]{"--zip"}
+                            pathToDateBackup,
+                            new String[]{""}
                     );
 
                     /* Creating new thread from media backup service and waiting for it to finish */
@@ -107,11 +113,31 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
                     if (backupMediaService.hasFailed()) {
                         log.error("BackupMediaService has failed: {}", backupTextChannelService.getFailMessage());
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(),String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
                         return;
                     }
 
                     log.info("Finished auto media backup of {}", channel.getName());
+
+                    File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
+                    if (directories != null && directories.length >= maxAmountOfBackupsPerGuild) {
+                        log.debug("Auto media backup reached limit of allowed backups. Clearing...");
+
+                        File oldestDirectory = null;
+                        long oldestDate = Long.MAX_VALUE;
+
+                        for (File directory : directories) {
+                            if (directory.lastModified() < oldestDate) {
+                                oldestDate = directory.lastModified();
+                                oldestDirectory = directory;
+                            }
+                        }
+
+                        if (oldestDirectory != null) {
+                            org.apache.commons.io.FileUtils.deleteDirectory(oldestDirectory);
+                            log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
+                        }
+                    }
 
                 } catch (Exception e) {
                     log.error("Failed to create auto backup", e);

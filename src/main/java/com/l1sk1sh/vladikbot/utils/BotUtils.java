@@ -4,6 +4,7 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.core.entities.Guild;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,6 +32,7 @@ public final class BotUtils {
             urlConnection.setRequestProperty("User-Agent", Const.USER_AGENT);
             return urlConnection.getInputStream();
         } catch (IOException | IllegalArgumentException ignore) {
+            /* Ignore */
         }
         return null;
     }
@@ -79,5 +81,9 @@ public final class BotUtils {
 
     public static List<Permission> getGrantedAndRequiredPermissions(List<Permission> available, List<Permission> required) {
         return available.stream().filter(required::contains).collect(Collectors.toList());
+    }
+
+    public static String getNormalizedGuildName(Guild guild) {
+        return guild.getName().replaceAll("[^\\w]", "_");
     }
 }

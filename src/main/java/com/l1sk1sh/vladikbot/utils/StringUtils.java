@@ -33,7 +33,7 @@ public final class StringUtils {
         return false;
     }
 
-    public static String getCurrentDate() {
+    public static String getNormalizedCurrentDate() {
         Date date = Calendar.getInstance().getTime();
         DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy");
         return dateFormat.format(date);
