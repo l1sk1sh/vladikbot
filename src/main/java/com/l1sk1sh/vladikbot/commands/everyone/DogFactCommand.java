@@ -35,7 +35,7 @@ public class DogFactCommand extends Command {
 
             if (body == null) {
                 log.error("Response body is empty.");
-                event.replyWarning("Couldn't get dog fact");
+                event.replyWarning("Couldn't get dog fact.");
 
                 return;
             }
