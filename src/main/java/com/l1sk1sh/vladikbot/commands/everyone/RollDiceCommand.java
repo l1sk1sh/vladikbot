@@ -28,7 +28,7 @@ public class RollDiceCommand extends Command {
 
         String[] args = event.getArgs().split(" ");
 
-        int diceSize = 0;
+        int diceSize;
         switch (args[0]) {
             case "d4":
                 diceSize = 4;

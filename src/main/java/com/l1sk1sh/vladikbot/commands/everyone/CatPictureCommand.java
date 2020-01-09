@@ -46,13 +46,13 @@ public class CatPictureCommand extends Command {
                 return;
             }
 
-            CatPicture[] catPicture = Bot.gson.fromJson(body.string(), CatPicture[].class);
+            CatPicture catPicture = Bot.gson.fromJson(body.string(), CatPicture[].class)[0];
 
             MessageBuilder builder = new MessageBuilder();
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setAuthor("Meow!", null, null)
                     .setColor(new Color(20, 120, 120))
-                    .setImage(catPicture[0].getUrl());
+                    .setImage(catPicture.getUrl());
 
             event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
         } catch (IOException e) {

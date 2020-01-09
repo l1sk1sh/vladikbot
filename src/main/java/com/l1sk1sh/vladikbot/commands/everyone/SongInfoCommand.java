@@ -64,7 +64,7 @@ public class SongInfoCommand extends Command {
 
             if (body == null) {
                 log.error("Response body is empty.");
-                event.replyWarning(String.format("Song `%1$s` was not found", searchQuery));
+                event.replyWarning(String.format("Song `%1$s` was not found.", searchQuery));
 
                 return;
             }
@@ -83,6 +83,7 @@ public class SongInfoCommand extends Command {
                             + FormatUtils.getDate(songInfo.getReleaseDate()), null);
 
             event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+
         } catch (IOException e) {
             log.error("Failed to retrieve song's info by query '{}'.", searchQuery, e);
             event.replyError("Failed to retrieve song's info.");

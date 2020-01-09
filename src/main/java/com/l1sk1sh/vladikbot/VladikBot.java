@@ -82,6 +82,7 @@ final class VladikBot {
                             new DogPictureCommand(),
                             new CatPictureCommand(),
                             new RollDiceCommand(),
+                            new CountryCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),

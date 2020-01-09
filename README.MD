@@ -13,10 +13,7 @@ Bot is written using JDA library and common sense.
 - -Droot_log_level=INFO
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
-   8. `slots` - Spin the slots and win the jackpot! ...or lose everything
-   9. `define` - Define a word
-   10. `rps [choice]` - Rock Paper Scissors with the bot
-   11. `country [3 letter country code]` - Check the stats on a country
+   8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) Implement with memory for credits, etc
    12. `weather [location]` - Get the forecast information for a location
    13. `pug` - Find some cute pug pictures
    14. `steamstatus` - Check the status of Steam
