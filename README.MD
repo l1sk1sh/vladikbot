@@ -13,9 +13,6 @@ Bot is written using JDA library and common sense.
 - -Droot_log_level=INFO
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
-   5. `dog` - Find some cute dog pictures
-   6. `cat` - Find some cute cat pictures
-   7. `roll [size] [number of dice]` - Roll the dice (support optional size: d4, d8, d10, d12, d20, d00)
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything
    9. `define` - Define a word
    10. `rps [choice]` - Rock Paper Scissors with the bot

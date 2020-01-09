@@ -34,7 +34,7 @@ public class SongInfoCommand extends Command {
     @Override
     protected void execute(CommandEvent event) {
         if (event.getArgs().isEmpty()) {
-            event.replyError("Please include a song name.");
+            event.replyWarning("Please include a song name.");
 
             return;
         }
