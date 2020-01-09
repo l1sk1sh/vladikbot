@@ -14,16 +14,12 @@ Bot is written using JDA library and common sense.
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) Implement with memory for credits, etc
-   15. `flip` - Flip a coin
    16. `space` - Get info about the ISS
-   17. `catfact` - Get random Cat Facts with this command
-   18. `dadjoke` - Get a random Dad joke
    19. `remindme [reminder]` - Set a reminder
    20. `google` - Get search results from google
    21. `whois [user mention]` - Get user information
    22. `whoisip [ip]` - Get info from WHOISIP service
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
-   26. `findpicture` - looks for google picture using given search string
    27. `fbi` - get list of most wanted criminals
 7. Test lyrics command
 8. Add [code analyzer](https://dzone.com/articles/intellij-idea-finds-bugs)
