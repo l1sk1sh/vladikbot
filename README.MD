@@ -14,16 +14,11 @@ Bot is written using JDA library and common sense.
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) Implement with memory for credits, etc
-   16. `space` - Get info about the ISS
    19. `remindme [reminder]` - Set a reminder
-   20. `google` - Get search results from google
    21. `whois [user mention]` - Get user information
-   22. `whoisip [ip]` - Get info from WHOISIP service
+   22. `whoisip [ip]` - Get info from WHOISIP service (https://ip-api.com/docs/api:json)
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
-   27. `fbi` - get list of most wanted criminals
 7. Test lyrics command
-8. Add [code analyzer](https://dzone.com/articles/intellij-idea-finds-bugs)
-13. Shorten command names (like `findpicture` -> `fp`) and add aliases
 14. Implement wordFrequencyAnalyzer
 18. Separate Auto Reply per guild
 19. Separate status rotation per guild
