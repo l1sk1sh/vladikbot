@@ -14,9 +14,6 @@ Bot is written using JDA library and common sense.
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) Implement with memory for credits, etc
-   12. `weather [location]` - Get the forecast information for a location
-   13. `pug` - Find some cute pug pictures
-   14. `steamstatus` - Check the status of Steam
    15. `flip` - Flip a coin
    16. `space` - Get info about the ISS
    17. `catfact` - Get random Cat Facts with this command

@@ -6,7 +6,6 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.CatPicture;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -21,12 +20,10 @@ import java.io.IOException;
  */
 public class CatPictureCommand extends Command {
     private static final Logger log = LoggerFactory.getLogger(CatPictureCommand.class);
-    private final OkHttpClient client;
 
     public CatPictureCommand() {
         this.name = "cat";
         this.help = "get random cat picture";
-        this.client = new OkHttpClient();
     }
 
     @Override
@@ -36,7 +33,7 @@ public class CatPictureCommand extends Command {
                     .url("https://api.thecatapi.com/v1/images/search")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            Response response = Bot.httpClient.newCall(request).execute();
             ResponseBody body = response.body();
 
             if (body == null) {

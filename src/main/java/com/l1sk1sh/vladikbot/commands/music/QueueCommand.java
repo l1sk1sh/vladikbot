@@ -99,7 +99,7 @@ public class QueueCommand extends MusicCommand {
         }
 
         return FormatUtils.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)
-                .append(" entries | `").append(FormatUtils.formatTime(total)).append("` ")
+                .append(" entries | `").append(FormatUtils.formatTimeTillHours(total)).append("` ")
                 .append(repeatmode ? "| " + Const.REPEAT_EMOJI : "").toString());
     }
 }

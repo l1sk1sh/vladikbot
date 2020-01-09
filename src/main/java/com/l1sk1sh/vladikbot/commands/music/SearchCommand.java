@@ -72,8 +72,8 @@ public class SearchCommand extends MusicCommand {
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
-                        FormatUtils.formatTime(track.getDuration()),
-                        FormatUtils.formatTime(bot.getBotSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTimeTillHours(track.getDuration()),
+                        FormatUtils.formatTimeTillHours(bot.getBotSettings().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }
@@ -83,7 +83,7 @@ public class SearchCommand extends MusicCommand {
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
                     event.getClient().getSuccess(),
                     track.getInfo().title,
-                    FormatUtils.formatTime(track.getDuration()),
+                    FormatUtils.formatTimeTillHours(track.getDuration()),
                     ((pos == 0) ? "to begin playing" : " to the queue at position " + pos)))
             ).queue();
         }
@@ -101,7 +101,7 @@ public class SearchCommand extends MusicCommand {
                             event.replyWarning(String.format(
                                     "This track (**%1$s**) is longer than the allowed maximum: `%2$s` > `%3$s`.",
                                     track.getInfo().title,
-                                    FormatUtils.formatTime(track.getDuration()),
+                                    FormatUtils.formatTimeTillHours(track.getDuration()),
                                     bot.getBotSettings().getMaxTime()));
                             return;
                         }
@@ -110,7 +110,7 @@ public class SearchCommand extends MusicCommand {
                         event.replySuccess(String.format(
                                 "Added **%1$s** (`%2$s`) %3$s.",
                                 track.getInfo().title,
-                                FormatUtils.formatTime(track.getDuration()),
+                                FormatUtils.formatTimeTillHours(track.getDuration()),
                                 ((pos == 0) ? "to begin playing" : " to the queue at position " + pos))
                         );
                     })
@@ -120,7 +120,7 @@ public class SearchCommand extends MusicCommand {
             ;
             for (int i = 0; i < 4 && i < playlist.getTracks().size(); i++) {
                 AudioTrack track = playlist.getTracks().get(i);
-                builder.addChoices("`[" + FormatUtils.formatTime(track.getDuration()) + "]` [**"
+                builder.addChoices("`[" + FormatUtils.formatTimeTillHours(track.getDuration()) + "]` [**"
                         + track.getInfo().title + "**](" + track.getInfo().uri + ")");
             }
             builder.build().display(message);

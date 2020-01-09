@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.DogFact;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -18,12 +17,10 @@ import java.io.IOException;
  */
 public class DogFactCommand extends Command {
     private static final Logger log = LoggerFactory.getLogger(DogFactCommand.class);
-    private final OkHttpClient client;
 
     public DogFactCommand() {
         this.name = "dogfact";
         this.help = "get random dog fact";
-        this.client = new OkHttpClient();
     }
 
     @Override
@@ -33,7 +30,7 @@ public class DogFactCommand extends Command {
                     .url("https://dog-api.kinduff.com/api/facts?number=1")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            Response response = Bot.httpClient.newCall(request).execute();
             ResponseBody body = response.body();
 
             if (body == null) {

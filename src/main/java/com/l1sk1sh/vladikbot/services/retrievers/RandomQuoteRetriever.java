@@ -2,7 +2,6 @@ package com.l1sk1sh.vladikbot.services.retrievers;
 
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.Quote;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -15,11 +14,6 @@ import java.util.concurrent.Callable;
  * @author Oliver Johnson
  */
 public class RandomQuoteRetriever implements Callable<Quote> {
-    private final OkHttpClient client;
-
-    public RandomQuoteRetriever() {
-        this.client = new OkHttpClient();
-    }
 
     @Override
     public Quote call() throws IOException {
@@ -27,7 +21,7 @@ public class RandomQuoteRetriever implements Callable<Quote> {
                 .url("https://api.quotable.io/random")
                 .build();
 
-        Response response = client.newCall(request).execute();
+        Response response = Bot.httpClient.newCall(request).execute();
         ResponseBody body = response.body();
 
         if (Objects.requireNonNull(body).contentLength() < 0) {

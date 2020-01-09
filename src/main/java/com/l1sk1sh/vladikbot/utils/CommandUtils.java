@@ -6,6 +6,9 @@ import com.l1sk1sh.vladikbot.settings.Const;
 
 import java.io.File;
 
+/**
+ * @author Oliver Johnson
+ */
 public final class CommandUtils {
     private CommandUtils() {}
 

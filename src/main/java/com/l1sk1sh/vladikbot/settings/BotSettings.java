@@ -177,7 +177,7 @@ public class BotSettings {
 
     public final String getMaxTime() {
         final int maxTimeMultiplier = 1000;
-        return FormatUtils.formatTime(maxSeconds * maxTimeMultiplier);
+        return FormatUtils.formatTimeTillHours(maxSeconds * maxTimeMultiplier);
     }
 
     public final boolean isTooLong(AudioTrack track) {

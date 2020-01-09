@@ -19,6 +19,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.JDABuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Game;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +46,7 @@ final class VladikBot {
 
         Bot.rand = new Random();
         Bot.gson = new GsonBuilder().setPrettyPrinting().create();
+        Bot.httpClient = new OkHttpClient();
 
         try {
             EventWaiter waiter = new EventWaiter();
@@ -83,6 +85,7 @@ final class VladikBot {
                             new CatPictureCommand(),
                             new RollDiceCommand(),
                             new CountryCommand(),
+                            new SteamStatusCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),

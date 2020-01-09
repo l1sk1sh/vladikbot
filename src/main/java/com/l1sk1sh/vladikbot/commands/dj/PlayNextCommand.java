@@ -58,8 +58,8 @@ public class PlayNextCommand extends DJCommand {
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
-                        FormatUtils.formatTime(track.getDuration()),
-                        FormatUtils.formatTime(bot.getBotSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTimeTillHours(track.getDuration()),
+                        FormatUtils.formatTimeTillHours(bot.getBotSettings().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }
@@ -70,7 +70,7 @@ public class PlayNextCommand extends DJCommand {
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
                     event.getClient().getSuccess(),
                     track.getInfo().title,
-                    FormatUtils.formatTime(track.getDuration()),
+                    FormatUtils.formatTimeTillHours(track.getDuration()),
                     ((pos == 0) ? "to begin playing" : " to the queue at position " + pos))
             );
             message.editMessage(addMessage).queue();

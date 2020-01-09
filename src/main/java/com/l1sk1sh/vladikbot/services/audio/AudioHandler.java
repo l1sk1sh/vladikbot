@@ -206,8 +206,8 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             double progress = (double) audioPlayer.getPlayingTrack().getPosition() / track.getDuration();
             embedBuilder.setDescription((audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI)
                     + " " + FormatUtils.progressBar(progress)
-                    + " `[" + FormatUtils.formatTime(track.getPosition()) + "/"
-                    + FormatUtils.formatTime(track.getDuration()) + "]` "
+                    + " `[" + FormatUtils.formatTimeTillHours(track.getPosition()) + "/"
+                    + FormatUtils.formatTimeTillHours(track.getDuration()) + "]` "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume()));
 
             return messageBuilder.setEmbed(embedBuilder.build()).build();
@@ -240,7 +240,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             }
             return "**" + title + "** [" + (userId == 0 ? "autoplay" : "<@" + userId + ">") + "]"
                     + "\r\n" + (audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI) + " "
-                    + "[" + FormatUtils.formatTime(track.getDuration()) + "] "
+                    + "[" + FormatUtils.formatTimeTillHours(track.getDuration()) + "] "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume());
         } else {
             return "No music playing " + Const.STOP_EMOJI + " "

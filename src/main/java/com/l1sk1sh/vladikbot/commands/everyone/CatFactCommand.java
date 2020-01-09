@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.CatFact;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -15,12 +14,10 @@ import java.io.IOException;
 
 public class CatFactCommand extends Command {
     private static final Logger log = LoggerFactory.getLogger(CatFactCommand.class);
-    private final OkHttpClient client;
 
     public CatFactCommand() {
         this.name = "catfact";
         this.help = "get random cat fact";
-        this.client = new OkHttpClient();
     }
 
     @Override
@@ -30,7 +27,7 @@ public class CatFactCommand extends Command {
                     .url("https://catfact.ninja/fact")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            Response response = Bot.httpClient.newCall(request).execute();
             ResponseBody body = response.body();
 
             if (body == null) {

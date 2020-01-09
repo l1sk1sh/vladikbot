@@ -27,6 +27,7 @@ import net.dv8tion.jda.core.JDA;
 import net.dv8tion.jda.core.entities.Game;
 import net.dv8tion.jda.core.entities.Guild;
 import net.dv8tion.jda.core.entities.TextChannel;
+import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +58,7 @@ public class Bot {
 
     public static Random rand;
     public static Gson gson;
+    public static OkHttpClient httpClient;
 
     private boolean lockedBackup = false;
     private boolean lockedAutoBackup = false;

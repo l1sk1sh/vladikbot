@@ -6,7 +6,6 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.CountryInfo;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -22,13 +21,11 @@ import java.util.regex.Pattern;
  */
 public class CountryCommand extends Command {
     private static final Logger log = LoggerFactory.getLogger(CatPictureCommand.class);
-    private final OkHttpClient client;
 
     public CountryCommand() {
         this.name = "country";
         this.help = "get info on a country using 2,3-letters ISO code";
         this.arguments = "<2,3-letters code>";
-        this.client = new OkHttpClient();
     }
 
     @Override
@@ -52,7 +49,7 @@ public class CountryCommand extends Command {
                     .url("https://restcountries.eu/rest/v2/name/" + countryCode.toLowerCase())
                     .build();
 
-            Response response = client.newCall(request).execute();
+            Response response = Bot.httpClient.newCall(request).execute();
             ResponseBody body = response.body();
 
             if (response.code() != 200) {

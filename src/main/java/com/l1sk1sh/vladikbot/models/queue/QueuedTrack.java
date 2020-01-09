@@ -33,7 +33,7 @@ public class QueuedTrack implements Queueable {
 
     @Override
     public final String toString() {
-        return "`[" + FormatUtils.formatTime(track.getDuration())
+        return "`[" + FormatUtils.formatTimeTillHours(track.getDuration())
                 + "]` **" + track.getInfo().title + "** - <@" + track.getUserData(Long.class) + ">";
     }
 }

@@ -21,14 +21,12 @@ import java.util.regex.Pattern;
  */
 public class SongInfoCommand extends Command {
     private static final Logger log = LoggerFactory.getLogger(SongInfoCommand.class);
-    private final OkHttpClient client;
 
     public SongInfoCommand() {
         this.name = "itunes";
         this.aliases = new String[]{"sinfo"};
         this.help = "get info on a song";
         this.arguments = "<song name>";
-        this.client = new OkHttpClient();
     }
 
     @Override
@@ -59,7 +57,7 @@ public class SongInfoCommand extends Command {
 
             Request request = new Request.Builder().url(url).build();
 
-            Response response = client.newCall(request).execute();
+            Response response = Bot.httpClient.newCall(request).execute();
             ResponseBody body = response.body();
 
             if (body == null) {
@@ -80,7 +78,7 @@ public class SongInfoCommand extends Command {
                     .addField("Artist", songInfo.getArtistName(), true)
                     .addField("Album", songInfo.getCollectionName(), true)
                     .setFooter("Genre: " + songInfo.getPrimaryGenreName() + " | Release date: "
-                            + FormatUtils.getDate(songInfo.getReleaseDate()), null);
+                            + FormatUtils.getDateFromDatetime(songInfo.getReleaseDate()), null);
 
             event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
 

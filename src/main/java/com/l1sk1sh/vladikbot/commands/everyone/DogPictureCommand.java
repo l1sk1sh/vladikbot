@@ -6,7 +6,6 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.DogPicture;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
-import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -21,12 +20,10 @@ import java.io.IOException;
  */
 public class DogPictureCommand extends Command {
     private static final Logger log = LoggerFactory.getLogger(DogPictureCommand.class);
-    private final OkHttpClient client;
 
     public DogPictureCommand() {
         this.name = "dog";
         this.help = "get random dog picture";
-        this.client = new OkHttpClient();
     }
 
     @Override
@@ -36,7 +33,7 @@ public class DogPictureCommand extends Command {
                     .url("https://dog.ceo/api/breeds/image/random")
                     .build();
 
-            Response response = client.newCall(request).execute();
+            Response response = Bot.httpClient.newCall(request).execute();
             ResponseBody body = response.body();
 
             if (body == null) {

@@ -18,7 +18,7 @@ import java.util.List;
 public final class FormatUtils {
     private FormatUtils() {}
     
-    public static String formatTime(long duration) {
+    public static String formatTimeTillHours(long duration) {
         final float durationDivider = 1000f;
         final int thresholdTime = 10;
         if (duration == Long.MAX_VALUE) {
@@ -107,7 +107,7 @@ public final class FormatUtils {
                 .replace("@here", "@h\u0435re").trim(); /* cyrillic letter e */
     }
 
-    public static String getDate(Date date) {
+    public static String getDateFromDatetime(Date date) {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         return formatter.format(date);
