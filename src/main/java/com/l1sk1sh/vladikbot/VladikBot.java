@@ -80,6 +80,7 @@ final class VladikBot {
                             new DogFactCommand(),
                             new CatFactCommand(),
                             new DogPictureCommand(),
+                            new CatPictureCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),
