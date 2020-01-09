@@ -82,7 +82,6 @@ public class SongInfoCommand extends Command {
                     .setFooter("Genre: " + songInfo.getPrimaryGenreName() + " | Release date: "
                             + FormatUtils.getDate(songInfo.getReleaseDate()), null);
 
-            log.debug(embedBuilder.toString());
             event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
         } catch (IOException e) {
             log.error("Failed to retrieve song's info by query '{}'.", searchQuery, e);
