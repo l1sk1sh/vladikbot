@@ -86,6 +86,7 @@ final class VladikBot {
                             new RollDiceCommand(),
                             new CountryCommand(),
                             new SteamStatusCommand(),
+                            new FlipCoinCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),
