@@ -1,4 +1,4 @@
-package com.l1sk1sh.vladikbot.services;
+package com.l1sk1sh.vladikbot.services.presence;
 
 import com.google.gson.reflect.TypeToken;
 import com.l1sk1sh.vladikbot.Bot;

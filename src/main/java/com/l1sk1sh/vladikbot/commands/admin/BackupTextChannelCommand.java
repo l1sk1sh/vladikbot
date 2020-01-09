@@ -1,7 +1,7 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.services.BackupTextChannelService;
+import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;

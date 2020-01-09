@@ -56,7 +56,7 @@ public abstract class MusicCommand extends Command {
             if (!userState.inVoiceChannel()
                     || userState.isDeafened()
                     || (current != null && !userState.getChannel().equals(current))) {
-                event.replyError(String.format("You must be listening in *$1%1$s* to use that!",
+                event.replyError(String.format("You must be listening in *%1$s* to use that!",
                         (current == null ? "a voice channel" : current.getName())));
                 return;
             }

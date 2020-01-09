@@ -1,4 +1,4 @@
-package com.l1sk1sh.vladikbot.services;
+package com.l1sk1sh.vladikbot.services.retrievers;
 
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.domain.Quote;

@@ -1,4 +1,4 @@
-package com.l1sk1sh.vladikbot.services.processes;
+package com.l1sk1sh.vladikbot.services.backup.processes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,21 +13,20 @@ import java.util.concurrent.Callable;
 /**
  * @author Oliver Johnson
  */
-public class CopyDockerFileProcess implements Callable<Integer> {
-    private static final Logger log = LoggerFactory.getLogger(CopyDockerFileProcess.class);
+public class CleanDockerContainerProcess implements Callable<Integer> {
+    private static final Logger log = LoggerFactory.getLogger(CleanDockerContainerProcess.class);
     private final List<String> command;
 
-    public CopyDockerFileProcess(String dockerContainerName, String dockerPathToExport, String localPathToExport) {
+    public CleanDockerContainerProcess(String dockerContainerName) {
         command = new ArrayList<>();
         command.add("docker");
-        command.add("cp");
-        command.add(dockerContainerName + ":" + dockerPathToExport + ".");
-        command.add(localPathToExport);
+        command.add("rm");
+        command.add(dockerContainerName);
     }
 
     @Override
     public Integer call() throws IOException, InterruptedException {
-        log.debug("CopyProcess receives command '{}'...", command);
+        log.debug("Running cleaning docker process with command '{}'...", command);
         int exitCode;
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
@@ -40,7 +39,7 @@ public class CopyDockerFileProcess implements Callable<Integer> {
         while ((line = br.readLine()) != null) {
             log.debug(line);
 
-            if (line.contains("No such container:path")) {
+            if (line.contains("No such container")) {
                 return 2;
             } else if (line.contains("Error")) {
                 throw new IOException(line);

@@ -1,9 +1,9 @@
-package com.l1sk1sh.vladikbot.services;
+package com.l1sk1sh.vladikbot.services.backup;
 
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.services.processes.BackupDockerProcess;
-import com.l1sk1sh.vladikbot.services.processes.CleanDockerContainerProcess;
-import com.l1sk1sh.vladikbot.services.processes.CopyDockerFileProcess;
+import com.l1sk1sh.vladikbot.services.backup.processes.BackupDockerProcess;
+import com.l1sk1sh.vladikbot.services.backup.processes.CleanDockerContainerProcess;
+import com.l1sk1sh.vladikbot.services.backup.processes.CopyDockerFileProcess;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import org.slf4j.Logger;

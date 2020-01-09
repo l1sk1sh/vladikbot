@@ -26,6 +26,13 @@ public class QuoteCommand extends Command {
     protected void execute(CommandEvent event) {
         try {
             Quote quote = bot.getRandomQuoteRetriever().call();
+
+            if (quote == null) {
+                log.warn("Quote is empty.");
+
+                return;
+            }
+
             event.reply(String.format("\"%1$s\" %2$s",
                     quote.getContent(),
                     quote.getAuthor()));

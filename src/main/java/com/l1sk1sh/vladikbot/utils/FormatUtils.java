@@ -5,6 +5,8 @@ import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.VoiceChannel;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -103,5 +105,11 @@ public final class FormatUtils {
     public static String filter(String input) {
         return input.replace("@everyone", "@\u0435veryone")
                 .replace("@here", "@h\u0435re").trim(); /* cyrillic letter e */
+    }
+
+    public static String getDate(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+
+        return formatter.format(date);
     }
 }

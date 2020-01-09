@@ -24,6 +24,7 @@ manifest.mf
 # Security ignore
 settings_bot.json
 settings_guild.json
+storage.json
 
 # Local files
 app/

@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.ReplyRule;
-import com.l1sk1sh.vladikbot.services.AutoReplyManager;
+import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import org.slf4j.Logger;
@@ -259,8 +259,12 @@ public class AutoReplyCommand extends AdminCommand {
             }
 
             String lastArgument = args[args.length - 1];
+
             try {
                 double replyChance = Double.parseDouble(lastArgument);
+                if (replyChance < 0.0 || replyChance > 1.0) {
+                    event.replyWarning(String.format("Reply chance should be in range [0.0 - 1.0]. `%1$s` given", replyChance));
+                }
                 bot.getBotSettings().setReplyChange(replyChance);
                 event.replySuccess(String.format("Reply chance is now %1$s%%", replyChance * 100));
             } catch (NumberFormatException nfe) {

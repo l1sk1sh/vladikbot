@@ -8,6 +8,7 @@ import com.l1sk1sh.vladikbot.commands.admin.*;
 import com.l1sk1sh.vladikbot.commands.dj.*;
 import com.l1sk1sh.vladikbot.commands.everyone.QuoteCommand;
 import com.l1sk1sh.vladikbot.commands.everyone.SettingsCommand;
+import com.l1sk1sh.vladikbot.commands.everyone.SongInfoCommand;
 import com.l1sk1sh.vladikbot.commands.everyone.StatusCommand;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
@@ -78,6 +79,7 @@ final class VladikBot {
                             new StatusCommand(botSettings),
                             new DebugCommand(bot),
                             new QuoteCommand(bot),
+                            new SongInfoCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),

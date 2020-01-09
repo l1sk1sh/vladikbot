@@ -1,4 +1,4 @@
-package com.l1sk1sh.vladikbot.services.processes;
+package com.l1sk1sh.vladikbot.services.backup.processes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,20 +13,19 @@ import java.util.concurrent.Callable;
 /**
  * @author Oliver Johnson
  */
-public class CleanDockerContainerProcess implements Callable<Integer> {
-    private static final Logger log = LoggerFactory.getLogger(CleanDockerContainerProcess.class);
+public class DockerCallProcess implements Callable<Integer> {
+    private static final Logger log = LoggerFactory.getLogger(DockerCallProcess.class);
     private final List<String> command;
 
-    public CleanDockerContainerProcess(String dockerContainerName) {
+    public DockerCallProcess() {
         command = new ArrayList<>();
         command.add("docker");
-        command.add("rm");
-        command.add(dockerContainerName);
+        command.add("ps");
     }
 
     @Override
     public Integer call() throws IOException, InterruptedException {
-        log.debug("Running cleaning docker process with command '{}'...", command);
+        log.debug("DockerCall receives command '{}'...", command);
         int exitCode;
         ProcessBuilder pb = new ProcessBuilder();
         pb.redirectErrorStream(true);
@@ -39,10 +38,10 @@ public class CleanDockerContainerProcess implements Callable<Integer> {
         while ((line = br.readLine()) != null) {
             log.debug(line);
 
-            if (line.contains("No such container")) {
+            if (line.contains("command not found")) {
                 return 2;
-            } else if (line.contains("Error")) {
-                throw new IOException(line);
+            } else if (line.contains("Cannot connect to the Docker daemon")) {
+                return 3;
             }
         }
 

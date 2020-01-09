@@ -1,4 +1,4 @@
-package com.l1sk1sh.vladikbot.services;
+package com.l1sk1sh.vladikbot.services.backup;
 
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
@@ -17,14 +17,14 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class AutoTextBackupDaemon implements ScheduledTask {
-    private static final Logger log = LoggerFactory.getLogger(AutoTextBackupDaemon.class);
+public class AutoMediaBackupDaemon implements ScheduledTask {
+    private static final Logger log = LoggerFactory.getLogger(AutoMediaBackupDaemon.class);
     private final FixedScheduledExecutor fixedScheduledExecutor;
     private final Bot bot;
 
-    public AutoTextBackupDaemon(Bot bot) {
+    public AutoMediaBackupDaemon(Bot bot) {
         this.bot = bot;
-        fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getThreadPool());
+        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getThreadPool());
     }
 
     public void execute() {
@@ -32,7 +32,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
             return;
         }
 
-        if (!bot.getBotSettings().shouldAutoTextBackup()) {
+        if (!bot.getBotSettings().shouldAutoMediaBackup()) {
             return;
         }
 
@@ -46,17 +46,17 @@ public class AutoTextBackupDaemon implements ScheduledTask {
         }
 
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
-        int maxAmountOfBackupsPerGuild = 3;
+        int maxAmountOfBackupsPerGuild = 2;
 
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
-            log.info("Automatic text backup has started it's execution.");
+            log.info("Automatic media backup has started it's execution.");
 
             for (TextChannel channel : availableChannels) {
-                log.info("Starting auto text backup of channel '{}' at guild '{}'.", channel.getName(), channel.getGuild());
+                log.info("Starting text backup for auto media backup of channel {} at guild {}", channel.getName(), channel.getGuild());
 
                 try {
-                    String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
+                    String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
                             + BotUtils.getNormalizedGuildName(channel.getGuild()) + "/";
 
                     String pathToDateBackup = pathToGuildBackup
@@ -68,8 +68,8 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                             bot,
                             channel.getId(),
-                            Const.BackupFileType.PLAIN_TEXT,
-                            pathToDateBackup,
+                            Const.BackupFileType.HTML_DARK,
+                            bot.getBotSettings().getLocalTmpFolder(),
                             null,
                             null,
                             false
@@ -80,21 +80,48 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     try {
                         backupChannelServiceThread.join();
                     } catch (InterruptedException e) {
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process was interrupted!");
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process required for media backup was interrupted!");
                         return;
                     }
 
                     if (backupTextChannelService.hasFailed()) {
                         bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
-                                String.format("Text channel backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
+                                String.format("Text channel backup required for media backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
                         return;
                     }
 
-                    log.info("Finished auto text backup of '{}'.", channel.getName());
+                    File exportedTextFile = backupTextChannelService.getBackupFile();
+
+                    BackupMediaService backupMediaService = new BackupMediaService(
+                            bot,
+                            channel.getId(),
+                            exportedTextFile,
+                            pathToDateBackup,
+                            new String[]{""}
+                    );
+
+                    /* Creating new thread from media backup service and waiting for it to finish */
+                    Thread backupMediaServiceThread = new Thread(backupMediaService);
+                    log.info("Starting backupMediaService...");
+                    backupMediaServiceThread.start();
+                    try {
+                        backupMediaServiceThread.join();
+                    } catch (InterruptedException e) {
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Media backup process was interrupted!");
+                        return;
+                    }
+
+                    if (backupMediaService.hasFailed()) {
+                        log.error("BackupMediaService has failed: {}", backupTextChannelService.getFailMessage());
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
+                        return;
+                    }
+
+                    log.info("Finished auto media backup of {}", channel.getName());
 
                     File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
                     if (directories != null && directories.length >= maxAmountOfBackupsPerGuild) {
-                        log.debug("Auto text backup reached limit of allowed backups. Clearing...");
+                        log.debug("Auto media backup reached limit of allowed backups. Clearing...");
 
                         File oldestDirectory = null;
                         long oldestDate = Long.MAX_VALUE;
@@ -113,28 +140,30 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     }
 
                 } catch (Exception e) {
-                    log.error("Failed to create auto backup:", e);
+                    log.error("Failed to create auto media backup", e);
                     bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
-                            String.format("Auto text backup of chat `%1$s` has failed due to: `%2$s`!", channel.getName(), e.getLocalizedMessage()));
+                            String.format("Auto media backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
+                    break;
                 } finally {
                     bot.setLockedAutoBackup(false);
                 }
             }
-            log.info("Automatic text backup has finished it's execution.");
+
+            log.info("Automatic media backup has finished it's execution.");
         }).start();
     }
 
     public void start() {
-        int dayDelay = bot.getBotSettings().getDelayDaysForAutoTextBackup();
-        int targetHour = bot.getBotSettings().getTargetHourForAutoTextBackup();
+        int dayDelay = bot.getBotSettings().getDelayDaysForAutoMediaBackup();
+        int targetHour = bot.getBotSettings().getTargetHourForAutoMediaBackup();
         int targetMin = 0;
         int targetSec = 0;
         fixedScheduledExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
-        log.info(String.format("Text backup will be performed in %2d days at %02d:%02d:%02d local time.", dayDelay, targetHour, targetMin, targetSec));
+        log.info(String.format("Media backup will be performed in %2d days at %02d:%02d:%02d local time", dayDelay, targetHour, targetMin, targetSec));
     }
 
     public void stop() {
-        log.info("Cancelling scheduled auto text backup task...");
+        log.info("Cancelling scheduled auto media task...");
         fixedScheduledExecutor.stop();
     }
 }

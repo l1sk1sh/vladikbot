@@ -5,6 +5,12 @@ Bot is written using JDA library and common sense.
 - [Yui-bot](https://github.com/DV8FromTheWorld/Yui) for basic idea of how discord bot should work
 - [JMusic](https://github.com/jagrosh/MusicBot) (_10 of November 2019_) for wonderful and simple MusicBot, that has become a core of project
 - [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases) for discord chat backup solution
+- [Dyno Bot](https://dyno.gg/bot) for great ideas on how to improve and extend bot
+#### Recommended launch options
+- -Dconsole.encoding=UTF-8 
+- -Dfile.encoding=UTF-8 
+- -Djenkins
+- -Droot_log_level=INFO
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
    1. `itunes [song name]` - Get info on a song
@@ -44,7 +50,6 @@ Bot is written using JDA library and common sense.
 29. Understand how ownership of commands works
 31. Remove IOException for certain types (like rule not found)
 35. Calculate auto backup time from last moment of backup. Not absolute time
-38. Or create rotation that will automatically remove old folders
 39. Add RichPresence to game activity
 
 Reply recommendations:
