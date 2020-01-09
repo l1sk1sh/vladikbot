@@ -8,13 +8,11 @@ import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.MessageBuilder;
 import okhttp3.*;
-import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -22,7 +20,7 @@ import java.util.regex.Pattern;
  * @author Oliver Johnson
  */
 public class SongInfoCommand extends Command {
-    private static final Logger log = LoggerFactory.getLogger(QuoteCommand.class);
+    private static final Logger log = LoggerFactory.getLogger(SongInfoCommand.class);
     private final OkHttpClient client;
 
     public SongInfoCommand() {

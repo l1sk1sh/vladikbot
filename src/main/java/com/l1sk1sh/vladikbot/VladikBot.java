@@ -6,10 +6,7 @@ import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.examples.command.PingCommand;
 import com.l1sk1sh.vladikbot.commands.admin.*;
 import com.l1sk1sh.vladikbot.commands.dj.*;
-import com.l1sk1sh.vladikbot.commands.everyone.QuoteCommand;
-import com.l1sk1sh.vladikbot.commands.everyone.SettingsCommand;
-import com.l1sk1sh.vladikbot.commands.everyone.SongInfoCommand;
-import com.l1sk1sh.vladikbot.commands.everyone.StatusCommand;
+import com.l1sk1sh.vladikbot.commands.everyone.*;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
@@ -80,6 +77,7 @@ final class VladikBot {
                             new DebugCommand(bot),
                             new QuoteCommand(bot),
                             new SongInfoCommand(),
+                            new DogFactCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),

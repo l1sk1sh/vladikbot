@@ -13,9 +13,6 @@ Bot is written using JDA library and common sense.
 - -Droot_log_level=INFO
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
-   1. `itunes [song name]` - Get info on a song
-   3. `joke` - Get a joke
-   4. `dogfact` - Get random Dog Facts with this command
    5. `dog` - Find some cute dog pictures
    6. `cat` - Find some cute cat pictures
    7. `roll [size] [number of dice]` - Roll the dice (support optional size: d4, d8, d10, d12, d20, d00)
