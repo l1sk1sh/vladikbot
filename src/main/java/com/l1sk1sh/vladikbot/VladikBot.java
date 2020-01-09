@@ -78,6 +78,7 @@ final class VladikBot {
                             new QuoteCommand(bot),
                             new SongInfoCommand(),
                             new DogFactCommand(),
+                            new CatFactCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),
