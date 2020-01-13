@@ -30,6 +30,8 @@ Bot is written using JDA library and common sense.
 31. Remove IOException for certain types (like rule not found)
 35. Calculate auto backup time from last moment of backup. Not absolute time
 39. Add RichPresence to game activity
+40. Add news (gaming or major news) integration
+41. Add NSFW images sending
 
 Reply recommendations:
 3) Добавить возможность процентно задать распределение между двумя режимами ответа. Настраивается параметром извне.
