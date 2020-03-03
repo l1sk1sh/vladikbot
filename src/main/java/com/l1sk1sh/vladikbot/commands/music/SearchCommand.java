@@ -109,7 +109,7 @@ public class SearchCommand extends MusicCommand {
                         int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
                         event.replySuccess(String.format(
                                 "Added **%1$s** (`%2$s`) %3$s.",
-                                track.getInfo().title,
+                                FormatUtils.filter(track.getInfo().title),
                                 FormatUtils.formatTimeTillHours(track.getDuration()),
                                 ((pos == 0) ? "to begin playing" : " to the queue at position " + pos))
                         );

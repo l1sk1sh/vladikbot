@@ -34,6 +34,7 @@ public class DebugCommand extends OwnerCommand {
     @Override
     protected final void execute(CommandEvent event) {
         StringBuilder sb = new StringBuilder();
+        sb.append("```\n");
         sb.append("System Properties:");
         for (String key : PROPERTIES) {
             sb.append("\n  ").append(key).append(" = ").append(System.getProperty(key));
@@ -62,12 +63,13 @@ public class DebugCommand extends OwnerCommand {
                 .append("\n  ID = ").append(event.getJDA().getSelfUser().getId())
                 .append("\n  Guilds = ").append(event.getJDA().getGuildCache().size())
                 .append("\n  Users = ").append(event.getJDA().getUserCache().size());
+        sb.append("\n```");
 
         if (event.isFromType(ChannelType.PRIVATE)
                 || event.getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ATTACH_FILES)) {
             event.getChannel().sendFile(sb.toString().getBytes(), "debug_information.txt").queue();
         } else {
-            event.reply("Debug Information: ```\n" + sb.toString() + "\n```");
+            event.reply("Debug Information: " + sb.toString() + "");
         }
 
         log.info("Debug command was sent to {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());

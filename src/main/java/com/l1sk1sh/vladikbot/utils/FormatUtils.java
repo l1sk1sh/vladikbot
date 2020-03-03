@@ -24,11 +24,13 @@ public final class FormatUtils {
         if (duration == Long.MAX_VALUE) {
             return "LIVE";
         }
+
         long seconds = Math.round(duration / durationDivider);
         long hours = seconds / (Const.SECONDS_IN_MINUTES * Const.SECONDS_IN_MINUTES);
         seconds %= Const.SECONDS_IN_MINUTES * Const.SECONDS_IN_MINUTES;
         long minutes = seconds / Const.SECONDS_IN_MINUTES;
         seconds %= Const.SECONDS_IN_MINUTES;
+
         return (hours > 0 ? hours + ":" : "") + (minutes < thresholdTime ? "0" + minutes : minutes)
                 + ":" + (seconds < thresholdTime ? "0" + seconds : seconds);
     }
@@ -44,6 +46,7 @@ public final class FormatUtils {
                 stringBuilder.append("▬");
             }
         }
+
         return stringBuilder.toString();
     }
 
@@ -54,12 +57,15 @@ public final class FormatUtils {
         if (volume == 0) {
             return Const.VOLUME_OFF_EMOJI;
         }
+
         if (volume < volume30) {
             return Const.VOLUME_30_EMOJI;
         }
+
         if (volume < volume70) {
             return Const.VOLUME_70_EMOJI;
         }
+
         return Const.VOLUME_100_EMOJI;
     }
 
@@ -70,9 +76,11 @@ public final class FormatUtils {
         for (int i = 0; i < textChannelsListLimit && i < list.size(); i++) {
             out.append("\r\n - ").append(list.get(i).getName()).append(" (<#").append(list.get(i).getId()).append(">)");
         }
+
         if (list.size() > textChannelsListLimit) {
             out.append("\r\n**And ").append(list.size() - textChannelsListLimit).append(" more...**");
         }
+
         return out.toString();
     }
 
@@ -83,9 +91,11 @@ public final class FormatUtils {
         for (int i = 0; i < voiceChannelsListLimit && i < list.size(); i++) {
             out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
+
         if (list.size() > voiceChannelsListLimit) {
             out.append("\r\n**And ").append(list.size() - voiceChannelsListLimit).append(" more...**");
         }
+
         return out.toString();
     }
 
@@ -96,15 +106,19 @@ public final class FormatUtils {
         for (int i = 0; i < rolesListLimit && i < list.size(); i++) {
             out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
+
         if (list.size() > rolesListLimit) {
             out.append("\r\n**And ").append(list.size() - rolesListLimit).append(" more...**");
         }
+
         return out.toString();
     }
 
     public static String filter(String input) {
-        return input.replace("@everyone", "@\u0435veryone")
-                .replace("@here", "@h\u0435re").trim(); /* cyrillic letter e */
+        return input.replace("\u202E","")
+                .replace("@everyone", "@\u0435veryone") /* cyrillic letter e */
+                .replace("@here", "@h\u0435re") /* cyrillic letter e */
+                .trim();
     }
 
     public static String getDateFromDatetime(Date date) {

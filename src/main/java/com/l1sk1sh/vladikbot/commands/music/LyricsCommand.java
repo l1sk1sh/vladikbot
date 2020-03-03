@@ -39,7 +39,11 @@ public class LyricsCommand extends MusicCommand {
         client.getLyrics(title).thenAccept(lyrics ->
         {
             if (lyrics == null) {
-                event.replyError(String.format("Lyrics for `%1$s` could not be found!", title));
+                event.replyError(String.format("Lyrics for `%1$s` could not be found!%2$s",
+                        title,
+                        (event.getArgs().isEmpty()) ?
+                                " Try entering the song name manually (`lyrics [song name]`)"
+                                : ""));
                 return;
             }
 

@@ -20,7 +20,7 @@ java {
 }
 
 group 'сom.l1sk1sh'
-version '1.1.1'
+version '1.1.2'
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
@@ -49,7 +49,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'org.slf4j:slf4j-api:1.7.26'
     implementation 'ch.qos.logback:logback-classic:1.2.3'
-    implementation 'com.sedmelluq:lavaplayer:1.3.25'
+    implementation 'com.sedmelluq:lavaplayer:1.3.34'
     implementation 'org.fusesource.jansi:jansi:1.18'
     implementation 'org.zeroturnaround:zt-zip:1.13'
     implementation 'com.opencsv:opencsv:5.0'
