@@ -44,6 +44,8 @@ public class FixedScheduledExecutor {
     }
 
     public void stop() {
-        scheduledFuture.cancel(false);
+        if (scheduledFuture != null) {
+            scheduledFuture.cancel(false);
+        }
     }
 }

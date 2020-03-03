@@ -48,6 +48,11 @@ public class AutoBackupCommand extends OwnerCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
+                            if (bot.getBotSettings().shouldAutoTextBackup()) {
+                                log.info("Auto text backup is already enabled.");
+                                break;
+                            }
+
                             bot.getBotSettings().setAutoTextBackup(true);
                             bot.getAutoTextBackupDaemon().start();
                             log.info("Auto text backup was enabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
@@ -55,6 +60,11 @@ public class AutoBackupCommand extends OwnerCommand {
                             break;
                         case "off":
                         case "disable":
+                            if (!bot.getBotSettings().shouldAutoTextBackup()) {
+                                log.info("Auto text backup is already disabled.");
+                                break;
+                            }
+
                             bot.getBotSettings().setAutoTextBackup(false);
                             log.info("Auto text backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
                             bot.getAutoTextBackupDaemon().stop();
@@ -84,6 +94,11 @@ public class AutoBackupCommand extends OwnerCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
+                            if (bot.getBotSettings().shouldAutoMediaBackup()) {
+                                log.info("Auto media backup is already enabled.");
+                                break;
+                            }
+
                             bot.getBotSettings().setAutoMediaBackup(true);
                             bot.getAutoMediaBackupDaemon().start();
                             log.info("Auto media backup was enabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
@@ -91,8 +106,13 @@ public class AutoBackupCommand extends OwnerCommand {
                             break;
                         case "off":
                         case "disable":
+                            if (!bot.getBotSettings().shouldAutoMediaBackup()) {
+                                log.info("Auto media backup is already disabled.");
+                                break;
+                            }
+
                             bot.getBotSettings().setAutoMediaBackup(false);
-                            bot.getAutoMediaBackupDaemon().start();
+                            bot.getAutoMediaBackupDaemon().stop();
                             log.info("Auto media backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
                             event.replySuccess("Auto Media Backup is now disabled!");
                             break;
@@ -115,6 +135,7 @@ public class AutoBackupCommand extends OwnerCommand {
         protected final void execute(CommandEvent event) {
             log.info("Full text backup is about to be executed by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
             bot.getAutoTextBackupDaemon().execute();
+            event.reply("Launched full text backup using daemon.");
         }
     }
 
@@ -129,6 +150,7 @@ public class AutoBackupCommand extends OwnerCommand {
         protected final void execute(CommandEvent event) {
             log.info("Full media backup is about to be executed by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
             bot.getAutoMediaBackupDaemon().execute();
+            event.reply("Launched full media backup using daemon.");
         }
     }
 }

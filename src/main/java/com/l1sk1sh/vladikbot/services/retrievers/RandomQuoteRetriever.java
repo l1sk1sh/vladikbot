@@ -12,6 +12,9 @@ import java.util.concurrent.Callable;
 
 /**
  * @author Oliver Johnson
+ *
+ * This API call generated separately, as it is being used in a few places.
+ * Other API interactions are contained into command itself.
  */
 public class RandomQuoteRetriever implements Callable<Quote> {
 

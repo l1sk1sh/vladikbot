@@ -18,7 +18,6 @@ Bot is written using JDA library and common sense.
    21. `whois [user mention]` - Get user information
    22. `whoisip [ip]` - Get info from WHOISIP service (https://ip-api.com/docs/api:json)
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
-7. Test lyrics command
 14. Implement wordFrequencyAnalyzer
 18. Separate Auto Reply per guild
 19. Separate status rotation per guild

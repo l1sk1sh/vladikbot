@@ -5,6 +5,7 @@ import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
+import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
 import net.dv8tion.jda.core.entities.TextChannel;
@@ -21,6 +22,8 @@ public class AutoTextBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoTextBackupDaemon.class);
     private final FixedScheduledExecutor fixedScheduledExecutor;
     private final Bot bot;
+    private final static int MAX_AMOUNT_OF_BACKUPS_PER_GUILD = 3;
+    private final static int MIN_DAY_BEFORE_BACKUP = 1;
 
     public AutoTextBackupDaemon(Bot bot) {
         this.bot = bot;
@@ -45,8 +48,9 @@ public class AutoTextBackupDaemon implements ScheduledTask {
             return;
         }
 
+        bot.getOfflineStorage().setLastAutoTextBackupTime(System.currentTimeMillis());
+
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
-        int maxAmountOfBackupsPerGuild = 3;
 
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
@@ -93,7 +97,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     log.info("Finished auto text backup of '{}'.", channel.getName());
 
                     File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
-                    if (directories != null && directories.length >= maxAmountOfBackupsPerGuild) {
+                    if (directories != null && directories.length >= MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
                         log.debug("Auto text backup reached limit of allowed backups. Clearing...");
 
                         File oldestDirectory = null;
@@ -125,7 +129,14 @@ public class AutoTextBackupDaemon implements ScheduledTask {
     }
 
     public void start() {
-        int dayDelay = bot.getBotSettings().getDelayDaysForAutoTextBackup();
+        long lastBackupTime = (bot.getOfflineStorage().getLastAutoTextBackupTime() == 0)
+                ? System.currentTimeMillis()
+                : bot.getOfflineStorage().getLastAutoTextBackupTime();
+        int differenceInDays = DateAndTimeUtils.getDifferenceInDaysBetweenUnixTimestamps(lastBackupTime, System.currentTimeMillis());
+
+        int dayDelay = (differenceInDays >= bot.getBotSettings().getDelayDaysForAutoMediaBackup())
+                ? bot.getBotSettings().getDelayDaysForAutoMediaBackup()
+                : MIN_DAY_BEFORE_BACKUP;
         int targetHour = bot.getBotSettings().getTargetHourForAutoTextBackup();
         int targetMin = 0;
         int targetSec = 0;

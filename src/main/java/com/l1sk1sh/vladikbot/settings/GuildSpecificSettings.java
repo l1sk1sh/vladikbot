@@ -17,7 +17,7 @@ public class GuildSpecificSettings {
     private long notificationChannelId = 0L;                    // Use separate system notification channel for bot
     private long djRoleId = 0L;                                 // Sets who can use DJ commands
     private String defaultPlaylist = "default_playlist";        // Sets name of default playlist
-    private int volume = 50;                                     // Sets volume of the bot
+    private int volume = 50;                                    // Sets volume of the bot
 
     GuildSpecificSettings(GuildSpecificSettingsManager manager) {
         this.manager = manager;
