@@ -101,7 +101,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                             channel.getId(),
                             exportedTextFile,
                             pathToDateBackup,
-                            new String[]{""}
+                            new String[]{"--zip"}
                     );
 
                     /* Creating new thread from media backup service and waiting for it to finish */
