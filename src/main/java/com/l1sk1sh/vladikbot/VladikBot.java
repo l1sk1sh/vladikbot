@@ -88,6 +88,7 @@ final class VladikBot {
                             new SteamStatusCommand(),
                             new FlipCoinCommand(),
                             new ISSInfoCommand(),
+                            new JokeCommand(),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),
