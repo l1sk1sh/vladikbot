@@ -39,6 +39,8 @@
     </appender>
 
     <logger name="net.dv8tion.jda" level="INFO" />
+    <logger name="org.apache.http" level="INFO" />
+    <logger name="com.github.dockerjava" level="INFO" />
 
     <!-- Here you can set the base log level. If DEBUG is too chatty for you, you can use INFO -->
     <!-- Possible options are: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF -->

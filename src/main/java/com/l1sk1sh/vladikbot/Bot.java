@@ -17,7 +17,7 @@ import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
 import com.l1sk1sh.vladikbot.services.backup.AutoMediaBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
-import com.l1sk1sh.vladikbot.services.backup.DockerAvailabilityVerificationService;
+import com.l1sk1sh.vladikbot.services.backup.DockerService;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.services.presence.GameAndActionSimulationManager;
 import com.l1sk1sh.vladikbot.services.retrievers.RandomQuoteRetriever;
@@ -53,7 +53,7 @@ public class Bot {
     private final AutoTextBackupDaemon autoTextBackupDaemon;
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final ChatNotificationService notificationService;
-    private final DockerAvailabilityVerificationService dockerAvailabilityVerificationService;
+    private final DockerService dockerService;
     private final RandomQuoteRetriever randomQuoteRetriever;
 
     public static Random rand;
@@ -83,7 +83,7 @@ public class Bot {
         this.autoTextBackupDaemon = new AutoTextBackupDaemon(this);
         this.autoMediaBackupDaemon = new AutoMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
-        this.dockerAvailabilityVerificationService = new DockerAvailabilityVerificationService();
+        this.dockerService = new DockerService(this);
         this.randomQuoteRetriever = new RandomQuoteRetriever();
     }
 
@@ -209,8 +209,8 @@ public class Bot {
         return notificationService;
     }
 
-    DockerAvailabilityVerificationService getDockerAvailabilityVerificationService() {
-        return dockerAvailabilityVerificationService;
+    public DockerService getDockerService() {
+        return dockerService;
     }
 
     public RandomQuoteRetriever getRandomQuoteRetriever() {

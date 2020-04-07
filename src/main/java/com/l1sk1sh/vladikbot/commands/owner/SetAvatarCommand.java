@@ -38,10 +38,13 @@ public class SetAvatarCommand extends OwnerCommand {
             url = event.getArgs();
         }
 
-        InputStream inputStream = BotUtils.imageFromUrl(url);
-        if (inputStream == null) {
-            event.replyError("Invalid or missing URL.");
-        } else {
+        try (InputStream inputStream = BotUtils.imageFromUrl(url)) {
+            if (inputStream == null) {
+                event.replyError("Invalid or missing URL.");
+
+                return;
+            }
+
             try {
                 event.getSelfUser().getManager().setAvatar(Icon.from(inputStream)).queue(
                         v -> event.reply(event.getClient().getSuccess() + " Successfully changed avatar."),
@@ -50,6 +53,10 @@ public class SetAvatarCommand extends OwnerCommand {
             } catch (IOException e) {
                 event.replyError("Could not load from provided URL.");
             }
+
+        } catch (IOException e) {
+            log.error("Failed to download image from URL for avatar.", e);
+            event.replyError("Unable to download image from specified URL.");
         }
     }
 }

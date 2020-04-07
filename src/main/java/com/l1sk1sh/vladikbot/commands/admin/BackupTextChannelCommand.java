@@ -22,7 +22,7 @@ public class BackupTextChannelCommand extends AdminCommand {
     private Const.BackupFileType format;
     private String beforeDate;
     private String afterDate;
-    private boolean ignoreExistingBackup;
+    private boolean useExistingBackup;
 
     public BackupTextChannelCommand(Bot bot) {
         this.bot = bot;
@@ -36,7 +36,7 @@ public class BackupTextChannelCommand extends AdminCommand {
         this.format = Const.BackupFileType.HTML_DARK;
         this.beforeDate = null;
         this.afterDate = null;
-        this.ignoreExistingBackup = true;
+        this.useExistingBackup = true;
     }
 
     @Override
@@ -62,7 +62,7 @@ public class BackupTextChannelCommand extends AdminCommand {
                 bot.getBotSettings().getLocalTmpFolder(),
                 beforeDate,
                 afterDate,
-                ignoreExistingBackup
+                useExistingBackup
         );
 
         /* This thread will wait for backup to finish. Separating allows using bot while backup is running */
@@ -119,7 +119,7 @@ public class BackupTextChannelCommand extends AdminCommand {
                     case "--force":
 
                         /* If force is specified - do not ignore existing files  */
-                        ignoreExistingBackup = false;
+                        useExistingBackup = false;
                         break;
                     case "--format":
                         switch (args[i + 1]) {

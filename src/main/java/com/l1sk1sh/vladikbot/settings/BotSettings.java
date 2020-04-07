@@ -16,9 +16,7 @@ public class BotSettings {
     /* Finish all paths with file system separator! */
     private String token = "MY_BOT_TOKEN";                              // Bot token taken from discord developer portal
     private long ownerId = 0L;                                          // Id of the person, who is hosting the bot
-    private String dockerContainerName = "disbackup";                   // Docker container name
     private String localTmpFolder = "./app/tmp/";                       // Local tmp for workdir
-    private String dockerPathToExport = "/app/out/";                    // Docker disbackup workdir (check repository if fails)
     private String rotationBackupFolder = "./app/backup/";              // Local rotation backup folder (that will be stored)
     private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
     private String rulesFolder = "./app/rules/";                        // Local storage for automoderation settings
@@ -46,6 +44,7 @@ public class BotSettings {
     private int targetHourForAutoMediaBackup = 0;                       // Set local TZ hour for media backup to be started
     private int delayDaysForAutoTextBackup = 0;                         // Set delay in days between text backups
     private int delayDaysForAutoMediaBackup = 0;                        // Set delay in days between text backups
+    private String dockerHost = "tcp://localhost:2375";                 // Set custom docker host
 
     BotSettings(BotSettingsManager manager) {
         this.manager = manager;
@@ -61,14 +60,6 @@ public class BotSettings {
 
     public final long getOwnerId() {
         return ownerId;
-    }
-
-    public final String getDockerContainerName() {
-        return dockerContainerName;
-    }
-
-    public final String getDockerPathToExport() {
-        return dockerPathToExport;
     }
 
     public final String getLocalTmpFolder() {
@@ -246,5 +237,9 @@ public class BotSettings {
     public void setDelayDaysForAutoMediaBackup(int delayDaysForMediaBackup) {
         this.delayDaysForAutoMediaBackup = delayDaysForMediaBackup;
         manager.writeSettings();
+    }
+
+    public String getDockerHost() {
+        return dockerHost;
     }
 }

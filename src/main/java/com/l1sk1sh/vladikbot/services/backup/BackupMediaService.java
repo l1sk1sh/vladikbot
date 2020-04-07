@@ -51,7 +51,7 @@ public class BackupMediaService implements Runnable {
         this.args = args;
         this.channelId = channelId;
         this.textBackupFile = textBackupFile;
-        this.localAttachmentsListName = textBackupFile.getName().replace("." + Const.FileType.txt.name(), "") + " - media list";
+        this.localAttachmentsListName = textBackupFile.getName().replace("." + Const.FileType.html.name(), "") + " - media list";
         this.localAttachmentsListPath = localAttachmentsListPath + "media-lists/"; /* Always moving list files to separate folder */
         this.localAttachmentsPath = localAttachmentsListPath + "attachments/"; /* Always moving attachments to separate folder */
     }
@@ -187,13 +187,20 @@ public class BackupMediaService implements Runnable {
     }
 
     private void downloadFile(URL url, String localFileNamePath) throws IOException {
-        if (FileUtils.fileOrFolderIsAbsent(localFileNamePath)) {
-            log.info("Downloading file [{}].", localFileNamePath);
-            URLConnection connection = url.openConnection();
-            connection.setRequestProperty("User-Agent", Const.USER_AGENT);
-            ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());
-            FileOutputStream fileOutputStream = new FileOutputStream(localFileNamePath);
-            FileChannel writeChannel = fileOutputStream.getChannel();
+        if (!FileUtils.fileOrFolderIsAbsent(localFileNamePath)) {
+            return;
+        }
+
+        // copyURLToFile() from Commons library won't work without user agent due to 403
+
+        log.info("Downloading file [{}].", localFileNamePath);
+        URLConnection connection = url.openConnection();
+        connection.setRequestProperty("User-Agent", Const.USER_AGENT);
+
+        try (ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());
+             FileOutputStream fileOutputStream = new FileOutputStream(localFileNamePath);
+             FileChannel writeChannel = fileOutputStream.getChannel()) {
+
             writeChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
         }
     }

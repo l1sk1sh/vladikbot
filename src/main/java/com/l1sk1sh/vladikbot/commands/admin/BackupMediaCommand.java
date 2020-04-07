@@ -22,7 +22,7 @@ public class BackupMediaCommand extends AdminCommand {
     private final Bot bot;
     private String beforeDate;
     private String afterDate;
-    private boolean ignoreExistingBackup;
+    private boolean useExistingBackup;
 
     public BackupMediaCommand(Bot bot) {
         this.bot = bot;
@@ -34,6 +34,7 @@ public class BackupMediaCommand extends AdminCommand {
                 + "\t\t `--format <csv|html>` - desired format of backup";
         this.arguments = "-a, -b, -f, -a, -z";
         this.guildOnly = true;
+        this.useExistingBackup = true;
     }
 
     @Override
@@ -59,7 +60,7 @@ public class BackupMediaCommand extends AdminCommand {
                 bot.getBotSettings().getLocalTmpFolder(),
                 beforeDate,
                 afterDate,
-                ignoreExistingBackup
+                useExistingBackup
         );
 
         /* Creating separate thread to allow users to work with the Bot while backup is running */
@@ -128,9 +129,20 @@ public class BackupMediaCommand extends AdminCommand {
                         "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
             }
 
-            if (backupMediaService.doZip() && backupMediaService.getZipWithAttachmentsFile().length() < Const.EIGHT_MEGABYTES_IN_BYTES) {
+            if (!backupMediaService.doZip()) {
+                return;
+            }
+
+            File archive = backupMediaService.getZipWithAttachmentsFile();
+
+            if (archive == null) {
+                event.replyWarning("Zip wasn't complete. Clear tmp folder, or try tomorrow.");
+                return;
+            }
+
+            if (archive.length() < Const.EIGHT_MEGABYTES_IN_BYTES) {
                 event.getTextChannel().sendFile(backupMediaService.getZipWithAttachmentsFile(), attachmentTxtFile.getName()).queue();
-            } else if (backupMediaService.doZip()) {
+            } else {
                 event.replySuccess("Zip with uploaded media files could now be downloaded from local storage.");
             }
         }).start();
@@ -164,7 +176,7 @@ public class BackupMediaCommand extends AdminCommand {
                     case "--force":
 
                         /* If force is specified - do not ignore existing files  */
-                        ignoreExistingBackup = false;
+                        useExistingBackup = false;
                         break;
                 }
             }

@@ -97,7 +97,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     log.info("Finished auto text backup of '{}'.", channel.getName());
 
                     File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
-                    if (directories != null && directories.length >= MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
+                    if (directories != null && directories.length > MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
                         log.debug("Auto text backup reached limit of allowed backups. Clearing...");
 
                         File oldestDirectory = null;

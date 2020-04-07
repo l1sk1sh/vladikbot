@@ -24,8 +24,10 @@ public final class BotUtils {
     private BotUtils() {}
 
     public static InputStream imageFromUrl(String url) {
-        if (url == null)
+        if (url == null) {
             return null;
+        }
+
         try {
             URL u = new URL(url);
             URLConnection urlConnection = u.openConnection();
@@ -34,6 +36,7 @@ public final class BotUtils {
         } catch (IOException | IllegalArgumentException ignore) {
             /* Ignore */
         }
+
         return null;
     }
 

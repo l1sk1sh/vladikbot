@@ -45,7 +45,7 @@ class Listener extends ListenerAdapter {
             log.warn(event.getJDA().asBot().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
 
-        if (!bot.getDockerAvailabilityVerificationService().isDockerRunning()) {
+        if (!bot.getDockerService().isDockerRunning()) {
             log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
             bot.setDockerRunning(false);
         } else {

@@ -21,7 +21,6 @@ public final class Const {
         RECOMMENDED_PERMS.add(Permission.MESSAGE_ATTACH_FILES);
         RECOMMENDED_PERMS.add(Permission.MESSAGE_MANAGE);
         RECOMMENDED_PERMS.add(Permission.MESSAGE_EXT_EMOJI);
-        RECOMMENDED_PERMS.add(Permission.MANAGE_CHANNEL);
         RECOMMENDED_PERMS.add(Permission.VOICE_CONNECT);
         RECOMMENDED_PERMS.add(Permission.VOICE_SPEAK);
         RECOMMENDED_PERMS.add(Permission.NICKNAME_CHANGE);

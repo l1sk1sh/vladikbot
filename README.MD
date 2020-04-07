@@ -11,6 +11,8 @@ Bot is written using JDA library and common sense.
 - -Dfile.encoding=UTF-8 
 - -Djenkins
 - -Droot_log_level=INFO
+#### Docker
+To ensure smooth Docker performance, make sure to expose 2375 port without TSL in Docker Settings.
 #### ToDo List
 1. Add commands (partially from DYNO.GG)
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) Implement with memory for credits, etc
@@ -31,6 +33,7 @@ Bot is written using JDA library and common sense.
 39. Add RichPresence to game activity
 40. Add news (gaming or major news) integration
 41. Add NSFW images sending
+42. Deal with duplicate code
 
 Reply recommendations:
 3) Добавить возможность процентно задать распределение между двумя режимами ответа. Настраивается параметром извне.
