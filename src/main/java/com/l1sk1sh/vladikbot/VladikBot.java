@@ -101,6 +101,7 @@ final class VladikBot {
                             new EmojiStatsCommand(waiter, bot),
                             new AutoReplyCommand(bot),
                             new GameAndActionSimulationCommand(bot),
+                            new GuildLoggerCommand(bot),
 
                             new ForceSkipCommand(bot),
                             new PauseCommand(bot),

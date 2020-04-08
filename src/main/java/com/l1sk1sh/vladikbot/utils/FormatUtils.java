@@ -1,9 +1,8 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import com.l1sk1sh.vladikbot.services.logging.MessageCache;
 import com.l1sk1sh.vladikbot.settings.Const;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.core.entities.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,8 +15,9 @@ import java.util.List;
  * @author John Grosh
  */
 public final class FormatUtils {
-    private FormatUtils() {}
-    
+    private FormatUtils() {
+    }
+
     public static String formatTimeTillHours(long duration) {
         final float durationDivider = 1000f;
         final int thresholdTime = 10;
@@ -115,7 +115,7 @@ public final class FormatUtils {
     }
 
     public static String filter(String input) {
-        return input.replace("\u202E","")
+        return input.replace("\u202E", "")
                 .replace("@everyone", "@\u0435veryone") /* cyrillic letter e */
                 .replace("@here", "@h\u0435re") /* cyrillic letter e */
                 .trim();
@@ -125,5 +125,36 @@ public final class FormatUtils {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 
         return formatter.format(date);
+    }
+
+    public static String filterEveryone(String input) {
+        return input.replace("\u202E", "") // RTL override
+                .replace("@everyone", "@\u0435veryone") // cyrillic e
+                .replace("@here", "@h\u0435re") // cyrillic e
+                .replace("discord.gg/", "dis\u0441ord.gg/"); // cyrillic c
+    }
+
+    public static String formatMessage(Message message) {
+        StringBuilder sb = new StringBuilder(message.getContentRaw());
+        message.getAttachments().forEach(att -> sb.append("\n").append(att.getUrl()));
+        return sb.length() > 2048 ? sb.toString().substring(0, 2040) : sb.toString();
+    }
+
+    public static String formatMessage(MessageCache.CachedMessage message) {
+        StringBuilder sb = new StringBuilder(message.getContentRaw());
+        message.getAttachments().forEach(att -> sb.append("\n").append(att.getUrl()));
+        return sb.length() > 2048 ? sb.toString().substring(0, 2040) : sb.toString();
+    }
+
+    public static String formatCachedMessageFullUser(MessageCache.CachedMessage msg) {
+        return filterEveryone("**" + msg.getUsername() + "**#" + msg.getDiscriminator() + " (ID:" + msg.getAuthorId() + ")");
+    }
+
+    public static String formatUser(User user) {
+        return filterEveryone("**" + user.getName() + "**#" + user.getDiscriminator());
+    }
+
+    public static String formatFullUser(User user) {
+        return filterEveryone("**" + user.getName() + "**#" + user.getDiscriminator() + " (ID:" + user.getId() + ")");
     }
 }

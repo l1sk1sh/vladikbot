@@ -20,6 +20,7 @@ public class BotSettings {
     private String rotationBackupFolder = "./app/backup/";              // Local rotation backup folder (that will be stored)
     private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
     private String rulesFolder = "./app/rules/";                        // Local storage for automoderation settings
+    private String logsFolder = "./app/logs/";                          // Local storage for guild logging
     private String prefix = "~";                                        // Bot prefix
     private String helpWord = "help";                                   // Help word used for help command
     private String successEmoji = "\uD83D\uDC4C";                       // 👌
@@ -38,6 +39,7 @@ public class BotSettings {
     private Const.MatchingStrategy matchingStrategy = Const.MatchingStrategy.full; // How reply rules should be matched
     private double replyChange = 1.0;                                   // Change that bot will reply
     private boolean simulateActionAndGamesActivity = false;             // If bot should change statuses by himself
+    private boolean logGuildChanges = false;                            // If bot should log message/avatars etc changes
     private boolean autoTextBackup = true;                              // Automatically create backups of all available chats
     private boolean autoMediaBackup = true;                             // Automatically save media from all available chats
     private int targetHourForAutoTextBackup = 0;                        // Set local TZ hour for text backup to be started
@@ -68,6 +70,10 @@ public class BotSettings {
 
     public String getRotationBackupFolder() {
         return rotationBackupFolder;
+    }
+
+    public String getLogsFolder() {
+        return logsFolder;
     }
 
     public final String getPrefix() {
@@ -182,6 +188,15 @@ public class BotSettings {
 
     public final void setSimulateActionAndGameActivity(boolean simulateActionAndGamesActivity) {
         this.simulateActionAndGamesActivity = simulateActionAndGamesActivity;
+        manager.writeSettings();
+    }
+
+    public boolean shouldLogGuildChanges() {
+        return logGuildChanges;
+    }
+
+    public void setLogGuildChanges(boolean logGuildChanges) {
+        this.logGuildChanges = logGuildChanges;
         manager.writeSettings();
     }
 

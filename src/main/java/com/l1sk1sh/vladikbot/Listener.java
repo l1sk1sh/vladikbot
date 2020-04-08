@@ -10,6 +10,8 @@ import net.dv8tion.jda.core.events.ReadyEvent;
 import net.dv8tion.jda.core.events.ShutdownEvent;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.core.events.user.update.UserUpdateAvatarEvent;
 import net.dv8tion.jda.core.hooks.ListenerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -130,14 +132,40 @@ class Listener extends ListenerAdapter {
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
         bot.getNowPlayingHandler().onMessageDelete(event.getGuild(), event.getMessageIdLong());
+
+        bot.getGuildLoggerService().onMessageDelete(event);
+    }
+
+    @Override
+    public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+        if (event.getMessage().getAuthor().isBot()) {
+            return;
+        }
+
+        bot.getGuildLoggerService().onMessageUpdate(event);
     }
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         Message message = event.getMessage();
 
-        if (!message.getAuthor().isBot() && bot.getBotSettings().shouldAutoReply()) {
+        if (message.getAuthor().isBot()) {
+            return;
+        }
+
+        if (bot.getBotSettings().shouldAutoReply()) {
             bot.getAutoReplyManager().reply(message);
+        }
+
+        if (bot.getBotSettings().shouldLogGuildChanges()) {
+            bot.getMessageCache().putMessage(message);
+        }
+    }
+
+    @Override
+    public void onUserUpdateAvatar(UserUpdateAvatarEvent event) {
+        if (!event.getUser().isBot() && bot.getBotSettings().shouldLogGuildChanges()) {
+            bot.getGuildLoggerService().onAvatarUpdate(event);
         }
     }
 

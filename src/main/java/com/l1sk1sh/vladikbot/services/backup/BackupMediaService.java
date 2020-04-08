@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.services.backup;
 
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.DownloadUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
 import org.slf4j.Logger;
@@ -10,10 +11,6 @@ import org.zeroturnaround.zip.ZipUtil;
 
 import java.io.*;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -177,31 +174,15 @@ public class BackupMediaService implements Runnable {
         FileUtils.createFolderIfAbsent(attachmentsFolderPath);
 
         for (String attachmentUrl : setOfAllAttachmentsUrls) {
-            String tempUrl = StringUtils.replaceLast(attachmentUrl, "/", "_"); /* Replacing last '/' */
-            Matcher urlNameMatcher = Pattern.compile("[^/]+$").matcher(tempUrl); /* Getting exact file name */
-            if (urlNameMatcher.find()) {
-                String remoteFileName = urlNameMatcher.group();
-                downloadFile(new URL(attachmentUrl), attachmentsFolderPath + remoteFileName);
+            String remoteFileName = DownloadUtils.getFilenameFromUrl(attachmentUrl);
+
+            if (remoteFileName.isEmpty()) {
+                remoteFileName = System.currentTimeMillis() + "." + Const.FileType.jpg.name();
             }
-        }
-    }
 
-    private void downloadFile(URL url, String localFileNamePath) throws IOException {
-        if (!FileUtils.fileOrFolderIsAbsent(localFileNamePath)) {
-            return;
-        }
-
-        // copyURLToFile() from Commons library won't work without user agent due to 403
-
-        log.info("Downloading file [{}].", localFileNamePath);
-        URLConnection connection = url.openConnection();
-        connection.setRequestProperty("User-Agent", Const.USER_AGENT);
-
-        try (ReadableByteChannel readableByteChannel = Channels.newChannel(connection.getInputStream());
-             FileOutputStream fileOutputStream = new FileOutputStream(localFileNamePath);
-             FileChannel writeChannel = fileOutputStream.getChannel()) {
-
-            writeChannel.transferFrom(readableByteChannel, 0, Long.MAX_VALUE);
+            if (!DownloadUtils.downloadAndSaveToFile(new URL(attachmentUrl), attachmentsFolderPath + remoteFileName)) {
+                log.warn("Failed to save attachment file [{}].", remoteFileName);
+            }
         }
     }
 

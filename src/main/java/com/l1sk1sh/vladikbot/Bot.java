@@ -8,6 +8,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.util.ContextInitializer;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 import com.google.gson.Gson;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.l1sk1sh.vladikbot.services.*;
@@ -18,6 +22,8 @@ import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
 import com.l1sk1sh.vladikbot.services.backup.AutoMediaBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.DockerService;
+import com.l1sk1sh.vladikbot.services.logging.GuildLoggerService;
+import com.l1sk1sh.vladikbot.services.logging.MessageCache;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.services.presence.GameAndActionSimulationManager;
 import com.l1sk1sh.vladikbot.services.retrievers.RandomQuoteRetriever;
@@ -50,11 +56,13 @@ public class Bot {
     private final NowPlayingHandler nowPlayingHandler;
     private final AutoReplyManager autoReplyManager;
     private final GameAndActionSimulationManager gameAndActionSimulationManager;
+    private final GuildLoggerService guildLoggerService;
     private final AutoTextBackupDaemon autoTextBackupDaemon;
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final ChatNotificationService notificationService;
     private final DockerService dockerService;
     private final RandomQuoteRetriever randomQuoteRetriever;
+    private final MessageCache messageCache;
 
     public static Random rand;
     public static Gson gson;
@@ -80,11 +88,13 @@ public class Bot {
         this.nowPlayingHandler.init();
         this.autoReplyManager = new AutoReplyManager(this);
         this.gameAndActionSimulationManager = new GameAndActionSimulationManager(this);
+        this.guildLoggerService = new GuildLoggerService(this);
         this.autoTextBackupDaemon = new AutoTextBackupDaemon(this);
         this.autoMediaBackupDaemon = new AutoMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
         this.dockerService = new DockerService(this);
         this.randomQuoteRetriever = new RandomQuoteRetriever();
+        this.messageCache = new MessageCache();
     }
 
     public void closeAudioConnection(long guildId) {
@@ -197,6 +207,10 @@ public class Bot {
         return gameAndActionSimulationManager;
     }
 
+    public GuildLoggerService getGuildLoggerService() {
+        return guildLoggerService;
+    }
+
     public AutoTextBackupDaemon getAutoTextBackupDaemon() {
         return autoTextBackupDaemon;
     }
@@ -215,6 +229,10 @@ public class Bot {
 
     public RandomQuoteRetriever getRandomQuoteRetriever() {
         return randomQuoteRetriever;
+    }
+
+    public MessageCache getMessageCache() {
+        return messageCache;
     }
 
     public boolean isDockerRunning() {
@@ -236,5 +254,21 @@ public class Bot {
                         member -> member.getUser().getAsTag().equals(getJDA().getSelfUser().getAsTag())
                 )
         ).collect(Collectors.toList());
+    }
+
+    public void resetLoggerContext() {
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        ContextInitializer ci = new ContextInitializer(lc);
+        lc.reset();
+        try {
+
+            /* Prefer autoConfig() over JoranConfigurator.doConfigure() so there is no need to find the file manually */
+            ci.autoConfig();
+        } catch (JoranException e) {
+
+            /* StatusPrinter will try to log this */
+            e.printStackTrace();
+        }
+        StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
     }
 }

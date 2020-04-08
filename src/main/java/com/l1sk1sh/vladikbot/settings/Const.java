@@ -58,6 +58,7 @@ public final class Const {
         zip(false),
         jpg(true),
         png(true),
+        gif(true),
         mp4(true);
 
         private final boolean supportedMediaFormat;

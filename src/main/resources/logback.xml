@@ -5,12 +5,15 @@
     <!-- You can learn more about this here: https://logback.qos.ch/manual/layouts.html#ClassicPatternLayout -->
     <variable name="ROOT_LOG_LEVEL" value="${root_log_level:-DEBUG}" />
 
+    <!-- Default logger -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>false</withJansi>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %cyan(%logger{25}) - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <!-- Logger that is used when jenkins environment variable is set -->
     <appender name="JENKINS" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>false</withJansi>
         <encoder>
@@ -32,11 +35,25 @@
         <prudent>true</prudent>
     </appender>
 
+    <!-- Log specific events sent by Guild Logger -->
+    <appender name="GUILD-EVENTS-FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${guild_log.path:-./logs}/${guild_log.name:-events.log}</file>
+        <append>true</append>
+        <encoder>
+            <charset>UTF-8</charset>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <!-- Avoid blocking while logging to file by wrapping our file appender with async capabilities -->
     <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
         <queueSize>512</queueSize>
         <appender-ref ref="FILE"/>
     </appender>
+
+    <logger name="GUILD_LOGGER" level="INFO" additivity="false">
+        <appender-ref ref="GUILD-EVENTS-FILE"/>
+    </logger>
 
     <logger name="net.dv8tion.jda" level="INFO" />
     <logger name="org.apache.http" level="INFO" />
