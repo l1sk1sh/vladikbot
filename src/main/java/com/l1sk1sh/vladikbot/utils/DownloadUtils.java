@@ -45,7 +45,7 @@ public final class DownloadUtils {
 
         // copyURLToFile() from Commons library won't work without user agent due to 403
 
-        log.info("Downloading file [{}].", localFileNamePath);
+        log.debug("Downloading file [{}].", localFileNamePath);
         URLConnection connection = url.openConnection();
         connection.setRequestProperty("User-Agent", Const.USER_AGENT);
 

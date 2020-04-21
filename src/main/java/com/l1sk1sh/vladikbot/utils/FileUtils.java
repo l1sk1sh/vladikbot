@@ -8,10 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 
 /**
  * @author Oliver Johnson
@@ -49,7 +46,7 @@ public final class FileUtils {
         }
     }
 
-    public static boolean fileOrFolderIsAbsent(String path) {
+    public static boolean fileOrFolderIsAbsent(String path) throws InvalidPathException {
         return !Files.exists(Paths.get(path));
     }
 

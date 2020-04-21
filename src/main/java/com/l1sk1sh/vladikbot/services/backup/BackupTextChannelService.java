@@ -19,7 +19,7 @@ public class BackupTextChannelService implements Runnable {
     private File backupFile;
     private final String beforeDate;
     private final String afterDate;
-    private String failMessage = "Failed due to unknown reason";
+    private String failMessage = "Failed due to unexpected error";
     private final String channelId;
     private final Const.BackupFileType format;
     private final String localPathToExport;

@@ -13,6 +13,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +36,7 @@ public class BackupMediaService implements Runnable {
     private final String localAttachmentsListPath;
     private final String localAttachmentsPath;
     private final String channelId;
-    private String failMessage = "Failed due to unknown reason";
+    private String failMessage = "Failed due to unexpected error";
     private String attachmentsFolderPath;
     private boolean doZip = false;
     private boolean ignoreExistingFiles = true;
@@ -180,8 +181,12 @@ public class BackupMediaService implements Runnable {
                 remoteFileName = System.currentTimeMillis() + "." + Const.FileType.jpg.name();
             }
 
-            if (!DownloadUtils.downloadAndSaveToFile(new URL(attachmentUrl), attachmentsFolderPath + remoteFileName)) {
-                log.warn("Failed to save attachment file [{}].", remoteFileName);
+            try {
+                if (!DownloadUtils.downloadAndSaveToFile(new URL(attachmentUrl), attachmentsFolderPath + remoteFileName)) {
+                    log.warn("Failed to save attachment file [{}].", remoteFileName);
+                }
+            } catch (InvalidPathException e) {
+                log.warn("Failed to save attachment file [{}] due to invalid path.", remoteFileName, e);
             }
         }
     }
