@@ -160,10 +160,10 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
             }
 
             log.info("Automatic media backup has finished it's execution.");
-            bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto media backup has finished. `%1$s`",
+            bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto media backup has finished. %1$s",
                     (failedMediaChannels.isEmpty())
                             ? "All channels were backed up."
-                            : "Failed channels: " + Arrays.toString(failedMediaChannels.toArray()))
+                            : "Failed channels: `" + Arrays.toString(failedMediaChannels.toArray()) + "`")
             );
 
         }).start();

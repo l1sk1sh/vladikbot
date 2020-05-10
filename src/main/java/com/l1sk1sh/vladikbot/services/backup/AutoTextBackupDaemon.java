@@ -133,10 +133,10 @@ public class AutoTextBackupDaemon implements ScheduledTask {
             }
 
             log.info("Automatic text backup has finished it's execution.");
-            bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto text backup has finished. `%1$s`",
+            bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto text backup has finished. %1$s",
                     (failedTextChannels.isEmpty())
                             ? "All channels were backed up."
-                            : "Failed channels: " + Arrays.toString(failedTextChannels.toArray()))
+                            : "Failed channels: `" + Arrays.toString(failedTextChannels.toArray()) + "`")
             );
 
         }).start();
