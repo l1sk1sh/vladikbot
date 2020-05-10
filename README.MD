@@ -17,6 +17,7 @@ To ensure smooth Docker performance, make sure to expose 2375 port without TSL i
 0. Create Base class for Daemons
 0. Change usage of deprecated callback LogContainerResultCallback()
 0. Create all backup using Name + IDs of channels
+0. Automatic backup separation per date should be done into every separate channel. Current realization will remove channel backup, if it was removed from guild
 1. Add commands
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
    19. `remindme [reminder]` - Set a reminder
