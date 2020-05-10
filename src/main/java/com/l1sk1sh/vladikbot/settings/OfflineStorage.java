@@ -24,6 +24,7 @@ public class OfflineStorage {
 
     public void setLastAutoTextBackupTime(long lastAutoTextBackupTime) {
         this.lastAutoTextBackupTime = lastAutoTextBackupTime;
+        manager.writeSettings();
     }
 
     public long getLastAutoMediaBackupTime() {
@@ -32,5 +33,6 @@ public class OfflineStorage {
 
     public void setLastAutoMediaBackupTime(long lastAutoMediaBackupTime) {
         this.lastAutoMediaBackupTime = lastAutoMediaBackupTime;
+        manager.writeSettings();
     }
 }
