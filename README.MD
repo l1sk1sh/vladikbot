@@ -14,12 +14,14 @@ Bot is written using JDA library and common sense.
 #### Docker
 To ensure smooth Docker performance, make sure to expose 2375 port without TSL in Docker Settings.
 #### ToDo List
+0. Check back for discord backup CLI, as it doesn't work with migrated JDA
 1. Add commands
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
    19. `remindme [reminder]` - Set a reminder
    21. `whois [user mention]` - Get user information
    22. `whoisip [ip]` - Get info from WHOISIP service (https://ip-api.com/docs/api:json)
    23. `distance  [coords] [coords]` - Get the distance between two coordinates
+45. Add 'docker logs' command to log.debug if one of backups has failed
 14. Implement wordFrequencyAnalyzer
 18. Separate auto reply per guild
 19. Separate status rotation per guild

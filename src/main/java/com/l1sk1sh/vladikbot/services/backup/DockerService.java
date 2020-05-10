@@ -79,6 +79,7 @@ public class DockerService {
         command.add("--bot");
         command.add("true");
 
+        log.trace("Running export command: {}", command.toString());
         return runContainerWithCommand(command.toArray(new String[0]));
     }
 
