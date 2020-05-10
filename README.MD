@@ -16,7 +16,7 @@ To ensure smooth Docker performance, make sure to expose 2375 port without TSL i
 #### ToDo List
 0. Create Base class for Daemons
 0. Change usage of deprecated callback LogContainerResultCallback()
-0. Check back for discord backup CLI, as it doesn't work with migrated JDA
+0. Create all backup using Name + IDs of channels
 1. Add commands
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
    19. `remindme [reminder]` - Set a reminder
