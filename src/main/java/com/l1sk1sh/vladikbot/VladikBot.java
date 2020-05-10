@@ -9,16 +9,12 @@ import com.l1sk1sh.vladikbot.commands.dj.*;
 import com.l1sk1sh.vladikbot.commands.everyone.*;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
-import com.l1sk1sh.vladikbot.settings.BotSettings;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
-import com.l1sk1sh.vladikbot.settings.OfflineStorageManager;
+import com.l1sk1sh.vladikbot.settings.*;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
-import net.dv8tion.jda.core.AccountType;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,8 +65,8 @@ final class VladikBot {
                     .setHelpWord(botSettings.getHelpWord())
                     .setStatus((botSettings.getOnlineStatus() != OnlineStatus.UNKNOWN)
                             ? botSettings.getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB)
-                    .setGame((botSettings.getGame() != null)
-                            ? botSettings.getGame() : Game.playing("your dad"))
+                    .setActivity((botSettings.getActivity() != null)
+                            ? botSettings.getActivity() : Activity.playing("your dad"))
                     .setLinkedCacheSize(200)
                     .addCommands(
                             new PingCommand(),
@@ -135,16 +131,14 @@ final class VladikBot {
                             new ShutdownCommand(bot)
                     );
 
-            JDA jda = new JDABuilder(AccountType.BOT)
-                    .setToken(botSettings.getToken())
-                    .setAudioEnabled(true)
-                    .addEventListener(
-                            waiter,
-                            commandClientBuilder.build(),
-                            new Listener(bot)
-                    )
+            JDA jda = JDABuilder.create(botSettings.getToken(), Const.REQUIRED_INTENTS)
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
+            jda.addEventListener(
+                    waiter,
+                    commandClientBuilder.build(),
+                    new Listener(bot)
+            );
             bot.setJDA(jda);
         } catch (ExceptionInInitializerError e) {
             log.error("Problematic botSettings input.");

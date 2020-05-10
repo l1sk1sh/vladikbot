@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.settings;
 import com.jagrosh.jdautilities.command.GuildSettingsManager;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.api.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

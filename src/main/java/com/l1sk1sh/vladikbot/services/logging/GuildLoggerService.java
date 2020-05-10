@@ -5,11 +5,11 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.DownloadUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.core.events.user.update.UserUpdateAvatarEvent;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

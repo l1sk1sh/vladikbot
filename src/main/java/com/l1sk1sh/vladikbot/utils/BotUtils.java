@@ -1,15 +1,16 @@
 package com.l1sk1sh.vladikbot.utils;
 
 import com.l1sk1sh.vladikbot.settings.Const;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,30 +41,34 @@ public final class BotUtils {
         return null;
     }
 
-    public static Game parseGame(String game) {
-        if (game == null || game.trim().isEmpty() || game.trim().equalsIgnoreCase("default")) {
+    public static Activity parseActivity(String activity) {
+        if (activity == null || activity.trim().isEmpty() || activity.trim().equalsIgnoreCase("default")) {
             return null;
         }
-        String lower = game.toLowerCase();
+        String lower = activity.toLowerCase();
         if (lower.startsWith("playing")) {
-            return Game.playing(game.substring(7).trim());
+            return Activity.playing(makeNonEmpty(activity.substring(7).trim()));
         }
         if (lower.startsWith("listening to")) {
-            return Game.listening(game.substring(12).trim());
+            return Activity.listening(makeNonEmpty(activity.substring(12).trim()));
         }
         if (lower.startsWith("listening")) {
-            return Game.listening(game.substring(9).trim());
+            return Activity.listening(makeNonEmpty(activity.substring(9).trim()));
         }
         if (lower.startsWith("watching")) {
-            return Game.watching(game.substring(8).trim());
+            return Activity.watching(makeNonEmpty(activity.substring(8).trim()));
         }
         if (lower.startsWith("streaming")) {
-            String[] parts = game.substring(9).trim().split("\\s+", 2);
+            String[] parts = activity.substring(9).trim().split("\\s+", 2);
             if (parts.length == 2) {
-                return Game.streaming(parts[1], "https://twitch.tv/" + parts[0]);
+                return Activity.streaming(makeNonEmpty(parts[1]), "https://twitch.tv/" + parts[0]);
             }
         }
-        return Game.playing(game);
+        return Activity.playing(activity);
+    }
+
+    private static String makeNonEmpty(String str) {
+        return str == null || str.isEmpty() ? "\u200B" : str;
     }
 
     public static OnlineStatus parseStatus(String status) {
@@ -74,7 +79,7 @@ public final class BotUtils {
         return onlineStatus == null ? OnlineStatus.ONLINE : onlineStatus;
     }
 
-    public static List<Permission> getMissingPermissions(List<Permission> available, List<Permission> required) {
+    public static List<Permission> getMissingPermissions(EnumSet<Permission> available, List<Permission> required) {
         if (available.containsAll(required)) {
             return null;
         } else {
@@ -82,7 +87,7 @@ public final class BotUtils {
         }
     }
 
-    public static List<Permission> getGrantedAndRequiredPermissions(List<Permission> available, List<Permission> required) {
+    public static List<Permission> getGrantedAndRequiredPermissions(EnumSet<Permission> available, List<Permission> required) {
         return available.stream().filter(required::contains).collect(Collectors.toList());
     }
 

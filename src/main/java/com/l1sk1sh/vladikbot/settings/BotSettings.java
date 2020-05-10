@@ -3,8 +3,8 @@ package com.l1sk1sh.vladikbot.settings;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.*;
 
 /**
  * @author Oliver Johnson
@@ -29,7 +29,7 @@ public class BotSettings {
     private String errorEmoji = "\uD83D\uDCA2";                         // 💢
     private String loadingEmoji = "\uD83E\uDDF6";                       // 🧶
     private String searchingEmoji = "\uD83D\uDD0E";                     // 🔎
-    private String game = "watching Ubisoft conference";                // Current name of the 'game' being played by the bot
+    private String activity = "watching Ubisoft conference";            // Current name of the 'activity' being done by bot
     private String onlineStatus = "ONLINE";                             // "online", "idle", "dnd", "invisible", "offline", ""
     private long maxSeconds = 0L;                                       // Maximum song length
     private boolean leaveChannel = true;                                // Leave channel if no one is listening
@@ -109,8 +109,8 @@ public class BotSettings {
         return searchingEmoji;
     }
 
-    public Game getGame() {
-        return BotUtils.parseGame(game);
+    public Activity getActivity() {
+        return BotUtils.parseActivity(activity);
     }
 
     public final OnlineStatus getOnlineStatus() {

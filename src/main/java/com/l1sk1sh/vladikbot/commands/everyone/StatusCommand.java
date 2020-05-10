@@ -3,10 +3,10 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -50,7 +50,7 @@ public class StatusCommand extends Command {
                 .addField("Roles List",
                         Arrays.toString(event.getGuild().getRoles().stream().map(Role::getName).toArray()), false)
                 .setFooter("ID: " + event.getSelfMember().getUser().getId() + " | Server Created • "
-                        + event.getGuild().getCreationTime(), event.getSelfMember().getUser().getAvatarUrl());
+                        + event.getGuild().getTimeCreated(), event.getSelfMember().getUser().getAvatarUrl());
         event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
     }
 }

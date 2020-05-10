@@ -83,7 +83,11 @@ public class DockerService {
     }
 
     private boolean runContainerWithCommand(String... command) {
-        removeContainerIfExists();
+        try {
+            removeContainerIfExists();
+        } catch (ConflictException e) {
+            log.warn("Removal of container is already in progress.");
+        }
 
         if (!createContainerWithCommand(command)) {
             log.error("Failed to create container.");
@@ -115,7 +119,7 @@ public class DockerService {
         return true;
     }
 
-    private void removeContainerIfExists() {
+    private void removeContainerIfExists() throws ConflictException {
         backupContainer = findContainer();
 
         if (backupContainer != null) {

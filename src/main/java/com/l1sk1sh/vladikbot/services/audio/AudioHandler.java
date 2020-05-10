@@ -13,14 +13,15 @@ import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.audio.AudioSendHandler;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.audio.AudioSendHandler;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.User;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -259,12 +260,16 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     }
 
     @Override
-    public byte[] provide20MsAudio() {
+    public ByteBuffer provide20MsAudio() {
         if (lastFrame == null) {
             lastFrame = audioPlayer.provide();
         }
 
-        byte[] data = lastFrame != null ? lastFrame.getData() : null;
+        ByteBuffer data = null;
+        if (lastFrame != null) {
+            data = ByteBuffer.wrap(lastFrame.getData());
+        }
+
         lastFrame = null;
 
         return data;

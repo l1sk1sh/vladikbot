@@ -5,7 +5,7 @@ import com.l1sk1sh.vladikbot.models.entities.GameAndAction;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,13 +119,13 @@ public class GameAndActionSimulationManager {
 
             switch (rule.getAction()) {
                 case playing:
-                    bot.getJDA().getPresence().setGame(Game.playing(rule.getGameName()));
+                    bot.getJDA().getPresence().setActivity(Activity.playing(rule.getGameName()));
                     break;
                 case listening:
-                    bot.getJDA().getPresence().setGame(Game.listening(rule.getGameName()));
+                    bot.getJDA().getPresence().setActivity(Activity.listening(rule.getGameName()));
                     break;
                 case watching:
-                    bot.getJDA().getPresence().setGame(Game.watching(rule.getGameName()));
+                    bot.getJDA().getPresence().setActivity(Activity.watching(rule.getGameName()));
                     break;
             }
         };

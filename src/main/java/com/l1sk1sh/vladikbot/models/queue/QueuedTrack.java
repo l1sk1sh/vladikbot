@@ -2,7 +2,7 @@ package com.l1sk1sh.vladikbot.models.queue;
 
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.User;
 
 /**
  * @author Oliver Johnson

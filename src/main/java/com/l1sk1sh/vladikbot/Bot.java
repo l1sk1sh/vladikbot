@@ -29,10 +29,10 @@ import com.l1sk1sh.vladikbot.services.presence.GameAndActionSimulationManager;
 import com.l1sk1sh.vladikbot.services.retrievers.RandomQuoteRetriever;
 import com.l1sk1sh.vladikbot.settings.*;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.TextChannel;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -105,11 +105,11 @@ public class Bot {
     }
 
     public void resetGame() {
-        Game game = botSettingsManager.getSettings().getGame() == null
-                || botSettingsManager.getSettings().getGame().getName().equalsIgnoreCase("none")
-                ? null : botSettingsManager.getSettings().getGame();
-        if (!Objects.equals(jda.getPresence().getGame(), game)) {
-            jda.getPresence().setGame(game);
+        Activity activity = botSettingsManager.getSettings().getActivity() == null
+                || botSettingsManager.getSettings().getActivity().getName().equalsIgnoreCase("none")
+                ? null : botSettingsManager.getSettings().getActivity();
+        if (!Objects.equals(jda.getPresence().getActivity(), activity)) {
+            jda.getPresence().setActivity(activity);
         }
     }
 

@@ -8,9 +8,9 @@ import java.util.stream.Collectors;
 
 import com.l1sk1sh.vladikbot.models.FixedCache;
 
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.entities.*;
-import net.dv8tion.jda.core.entities.Message.Attachment;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Message.Attachment;
 
 /**
  * @author Oliver Johnson

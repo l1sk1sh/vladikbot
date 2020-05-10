@@ -2,7 +2,7 @@ package com.l1sk1sh.vladikbot.utils;
 
 import com.l1sk1sh.vladikbot.services.logging.MessageCache;
 import com.l1sk1sh.vladikbot.settings.Const;
-import net.dv8tion.jda.core.entities.*;
+import net.dv8tion.jda.api.entities.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

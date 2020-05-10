@@ -5,9 +5,9 @@ import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.sedmelluq.discord.lavaplayer.tools.PlayerLibrary;
-import net.dv8tion.jda.core.JDAInfo;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.ChannelType;
+import net.dv8tion.jda.api.JDAInfo;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.ChannelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

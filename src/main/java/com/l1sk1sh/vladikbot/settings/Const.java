@@ -1,6 +1,7 @@
 package com.l1sk1sh.vladikbot.settings;
 
-import net.dv8tion.jda.core.Permission;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -24,6 +25,17 @@ public final class Const {
         RECOMMENDED_PERMS.add(Permission.VOICE_CONNECT);
         RECOMMENDED_PERMS.add(Permission.VOICE_SPEAK);
         RECOMMENDED_PERMS.add(Permission.NICKNAME_CHANGE);
+    }
+
+    public final static List<GatewayIntent> REQUIRED_INTENTS = new ArrayList<>();
+    static {
+        REQUIRED_INTENTS.add(GatewayIntent.GUILD_MEMBERS);
+        REQUIRED_INTENTS.add(GatewayIntent.GUILD_EMOJIS);
+        REQUIRED_INTENTS.add(GatewayIntent.GUILD_VOICE_STATES);
+        REQUIRED_INTENTS.add(GatewayIntent.GUILD_PRESENCES);
+        REQUIRED_INTENTS.add(GatewayIntent.GUILD_MESSAGES);
+        REQUIRED_INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
+        REQUIRED_INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
     }
 
     public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;

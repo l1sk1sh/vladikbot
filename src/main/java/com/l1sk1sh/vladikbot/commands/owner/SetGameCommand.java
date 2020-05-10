@@ -2,7 +2,7 @@ package com.l1sk1sh.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.api.entities.Activity;
 
 /**
  * @author Oliver Johnson
@@ -31,7 +31,7 @@ public class SetGameCommand extends OwnerCommand {
                 ? event.getArgs().substring(Const.StatusAction.playing.name().length()).trim()
                 : event.getArgs();
         try {
-            event.getJDA().getPresence().setGame(title.isEmpty() ? null : Game.playing(title));
+            event.getJDA().getPresence().setActivity(title.isEmpty() ? null : Activity.playing(title));
             event.replySuccess(String.format("**%1$s** is %2$s.",
                     event.getSelfUser().getName(),
                     (title.isEmpty())
@@ -61,7 +61,7 @@ public class SetGameCommand extends OwnerCommand {
             }
 
             try {
-                event.getJDA().getPresence().setGame(Game.streaming(parts[1], "https://twitch.tv/" + parts[0]));
+                event.getJDA().getPresence().setActivity(Activity.streaming(parts[1], "https://twitch.tv/" + parts[0]));
                 event.replySuccess(String.format("**%1$s** is now streaming `%2$s`.", event.getSelfUser().getName(), parts[1]));
             } catch (Exception e) {
                 event.replyError(gameNotSetMessage);
@@ -89,7 +89,7 @@ public class SetGameCommand extends OwnerCommand {
                     ? event.getArgs().substring(2).trim()
                     : event.getArgs();
             try {
-                event.getJDA().getPresence().setGame(Game.listening(title));
+                event.getJDA().getPresence().setActivity(Activity.listening(title));
                 event.replySuccess(String.format("**%1$s** is now listening to `%2$s`.", event.getSelfUser().getName(), title));
             } catch (Exception e) {
                 event.replyError(gameNotSetMessage);
@@ -115,7 +115,7 @@ public class SetGameCommand extends OwnerCommand {
 
             String title = event.getArgs();
             try {
-                event.getJDA().getPresence().setGame(Game.watching(title));
+                event.getJDA().getPresence().setActivity(Activity.watching(title));
                 event.replySuccess(String.format("**%1$s** is now watching to `%2$s`.", event.getSelfUser().getName(), title));
             } catch (Exception e) {
                 event.replyError(gameNotSetMessage);

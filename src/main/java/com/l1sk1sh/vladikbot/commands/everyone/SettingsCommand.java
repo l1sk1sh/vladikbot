@@ -7,11 +7,11 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.MessageBuilder;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.VoiceChannel;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.VoiceChannel;
 
 import java.awt.*;
 

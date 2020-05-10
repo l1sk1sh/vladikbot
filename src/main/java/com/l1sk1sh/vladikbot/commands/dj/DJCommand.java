@@ -5,8 +5,8 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.commands.music.MusicCommand;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Role;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Role;
 
 import java.util.Objects;
 

@@ -3,17 +3,14 @@ package com.l1sk1sh.vladikbot.services.audio;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.Pair;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.core.Permission;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.entities.Guild;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.exceptions.PermissionException;
+import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.exceptions.PermissionException;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +63,10 @@ public class NowPlayingHandler {
             }
 
             AudioHandler audioHandler = (AudioHandler) guild.getAudioManager().getSendingHandler();
+            if (audioHandler == null) {
+                continue;
+            }
+
             Message message = audioHandler.getNowPlaying(bot.getJDA());
             if (message == null) {
                 message = audioHandler.getNoMusicPlaying(bot.getJDA());
@@ -116,11 +117,13 @@ public class NowPlayingHandler {
 
     /* "event"-based methods */
     void onTrackUpdate(long guildId, AudioTrack track, AudioHandler audioHandler) {
+
         /* Update bot status if applicable */
         if (bot.getBotSettings().shouldSongBeInStatus()) {
+
             if (track != null && bot.getJDA().getGuilds().stream()
-                    .filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count() <= 1) {
-                bot.getJDA().getPresence().setGame(Game.listening(track.getInfo().title));
+                    .filter(g -> Objects.requireNonNull(g.getSelfMember().getVoiceState()).inVoiceChannel()).count() <= 1) {
+                bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
             } else {
                 bot.resetGame();
             }
