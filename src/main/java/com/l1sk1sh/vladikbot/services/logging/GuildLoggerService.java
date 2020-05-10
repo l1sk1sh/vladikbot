@@ -59,11 +59,11 @@ public class GuildLoggerService {
                 ? FormatUtils.formatCachedMessageFullUser(oldMessage)
                 : FormatUtils.formatFullUser(author);
 
-        String notificationMessage = String.format("Message '%1$s':[%2$s] has been removed from %3$s.",
+        String notificationMessage = String.format("Message **removal**:\r\n'__%1$s__'\r\nauthored by %2$s removed from %3$s.",
                 formattedMessage, authorName, mtc.getAsMention());
 
         glog.info(notificationMessage);
-        bot.getNotificationService().sendEmbeddedError(event.getGuild(), notificationMessage);
+        bot.getNotificationService().sendEmbeddedWarning(event.getGuild(), notificationMessage);
     }
 
     public void onMessageUpdate(GuildMessageUpdateEvent event) {
@@ -91,11 +91,11 @@ public class GuildLoggerService {
             return;
         }
 
-        String notificationMessage = String.format("Message '%1$s' has been edited to '%2$s' by %3$s from %4$s.",
+        String notificationMessage = String.format("Message **edit**: \r\n'__%1$s__'\r\nchanged to\r\n'__%2$s__'\r\nby %3$s in %4$s.",
                 formattedOldMessage, formattedNewMessage, FormatUtils.formatFullUser(newMessage.getAuthor()), mtc.getAsMention());
 
         glog.info(notificationMessage);
-        bot.getNotificationService().sendEmbeddedError(event.getGuild(), notificationMessage);
+        bot.getNotificationService().sendEmbeddedWarning(event.getGuild(), notificationMessage);
     }
 
     public void onAvatarUpdate(UserUpdateAvatarEvent event) {
