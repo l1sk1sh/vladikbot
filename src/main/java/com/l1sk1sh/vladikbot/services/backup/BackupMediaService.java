@@ -77,7 +77,7 @@ public class BackupMediaService implements Runnable {
 
             String textFromTextBackupFile = FileUtils.readFile(textBackupFile, StandardCharsets.UTF_8);
 
-            Matcher urlAttachmentsMatcher = Pattern.compile("https://cdn.discordapp.com/attachments/.+?(?=\")").matcher(textFromTextBackupFile);
+            Matcher urlAttachmentsMatcher = Pattern.compile("(?<=(href=\"))https://cdn.discordapp.com/attachments/.+?(?=\")").matcher(textFromTextBackupFile);
             setOfAllAttachmentsUrls = new HashSet<>();
             setOfSupportedAttachmentsUrls = new HashSet<>();
 
