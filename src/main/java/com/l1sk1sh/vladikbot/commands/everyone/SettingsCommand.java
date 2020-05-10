@@ -68,7 +68,7 @@ public class SettingsCommand extends Command {
                         + "\r\nAuto Reply Matching Strategy: **"
                                 + (botSettings.getMatchingStrategy()) + "**"
                         + "\r\nAuto Reply Chance: **"
-                                + (botSettings.getReplyChange()) + "**"
+                                + (botSettings.getReplyChance()) + "**"
                         + "\r\nGame And Action Simulation: **"
                                 + (botSettings.shouldSimulateActionsAndGamesActivity() ? on : off) + "**"
                         + "\r\nAuto text backup: **"

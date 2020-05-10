@@ -133,7 +133,9 @@ class Listener extends ListenerAdapter {
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
         bot.getNowPlayingHandler().onMessageDelete(event.getGuild(), event.getMessageIdLong());
 
-        bot.getGuildLoggerService().onMessageDelete(event);
+        if (bot.getBotSettings().shouldLogGuildChanges()) {
+            bot.getGuildLoggerService().onMessageDelete(event);
+        }
     }
 
     @Override
@@ -142,7 +144,9 @@ class Listener extends ListenerAdapter {
             return;
         }
 
-        bot.getGuildLoggerService().onMessageUpdate(event);
+        if (bot.getBotSettings().shouldLogGuildChanges()) {
+            bot.getGuildLoggerService().onMessageUpdate(event);
+        }
     }
 
     @Override

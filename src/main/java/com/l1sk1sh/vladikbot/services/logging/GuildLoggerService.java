@@ -59,7 +59,7 @@ public class GuildLoggerService {
                 ? FormatUtils.formatCachedMessageFullUser(oldMessage)
                 : FormatUtils.formatFullUser(author);
 
-        String notificationMessage = String.format("Message **removal**:\r\n'__%1$s__'\r\nauthored by %2$s removed from %3$s.",
+        String notificationMessage = String.format("Message **removal**:\r\n'_%1$s_'\r\nauthored by %2$s removed from %3$s.",
                 formattedMessage, authorName, mtc.getAsMention());
 
         glog.info(notificationMessage);
@@ -91,7 +91,7 @@ public class GuildLoggerService {
             return;
         }
 
-        String notificationMessage = String.format("Message **edit**: \r\n'__%1$s__'\r\nchanged to\r\n'__%2$s__'\r\nby %3$s in %4$s.",
+        String notificationMessage = String.format("Message **edit**: \r\n'_%1$s_'\r\nchanged to\r\n'_%2$s_'\r\nby %3$s in %4$s.",
                 formattedOldMessage, formattedNewMessage, FormatUtils.formatFullUser(newMessage.getAuthor()), mtc.getAsMention());
 
         glog.info(notificationMessage);

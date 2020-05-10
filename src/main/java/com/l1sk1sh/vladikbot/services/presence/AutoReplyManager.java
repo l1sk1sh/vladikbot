@@ -60,7 +60,7 @@ public class AutoReplyManager {
         }
 
         /* Replying only with certain chance */
-        if (Bot.rand.nextDouble() > bot.getBotSettings().getReplyChange()) {
+        if (Bot.rand.nextDouble() > bot.getBotSettings().getReplyChance()) {
             return;
         }
 

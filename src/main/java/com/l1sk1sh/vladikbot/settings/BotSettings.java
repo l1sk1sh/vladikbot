@@ -164,7 +164,7 @@ public class BotSettings {
         manager.writeSettings();
     }
 
-    public double getReplyChange() {
+    public double getReplyChance() {
         return replyChange;
     }
 

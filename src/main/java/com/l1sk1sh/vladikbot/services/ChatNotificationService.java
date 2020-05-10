@@ -56,22 +56,23 @@ public class ChatNotificationService {
                 .setColor(color)
                 .setDescription(message);
 
-        notificationChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+        this.notificationChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
     }
 
     private boolean isNotificationChannelMissing(Guild guild) {
-        if (guild == null) {
+        this.notificationGuild = guild;
 
-            /* In case this guild doesn't have notification channel, sending notification to maintainer */
+        /* In case this guild doesn't have notification channel, sending notification to maintainer */
+        if (this.notificationGuild == null) {
             this.notificationGuild = bot.getJDA().getGuildById(bot.getBotSettings().getMaintainerGuildId());
         }
 
         if (this.notificationGuild == null) {
-            return false;
+            return true;
         }
 
         this.notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
 
-        return notificationChannel == null;
+        return (this.notificationChannel == null);
     }
 }
