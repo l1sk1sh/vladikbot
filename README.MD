@@ -43,6 +43,7 @@ To ensure smooth Docker performance, make sure to expose 2375 port without TSL i
     5. Memes
     6. NSFW
     7. WHO notifications API (https://www.who.int/csr/don/en/)
+    8. Word of the day
 42. Deal with duplicate code
 43. Extend reply core:
     2. Creat word usage frequency and add replies accordingly
