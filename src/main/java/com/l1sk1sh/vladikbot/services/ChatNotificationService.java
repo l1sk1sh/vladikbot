@@ -71,7 +71,7 @@ public class ChatNotificationService {
             return true;
         }
 
-        this.notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
+        this.notificationChannel = bot.getGuildSettings(notificationGuild).getNotificationChannel(notificationGuild);
 
         return (this.notificationChannel == null);
     }
