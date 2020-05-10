@@ -1,18 +1,20 @@
 package com.l1sk1sh.vladikbot.services.backup;
 
 import com.github.dockerjava.api.DockerClient;
+import com.github.dockerjava.api.command.LogContainerCmd;
 import com.github.dockerjava.api.command.WaitContainerResultCallback;
 import com.github.dockerjava.api.exception.ConflictException;
 import com.github.dockerjava.api.exception.NotFoundException;
 import com.github.dockerjava.api.model.Container;
+import com.github.dockerjava.api.model.Frame;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
+import com.github.dockerjava.core.command.LogContainerResultCallback;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.settings.Const;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,6 +42,7 @@ public class DockerService {
 
     private DockerClient docker;
     private Container backupContainer;
+    private final List<String> logs = new ArrayList<>();
 
     public DockerService(Bot bot) {
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
@@ -83,6 +86,39 @@ public class DockerService {
         return runContainerWithCommand(command.toArray(new String[0]));
     }
 
+    public List<String> getContainerLogs() {
+        return logs;
+    }
+
+    private void recordLastContainerLogs() {
+        if (backupContainer == null) {
+            log.warn("Calling docker logs foe empty container.");
+
+            return;
+        }
+
+        logs.clear();
+
+        LogContainerCmd logContainerCmd = docker.logContainerCmd(backupContainer.getId());
+        logContainerCmd.withStdOut(true).withStdErr(true);
+        // logContainerCmd.withSince( lastLogTime );  // UNIX timestamp (integer) to filter logs. Specifying a timestamp will only output log-entries since that timestamp.
+        logContainerCmd.withTail(10);  // Get only last 10 records
+        logContainerCmd.withTimestamps(true);
+        logContainerCmd.withFollowStream(true);
+
+        try {
+            //noinspection deprecation
+            logContainerCmd.exec(new LogContainerResultCallback() {
+                @Override
+                public void onNext(Frame item) {
+                    logs.add(item.toString());
+                }
+            }).awaitCompletion();
+        } catch (InterruptedException e) {
+            log.error("Docker logs command was interrupted: '{}'.", e.getMessage());
+        }
+    }
+
     private boolean runContainerWithCommand(String... command) {
         try {
             removeContainerIfExists();
@@ -115,6 +151,8 @@ public class DockerService {
             log.error("Failed to get container response: {}", e.getLocalizedMessage());
 
             return false;
+        } finally {
+            recordLastContainerLogs();
         }
 
         return true;

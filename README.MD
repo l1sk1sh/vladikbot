@@ -14,6 +14,8 @@ Bot is written using JDA library and common sense.
 #### Docker
 To ensure smooth Docker performance, make sure to expose 2375 port without TSL in Docker Settings.
 #### ToDo List
+0. Create Base class for Daemons
+0. Change usage of deprecated callback LogContainerResultCallback()
 0. Check back for discord backup CLI, as it doesn't work with migrated JDA
 1. Add commands
    8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc

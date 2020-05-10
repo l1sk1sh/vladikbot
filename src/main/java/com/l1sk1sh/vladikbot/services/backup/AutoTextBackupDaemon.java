@@ -93,6 +93,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     }
 
                     if (backupTextChannelService.hasFailed()) {
+                        log.error("Text channel backup has failed: [{}]", backupTextChannelService.getFailMessage());
                         bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
                                 String.format("Text channel backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
                         return;

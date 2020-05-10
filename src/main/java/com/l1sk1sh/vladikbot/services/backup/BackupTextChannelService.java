@@ -65,6 +65,8 @@ public class BackupTextChannelService implements Runnable {
             if (!bot.getDockerService().runBackup(format, beforeDate, afterDate, channelId, token)) {
                 failMessage = "Backup did not finish";
 
+                log.debug("Docker logs output:\r\n{}", bot.getDockerService().getContainerLogs());
+
                 return;
             }
 

@@ -121,7 +121,8 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
                     if (backupMediaService.hasFailed()) {
                         log.error("BackupMediaService has failed: {}", backupTextChannelService.getFailMessage());
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
+                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
+                                String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
                         return;
                     }
 
