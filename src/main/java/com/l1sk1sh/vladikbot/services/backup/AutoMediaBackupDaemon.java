@@ -13,7 +13,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Oliver Johnson
@@ -55,6 +58,8 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
             log.info("Automatic media backup has started it's execution.");
+
+            List<String> failedMediaChannels = new ArrayList<>();
 
             for (TextChannel channel : availableChannels) {
                 log.info("Starting text backup for auto media backup of channel {} at guild {}", channel.getName(), channel.getGuild());
@@ -147,13 +152,20 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                     log.error("Failed to create auto media backup", e);
                     bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
                             String.format("Auto media backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
-                    break;
+                    failedMediaChannels.add(channel.getName());
+
                 } finally {
                     bot.setLockedAutoBackup(false);
                 }
             }
 
             log.info("Automatic media backup has finished it's execution.");
+            bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto media backup has finished. `%1$s`",
+                    (failedMediaChannels.isEmpty())
+                            ? "All channels were backed up."
+                            : "Failed channels: " + Arrays.toString(failedMediaChannels.toArray()))
+            );
+
         }).start();
     }
 

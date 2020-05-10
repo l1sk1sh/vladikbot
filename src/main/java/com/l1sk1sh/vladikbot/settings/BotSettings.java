@@ -16,6 +16,7 @@ public class BotSettings {
     /* Finish all paths with file system separator! */
     private String token = "MY_BOT_TOKEN";                              // Bot token taken from discord developer portal
     private long ownerId = 0L;                                          // Id of the person, who is hosting the bot
+    private long maintainerGuildId = 0L;                                // Id of Guild that will be used to maintaining notifs
     private String localTmpFolder = "./app/tmp/";                       // Local tmp for workdir
     private String rotationBackupFolder = "./app/backup/";              // Local rotation backup folder (that will be stored)
     private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
@@ -62,6 +63,10 @@ public class BotSettings {
 
     public final long getOwnerId() {
         return ownerId;
+    }
+
+    public long getMaintainerGuildId() {
+        return maintainerGuildId;
     }
 
     public final String getLocalTmpFolder() {

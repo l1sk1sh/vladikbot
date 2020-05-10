@@ -13,6 +13,8 @@ import java.awt.*;
  */
 public class ChatNotificationService {
     private final Bot bot;
+    private TextChannel notificationChannel;
+    private Guild notificationGuild;
 
     public ChatNotificationService(Bot bot) {
         this.bot = bot;
@@ -20,43 +22,56 @@ public class ChatNotificationService {
 
     @SuppressWarnings("unused")
     public final void sendRawMessage(Guild guild, String message) {
-        TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
-
-        if (notificationChannel == null) {
+        if (isNotificationChannelMissing(guild)) {
             return;
         }
 
         notificationChannel.sendMessage(message).queue();
     }
 
+    public final void sendEmbeddedInfo(Guild guild, String message) {
+        sendEmbeddedWithColor(guild, message, new Color(66, 133, 244));
+    }
+
     @SuppressWarnings("unused")
     public final void sendEmbeddedSuccess(Guild guild, String message) {
-        TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
+        sendEmbeddedWithColor(guild, message, new Color(15, 157, 88));
+    }
 
-        if (notificationChannel == null) {
+    public final void sendEmbeddedWarning(Guild guild, String message) {
+        sendEmbeddedWithColor(guild, message, new Color(244, 180, 0));
+    }
+
+    public final void sendEmbeddedError(Guild guild, String message) {
+        sendEmbeddedWithColor(guild, message, new Color(219, 68, 55));
+    }
+
+    private void sendEmbeddedWithColor(Guild guild, String message, Color color) {
+        if (isNotificationChannelMissing(guild)) {
             return;
         }
 
         MessageBuilder builder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setColor(new Color(25, 167, 23))
+                .setColor(color)
                 .setDescription(message);
 
         notificationChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
     }
 
-    public final void sendEmbeddedError(Guild guild, String message) {
-        TextChannel notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
+    private boolean isNotificationChannelMissing(Guild guild) {
+        if (guild == null) {
 
-        if (notificationChannel == null) {
-            return;
+            /* In case this guild doesn't have notification channel, sending notification to maintainer */
+            this.notificationGuild = bot.getJDA().getGuildById(bot.getBotSettings().getMaintainerGuildId());
         }
 
-        MessageBuilder builder = new MessageBuilder();
-        EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setColor(new Color(172, 25, 23))
-                .setDescription(message);
+        if (this.notificationGuild == null) {
+            return false;
+        }
 
-        notificationChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+        this.notificationChannel = bot.getGuildSettings(guild).getNotificationChannel(guild);
+
+        return notificationChannel == null;
     }
 }

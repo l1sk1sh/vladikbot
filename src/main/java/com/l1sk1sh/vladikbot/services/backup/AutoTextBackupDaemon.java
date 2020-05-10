@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -55,6 +57,8 @@ public class AutoTextBackupDaemon implements ScheduledTask {
         new Thread(() -> {
             bot.setLockedAutoBackup(true);
             log.info("Automatic text backup has started it's execution.");
+
+            List<String> failedTextChannels = new ArrayList<>();
 
             for (TextChannel channel : availableChannels) {
                 log.info("Starting auto text backup of channel '{}' at guild '{}'.", channel.getName(), channel.getGuild());
@@ -120,11 +124,20 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     log.error("Failed to create auto backup:", e);
                     bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
                             String.format("Auto text backup of chat `%1$s` has failed due to: `%2$s`!", channel.getName(), e.getLocalizedMessage()));
+                    failedTextChannels.add(channel.getName());
+
                 } finally {
                     bot.setLockedAutoBackup(false);
                 }
             }
+
             log.info("Automatic text backup has finished it's execution.");
+            bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto text backup has finished. `%1$s`",
+                    (failedTextChannels.isEmpty())
+                            ? "All channels were backed up."
+                            : "Failed channels: " + Arrays.toString(failedTextChannels.toArray()))
+            );
+
         }).start();
     }
 
