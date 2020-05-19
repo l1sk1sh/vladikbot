@@ -125,4 +125,6 @@ public final class Const {
         full,
         inline
     }
+
+    public static final String[] NAME_INVALID_CHARS = new String[]{":", "*", "\"", "\\", "/", "|", "<", ">"};
 }

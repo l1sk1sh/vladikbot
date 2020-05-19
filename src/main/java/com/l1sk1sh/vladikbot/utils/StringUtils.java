@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.utils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -24,13 +25,8 @@ public final class StringUtils {
         return beginString + replace + endString;
     }
 
-    public static boolean inArray(String input, String[] check) {
-        for (String value : check) {
-            if (input.contains(value)) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean stringContainsItemFromList(String input, String[] check) {
+        return Arrays.stream(check).parallel().anyMatch(input::contains);
     }
 
     public static String getNormalizedCurrentDate() {

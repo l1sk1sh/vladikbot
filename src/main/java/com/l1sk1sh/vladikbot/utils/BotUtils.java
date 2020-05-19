@@ -91,7 +91,7 @@ public final class BotUtils {
         return available.stream().filter(required::contains).collect(Collectors.toList());
     }
 
-    public static String getNormalizedGuildName(Guild guild) {
+    public static String getNormalizedName(Guild guild) {
         return guild.getName().replaceAll("[^\\w]", "_");
     }
 }

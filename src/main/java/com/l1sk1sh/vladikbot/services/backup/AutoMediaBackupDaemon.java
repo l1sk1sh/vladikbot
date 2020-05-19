@@ -65,7 +65,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
                 try {
                     String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
-                            + BotUtils.getNormalizedGuildName(channel.getGuild()) + "/";
+                            + BotUtils.getNormalizedName(channel.getGuild()) + "/";
 
                     String pathToDateBackup = pathToGuildBackup
                             + StringUtils.getNormalizedCurrentDate() + "/";
@@ -89,13 +89,13 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                         backupChannelServiceThread.join();
                     } catch (InterruptedException e) {
                         bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process required for media backup was interrupted!");
-                        return;
+                        continue;
                     }
 
                     if (backupTextChannelService.hasFailed()) {
-                        log.warn("Text channel backup required for media backup has failed: [{}]", backupTextChannelService.getFailMessage());
+                        log.error("Text channel backup required for media backup has failed: [{}]", backupTextChannelService.getFailMessage());
                         failedMediaChannels.add(channel.getName());
-                        return;
+                        continue;
                     }
 
                     File exportedTextFile = backupTextChannelService.getBackupFile();
@@ -115,15 +115,15 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                     try {
                         backupMediaServiceThread.join();
                     } catch (InterruptedException e) {
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Media backup process was interrupted!");
-                        return;
+                        log.error("Media backup process for channel '{}' was interrupted.", channel.getName());
+                        failedMediaChannels.add(channel.getName());
+                        continue;
                     }
 
                     if (backupMediaService.hasFailed()) {
-                        log.error("BackupMediaService has failed: {}", backupTextChannelService.getFailMessage());
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
-                                String.format("Media backup has filed: `[%1$s]`", backupMediaService.getFailMessage()));
-                        return;
+                        log.error("BackupMediaService for channel '{}' has failed: {}", channel.getName(), backupTextChannelService.getFailMessage());
+                        failedMediaChannels.add(channel.getName());
+                        continue;
                     }
 
                     log.info("Finished auto media backup of {}", channel.getName());

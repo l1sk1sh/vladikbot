@@ -82,10 +82,16 @@ public class BackupMediaService implements Runnable {
             setOfSupportedAttachmentsUrls = new HashSet<>();
 
             while (urlAttachmentsMatcher.find()) {
-                if (StringUtils.inArray(urlAttachmentsMatcher.group(), Const.FileType.getRawSupportedMediaFormatsAsArray())) {
-                    setOfSupportedAttachmentsUrls.add(urlAttachmentsMatcher.group());
+                String matchedUrl = urlAttachmentsMatcher.group();
+
+                if (StringUtils.stringContainsItemFromList(DownloadUtils.getFilenameFromUrl(matchedUrl), Const.NAME_INVALID_CHARS)) {
+                    continue;
                 }
-                setOfAllAttachmentsUrls.add(urlAttachmentsMatcher.group());
+
+                if (StringUtils.stringContainsItemFromList(matchedUrl, Const.FileType.getRawSupportedMediaFormatsAsArray())) {
+                    setOfSupportedAttachmentsUrls.add(matchedUrl);
+                }
+                setOfAllAttachmentsUrls.add(matchedUrl);
             }
 
             log.info("Writing media URLs into a TXT file...");

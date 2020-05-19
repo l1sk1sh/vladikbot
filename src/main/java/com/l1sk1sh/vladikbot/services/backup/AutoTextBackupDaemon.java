@@ -65,7 +65,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
                 try {
                     String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
-                            + BotUtils.getNormalizedGuildName(channel.getGuild()) + "/";
+                            + BotUtils.getNormalizedName(channel.getGuild()) + "/";
 
                     String pathToDateBackup = pathToGuildBackup
                             + StringUtils.getNormalizedCurrentDate() + "/";
@@ -88,14 +88,15 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     try {
                         backupChannelServiceThread.join();
                     } catch (InterruptedException e) {
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process was interrupted!");
-                        return;
+                        log.error("Text backup process for channel '{}' was interrupted.", channel.getName());
+                        failedTextChannels.add(channel.getName());
+                        continue;
                     }
 
                     if (backupTextChannelService.hasFailed()) {
                         log.error("Text channel backup has failed: [{}]", backupTextChannelService.getFailMessage());
                         failedTextChannels.add(channel.getName());
-                        return;
+                        continue;
                     }
 
                     log.info("Finished auto text backup of '{}'.", channel.getName());
