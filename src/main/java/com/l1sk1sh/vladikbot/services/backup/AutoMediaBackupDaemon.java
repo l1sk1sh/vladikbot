@@ -93,8 +93,8 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                     }
 
                     if (backupTextChannelService.hasFailed()) {
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
-                                String.format("Text channel backup required for media backup has failed: `[%1$s]`", backupTextChannelService.getFailMessage()));
+                        log.warn("Text channel backup required for media backup has failed: [{}]", backupTextChannelService.getFailMessage());
+                        failedMediaChannels.add(channel.getName());
                         return;
                     }
 
