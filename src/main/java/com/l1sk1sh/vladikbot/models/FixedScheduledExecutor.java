@@ -1,9 +1,14 @@
 package com.l1sk1sh.vladikbot.models;
 
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -12,6 +17,8 @@ import java.util.concurrent.TimeUnit;
  * @author Oliver Johnson
  */
 public class FixedScheduledExecutor {
+    private static final Logger log = LoggerFactory.getLogger(FixedScheduledExecutor.class);
+
     private final ScheduledExecutorService executorService;
     private ScheduledFuture<?> scheduledFuture;
     private final ScheduledTask task;
@@ -21,16 +28,31 @@ public class FixedScheduledExecutor {
         this.executorService = executorService;
     }
 
-    public void startExecutionAt(int dayDelay, int targetHour, int targetMin, int targetSec) {
+    /**
+     * This command starts scheduled execution of the same task, with possible custom time for the first launch
+     *
+     * @param dayDelayFirst set this delay for external calls, for initial scheduling of the task. Later or,
+     *                      it will be set to -1, that will ensure usage of second argument
+     * @param dayDelayUsual usual day delay that start working after initial execution (with custom delay)
+     * @param targetHour    target local zone hour to execute task
+     * @param targetMin     target local zone minute to execute task
+     * @param targetSec     target local zone second to execute task
+     */
+    public void startExecutionAt(int dayDelayFirst, int dayDelayUsual, int targetHour, int targetMin, int targetSec) {
+        int dayDelay = (dayDelayFirst != -1) ? dayDelayFirst : dayDelayUsual;
+
         Runnable taskWrapper = () -> {
             task.execute();
-            startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
+            startExecutionAt(-1, dayDelayUsual, targetHour, targetMin, targetSec);
         };
+
         long delay = computeNextDelay(dayDelay, targetHour, targetMin, targetSec);
         scheduledFuture = executorService.schedule(taskWrapper, delay, TimeUnit.SECONDS);
+        log.debug("Added task to thread pool {} that will launch at {}", task.getTaskName(),
+                FormatUtils.getDateAndTimeFromDatetime(new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(delay))));
     }
 
-    private long computeNextDelay(int dayDelay,int targetHour, int targetMin, int targetSec) {
+    private long computeNextDelay(int dayDelay, int targetHour, int targetMin, int targetSec) {
         LocalDateTime localNow = LocalDateTime.now();
         ZoneId currentZone = ZoneId.systemDefault();
         ZonedDateTime zonedNow = ZonedDateTime.of(localNow, currentZone);

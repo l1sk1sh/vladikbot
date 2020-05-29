@@ -17,7 +17,7 @@
     <appender name="JENKINS" class="ch.qos.logback.core.ConsoleAppender">
         <withJansi>false</withJansi>
         <encoder>
-            <pattern>%d{dd.HH:mm:ss.SSS} [%.10thread{10}] [%-5level] [%.19logger{19}] - %msg%n</pattern>
+            <pattern>%d{dd.MM.yy HH:mm:ss.SSS} [%.10thread{10}] [%-5level] [%.19logger{19}] - %msg%n</pattern>
         </encoder>
     </appender>
 

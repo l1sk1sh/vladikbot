@@ -32,6 +32,12 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
         this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getThreadPool());
     }
 
+    @Override
+    public String getTaskName() {
+        return AutoMediaBackupDaemon.class.getSimpleName();
+    }
+
+    @Override
     public void execute() {
         if (!bot.isDockerRunning()) {
             return;
@@ -49,126 +55,123 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
             /* pool-4-thread-1 is trying to call "execute" multiple times */
             return;
         }
+        bot.setLockedAutoBackup(true);
 
         bot.getOfflineStorage().setLastAutoMediaBackupTime(System.currentTimeMillis());
 
         List<TextChannel> availableChannels = bot.getAvailableTextChannels();
+        List<String> failedMediaChannels = new ArrayList<>();
 
-        new Thread(() -> {
-            bot.setLockedAutoBackup(true);
-            log.info("Automatic media backup has started it's execution.");
+        log.info("Automatic media backup has started it's execution.");
 
-            List<String> failedMediaChannels = new ArrayList<>();
+        for (TextChannel channel : availableChannels) {
+            log.info("Starting text backup for auto media backup of channel {} at guild {}", channel.getName(), channel.getGuild());
 
-            for (TextChannel channel : availableChannels) {
-                log.info("Starting text backup for auto media backup of channel {} at guild {}", channel.getName(), channel.getGuild());
+            try {
+                String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
+                        + BotUtils.getNormalizedName(channel.getGuild()) + "/";
 
+                String pathToDateBackup = pathToGuildBackup
+                        + StringUtils.getNormalizedCurrentDate() + "/";
+
+                FileUtils.createFolderIfAbsent(pathToDateBackup);
+
+                /* Creating new thread from text backup service and waiting for it to finish */
+                BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
+                        bot,
+                        channel.getId(),
+                        Const.BackupFileType.HTML_DARK,
+                        bot.getBotSettings().getLocalTmpFolder(),
+                        null,
+                        null,
+                        false
+                );
+
+                Thread backupChannelServiceThread = new Thread(backupTextChannelService);
+                backupChannelServiceThread.start();
                 try {
-                    String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
-                            + BotUtils.getNormalizedName(channel.getGuild()) + "/";
-
-                    String pathToDateBackup = pathToGuildBackup
-                            + StringUtils.getNormalizedCurrentDate() + "/";
-
-                    FileUtils.createFolderIfAbsent(pathToDateBackup);
-
-                    /* Creating new thread from text backup service and waiting for it to finish */
-                    BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
-                            bot,
-                            channel.getId(),
-                            Const.BackupFileType.HTML_DARK,
-                            bot.getBotSettings().getLocalTmpFolder(),
-                            null,
-                            null,
-                            false
-                    );
-
-                    Thread backupChannelServiceThread = new Thread(backupTextChannelService);
-                    backupChannelServiceThread.start();
-                    try {
-                        backupChannelServiceThread.join();
-                    } catch (InterruptedException e) {
-                        bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process required for media backup was interrupted!");
-                        continue;
-                    }
-
-                    if (backupTextChannelService.hasFailed()) {
-                        log.error("Text channel backup required for media backup has failed: [{}]", backupTextChannelService.getFailMessage());
-                        failedMediaChannels.add(channel.getName());
-                        continue;
-                    }
-
-                    File exportedTextFile = backupTextChannelService.getBackupFile();
-
-                    BackupMediaService backupMediaService = new BackupMediaService(
-                            bot,
-                            channel.getId(),
-                            exportedTextFile,
-                            pathToDateBackup,
-                            new String[]{"--zip"}
-                    );
-
-                    /* Creating new thread from media backup service and waiting for it to finish */
-                    Thread backupMediaServiceThread = new Thread(backupMediaService);
-                    log.info("Starting backupMediaService...");
-                    backupMediaServiceThread.start();
-                    try {
-                        backupMediaServiceThread.join();
-                    } catch (InterruptedException e) {
-                        log.error("Media backup process for channel '{}' was interrupted.", channel.getName());
-                        failedMediaChannels.add(channel.getName());
-                        continue;
-                    }
-
-                    if (backupMediaService.hasFailed()) {
-                        log.error("BackupMediaService for channel '{}' has failed: {}", channel.getName(), backupTextChannelService.getFailMessage());
-                        failedMediaChannels.add(channel.getName());
-                        continue;
-                    }
-
-                    log.info("Finished auto media backup of {}", channel.getName());
-
-                    File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
-                    if (directories != null && directories.length > MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
-                        log.debug("Auto media backup reached limit of allowed backups. Clearing...");
-
-                        File oldestDirectory = null;
-                        long oldestDate = Long.MAX_VALUE;
-
-                        for (File directory : directories) {
-                            if (directory.lastModified() < oldestDate) {
-                                oldestDate = directory.lastModified();
-                                oldestDirectory = directory;
-                            }
-                        }
-
-                        if (oldestDirectory != null) {
-                            org.apache.commons.io.FileUtils.deleteDirectory(oldestDirectory);
-                            log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
-                        }
-                    }
-
-                } catch (Exception e) {
-                    log.error("Failed to create auto media backup", e);
-                    bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
-                            String.format("Auto media backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
-                    failedMediaChannels.add(channel.getName());
-
-                } finally {
-                    bot.setLockedAutoBackup(false);
+                    backupChannelServiceThread.join();
+                } catch (InterruptedException e) {
+                    bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process required for media backup was interrupted!");
+                    continue;
                 }
+
+                if (backupTextChannelService.hasFailed()) {
+                    log.error("Text channel backup required for media backup has failed: [{}]", backupTextChannelService.getFailMessage());
+                    failedMediaChannels.add(channel.getName());
+                    continue;
+                }
+
+                File exportedTextFile = backupTextChannelService.getBackupFile();
+
+                BackupMediaService backupMediaService = new BackupMediaService(
+                        bot,
+                        channel.getId(),
+                        exportedTextFile,
+                        pathToDateBackup,
+                        new String[]{"--zip"}
+                );
+
+                /* Creating new thread from media backup service and waiting for it to finish */
+                Thread backupMediaServiceThread = new Thread(backupMediaService);
+                log.info("Starting backupMediaService...");
+                backupMediaServiceThread.start();
+                try {
+                    backupMediaServiceThread.join();
+                } catch (InterruptedException e) {
+                    log.error("Media backup process for channel '{}' was interrupted.", channel.getName());
+                    failedMediaChannels.add(channel.getName());
+                    continue;
+                }
+
+                if (backupMediaService.hasFailed()) {
+                    log.error("BackupMediaService for channel '{}' has failed: {}", channel.getName(), backupTextChannelService.getFailMessage());
+                    failedMediaChannels.add(channel.getName());
+                    continue;
+                }
+
+                log.info("Finished auto media backup of {}", channel.getName());
+
+                File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
+                if (directories != null && directories.length > MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
+                    log.debug("Auto media backup reached limit of allowed backups. Clearing...");
+
+                    File oldestDirectory = null;
+                    long oldestDate = Long.MAX_VALUE;
+
+                    for (File directory : directories) {
+                        if (directory.lastModified() < oldestDate) {
+                            oldestDate = directory.lastModified();
+                            oldestDirectory = directory;
+                        }
+                    }
+
+                    if (oldestDirectory != null) {
+                        org.apache.commons.io.FileUtils.deleteDirectory(oldestDirectory);
+                        log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
+                    }
+                }
+
+            } catch (Exception e) {
+                log.error("Failed to create auto media backup", e);
+                bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
+                        String.format("Auto media backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
+                failedMediaChannels.add(channel.getName());
+
+            } finally {
+                bot.setLockedAutoBackup(false);
             }
+        }
 
-            log.info("Automatic media backup has finished it's execution.");
-            bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto media backup has finished. %1$s",
-                    (failedMediaChannels.isEmpty())
-                            ? "All channels were backed up."
-                            : "Failed channels: `" + Arrays.toString(failedMediaChannels.toArray()) + "`")
-            );
-
-        }).start();
+        log.info("Automatic media backup has finished it's execution.");
+        bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto media backup has finished. %1$s",
+                (failedMediaChannels.isEmpty())
+                        ? "All channels were backed up."
+                        : "Failed channels: `" + Arrays.toString(failedMediaChannels.toArray()) + "`")
+        );
     }
 
+    @Override
     public void start() {
         long lastBackupTime = (bot.getOfflineStorage().getLastAutoMediaBackupTime() == 0)
                 ? System.currentTimeMillis()
@@ -181,10 +184,13 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
         int targetHour = bot.getBotSettings().getTargetHourForAutoMediaBackup();
         int targetMin = 0;
         int targetSec = 0;
-        fixedScheduledExecutor.startExecutionAt(dayDelay, targetHour, targetMin, targetSec);
-        log.info(String.format("Media backup will be performed in %2d days at %02d:%02d:%02d local time", dayDelay, targetHour, targetMin, targetSec));
+        fixedScheduledExecutor.startExecutionAt(dayDelay, bot.getBotSettings().getDelayDaysForAutoMediaBackup(), targetHour, targetMin, targetSec);
+        log.info(String.format("Media backup will be performed in %2d days at %02d:%02d:%02d local time. " +
+                        "Consequent tasks will be launched with fixed delay in %2d days.",
+                dayDelay, targetHour, targetMin, targetSec, bot.getBotSettings().getDelayDaysForAutoMediaBackup()));
     }
 
+    @Override
     public void stop() {
         log.info("Cancelling scheduled auto media task...");
         fixedScheduledExecutor.stop();

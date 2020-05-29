@@ -127,6 +127,12 @@ public final class FormatUtils {
         return formatter.format(date);
     }
 
+    public static String getDateAndTimeFromDatetime(Date date) {
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
+
+        return formatter.format(date);
+    }
+
     public static String filterEveryone(String input) {
         return input.replace("\u202E", "") // RTL override
                 .replace("@everyone", "@\u0435veryone") // cyrillic e
