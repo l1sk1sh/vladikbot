@@ -9,6 +9,7 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.exceptions.RateLimitedException;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -104,12 +105,14 @@ public class NowPlayingHandler {
             String text = audioHandler.getTopicFormat(bot.getJDA()) + otherText;
             if (!text.equals(textChannel.getTopic())) {
                 try {
-                    if (wait) {
-                        textChannel.getManager().setTopic(text).complete();
-                    } else {
-                        textChannel.getManager().setTopic(text).queue();
-                    }
-                } catch (PermissionException ignore) {
+                    /*
+                    * Normally here if 'wait' was false, we'd want to queue, however,
+                    * new discord ratelimits specifically limiting changing channel topics
+                    * mean we don't want a backlog of changes piling up, so if we hit a
+                    * ratelimit, we just won't change the topic this time
+                    */
+                    textChannel.getManager().setTopic(text).complete(wait);
+                } catch (PermissionException | RateLimitedException ignore) {
                 }
             }
         }
