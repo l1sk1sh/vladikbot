@@ -37,4 +37,13 @@ public class Reminder {
     public void setTextChannelId(String textChannelId) {
         this.textChannelId = textChannelId;
     }
+
+    @Override
+    public String toString() {
+        return "Reminder{" +
+                "dateOfReminder=" + dateOfReminder +
+                ", textOfReminder='" + textOfReminder + '\'' +
+                ", textChannelId='" + textChannelId + '\'' +
+                '}';
+    }
 }

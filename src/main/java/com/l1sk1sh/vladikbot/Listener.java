@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -132,7 +133,11 @@ class Listener extends ListenerAdapter {
         List<Reminder> reminders = bot.getOfflineStorage().getReminders();
         if (reminders != null && !reminders.isEmpty()) {
             for (Reminder reminder : reminders) {
-                bot.getReminderService().scheduleReminder(reminder);
+                boolean scheduled = bot.getReminderService().scheduleReminder(reminder);
+                if (!scheduled) {
+                    reminder.setDateOfReminder(new Date(System.currentTimeMillis() + (60 * 1000)));
+                    bot.getReminderService().scheduleReminder(reminder);
+                }
             }
         }
     }

@@ -33,13 +33,15 @@ public class ReminderService {
 
         Date reminderDate = dates.get(0).getDates().get(0);
         String reminderText = message.replace(dates.get(0).getText(), "").trim();
-        this.reminder = new Reminder(reminderDate, reminderText, channelId);
+        Reminder reminder = new Reminder(reminderDate, reminderText, channelId);
         bot.getOfflineStorage().addReminder(reminder);
 
         return scheduleReminder(reminder);
     }
 
     public boolean scheduleReminder(Reminder reminder) {
+        log.info("Scheduling reminder '{}'", reminder);
+        this.reminder = reminder;
         long delay = (reminder.getDateOfReminder().getTime() - new Date().getTime());
         if (delay < 0) {
             errorMessage = "Reminder's date should be in the future.";
