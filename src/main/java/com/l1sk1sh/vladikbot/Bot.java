@@ -63,6 +63,7 @@ public class Bot {
     private final DockerService dockerService;
     private final RandomQuoteRetriever randomQuoteRetriever;
     private final MessageCache messageCache;
+    private final ReminderService reminderService;
 
     public static Random rand;
     public static Gson gson;
@@ -95,6 +96,7 @@ public class Bot {
         this.dockerService = new DockerService(this);
         this.randomQuoteRetriever = new RandomQuoteRetriever();
         this.messageCache = new MessageCache();
+        this.reminderService = new ReminderService(this);
     }
 
     public void closeAudioConnection(long guildId) {
@@ -233,6 +235,10 @@ public class Bot {
 
     public MessageCache getMessageCache() {
         return messageCache;
+    }
+
+    public ReminderService getReminderService() {
+        return reminderService;
     }
 
     public boolean isDockerRunning() {

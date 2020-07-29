@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot;
 
+import com.l1sk1sh.vladikbot.models.entities.Reminder;
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
@@ -125,6 +126,13 @@ class Listener extends ListenerAdapter {
             } catch (IOException ioe) {
                 log.error("Failed to enable GAASimulation:", ioe);
                 botSettings.setAutoReply(false);
+            }
+        }
+
+        List<Reminder> reminders = bot.getOfflineStorage().getReminders();
+        if (reminders != null && !reminders.isEmpty()) {
+            for (Reminder reminder : reminders) {
+                bot.getReminderService().scheduleReminder(reminder);
             }
         }
     }

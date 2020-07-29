@@ -1,5 +1,10 @@
 package com.l1sk1sh.vladikbot.settings;
 
+import com.l1sk1sh.vladikbot.models.entities.Reminder;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Oliver Johnson
  */
@@ -9,8 +14,9 @@ public class OfflineStorage {
 
     private long lastAutoTextBackupTime = 0;
     private long lastAutoMediaBackupTime = 0;
+    private List<Reminder> reminders = new ArrayList<>();
 
-    public OfflineStorage(OfflineStorageManager manager) {
+    OfflineStorage(OfflineStorageManager manager) {
         this.manager = manager;
     }
 
@@ -33,6 +39,26 @@ public class OfflineStorage {
 
     public void setLastAutoMediaBackupTime(long lastAutoMediaBackupTime) {
         this.lastAutoMediaBackupTime = lastAutoMediaBackupTime;
+        manager.writeSettings();
+    }
+
+    public List<Reminder> getReminders() {
+        return reminders;
+    }
+
+    public void addReminder(Reminder reminder) {
+        if (reminders == null) {
+            reminders = new ArrayList<>();
+        }
+        this.reminders.add(reminder);
+        manager.writeSettings();
+    }
+
+    public void deleteReminder(Reminder reminder) {
+        if (reminders == null) {
+            reminders = new ArrayList<>();
+        }
+        this.reminders.remove(reminder);
         manager.writeSettings();
     }
 }

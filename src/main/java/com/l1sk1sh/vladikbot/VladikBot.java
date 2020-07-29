@@ -85,6 +85,7 @@ final class VladikBot {
                             new FlipCoinCommand(),
                             new ISSInfoCommand(),
                             new JokeCommand(),
+                            new ReminderCommand(bot),
 
                             new SetNotificationChannelCommand(bot),
                             new SetDjCommand(bot),
