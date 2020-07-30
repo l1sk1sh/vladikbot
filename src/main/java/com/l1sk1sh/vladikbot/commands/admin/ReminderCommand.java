@@ -97,6 +97,7 @@ public class ReminderCommand extends AdminCommand {
             if (!deleted) {
                 log.error("Failed to delete reminder: `{}`.", reminderService.getErrorMessage());
                 event.replyError(String.format("Unable to delete this reminder `[%1$s]`.", reminderService.getErrorMessage()));
+                return;
             }
 
             log.info("Reminder with id {} was removed by {}:[{}].", reminderId, event.getAuthor().getName(), event.getAuthor().getId());
