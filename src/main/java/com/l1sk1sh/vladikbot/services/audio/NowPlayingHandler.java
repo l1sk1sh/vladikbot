@@ -31,7 +31,7 @@ public class NowPlayingHandler {
 
     public void init() {
         if (!bot.getBotSettings().useNpImages()) {
-            bot.getThreadPool().scheduleWithFixedDelay(this::updateAll, 0, 5, TimeUnit.SECONDS);
+            bot.getFrontThreadPool().scheduleWithFixedDelay(this::updateAll, 0, 5, TimeUnit.SECONDS);
         }
     }
 

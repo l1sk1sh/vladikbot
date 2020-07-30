@@ -1,20 +1,13 @@
 package com.l1sk1sh.vladikbot;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.Objects;
-import java.util.stream.Collectors;
-
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.google.gson.Gson;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.l1sk1sh.vladikbot.services.*;
+import com.l1sk1sh.vladikbot.services.ChatNotificationService;
+import com.l1sk1sh.vladikbot.services.ReminderService;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
@@ -37,6 +30,14 @@ import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -47,7 +48,8 @@ public class Bot {
     private static final Logger log = LoggerFactory.getLogger(Bot.class);
 
     private final EventWaiter waiter;
-    private final ScheduledExecutorService threadPool;
+    private final ScheduledExecutorService frontThreadPool;
+    private final ScheduledExecutorService backThreadPool;
     private final BotSettingsManager botSettingsManager;
     private final GuildSpecificSettingsManager guildSpecificSettingsManager;
     private final OfflineStorageManager offlineStorageManager;
@@ -82,7 +84,8 @@ public class Bot {
         this.guildSpecificSettingsManager = guildSpecificSettingsManager;
         this.offlineStorageManager = offlineStorageManager;
         this.playlistLoader = new PlaylistLoader(this);
-        this.threadPool = Executors.newSingleThreadScheduledExecutor();
+        this.frontThreadPool = Executors.newSingleThreadScheduledExecutor();
+        this.backThreadPool = Executors.newSingleThreadScheduledExecutor();
         this.playerManager = new PlayerManager(this);
         this.playerManager.init();
         this.nowPlayingHandler = new NowPlayingHandler(this);
@@ -102,7 +105,7 @@ public class Bot {
     public void closeAudioConnection(long guildId) {
         Guild guild = jda.getGuildById(guildId);
         if (guild != null) {
-            threadPool.submit(() -> guild.getAudioManager().closeAudioConnection());
+            frontThreadPool.submit(() -> guild.getAudioManager().closeAudioConnection());
         }
     }
 
@@ -121,7 +124,7 @@ public class Bot {
         }
 
         shuttingDown = true;
-        threadPool.shutdownNow();
+        frontThreadPool.shutdownNow();
         if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
             jda.getGuilds().forEach(g -> {
                 g.getAudioManager().closeAudioConnection();
@@ -161,8 +164,12 @@ public class Bot {
         return waiter;
     }
 
-    public ScheduledExecutorService getThreadPool() {
-        return threadPool;
+    public ScheduledExecutorService getFrontThreadPool() {
+        return frontThreadPool;
+    }
+
+    public ScheduledExecutorService getBackThreadPool() {
+        return backThreadPool;
     }
 
     public PlayerManager getPlayerManager() {

@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.services.presence;
 
 import com.google.gson.reflect.TypeToken;
+import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.entities.GameAndAction;
 import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -130,7 +131,7 @@ public class GameAndActionSimulationManager {
             }
         };
 
-        scheduledFuture = bot.getThreadPool().scheduleWithFixedDelay(rotation, 30, Const.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
+        scheduledFuture = bot.getFrontThreadPool().scheduleWithFixedDelay(rotation, 30, Const.STATUSES_ROTATION_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS);
     }
 
     public void stop() {

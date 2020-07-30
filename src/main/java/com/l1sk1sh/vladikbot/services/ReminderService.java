@@ -75,7 +75,7 @@ public class ReminderService {
             bot.getOfflineStorage().deleteReminder(reminder);
         };
 
-        ScheduledFuture<?> scheduledReminder = bot.getThreadPool().schedule(remindEvent, delay, TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> scheduledReminder = bot.getFrontThreadPool().schedule(remindEvent, delay, TimeUnit.MILLISECONDS);
         scheduledReminders.put(reminder.getId(), scheduledReminder);
 
         return true;

@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.services.backup;
 
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
+import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
@@ -29,7 +29,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
     public AutoMediaBackupDaemon(Bot bot) {
         this.bot = bot;
-        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getThreadPool());
+        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getBackThreadPool());
     }
 
     @Override
