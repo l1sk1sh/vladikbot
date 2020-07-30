@@ -60,3 +60,4 @@ To ensure smooth Docker performance, make sure to expose 2375 port without TSL i
 44. Rebuild settings file if some setting is missing from .json
 45. Centralize thread running (bot.getThreadpool().execute(() ->)
 46. Почати працювати з Шардами (багато гільдій) і перенести усі файли в базу (Vortex)
+47. Migrate to database, instead of .json files (json handlind becomes complex)
