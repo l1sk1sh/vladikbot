@@ -130,7 +130,7 @@ class Listener extends ListenerAdapter {
             }
         }
 
-        List<Reminder> reminders = bot.getOfflineStorage().getReminders();
+        List<Reminder> reminders = bot.getReminderService().getAllReminders();
         if (reminders != null && !reminders.isEmpty()) {
             for (Reminder reminder : reminders) {
                 boolean scheduled = bot.getReminderService().scheduleReminder(reminder);

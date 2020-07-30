@@ -4,14 +4,22 @@ import java.util.Date;
 
 @SuppressWarnings("unused")
 public class Reminder {
+    private long id;
     private Date dateOfReminder;
     private String textOfReminder;
     private String textChannelId;
+    private String authorId;
 
-    public Reminder(Date dateOfReminder, String textOfReminder, String textChannelId) {
+    public Reminder(Date dateOfReminder, String textOfReminder, String textChannelId, String authorId) {
+        this.id = System.currentTimeMillis();
         this.dateOfReminder = dateOfReminder;
         this.textOfReminder = textOfReminder;
         this.textChannelId = textChannelId;
+        this.authorId = authorId;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public Date getDateOfReminder() {
@@ -36,6 +44,14 @@ public class Reminder {
 
     public void setTextChannelId(String textChannelId) {
         this.textChannelId = textChannelId;
+    }
+
+    public String getAuthorId() {
+        return authorId;
+    }
+
+    public void setAuthorId(String authorId) {
+        this.authorId = authorId;
     }
 
     @Override
