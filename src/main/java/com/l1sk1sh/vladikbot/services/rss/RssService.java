@@ -60,7 +60,7 @@ public class RssService {
                 "https://media.glassdoor.com/sqll/738331/game-informer-squarelogo-1472477253053.png",
                 new Color(0, 0, 0),
                 bot
-        ), 10, Const.NEWS_UPDATE_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS));
+        ), 60, Const.NEWS_UPDATE_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS));
 
         log.info("RSS Service has been launched.");
         initialized = true;
