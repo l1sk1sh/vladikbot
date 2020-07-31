@@ -1,4 +1,4 @@
-package com.l1sk1sh.vladikbot.services;
+package com.l1sk1sh.vladikbot.services.notification;
 
 import com.l1sk1sh.vladikbot.Bot;
 import net.dv8tion.jda.api.EmbedBuilder;

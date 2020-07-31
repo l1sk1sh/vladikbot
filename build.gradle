@@ -56,4 +56,6 @@ dependencies {
     implementation 'org.codehaus.janino:janino:3.1.2'
     implementation 'com.github.docker-java:docker-java:3.2.1'
     implementation 'org.ocpsoft.prettytime:prettytime-nlp:4.0.5.Final'
+    implementation 'com.apptastic:rssreader:2.3.1'
+    implementation 'org.jsoup:jsoup:1.13.1'
 }

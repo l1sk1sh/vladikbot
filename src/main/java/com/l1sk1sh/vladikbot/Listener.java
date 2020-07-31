@@ -44,11 +44,13 @@ class Listener extends ListenerAdapter {
 
     @Override
     public void onReady(ReadyEvent event) {
+        /* Check if bot added to Guilds */
         if (event.getJDA().getGuilds().isEmpty()) {
             log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
             log.warn(event.getJDA().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
 
+        /* Check if Docker is running */
         if (!bot.getDockerService().isDockerRunning()) {
             log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
             bot.setDockerRunning(false);
@@ -56,6 +58,7 @@ class Listener extends ListenerAdapter {
             bot.setDockerRunning(true);
         }
 
+        /* Setup audio player */
         event.getJDA().getGuilds().forEach((guild) ->
         {
             try {
@@ -74,6 +77,7 @@ class Listener extends ListenerAdapter {
             }
         });
 
+        /* Initiate automatic background backup */
         if (botSettings.shouldAutoTextBackup() || botSettings.shouldAutoMediaBackup()) {
             int minimumTimeDifference = 1;
             int maximumDayHour = 23;
@@ -120,6 +124,7 @@ class Listener extends ListenerAdapter {
             bot.getAutoTextBackupDaemon().start();
         }
 
+        /* Setup game and action simulation for bot's status */
         if (botSettings.shouldSimulateActionsAndGamesActivity()) {
             log.info("Enabling GAASimulation...");
             try {
@@ -130,6 +135,7 @@ class Listener extends ListenerAdapter {
             }
         }
 
+        /* Read saved reminders and re-schedule them */
         List<Reminder> reminders = bot.getReminderService().getAllReminders();
         if (reminders != null && !reminders.isEmpty()) {
             for (Reminder reminder : reminders) {
@@ -139,6 +145,11 @@ class Listener extends ListenerAdapter {
                     bot.getReminderService().scheduleReminder(reminder);
                 }
             }
+        }
+
+        /* Initiate RSS feed reader */
+        if (botSettings.shouldAutoTextBackup()) {
+            bot.getRssService().start();
         }
     }
 

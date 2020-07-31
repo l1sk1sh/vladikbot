@@ -1,9 +1,13 @@
 package com.l1sk1sh.vladikbot.settings;
 
 import com.l1sk1sh.vladikbot.models.entities.Reminder;
+import com.l1sk1sh.vladikbot.services.rss.RssResource;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Oliver Johnson
@@ -14,6 +18,7 @@ public class OfflineStorage {
 
     private long lastAutoTextBackupTime = 0;
     private long lastAutoMediaBackupTime = 0;
+    private Map<RssResource, Long> lastSentArticles = new HashMap<>();
     private List<Reminder> reminders = new ArrayList<>();
 
     OfflineStorage(OfflineStorageManager manager) {
@@ -39,6 +44,21 @@ public class OfflineStorage {
 
     public void setLastAutoMediaBackupTime(long lastAutoMediaBackupTime) {
         this.lastAutoMediaBackupTime = lastAutoMediaBackupTime;
+        manager.writeSettings();
+    }
+
+    public long getLastArticleTime(@NotNull RssResource resource) {
+        if (lastSentArticles == null) {
+            lastSentArticles = new HashMap<>();
+        }
+        return (lastSentArticles.containsKey(resource)) ? lastSentArticles.get(resource) : 0;
+    }
+
+    public void setLastArticleTime(@NotNull RssResource resource, long lastArticleTime) {
+        if (lastSentArticles == null) {
+            lastSentArticles = new HashMap<>();
+        }
+        lastSentArticles.put(resource, lastArticleTime);
         manager.writeSettings();
     }
 

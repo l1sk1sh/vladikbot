@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.settings;
 
-import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Activity;
 
 /**
  * @author Oliver Johnson
@@ -40,6 +40,7 @@ public class BotSettings {
     private Const.MatchingStrategy matchingStrategy = Const.MatchingStrategy.full; // How reply rules should be matched
     private double replyChange = 1.0;                                   // Change that bot will reply
     private boolean simulateActionAndGamesActivity = false;             // If bot should change statuses by himself
+    private boolean sendNews = true;                                    // If bot should update news channel
     private boolean logGuildChanges = false;                            // If bot should log message/avatars etc changes
     private boolean autoTextBackup = true;                              // Automatically create backups of all available chats
     private boolean autoMediaBackup = true;                             // Automatically save media from all available chats
@@ -193,6 +194,15 @@ public class BotSettings {
 
     public final void setSimulateActionAndGameActivity(boolean simulateActionAndGamesActivity) {
         this.simulateActionAndGamesActivity = simulateActionAndGamesActivity;
+        manager.writeSettings();
+    }
+
+    public boolean isSendNews() {
+        return sendNews;
+    }
+
+    public void setSendNews(boolean sendNews) {
+        this.sendNews = sendNews;
         manager.writeSettings();
     }
 

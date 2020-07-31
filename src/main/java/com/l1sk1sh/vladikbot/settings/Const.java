@@ -3,7 +3,9 @@ package com.l1sk1sh.vladikbot.settings;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -41,6 +43,7 @@ public final class Const {
     public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
     public static final int EIGHT_MEGABYTES_IN_BYTES = 8 * 1024 * 1024;
     public static final int STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;
+    public static final int NEWS_UPDATE_FREQUENCY_IN_SECONDS = 10 * 60;
     public static final int BITS_IN_BYTE = 1024;
     public static final int SECONDS_IN_MINUTES = 60;
 

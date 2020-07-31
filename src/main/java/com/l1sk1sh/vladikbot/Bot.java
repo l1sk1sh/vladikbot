@@ -6,7 +6,6 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 import com.google.gson.Gson;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.l1sk1sh.vladikbot.services.ChatNotificationService;
 import com.l1sk1sh.vladikbot.services.ReminderService;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
@@ -17,9 +16,12 @@ import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.DockerService;
 import com.l1sk1sh.vladikbot.services.logging.GuildLoggerService;
 import com.l1sk1sh.vladikbot.services.logging.MessageCache;
+import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
+import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.services.presence.GameAndActionSimulationManager;
 import com.l1sk1sh.vladikbot.services.retrievers.RandomQuoteRetriever;
+import com.l1sk1sh.vladikbot.services.rss.RssService;
 import com.l1sk1sh.vladikbot.settings.*;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import net.dv8tion.jda.api.JDA;
@@ -62,10 +64,12 @@ public class Bot {
     private final AutoTextBackupDaemon autoTextBackupDaemon;
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final ChatNotificationService notificationService;
+    private final NewsNotificationService newsNotificationService;
     private final DockerService dockerService;
     private final RandomQuoteRetriever randomQuoteRetriever;
     private final MessageCache messageCache;
     private final ReminderService reminderService;
+    private final RssService rssService;
 
     public static Random rand;
     public static Gson gson;
@@ -96,10 +100,12 @@ public class Bot {
         this.autoTextBackupDaemon = new AutoTextBackupDaemon(this);
         this.autoMediaBackupDaemon = new AutoMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
+        this.newsNotificationService = new NewsNotificationService(this);
         this.dockerService = new DockerService(this);
         this.randomQuoteRetriever = new RandomQuoteRetriever();
         this.messageCache = new MessageCache();
         this.reminderService = new ReminderService(this);
+        this.rssService = new RssService(this);
     }
 
     public void closeAudioConnection(long guildId) {
@@ -232,6 +238,10 @@ public class Bot {
         return notificationService;
     }
 
+    public NewsNotificationService getNewsNotificationService() {
+        return newsNotificationService;
+    }
+
     public DockerService getDockerService() {
         return dockerService;
     }
@@ -246,6 +256,10 @@ public class Bot {
 
     public ReminderService getReminderService() {
         return reminderService;
+    }
+
+    public RssService getRssService() {
+        return rssService;
     }
 
     public boolean isDockerRunning() {
