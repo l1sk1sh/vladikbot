@@ -62,6 +62,14 @@ public class RssService {
                 bot
         ), 60, Const.NEWS_UPDATE_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS));
 
+        scheduledRssFeeds.add(bot.getFrontThreadPool().scheduleWithFixedDelay(new RssFeedTask(
+                RssResource.DTF,
+                "https://dtf.ru/rss/all",
+                "https://dtfstaticbf19cf1-a.akamaihd.net/static/build/dtf.ru/favicons/apple-touch-icon-180x180.png",
+                new Color(217,245,255),
+                bot
+        ), 75, Const.NEWS_UPDATE_FREQUENCY_IN_SECONDS, TimeUnit.SECONDS));
+
         log.info("RSS Service has been launched.");
         initialized = true;
     }
