@@ -19,7 +19,7 @@ class ArticleMapper {
     private static final Logger log = LoggerFactory.getLogger(ArticleMapper.class);
 
     private static final String EMPTY_TITLE = "Empty title";
-    private static final String DESCRIPTION_CUT_ENDING = "[...]";
+    private static final String DESCRIPTION_CUT_ENDING = "[…]";
     private static final int DESCRIPTION_MAX_LENGTH = 400;
 
     static NewsMessage mapRssArticleToNewsMessage(Item article, RssResource resource, String resourceImageUrl) {
