@@ -6,16 +6,14 @@ public class NewsMessage {
     private String title;
     private String description;
     private String imageUrl;
-    private String category;
     private String articleUrl;
     private Date publicationDate;
     private String resourceImageUrl;
 
-    public NewsMessage(String title, String description, String imageUrl, String category, String articleUrl, Date publicationDate,  String resourceImageUrl) {
+    public NewsMessage(String title, String description, String imageUrl, String articleUrl, Date publicationDate,  String resourceImageUrl) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;
-        this.category = category;
         this.articleUrl = articleUrl;
         this.publicationDate = publicationDate;
         this.resourceImageUrl = resourceImageUrl;
@@ -35,10 +33,6 @@ public class NewsMessage {
 
     public String getImageUrl() {
         return imageUrl;
-    }
-
-    public String getCategory() {
-        return category;
     }
 
     public String getArticleUrl() {

@@ -18,7 +18,11 @@ import java.util.regex.Pattern;
 class ArticleMapper {
     private static final Logger log = LoggerFactory.getLogger(ArticleMapper.class);
 
-    static NewsMessage mapRssToNewsMessage(Item article, RssResource resource, String resourceImageUrl) {
+    private static final String EMPTY_TITLE = "Empty title";
+    private static final String DESCRIPTION_CUT_ENDING = "[...]";
+    private static final int DESCRIPTION_MAX_LENGTH = 400;
+
+    static NewsMessage mapRssArticleToNewsMessage(Item article, RssResource resource, String resourceImageUrl) {
         String description = "";
         String imageUrl = null;
         String articleUrl = null;
@@ -31,6 +35,7 @@ class ArticleMapper {
             }
 
             description = Jsoup.parse(article.getDescription().get()).text();
+            description = getNormalizedDescription(description);
         }
 
         if (article.getLink().isPresent()) {
@@ -47,19 +52,35 @@ class ArticleMapper {
                 article.getTitle().isPresent() ? article.getTitle().get() : "",
                 description,
                 imageUrl,
-                article.getCategory().isPresent() ? article.getCategory().get() : "",
                 articleUrl,
                 publicationDate,
                 resourceImageUrl
         );
     }
 
-    static Date getDateFromArticle(Item article) throws ParseException {
+    private static Date getDateFromArticle(Item article) throws ParseException {
         if (!article.getPubDate().isPresent()) {
             log.warn("Article doesn't have date.");
             return null;
         }
 
         return new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z").parse(article.getPubDate().get());
+    }
+
+    private static String getNormalizedDescription(String description) {
+        description = description.replaceAll(DESCRIPTION_CUT_ENDING, "");
+        if (description.length() > DESCRIPTION_MAX_LENGTH) {
+            int indexOfNextSpace = description.indexOf(' ', DESCRIPTION_MAX_LENGTH);
+            description = description.substring(0, indexOfNextSpace);
+        }
+        return description + " " + DESCRIPTION_CUT_ENDING;
+    }
+
+    static String getTitleAsId(Item article) {
+        if (!article.getTitle().isPresent()) {
+            return EMPTY_TITLE;
+        }
+
+        return article.getTitle().get().trim().toLowerCase().replaceAll(" ", "_").replaceAll("[^a-zа-я_0-9]", "");
     }
 }

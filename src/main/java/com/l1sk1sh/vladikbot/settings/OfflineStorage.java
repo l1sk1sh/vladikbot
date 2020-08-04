@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.settings;
 
 import com.l1sk1sh.vladikbot.models.entities.Reminder;
 import com.l1sk1sh.vladikbot.services.rss.RssResource;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -18,7 +19,7 @@ public class OfflineStorage {
 
     private long lastAutoTextBackupTime = 0;
     private long lastAutoMediaBackupTime = 0;
-    private Map<RssResource, Long> lastSentArticles = new HashMap<>();
+    private Map<RssResource, CircularFifoQueue<String>> lastSentArticles = new HashMap<>();
     private List<Reminder> reminders = new ArrayList<>();
 
     OfflineStorage(OfflineStorageManager manager) {
@@ -47,18 +48,23 @@ public class OfflineStorage {
         manager.writeSettings();
     }
 
-    public long getLastArticleTime(@NotNull RssResource resource) {
+    public CircularFifoQueue<String> getLastArticleIds(@NotNull RssResource resource) {
         if (lastSentArticles == null) {
             lastSentArticles = new HashMap<>();
         }
-        return (lastSentArticles.containsKey(resource)) ? lastSentArticles.get(resource) : 0;
+        CircularFifoQueue<String> queue = new CircularFifoQueue<>(Const.ARTICLE_FETCH_LIMIT);
+        CircularFifoQueue<String> storedQueue = lastSentArticles.getOrDefault(resource, null);
+        if (storedQueue != null) {
+            queue.addAll(storedQueue);
+        }
+        return queue;
     }
 
-    public void setLastArticleTime(@NotNull RssResource resource, long lastArticleTime) {
+    public void setLastArticleIds(@NotNull RssResource resource, CircularFifoQueue<String> listOfSentArticles) {
         if (lastSentArticles == null) {
             lastSentArticles = new HashMap<>();
         }
-        lastSentArticles.put(resource, lastArticleTime);
+        lastSentArticles.put(resource, listOfSentArticles);
         manager.writeSettings();
     }
 

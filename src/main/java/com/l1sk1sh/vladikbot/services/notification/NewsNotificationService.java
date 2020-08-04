@@ -32,7 +32,7 @@ public class NewsNotificationService {
                 .setDescription(message.getDescription())
                 .setImage(message.getImageUrl())
                 .setFooter(
-                        String.format("%1$s | %2$s", message.getCategory(), message.getPublicationDate().toString()),
+                        String.format("%1$s", message.getPublicationDate().toString()),
                         message.getResourceImageUrl()
                 );
 
