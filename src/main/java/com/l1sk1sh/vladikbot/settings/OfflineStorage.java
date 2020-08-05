@@ -52,7 +52,7 @@ public class OfflineStorage {
         if (lastSentArticles == null) {
             lastSentArticles = new HashMap<>();
         }
-        CircularFifoQueue<String> queue = new CircularFifoQueue<>(Const.ARTICLE_FETCH_LIMIT);
+        CircularFifoQueue<String> queue = new CircularFifoQueue<>(Const.ARTICLE_STORE_LIMIT);
         CircularFifoQueue<String> storedQueue = lastSentArticles.getOrDefault(resource, null);
         if (storedQueue != null) {
             queue.addAll(storedQueue);
