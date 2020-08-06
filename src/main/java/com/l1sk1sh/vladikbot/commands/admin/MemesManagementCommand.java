@@ -14,14 +14,14 @@ import java.util.List;
 /**
  * @author Oliver Johnson
  */
-public class NewsManagementCommand extends AdminCommand {
-    private static final Logger log = LoggerFactory.getLogger(NewsManagementCommand.class);
+public class MemesManagementCommand extends AdminCommand {
+    private static final Logger log = LoggerFactory.getLogger(MemesManagementCommand.class);
     private final Bot bot;
 
-    public NewsManagementCommand(Bot bot) {
+    public MemesManagementCommand(Bot bot) {
         this.bot = bot;
-        this.name = "news";
-        this.help = "Manage news for this guild";
+        this.name = "memes";
+        this.help = "Manage memes for this guild";
         this.arguments = "<switch|setch>";
         this.children = new AdminCommand[]{
                 new SwitchCommand(),
@@ -38,7 +38,7 @@ public class NewsManagementCommand extends AdminCommand {
         SwitchCommand() {
             this.name = "switch";
             this.aliases = new String[]{"change"};
-            this.help = "enables or disables news";
+            this.help = "enables or disables memes update";
             this.arguments = "<on|off>";
             this.guildOnly = false;
         }
@@ -51,17 +51,15 @@ public class NewsManagementCommand extends AdminCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getBotSettings().setSendNews(true);
-                            event.replySuccess("News feed is now enabled!");
-                            bot.getRssService().start();
-                            // Add another news services here
+                            bot.getBotSettings().setSendMemes(true);
+                            event.replySuccess("Memes feed is now enabled!");
+                            bot.getMemeService().start();
                             break;
                         case "off":
                         case "disable":
-                            bot.getBotSettings().setSendNews(false);
-                            event.replySuccess("News feed is now disabled!");
-                            bot.getRssService().stop();
-                            // Add another news services here
+                            bot.getBotSettings().setSendMemes(false);
+                            event.replySuccess("Memes feed is now disabled!");
+                            bot.getMemeService().stop();
                             break;
                     }
                 }
@@ -74,7 +72,7 @@ public class NewsManagementCommand extends AdminCommand {
     private final class SetChannelCommand extends AdminCommand {
         SetChannelCommand() {
             this.name = "setch";
-            this.help = "sets channel for news submission";
+            this.help = "sets channel for memes submission";
             this.arguments = "<channel>";
         }
 
@@ -91,9 +89,9 @@ public class NewsManagementCommand extends AdminCommand {
             } else if (list.size() > 1) {
                 event.replyWarning(FormatUtils.listOfTextChannels(list, event.getArgs()));
             } else {
-                bot.getGuildSettings(event.getGuild()).setNewsChannelId(list.get(0));
-                log.info("News channel was set to {}. Set by {}:[{}].", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
-                event.replySuccess(String.format("News are being displayed in <#%1$s>.", list.get(0).getId()));
+                bot.getGuildSettings(event.getGuild()).setMemesChannelId(list.get(0));
+                log.info("Memes channel was set to {}. Set by {}:[{}].", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
+                event.replySuccess(String.format("Memes are being displayed in <#%1$s>.", list.get(0).getId()));
             }
         }
     }

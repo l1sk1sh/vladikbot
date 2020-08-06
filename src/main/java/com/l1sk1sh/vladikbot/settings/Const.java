@@ -44,9 +44,11 @@ public final class Const {
     public static final int EIGHT_MEGABYTES_IN_BYTES = 8 * 1024 * 1024;
     public static final int STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;
     public static final int NEWS_UPDATE_FREQUENCY_IN_SECONDS = 10 * 60;
+    public static final int MEMES_UPDATE_FREQUENCY_IN_SECONDS = 30 * 60;
     public static final int BITS_IN_BYTE = 1024;
     public static final int SECONDS_IN_MINUTES = 60;
     public static final int ARTICLE_STORE_LIMIT = 20;
+    public static final int MEME_STORE_LIMIT = 30;
 
     public static final String YT_SEARCH_PREFIX = "ytsearch:";
     public static final String SC_SEARCH_PREFIX = "scsearch:";

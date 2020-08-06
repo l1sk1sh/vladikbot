@@ -20,6 +20,7 @@ public class OfflineStorage {
     private long lastAutoTextBackupTime = 0;
     private long lastAutoMediaBackupTime = 0;
     private Map<RssResource, CircularFifoQueue<String>> lastSentArticles = new HashMap<>();
+    private CircularFifoQueue<String> lastSentMemes = new CircularFifoQueue<>(Const.MEME_STORE_LIMIT);
     private List<Reminder> reminders = new ArrayList<>();
 
     OfflineStorage(OfflineStorageManager manager) {
@@ -66,6 +67,21 @@ public class OfflineStorage {
         }
         lastSentArticles.put(resource, listOfSentArticles);
         manager.writeSettings();
+    }
+
+    public void addSentMemeId(String sentMemeId) {
+        if (lastSentMemes == null) {
+            lastSentMemes = new CircularFifoQueue<>(Const.MEME_STORE_LIMIT);
+        }
+        lastSentMemes.add(sentMemeId);
+        manager.writeSettings();
+    }
+
+    public CircularFifoQueue<String> getLastMemeIds() {
+        if (lastSentMemes == null) {
+            lastSentMemes = new CircularFifoQueue<>(Const.MEME_STORE_LIMIT);
+        }
+        return lastSentMemes;
     }
 
     public List<Reminder> getReminders() {

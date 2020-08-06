@@ -16,7 +16,9 @@ import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.DockerService;
 import com.l1sk1sh.vladikbot.services.logging.GuildLoggerService;
 import com.l1sk1sh.vladikbot.services.logging.MessageCache;
+import com.l1sk1sh.vladikbot.services.meme.MemeService;
 import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
+import com.l1sk1sh.vladikbot.services.notification.MemeNotificationService;
 import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.services.presence.GameAndActionSimulationManager;
@@ -65,11 +67,13 @@ public class Bot {
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final ChatNotificationService notificationService;
     private final NewsNotificationService newsNotificationService;
+    private final MemeNotificationService memeNotificationService;
     private final DockerService dockerService;
     private final RandomQuoteRetriever randomQuoteRetriever;
     private final MessageCache messageCache;
     private final ReminderService reminderService;
     private final RssService rssService;
+    private final MemeService memeService;
 
     public static Random rand;
     public static Gson gson;
@@ -101,11 +105,13 @@ public class Bot {
         this.autoMediaBackupDaemon = new AutoMediaBackupDaemon(this);
         this.notificationService = new ChatNotificationService(this);
         this.newsNotificationService = new NewsNotificationService(this);
+        this.memeNotificationService = new MemeNotificationService(this);
         this.dockerService = new DockerService(this);
         this.randomQuoteRetriever = new RandomQuoteRetriever();
         this.messageCache = new MessageCache();
         this.reminderService = new ReminderService(this);
         this.rssService = new RssService(this);
+        this.memeService = new MemeService(this);
     }
 
     public void closeAudioConnection(long guildId) {
@@ -242,6 +248,10 @@ public class Bot {
         return newsNotificationService;
     }
 
+    public MemeNotificationService getMemeNotificationService() {
+        return memeNotificationService;
+    }
+
     public DockerService getDockerService() {
         return dockerService;
     }
@@ -260,6 +270,10 @@ public class Bot {
 
     public RssService getRssService() {
         return rssService;
+    }
+
+    public MemeService getMemeService() {
+        return memeService;
     }
 
     public boolean isDockerRunning() {

@@ -16,6 +16,7 @@ public class GuildSpecificSettings {
     private long voiceChannelId = 0L;                           // Only one voice id for bot's music
     private long notificationChannelId = 0L;                    // Use separate system notification channel for bot
     private long newsChannelId = 0L;                            // Use separate channel for news notifications
+    private long memesChannelId = 0L;                            // Use separate channel for memes notifications
     private long djRoleId = 0L;                                 // Sets who can use DJ commands
     private String defaultPlaylist = "default_playlist";        // Sets name of default playlist
     private int volume = 50;                                    // Sets volume of the bot
@@ -61,6 +62,15 @@ public class GuildSpecificSettings {
 
     public final void setNewsChannelId(TextChannel textChannel) {
         this.newsChannelId = textChannel == null ? 0 : textChannel.getIdLong();
+        manager.writeSettings();
+    }
+
+    public final TextChannel getMemesChannel(Guild guild) {
+        return (guild == null) ? null : guild.getTextChannelById(memesChannelId);
+    }
+
+    public final void setMemesChannelId(TextChannel textChannel) {
+        this.memesChannelId = textChannel == null ? 0 : textChannel.getIdLong();
         manager.writeSettings();
     }
 

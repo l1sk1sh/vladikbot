@@ -148,8 +148,13 @@ class Listener extends ListenerAdapter {
         }
 
         /* Initiate RSS feed reader */
-        if (botSettings.shouldAutoTextBackup()) {
+        if (botSettings.shouldSendNews()) {
             bot.getRssService().start();
+        }
+
+        /* Initiate memes fetcher*/
+        if (botSettings.shouldSendNews()) {
+            bot.getMemeService().start();
         }
     }
 

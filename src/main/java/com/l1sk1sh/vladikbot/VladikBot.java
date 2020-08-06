@@ -99,6 +99,7 @@ final class VladikBot {
                             new AutoReplyCommand(bot),
                             new GameAndActionSimulationCommand(bot),
                             new NewsManagementCommand(bot),
+                            new MemesManagementCommand(bot),
                             new GuildLoggerCommand(bot),
 
                             new ForceSkipCommand(bot),

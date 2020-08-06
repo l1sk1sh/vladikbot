@@ -41,6 +41,7 @@ public class BotSettings {
     private double replyChange = 1.0;                                   // Change that bot will reply
     private boolean simulateActionAndGamesActivity = false;             // If bot should change statuses by himself
     private boolean sendNews = true;                                    // If bot should update news channel
+    private boolean sendMemes = true;                                   // If bot should update memes channel
     private boolean logGuildChanges = false;                            // If bot should log message/avatars etc changes
     private boolean autoTextBackup = true;                              // Automatically create backups of all available chats
     private boolean autoMediaBackup = true;                             // Automatically save media from all available chats
@@ -197,13 +198,21 @@ public class BotSettings {
         manager.writeSettings();
     }
 
-    public boolean isSendNews() {
+    public boolean shouldSendNews() {
         return sendNews;
     }
 
     public void setSendNews(boolean sendNews) {
         this.sendNews = sendNews;
         manager.writeSettings();
+    }
+
+    public boolean shouldSendMemes() {
+        return sendMemes;
+    }
+
+    public void setSendMemes(boolean sendMemes) {
+        this.sendMemes = sendMemes;
     }
 
     public boolean shouldLogGuildChanges() {

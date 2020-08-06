@@ -26,7 +26,7 @@ public class RssService {
     }
 
     public void start() {
-        if (!bot.getBotSettings().isSendNews()) {
+        if (!bot.getBotSettings().shouldSendNews()) {
             if (initialized) {
                 stop();
             }
