@@ -6,7 +6,8 @@ import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 
 /**
@@ -21,7 +22,7 @@ public class BotSettingsManager {
     private final File botConfigFile;
 
     public BotSettingsManager() {
-        this.botConfigFile = new File(BOT_SETTINGS_JSON);
+        this.botConfigFile = new File(BotSettings.DEFAULT_SETTINGS_DIR + "/" + BOT_SETTINGS_JSON);
         this.botSettings = new BotSettings(this);
     }
 

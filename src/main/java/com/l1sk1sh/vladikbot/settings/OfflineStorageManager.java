@@ -2,7 +2,6 @@ package com.l1sk1sh.vladikbot.settings;
 
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
-import net.dv8tion.jda.api.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,7 @@ public class OfflineStorageManager {
     private final File offlineStorageFile;
 
     public OfflineStorageManager() {
-        this.offlineStorageFile = new File(OFFLINE_STORAGE_JSON);
+        this.offlineStorageFile = new File(BotSettings.DEFAULT_SETTINGS_DIR + "/" + OFFLINE_STORAGE_JSON);
         this.offlineStorage = new OfflineStorage(this);
     }
 

@@ -13,15 +13,18 @@ import net.dv8tion.jda.api.entities.Activity;
 public class BotSettings {
     private transient BotSettingsManager manager;
 
+    static final String DEFAULT_SETTINGS_DIR = "./";
+
     /* Finish all paths with file system separator! */
     private String token = "MY_BOT_TOKEN";                              // Bot token taken from discord developer portal
     private long ownerId = 0L;                                          // Id of the person, who is hosting the bot
     private long maintainerGuildId = 0L;                                // Id of Guild that will be used to maintaining notifs
-    private String localTmpFolder = "./app/tmp/";                       // Local tmp for workdir
-    private String rotationBackupFolder = "./app/backup/";              // Local rotation backup folder (that will be stored)
-    private String playlistsFolder = "./app/playlists/";                // Local folder for playlists to be stored
-    private String rulesFolder = "./app/rules/";                        // Local storage for automoderation settings
-    private String logsFolder = "./app/logs/";                          // Local storage for guild logging
+    private String workdir = "./app";                                   // Working directory for all files
+    private String localTmpFolder = workdir + "/tmp/";                  // Local tmp for workdir
+    private String rotationBackupFolder = workdir + "/backup/";         // Local rotation backup folder (that will be stored)
+    private String playlistsFolder = workdir + "/playlists/";           // Local folder for playlists to be stored
+    private String rulesFolder = workdir + "/rules/";                   // Local storage for automoderation settings
+    private String logsFolder = workdir + "/logs/";                     // Local storage for guild logging
     private String prefix = "~";                                        // Bot prefix
     private String helpWord = "help";                                   // Help word used for help command
     private String successEmoji = "\uD83D\uDC4C";                       // 👌
@@ -69,6 +72,10 @@ public class BotSettings {
 
     public long getMaintainerGuildId() {
         return maintainerGuildId;
+    }
+
+    public String getWorkdir() {
+        return workdir;
     }
 
     public final String getLocalTmpFolder() {

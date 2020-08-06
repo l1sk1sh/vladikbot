@@ -1,0 +1,11 @@
+version: "3.8"
+
+services:
+  bot:
+    build: ./bot/
+    image: bot:latest
+    container_name: bot
+    working_dir: /app
+    restart: always
+    volumes:
+      - C:\Workdir\vladikbot:/app:rw

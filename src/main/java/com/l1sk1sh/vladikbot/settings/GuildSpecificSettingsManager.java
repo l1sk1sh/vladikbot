@@ -23,7 +23,7 @@ public class GuildSpecificSettingsManager implements GuildSettingsManager<GuildS
     private final File guildConfigFile;
 
     public GuildSpecificSettingsManager() {
-        this.guildConfigFile = new File(GUILD_SETTINGS_JSON);
+        this.guildConfigFile = new File(BotSettings.DEFAULT_SETTINGS_DIR + "/" + GUILD_SETTINGS_JSON);
         this.guildSpecificSettings = new GuildSpecificSettings(this);
     }
 

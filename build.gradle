@@ -8,15 +8,11 @@ plugins {
     id 'java'
     id 'idea'
     id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.avast.gradle.docker-compose' version '0.13.0'
 }
 
 repositories {
     jcenter()
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
 }
 
 group 'сom.l1sk1sh'
@@ -39,7 +35,19 @@ shadowJar {
     //noinspection GrDeprecatedAPIUsage
     version = null
     //noinspection GrDeprecatedAPIUsage
-    destinationDir = file("$rootDir")
+    destinationDir = file(".docker/bot")
+}
+
+dockerCompose {
+    useComposeFiles = ['.docker/docker-compose.yml']
+    projectName = 'vladik'
+    projectNamePrefix = 'bot_'
+    buildBeforeUp = true
+    forceRecreate = true
+}
+
+tasks.composeUp {
+    dependsOn shadowJar
 }
 
 dependencies {
