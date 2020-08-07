@@ -5,8 +5,12 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.DownloadUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import com.l1sk1sh.vladikbot.utils.StringUtils;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.PermissionOverride;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
@@ -24,6 +28,7 @@ public class GuildLoggerService {
     private final Logger glog = LoggerFactory.getLogger("GUILD_LOGGER");
 
     private static final String EVENTS_LOG = "events.log";
+    private static final int REACTION_EDIT_DISTANCE = 4;
 
     private final Bot bot;
 
@@ -88,6 +93,13 @@ public class GuildLoggerService {
         String formattedNewMessage = FormatUtils.formatMessage(newMessage);
 
         if (formattedNewMessage.isEmpty() || formattedOldMessage.isEmpty()) {
+            return;
+        }
+
+        // Ignoring edit if it has some minor changes
+        String strippedOldMessage = formattedOldMessage.toLowerCase().trim().replaceAll(" ", "");
+        String strippedNewMessage = formattedNewMessage.toLowerCase().trim().replaceAll(" ", "");
+        if (StringUtils.editDistance(strippedOldMessage, strippedNewMessage) <= REACTION_EDIT_DISTANCE) {
             return;
         }
 
