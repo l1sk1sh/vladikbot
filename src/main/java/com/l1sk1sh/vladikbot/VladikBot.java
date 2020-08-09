@@ -101,6 +101,7 @@ final class VladikBot {
                             new NewsManagementCommand(bot),
                             new MemesManagementCommand(bot),
                             new GuildLoggerCommand(bot),
+                            new SayCommand(bot),
 
                             new ForceSkipCommand(bot),
                             new PauseCommand(bot),
