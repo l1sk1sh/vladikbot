@@ -4,7 +4,6 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.StringUtils;
@@ -69,7 +68,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
             try {
                 String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
-                        + BotUtils.getNormalizedName(channel.getGuild()) + "/";
+                        + channel.getGuild().getId() + "/";
 
                 String pathToDateBackup = pathToGuildBackup
                         + StringUtils.getNormalizedCurrentDate() + "/";

@@ -9,12 +9,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeroturnaround.zip.ZipUtil;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -39,6 +43,8 @@ public class BackupMediaService implements Runnable {
     private String failMessage = "Failed due to unexpected error";
     private String attachmentsFolderPath;
     private boolean doZip = false;
+    private boolean doDownload = false;
+    private boolean downloadCompleted = false;
     private boolean ignoreExistingFiles = true;
     private boolean hasFailed = true;
     private Set<String> setOfAllAttachmentsUrls;
@@ -100,9 +106,17 @@ public class BackupMediaService implements Runnable {
             log.info("Writing media URLs into a HTML file...");
             writeAttachmentsListHtmlFile();
 
-            if (doZip) {
+            if (doDownload) {
                 log.info("Downloading media files from Discord CDN...");
                 downloadAttachments();
+            }
+
+            if (doZip) {
+                if (!downloadCompleted) {
+                    log.info("Downloading media files from Discord CDN for archiving...");
+                    downloadAttachments();
+                }
+
                 log.info("Archiving media into .zip...");
                 archiveAttachments();
             }
@@ -180,11 +194,22 @@ public class BackupMediaService implements Runnable {
 
         FileUtils.createFolderIfAbsent(attachmentsFolderPath);
 
+        String[] existingFiles = (new File(attachmentsFolderPath)).list();
+        boolean doSearch = existingFiles != null && existingFiles.length > 0;
+        Set<String> existingAttachments = new HashSet<>();
+        if (doSearch) {
+            Collections.addAll(existingAttachments, existingFiles);
+        }
+
         for (String attachmentUrl : setOfAllAttachmentsUrls) {
             String remoteFileName = DownloadUtils.getFilenameFromUrl(attachmentUrl);
 
             if (remoteFileName.isEmpty()) {
                 remoteFileName = System.currentTimeMillis() + "." + Const.FileType.jpg.name();
+            }
+
+            if (doSearch && existingAttachments.contains(attachmentUrl)) {
+                continue;
             }
 
             try {
@@ -195,10 +220,12 @@ public class BackupMediaService implements Runnable {
                 log.warn("Failed to save attachment file [{}] due to invalid path.", remoteFileName, e);
             }
         }
+
+        downloadCompleted = true;
     }
 
     private void processArguments(String[] args) {
-        if (args.length == 0) {
+        if (args == null || args.length == 0) {
             return;
         }
 
@@ -207,6 +234,11 @@ public class BackupMediaService implements Runnable {
                 case "-z":
                 case "--zip":
                     doZip = true;
+
+                    /* Falls through */
+                case "-d":
+                case "--download":
+                    doDownload = true;
                     break;
                 case "-f":
                 case "--force":

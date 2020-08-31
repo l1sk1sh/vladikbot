@@ -4,10 +4,8 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
-import com.l1sk1sh.vladikbot.utils.StringUtils;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,12 +67,9 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
             try {
                 String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
-                        + BotUtils.getNormalizedName(channel.getGuild()) + "/";
+                        + channel.getGuild().getId() + "/";
 
-                String pathToDateBackup = pathToGuildBackup
-                        + StringUtils.getNormalizedCurrentDate() + "/";
-
-                FileUtils.createFolderIfAbsent(pathToDateBackup);
+                FileUtils.createFolderIfAbsent(pathToGuildBackup);
 
                 /* Creating new thread from text backup service and waiting for it to finish */
                 BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
@@ -108,8 +103,8 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                         bot,
                         channel.getId(),
                         exportedTextFile,
-                        pathToDateBackup,
-                        new String[]{"--zip"}
+                        pathToGuildBackup,
+                        new String[]{"--download"}
                 );
 
                 /* Creating new thread from media backup service and waiting for it to finish */
@@ -132,6 +127,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
                 log.info("Finished auto media backup of {}", channel.getName());
 
+                /* Not removing folders as media backup is handled in one directory per server
                 File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
                 if (directories != null && directories.length > MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
                     log.debug("Auto media backup reached limit of allowed backups. Clearing...");
@@ -151,6 +147,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                         log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
                     }
                 }
+                */
 
             } catch (Exception e) {
                 log.error("Failed to create auto media backup", e);
