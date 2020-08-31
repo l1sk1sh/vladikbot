@@ -134,7 +134,7 @@ public class AutoBackupCommand extends OwnerCommand {
         @Override
         protected final void execute(CommandEvent event) {
             log.info("Full text backup is about to be executed by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
-            bot.getAutoTextBackupDaemon().execute();
+            bot.getBackThreadPool().execute((() -> bot.getAutoTextBackupDaemon().execute()));
             event.reply("Launched full text backup using daemon.");
         }
     }
@@ -149,7 +149,7 @@ public class AutoBackupCommand extends OwnerCommand {
         @Override
         protected final void execute(CommandEvent event) {
             log.info("Full media backup is about to be executed by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
-            bot.getAutoMediaBackupDaemon().execute();
+            bot.getBackThreadPool().execute((() -> bot.getAutoMediaBackupDaemon().execute()));
             event.reply("Launched full media backup using daemon.");
         }
     }

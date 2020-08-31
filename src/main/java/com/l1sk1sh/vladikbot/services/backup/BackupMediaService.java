@@ -208,7 +208,7 @@ public class BackupMediaService implements Runnable {
                 remoteFileName = System.currentTimeMillis() + "." + Const.FileType.jpg.name();
             }
 
-            if (doSearch && existingAttachments.contains(attachmentUrl)) {
+            if (doSearch && existingAttachments.contains(remoteFileName)) {
                 continue;
             }
 

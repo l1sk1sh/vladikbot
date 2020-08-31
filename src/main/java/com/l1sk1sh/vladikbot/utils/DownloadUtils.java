@@ -36,7 +36,7 @@ public final class DownloadUtils {
 
     public static boolean downloadAndSaveToFile(URL url, String localFileNamePath) throws IOException {
         if (!FileUtils.fileOrFolderIsAbsent(localFileNamePath)) {
-            return false;
+            return true;
         }
 
         if (url == null) {

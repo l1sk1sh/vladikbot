@@ -236,7 +236,7 @@ public class DockerService {
                     .start()
                     .awaitCompletion(60, TimeUnit.SECONDS);
         } catch (RuntimeException e) {
-            log.debug("Failed to pull image: {}", e.getLocalizedMessage());
+            log.debug("Failed to pull image.", e);
             return false;
         } catch (InterruptedException e) {
             return false;
