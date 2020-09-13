@@ -150,16 +150,16 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                 : bot.getOfflineStorage().getLastAutoTextBackupTime();
         int differenceInDays = DateAndTimeUtils.getDifferenceInDaysBetweenUnixTimestamps(lastBackupTime, System.currentTimeMillis());
 
-        int dayDelay = (differenceInDays >= bot.getBotSettings().getDelayDaysForAutoMediaBackup())
-                ? bot.getBotSettings().getDelayDaysForAutoMediaBackup()
+        int dayDelay = (differenceInDays >= bot.getBotSettings().getDelayDaysForAutoTextBackup())
+                ? bot.getBotSettings().getDelayDaysForAutoTextBackup()
                 : MIN_DAY_BEFORE_BACKUP;
         int targetHour = bot.getBotSettings().getTargetHourForAutoTextBackup();
         int targetMin = 0;
         int targetSec = 0;
-        fixedScheduledExecutor.startExecutionAt(dayDelay, bot.getBotSettings().getDelayDaysForAutoMediaBackup(), targetHour, targetMin, targetSec);
+        fixedScheduledExecutor.startExecutionAt(dayDelay, bot.getBotSettings().getDelayDaysForAutoTextBackup(), targetHour, targetMin, targetSec);
         log.info(String.format("Text backup will be performed in %2d days at %02d:%02d:%02d local time. " +
                 "Consequent tasks will be launched with fixed delay in %2d days.",
-                dayDelay, targetHour, targetMin, targetSec, bot.getBotSettings().getDelayDaysForAutoMediaBackup()));
+                dayDelay, targetHour, targetMin, targetSec, bot.getBotSettings().getDelayDaysForAutoTextBackup()));
     }
 
     @Override

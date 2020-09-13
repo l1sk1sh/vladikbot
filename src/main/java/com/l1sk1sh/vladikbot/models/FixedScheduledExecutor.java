@@ -48,7 +48,7 @@ public class FixedScheduledExecutor {
 
         long delay = computeNextDelay(dayDelay, targetHour, targetMin, targetSec);
         scheduledFuture = executorService.schedule(taskWrapper, delay, TimeUnit.SECONDS);
-        log.debug("Added task to thread pool {} that will launch at {}", task.getTaskName(),
+        log.info("Added task to thread pool {} that will launch at {}", task.getTaskName(),
                 FormatUtils.getDateAndTimeFromDatetime(new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(delay))));
     }
 
