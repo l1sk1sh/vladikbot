@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 public class MemeFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MemeFeedTask.class);
@@ -48,8 +49,10 @@ public class MemeFeedTask implements Runnable {
             log.info("Sending '{}' article ({}).", meme.getTitle(), meme.getPostLink());
 
             bot.getMemeNotificationService().sendNewsArticle(null, meme);
+        } catch (UnknownHostException e) {
+            log.warn("Failed to retrieve a meme due to network issues.");
         } catch (IOException e) {
-            log.error("Failed to retrieve a meme.", e);
+            log.error("Failed to retrieve a meme due to unexpected issue.", e);
         }
     }
 }

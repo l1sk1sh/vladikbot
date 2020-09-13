@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.io.IOException;
+import java.net.ConnectException;
+import java.net.http.HttpTimeoutException;
+import java.nio.channels.UnresolvedAddressException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,8 +71,10 @@ final class RssFeedTask implements Runnable {
 
             log.info("Sending {} article ({}).", resource, lastSentArticleIdS.get(lastSentArticleIdS.size() - 1));
             bot.getNewsNotificationService().sendNewsArticle(null, ArticleMapper.mapRssArticleToNewsMessage(lastAddedArticle, resource, resourceImageUrl), newsColor);
+        } catch (ConnectException | HttpTimeoutException | UnresolvedAddressException e) {
+            log.warn("Failed to get {} article due to network issues.", resource);
         } catch (IOException e) {
-            log.error("Failed to get {} article.", resource, e);
+            log.error("Failed to get {} article due to unknown reason.", resource, e);
         }
     }
 }
