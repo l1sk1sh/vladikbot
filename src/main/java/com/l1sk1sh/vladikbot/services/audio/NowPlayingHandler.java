@@ -94,16 +94,17 @@ public class NowPlayingHandler {
         TextChannel textChannel = bot.getGuildSettings(guild).getTextChannel(guild);
         if (textChannel != null && guild.getSelfMember().hasPermission(textChannel, Permission.MANAGE_CHANNEL)) {
             String otherText;
-            if (textChannel.getTopic() == null || textChannel.getTopic().isEmpty()) {
+            String topic = textChannel.getTopic();
+            if (topic == null || topic.isEmpty()) {
                 otherText = "\u200B";
-            } else if (textChannel.getTopic().contains("\u200B")) {
-                otherText = textChannel.getTopic().substring(textChannel.getTopic().lastIndexOf("\u200B"));
+            } else if (topic.contains("\u200B")) {
+                otherText = topic.substring(topic.lastIndexOf("\u200B"));
             } else {
-                otherText = "\u200B\r\n " + textChannel.getTopic();
+                otherText = "\u200B\r\n " + topic;
             }
 
             String text = audioHandler.getTopicFormat(bot.getJDA()) + otherText;
-            if (!text.equals(textChannel.getTopic())) {
+            if (!text.equals(topic)) {
                 try {
                     /*
                     * Normally here if 'wait' was false, we'd want to queue, however,

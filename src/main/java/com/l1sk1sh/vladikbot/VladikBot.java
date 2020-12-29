@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import okhttp3.OkHttpClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,8 @@ import java.util.Random;
  * @author Oliver Johnson
  */
 final class VladikBot {
-    private VladikBot() {}
+    private VladikBot() {
+    }
 
     private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
@@ -38,6 +40,10 @@ final class VladikBot {
 
         if (!defaultCharset.toString().equalsIgnoreCase(utf9canonical)) {
             log.warn("Default charset is '{}'. Consider changing to 'UTF-8' by setting JVM options '-Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8'.", defaultCharset);
+        }
+
+        if (!System.getProperty("java.vm.name").contains("64")) {
+            log.warn("It appears that you may not be using a supported Java version. Please use 64-bit java.");
         }
 
         Bot.rand = new Random();
@@ -136,6 +142,8 @@ final class VladikBot {
                     );
 
             JDA jda = JDABuilder.create(botSettings.getToken(), Const.REQUIRED_INTENTS)
+                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
+                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE)
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
             jda.addEventListener(
@@ -150,7 +158,7 @@ final class VladikBot {
         } catch (LoginException le) {
             log.error("Invalid username and/or password.");
             SystemUtils.exit(1);
-        }  catch (IOException e) {
+        } catch (IOException e) {
             log.error("Error while reading or writing a file %1$s file:", e);
             SystemUtils.exit(1);
         }
