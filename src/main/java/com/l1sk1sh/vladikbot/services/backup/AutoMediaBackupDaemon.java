@@ -22,12 +22,11 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoMediaBackupDaemon.class);
     private final FixedScheduledExecutor fixedScheduledExecutor;
     private final Bot bot;
-    private final static int MAX_AMOUNT_OF_BACKUPS_PER_GUILD = 2;
     private final static int MIN_DAY_BEFORE_BACKUP = 1;
 
     public AutoMediaBackupDaemon(Bot bot) {
         this.bot = bot;
-        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getBackThreadPool());
+        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getBackgroundThreadPool());
     }
 
     @Override

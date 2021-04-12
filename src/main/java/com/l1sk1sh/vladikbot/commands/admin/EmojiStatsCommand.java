@@ -4,8 +4,8 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.services.EmojiStatsService;
+import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import net.dv8tion.jda.api.entities.ChannelType;
@@ -18,8 +18,8 @@ import java.awt.*;
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toMap;
@@ -96,8 +96,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 ignoreExistingBackup
         );
 
-        /* This thread will wait for backup to finish. Separating allows using bot while backup is running */
-        new Thread(() -> {
+        bot.getBackupThreadPool().execute(() -> {
 
             /* Creating new thread from text backup service and waiting for it to finish */
             Thread backupChannelServiceThread = new Thread(backupTextChannelService);
@@ -153,7 +152,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 CommandUtils.sendFileInMessage(event, exportedCsvFile);
             }
 
-        }).start();
+        });
     }
 
     private void sendStatisticsMessage(CommandEvent event, Map<String, Integer> emojiMap) {

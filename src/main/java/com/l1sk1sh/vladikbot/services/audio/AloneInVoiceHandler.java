@@ -27,7 +27,7 @@ public class AloneInVoiceHandler {
     public void init() {
         aloneTimeUntilStop = bot.getBotSettings().getAloneTimeUntilStop();
         if (aloneTimeUntilStop > 0) {
-            bot.getBackThreadPool().scheduleWithFixedDelay(this::check, 0, 5, TimeUnit.SECONDS);
+            bot.getBackgroundThreadPool().scheduleWithFixedDelay(this::check, 0, 5, TimeUnit.SECONDS);
         }
     }
 

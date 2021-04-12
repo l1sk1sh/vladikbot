@@ -50,7 +50,8 @@ public class Bot {
 
     private final EventWaiter waiter;
     private final ScheduledExecutorService frontThreadPool;
-    private final ScheduledExecutorService backThreadPool;
+    private final ScheduledExecutorService backgroundThreadPool;
+    private final ScheduledExecutorService backupThreadPool;
     private final BotSettingsManager botSettingsManager;
     private final GuildSpecificSettingsManager guildSpecificSettingsManager;
     private final OfflineStorageManager offlineStorageManager;
@@ -91,7 +92,8 @@ public class Bot {
         this.offlineStorageManager = offlineStorageManager;
         this.playlistLoader = new PlaylistLoader(this);
         this.frontThreadPool = Executors.newSingleThreadScheduledExecutor();
-        this.backThreadPool = Executors.newSingleThreadScheduledExecutor();
+        this.backgroundThreadPool = Executors.newScheduledThreadPool(2);
+        this.backupThreadPool = Executors.newSingleThreadScheduledExecutor();
         this.playerManager = new PlayerManager(this);
         this.playerManager.init();
         this.nowPlayingHandler = new NowPlayingHandler(this);
@@ -137,6 +139,8 @@ public class Bot {
 
         shuttingDown = true;
         frontThreadPool.shutdownNow();
+        backgroundThreadPool.shutdownNow();
+        backupThreadPool.shutdownNow();
         if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
             jda.getGuilds().forEach(g -> {
                 g.getAudioManager().closeAudioConnection();
@@ -180,8 +184,12 @@ public class Bot {
         return frontThreadPool;
     }
 
-    public ScheduledExecutorService getBackThreadPool() {
-        return backThreadPool;
+    public ScheduledExecutorService getBackgroundThreadPool() {
+        return backgroundThreadPool;
+    }
+
+    public ScheduledExecutorService getBackupThreadPool() {
+        return backupThreadPool;
     }
 
     public PlayerManager getPlayerManager() {
@@ -208,19 +216,19 @@ public class Bot {
         return jda;
     }
 
-    public boolean isLockedBackup() {
+    public synchronized boolean isLockedBackup() {
         return lockedBackup;
     }
 
-    public void setLockedBackup(boolean lockedBackup) {
+    public synchronized void setLockedBackup(boolean lockedBackup) {
         this.lockedBackup = lockedBackup;
     }
 
-    public boolean isLockedAutoBackup() {
+    public synchronized boolean isLockedAutoBackup() {
         return lockedAutoBackup;
     }
 
-    public void setLockedAutoBackup(boolean lockedAutoBackup) {
+    public synchronized void setLockedAutoBackup(boolean lockedAutoBackup) {
         this.lockedAutoBackup = lockedAutoBackup;
     }
 

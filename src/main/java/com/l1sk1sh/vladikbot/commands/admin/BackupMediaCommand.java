@@ -2,8 +2,8 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.services.backup.BackupMediaService;
+import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import org.slf4j.Logger;
@@ -63,8 +63,7 @@ public class BackupMediaCommand extends AdminCommand {
                 useExistingBackup
         );
 
-        /* Creating separate thread to allow users to work with the Bot while backup is running */
-        new Thread(() -> {
+        bot.getBackupThreadPool().execute(() -> {
 
             /* Creating new thread from text backup service and waiting for it to finish */
             Thread backupTextChannelServiceThread = new Thread(backupTextChannelService);
@@ -145,7 +144,7 @@ public class BackupMediaCommand extends AdminCommand {
             } else {
                 event.replySuccess("Zip with uploaded media files could now be downloaded from local storage.");
             }
-        }).start();
+        });
     }
 
     private boolean processArguments(String... args) {

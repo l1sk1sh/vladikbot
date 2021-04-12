@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
 import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,8 +65,7 @@ public class BackupTextChannelCommand extends AdminCommand {
                 useExistingBackup
         );
 
-        /* This thread will wait for backup to finish. Separating allows using bot while backup is running */
-        new Thread(() -> {
+        bot.getBackupThreadPool().execute(() -> {
 
             /* Creating new thread from service and waiting for it to finish */
             Thread backupChannelServiceThread = new Thread(backupTextChannelService);
@@ -88,7 +87,7 @@ public class BackupTextChannelCommand extends AdminCommand {
 
             File exportedFile = backupTextChannelService.getBackupFile();
             CommandUtils.sendFileInMessage(event, exportedFile);
-        }).start();
+        });
     }
 
     private boolean processArguments(String... args) {

@@ -3,7 +3,9 @@ package com.l1sk1sh.vladikbot.services.backup;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
+import com.l1sk1sh.vladikbot.utils.FileUtils;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +28,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
     public AutoTextBackupDaemon(Bot bot) {
         this.bot = bot;
-        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getBackThreadPool());
+        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getBackgroundThreadPool());
     }
 
     @Override
@@ -68,9 +70,9 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                 String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
                         + channel.getGuild().getId() + "/";
 
-                /*   FileUtils.createFolderIfAbsent(pathToGuildBackup);
+                FileUtils.createFolderIfAbsent(pathToGuildBackup);
 
-                 *//* Creating new thread from text backup service and waiting for it to finish *//*
+                /* Creating new thread from text backup service and waiting for it to finish */
                 BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                         bot,
                         channel.getId(),
@@ -97,7 +99,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     continue;
                 }
 
-                log.info("Finished auto text backup of '{}'.", channel.getName());*/
+                log.info("Finished auto text backup of '{}'.", channel.getName());
 
                 deleteOldBackups(pathToGuildBackup);
 
@@ -162,7 +164,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
         int targetSec = 0;
         fixedScheduledExecutor.startExecutionAt(dayDelay, bot.getBotSettings().getDelayDaysForAutoTextBackup(), targetHour, targetMin, targetSec);
         log.info(String.format("Text backup will be performed in %2d days at %02d:%02d:%02d local time. " +
-                "Consequent tasks will be launched with fixed delay in %2d days.",
+                        "Consequent tasks will be launched with fixed delay in %2d days.",
                 dayDelay, targetHour, targetMin, targetSec, bot.getBotSettings().getDelayDaysForAutoTextBackup()));
     }
 
