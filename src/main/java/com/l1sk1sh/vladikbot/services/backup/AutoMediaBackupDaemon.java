@@ -127,28 +127,6 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
                 log.info("Finished auto media backup of {}", channel.getName());
 
-                /* Not removing folders as media backup is handled in one directory per server
-                File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
-                if (directories != null && directories.length > MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
-                    log.debug("Auto media backup reached limit of allowed backups. Clearing...");
-
-                    File oldestDirectory = null;
-                    long oldestDate = Long.MAX_VALUE;
-
-                    for (File directory : directories) {
-                        if (directory.lastModified() < oldestDate) {
-                            oldestDate = directory.lastModified();
-                            oldestDirectory = directory;
-                        }
-                    }
-
-                    if (oldestDirectory != null) {
-                        org.apache.commons.io.FileUtils.deleteDirectory(oldestDirectory);
-                        log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
-                    }
-                }
-                */
-
             } catch (Exception e) {
                 log.error("Failed to create auto media backup", e);
                 bot.getNotificationService().sendEmbeddedError(channel.getGuild(),

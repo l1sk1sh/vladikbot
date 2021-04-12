@@ -3,15 +3,13 @@ package com.l1sk1sh.vladikbot.services.backup;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
-import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
-import com.l1sk1sh.vladikbot.utils.FileUtils;
-import com.l1sk1sh.vladikbot.utils.StringUtils;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,7 +21,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoTextBackupDaemon.class);
     private final FixedScheduledExecutor fixedScheduledExecutor;
     private final Bot bot;
-    private final static int MAX_AMOUNT_OF_BACKUPS_PER_GUILD = 3;
+    private final static int MAX_AMOUNT_OF_BACKUPS_PER_CHANNEL = 2;
     private final static int MIN_DAY_BEFORE_BACKUP = 1;
 
     public AutoTextBackupDaemon(Bot bot) {
@@ -70,17 +68,14 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                 String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
                         + channel.getGuild().getId() + "/";
 
-                String pathToDateBackup = pathToGuildBackup
-                        + StringUtils.getNormalizedCurrentDate() + "/";
+                /*   FileUtils.createFolderIfAbsent(pathToGuildBackup);
 
-                FileUtils.createFolderIfAbsent(pathToDateBackup);
-
-                /* Creating new thread from text backup service and waiting for it to finish */
+                 *//* Creating new thread from text backup service and waiting for it to finish *//*
                 BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
                         bot,
                         channel.getId(),
                         Const.BackupFileType.PLAIN_TEXT,
-                        pathToDateBackup,
+                        pathToGuildBackup,
                         null,
                         null,
                         false
@@ -102,27 +97,9 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                     continue;
                 }
 
-                log.info("Finished auto text backup of '{}'.", channel.getName());
+                log.info("Finished auto text backup of '{}'.", channel.getName());*/
 
-                File[] directories = new File(pathToGuildBackup).listFiles(File::isDirectory);
-                if (directories != null && directories.length > MAX_AMOUNT_OF_BACKUPS_PER_GUILD) {
-                    log.debug("Auto text backup reached limit of allowed backups. Clearing...");
-
-                    File oldestDirectory = null;
-                    long oldestDate = Long.MAX_VALUE;
-
-                    for (File directory : directories) {
-                        if (directory.lastModified() < oldestDate) {
-                            oldestDate = directory.lastModified();
-                            oldestDirectory = directory;
-                        }
-                    }
-
-                    if (oldestDirectory != null) {
-                        org.apache.commons.io.FileUtils.deleteDirectory(oldestDirectory);
-                        log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
-                    }
-                }
+                deleteOldBackups(pathToGuildBackup);
 
             } catch (Exception e) {
                 log.error("Failed to create auto backup:", e);
@@ -141,6 +118,33 @@ public class AutoTextBackupDaemon implements ScheduledTask {
                         ? "All channels were backed up."
                         : "Failed channels: `" + Arrays.toString(failedTextChannels.toArray()) + "`")
         );
+    }
+
+    private void deleteOldBackups(String pathToGuildBackup) throws IOException {
+        File[] channelsDirectories = new File(pathToGuildBackup).listFiles(File::isDirectory);
+
+        for (File channelDirectory : channelsDirectories) {
+            File[] timeBackupDirectories = new File(channelDirectory.getAbsolutePath()).listFiles(File::isDirectory);
+
+            if (timeBackupDirectories != null && timeBackupDirectories.length > MAX_AMOUNT_OF_BACKUPS_PER_CHANNEL) {
+                log.debug("Auto text backup reached limit of allowed backups for '{}'. Clearing...", channelDirectory.getParent());
+
+                File oldestDirectory = null;
+                long oldestDate = Long.MAX_VALUE;
+
+                for (File directory : timeBackupDirectories) {
+                    if (directory.lastModified() < oldestDate) {
+                        oldestDate = directory.lastModified();
+                        oldestDirectory = directory;
+                    }
+                }
+
+                if (oldestDirectory != null) {
+                    org.apache.commons.io.FileUtils.deleteDirectory(oldestDirectory);
+                    log.info("Directory '{}' has been removed.", oldestDirectory.getPath());
+                }
+            }
+        }
     }
 
     @Override

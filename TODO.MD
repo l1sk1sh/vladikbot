@@ -1,12 +1,7 @@
 #### ToDo List
-0. Create Base class for Daemons
-0. Change usage of deprecated callback LogContainerResultCallback()
-0. Create all backup using Name + IDs of channels
-0. Automatic backup separation per date should be done into every separate channel. Current realization will remove channel backup, if it was removed from guild
 0. Add commands
    0. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
    0. `whois [user mention]` - Get user information
-0. Add 'docker logs' command to log.debug if one of backups has failed
 0. Separate auto reply per guild
 0. Separate status rotation per guild
 0. Extend logger to every error\warning reply

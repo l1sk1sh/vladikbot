@@ -2,15 +2,16 @@ package com.l1sk1sh.vladikbot.models.entities;
 
 import java.util.Date;
 
+@SuppressWarnings({"FieldMayBeFinal", "CanBeFinal"})
 public class NewsMessage {
     private String title;
-    private final String description;
-    private final String imageUrl;
-    private final String articleUrl;
-    private final Date publicationDate;
-    private final String resourceImageUrl;
+    private String description;
+    private String imageUrl;
+    private String articleUrl;
+    private Date publicationDate;
+    private String resourceImageUrl;
 
-    public NewsMessage(String title, String description, String imageUrl, String articleUrl, Date publicationDate,  String resourceImageUrl) {
+    public NewsMessage(String title, String description, String imageUrl, String articleUrl, Date publicationDate, String resourceImageUrl) {
         this.title = title;
         this.description = description;
         this.imageUrl = imageUrl;

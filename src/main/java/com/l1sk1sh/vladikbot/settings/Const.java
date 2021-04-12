@@ -77,7 +77,8 @@ public final class Const {
         jpg(true),
         png(true),
         gif(true),
-        mp4(true);
+        mp4(true),
+        mp3(true);
 
         private final boolean supportedMediaFormat;
 

@@ -31,7 +31,7 @@ public class SkipCommand extends MusicCommand {
                     event.getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title));
             audioHandler.getPlayer().stopTrack();
         } else {
-            int listeners = (int) Objects.requireNonNull(event.getSelfMember().getVoiceState().getChannel()).getMembers().stream()
+            int listeners = (int) Objects.requireNonNull(Objects.requireNonNull(event.getSelfMember().getVoiceState()).getChannel()).getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && !Objects.requireNonNull(member.getVoiceState()).isDeafened()).count();
             String message;
 
@@ -42,7 +42,7 @@ public class SkipCommand extends MusicCommand {
                 audioHandler.getVotes().add(event.getAuthor().getId());
             }
 
-            int skippers = (int) event.getSelfMember().getVoiceState().getChannel().getMembers().stream()
+            int skippers = (int) Objects.requireNonNull(event.getSelfMember().getVoiceState().getChannel()).getMembers().stream()
                     .filter(m -> audioHandler.getVotes().contains(m.getUser().getId())).count();
             int required = (int) Math.ceil(listeners * .55);
             message += skippers + " votes, " + required + "/" + listeners + " needed]`";

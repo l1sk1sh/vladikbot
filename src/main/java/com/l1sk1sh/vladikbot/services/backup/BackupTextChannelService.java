@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.services.backup;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
+import com.l1sk1sh.vladikbot.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ public class BackupTextChannelService implements Runnable {
         this.token = bot.getBotSettings().getToken();
         this.format = format;
         this.extension = format.getFileType();
-        this.localPathToExport = localPathToExport + "text/"; /* Always moving text backups to separate folder */
+        this.localPathToExport = localPathToExport + channelId + "/" + StringUtils.getNormalizedCurrentDate() + "/";
         this.beforeDate = beforeDate;
         this.afterDate = afterDate;
         this.useExistingBackup = useExistingBackup;

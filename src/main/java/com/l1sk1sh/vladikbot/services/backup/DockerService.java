@@ -107,6 +107,7 @@ public class DockerService {
         logContainerCmd.withFollowStream(true);
 
         try {
+            // It requires own implementation of callback. Maybe sometimes later
             //noinspection deprecation
             logContainerCmd.exec(new LogContainerResultCallback() {
                 @Override
@@ -234,7 +235,7 @@ public class DockerService {
         try {
             return docker.pullImageCmd(DOCKER_IMAGE)
                     .start()
-                    .awaitCompletion(60, TimeUnit.SECONDS);
+                    .awaitCompletion(5, TimeUnit.MINUTES);
         } catch (RuntimeException e) {
             log.debug("Failed to pull image.", e);
             return false;
