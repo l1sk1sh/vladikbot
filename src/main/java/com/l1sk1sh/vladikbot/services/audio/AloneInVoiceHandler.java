@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AloneInVoiceHandler {
     private final Bot bot;
-    private final HashMap<Guild, Instant> aloneSince = new HashMap<>();
+    private final HashMap<Long, Instant> aloneSince = new HashMap<>();
     private long aloneTimeUntilStop = 0;
 
     public AloneInVoiceHandler(Bot bot) {
@@ -32,15 +32,21 @@ public class AloneInVoiceHandler {
     }
 
     private void check() {
-        Set<Guild> toRemove = new HashSet<>();
-        for (Map.Entry<Guild, Instant> entrySet : aloneSince.entrySet()) {
+        Set<Long> toRemove = new HashSet<>();
+        for (Map.Entry<Long, Instant> entrySet : aloneSince.entrySet()) {
             if (entrySet.getValue().getEpochSecond() > Instant.now().getEpochSecond() - aloneTimeUntilStop) {
                 continue;
             }
 
-            ((AudioHandler) Objects.requireNonNull(entrySet.getKey().getAudioManager().getSendingHandler())).stopAndClear();
-            entrySet.getKey().getAudioManager().closeAudioConnection();
+            Guild guild = bot.getJDA().getGuildById(entrySet.getKey());
 
+            if (guild == null) {
+                toRemove.add(entrySet.getKey());
+                continue;
+            }
+
+            ((AudioHandler) Objects.requireNonNull(guild.getAudioManager().getSendingHandler())).stopAndClear();
+            guild.getAudioManager().closeAudioConnection();
             toRemove.add(entrySet.getKey());
         }
         toRemove.forEach(aloneSince::remove);
@@ -57,12 +63,12 @@ public class AloneInVoiceHandler {
         }
 
         boolean alone = isAlone(guild);
-        boolean inList = aloneSince.containsKey(guild);
+        boolean inList = aloneSince.containsKey(guild.getIdLong());
 
         if (!alone && inList) {
-            aloneSince.remove(guild);
+            aloneSince.remove(guild.getIdLong());
         } else if (alone && !inList) {
-            aloneSince.put(guild, Instant.now());
+            aloneSince.put(guild.getIdLong(), Instant.now());
         }
     }
 
