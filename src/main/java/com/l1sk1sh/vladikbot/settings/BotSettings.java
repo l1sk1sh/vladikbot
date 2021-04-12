@@ -35,11 +35,12 @@ public class BotSettings {
     private final String activity = "watching Ubisoft conference";            // Current name of the 'activity' being done by bot
     private final String onlineStatus = "ONLINE";                             // "online", "idle", "dnd", "invisible", "offline", ""
     private final long maxSeconds = 0L;                                       // Maximum song length
+    private final long aloneTimeUntilStop = 0L;                               // Time until bot leaves vchannel if alone
     private final boolean leaveChannel = true;                                // Leave channel if no one is listening
     private final boolean songInGame = false;                                 // Show song as status
     private final boolean npImages = true;                                    // Display search images
-    private boolean repeat = true;                                      // If repeat mode is available
-    private boolean autoReply = false;                                  // If to automatically reply to certain phrases
+    private boolean repeat = true;                                            // If repeat mode is available
+    private boolean autoReply = false;                                        // If to automatically reply to certain phrases
     private Const.MatchingStrategy matchingStrategy = Const.MatchingStrategy.full; // How reply rules should be matched
     private double replyChange = 1.0;                                   // Change that bot will reply
     private boolean simulateActionAndGamesActivity = false;             // If bot should change statuses by himself
@@ -140,6 +141,10 @@ public class BotSettings {
 
     public final long getMaxSeconds() {
         return maxSeconds;
+    }
+
+    public long getAloneTimeUntilStop() {
+        return aloneTimeUntilStop;
     }
 
     public final String getPlaylistsFolder() {

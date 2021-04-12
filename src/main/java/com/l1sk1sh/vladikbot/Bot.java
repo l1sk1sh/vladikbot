@@ -7,10 +7,7 @@ import ch.qos.logback.core.util.StatusPrinter;
 import com.google.gson.Gson;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.l1sk1sh.vladikbot.services.ReminderService;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
-import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
+import com.l1sk1sh.vladikbot.services.audio.*;
 import com.l1sk1sh.vladikbot.services.backup.AutoMediaBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.DockerService;
@@ -60,6 +57,7 @@ public class Bot {
     private final PlayerManager playerManager;
     private final PlaylistLoader playlistLoader;
     private final NowPlayingHandler nowPlayingHandler;
+    private final AloneInVoiceHandler aloneInVoiceHandler;
     private final AutoReplyManager autoReplyManager;
     private final GameAndActionSimulationManager gameAndActionSimulationManager;
     private final GuildLoggerService guildLoggerService;
@@ -98,6 +96,8 @@ public class Bot {
         this.playerManager.init();
         this.nowPlayingHandler = new NowPlayingHandler(this);
         this.nowPlayingHandler.init();
+        this.aloneInVoiceHandler = new AloneInVoiceHandler(this);
+        this.aloneInVoiceHandler.init();
         this.autoReplyManager = new AutoReplyManager(this);
         this.gameAndActionSimulationManager = new GameAndActionSimulationManager(this);
         this.guildLoggerService = new GuildLoggerService(this);
@@ -151,12 +151,12 @@ public class Bot {
             jda.shutdown();
         }
 
-        for (Thread t: Thread.getAllStackTraces().keySet()) {
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
             log.debug(t.toString());
         }
 
         /* Unfortunately, JDA doesn't close all it's connection, even though bot technically is shut down and doesn't
-        * receive commands. Might be subject for further research */
+         * receive commands. Might be subject for further research */
         SystemUtils.exit(0);
     }
 
@@ -194,6 +194,10 @@ public class Bot {
 
     public NowPlayingHandler getNowPlayingHandler() {
         return nowPlayingHandler;
+    }
+
+    public AloneInVoiceHandler getAloneInVoiceHandler() {
+        return aloneInVoiceHandler;
     }
 
     void setJDA(JDA jda) {

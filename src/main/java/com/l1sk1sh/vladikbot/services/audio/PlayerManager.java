@@ -43,4 +43,8 @@ public class PlayerManager extends DefaultAudioPlayerManager {
         }
         return audioHandler;
     }
+
+    public boolean hasHandler(Guild guild) {
+        return guild.getAudioManager().getSendingHandler() != null;
+    }
 }
