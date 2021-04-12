@@ -25,6 +25,7 @@ public class BotSettings {
     private String playlistsFolder = workdir + "/playlists/";           // Local folder for playlists to be stored
     private String rulesFolder = workdir + "/rules/";                   // Local storage for automoderation settings
     private String logsFolder = workdir + "/logs/";                     // Local storage for guild logging
+    private String settingsFolder = workdir + "/settings/";             // Settings for guilds
     private String prefix = "~";                                        // Bot prefix
     private String helpWord = "help";                                   // Help word used for help command
     private String successEmoji = "\uD83D\uDC4C";                       // 👌
@@ -89,6 +90,10 @@ public class BotSettings {
 
     public String getLogsFolder() {
         return logsFolder;
+    }
+
+    public String getSettingsFolder() {
+        return settingsFolder;
     }
 
     public final String getPrefix() {

@@ -11,22 +11,28 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
  */
 public class GuildSpecificSettings {
     private transient GuildSpecificSettingsManager manager;
+    private final transient String guildId;
 
     private long textChannelId = 0L;                            // Only one channel id for bot's texting
     private long voiceChannelId = 0L;                           // Only one voice id for bot's music
     private long notificationChannelId = 0L;                    // Use separate system notification channel for bot
     private long newsChannelId = 0L;                            // Use separate channel for news notifications
-    private long memesChannelId = 0L;                            // Use separate channel for memes notifications
+    private long memesChannelId = 0L;                           // Use separate channel for memes notifications
     private long djRoleId = 0L;                                 // Sets who can use DJ commands
     private String defaultPlaylist = "default_playlist";        // Sets name of default playlist
     private int volume = 50;                                    // Sets volume of the bot
 
-    GuildSpecificSettings(GuildSpecificSettingsManager manager) {
+    GuildSpecificSettings(String guildId, GuildSpecificSettingsManager manager) {
+        this.guildId = guildId;
         this.manager = manager;
     }
 
     final void setManager(GuildSpecificSettingsManager manager) {
         this.manager = manager;
+    }
+
+    public String getGuildId() {
+        return guildId;
     }
 
     public final TextChannel getTextChannel(Guild guild) {
@@ -35,7 +41,7 @@ public class GuildSpecificSettings {
 
     public final void setTextChannelId(TextChannel textChannel) {
         this.textChannelId = textChannel == null ? 0 : textChannel.getIdLong();
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 
     public final VoiceChannel getVoiceChannel(Guild guild) {
@@ -44,7 +50,7 @@ public class GuildSpecificSettings {
 
     public final void setVoiceChannelId(VoiceChannel voiceChannel) {
         this.voiceChannelId = voiceChannel == null ? 0 : voiceChannel.getIdLong();
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 
     public final TextChannel getNotificationChannel(Guild guild) {
@@ -53,7 +59,7 @@ public class GuildSpecificSettings {
 
     public final void setNotificationChannelId(TextChannel textChannel) {
         this.notificationChannelId = textChannel == null ? 0 : textChannel.getIdLong();
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 
     public final TextChannel getNewsChannel(Guild guild) {
@@ -62,7 +68,7 @@ public class GuildSpecificSettings {
 
     public final void setNewsChannelId(TextChannel textChannel) {
         this.newsChannelId = textChannel == null ? 0 : textChannel.getIdLong();
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 
     public final TextChannel getMemesChannel(Guild guild) {
@@ -71,7 +77,7 @@ public class GuildSpecificSettings {
 
     public final void setMemesChannelId(TextChannel textChannel) {
         this.memesChannelId = textChannel == null ? 0 : textChannel.getIdLong();
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 
     public final Role getDjRole(Guild guild) {
@@ -80,7 +86,7 @@ public class GuildSpecificSettings {
 
     public final void setDjRoleId(Role role) {
         this.djRoleId = role == null ? 0 : role.getIdLong();
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 
     public final String getDefaultPlaylist() {
@@ -89,7 +95,7 @@ public class GuildSpecificSettings {
 
     public final void setDefaultPlaylist(String defaultPlaylist) {
         this.defaultPlaylist = defaultPlaylist;
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 
     public final int getVolume() {
@@ -98,6 +104,6 @@ public class GuildSpecificSettings {
 
     public final void setVolume(int volume) {
         this.volume = volume;
-        manager.writeSettings();
+        manager.writeSettings(this);
     }
 }

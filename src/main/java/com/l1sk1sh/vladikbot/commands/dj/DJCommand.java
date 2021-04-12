@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.commands.music.MusicCommand;
 import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
-import com.l1sk1sh.vladikbot.settings.GuildSpecificSettingsManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
 
@@ -17,12 +16,11 @@ import java.util.Objects;
  * @author John Grosh
  */
 public abstract class DJCommand extends MusicCommand {
-    DJCommand(Bot bot) {
+    protected DJCommand(Bot bot) {
         super(bot);
-        this.category = new Category("DJ", DJCommand::checkDJPermission);
     }
 
-    public static boolean checkDJPermission(CommandEvent event) {
+    public boolean checkDJPermission(CommandEvent event) {
         if (event.getAuthor().getId().equals(event.getClient().getOwnerId())) {
             return true;
         }
@@ -33,8 +31,7 @@ public abstract class DJCommand extends MusicCommand {
             return true;
         }
 
-        /* Intentionally calling GuildSettingsManager instead of `bot` due to strange bug in help output */
-        GuildSpecificSettings settings = new GuildSpecificSettingsManager().getSettings(event.getGuild());
+        GuildSpecificSettings settings = bot.getGuildSettings(event.getGuild());
         Role djRole = Objects.requireNonNull(settings).getDjRole(event.getGuild());
         return djRole != null && (event.getMember().getRoles().contains(djRole)
                 || djRole.getIdLong() == event.getGuild().getIdLong());

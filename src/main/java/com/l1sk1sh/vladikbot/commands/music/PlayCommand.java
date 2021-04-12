@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * - Reformating code
  * @author John Grosh
  */
-public class PlayCommand extends MusicCommand {
+public class PlayCommand extends DJCommand {
     public PlayCommand(Bot bot) {
         super(bot);
         this.name = "play";
@@ -44,7 +44,7 @@ public class PlayCommand extends MusicCommand {
         if (event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty()) {
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
             if (Objects.requireNonNull(audioHandler).getPlayer().getPlayingTrack() != null && audioHandler.getPlayer().isPaused()) {
-                if (DJCommand.checkDJPermission(event)) {
+                if (super.checkDJPermission(event)) {
                     audioHandler.getPlayer().setPaused(false);
                     event.replySuccess(String.format("Resumed **%1$s**.",
                             audioHandler.getPlayer().getPlayingTrack().getInfo().title));

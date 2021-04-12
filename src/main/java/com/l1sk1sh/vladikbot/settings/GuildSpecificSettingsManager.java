@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Oliver Johnson
@@ -19,34 +21,46 @@ public class GuildSpecificSettingsManager implements GuildSettingsManager<GuildS
 
     private static final String GUILD_SETTINGS_JSON = "settings_guild.json";
 
-    private GuildSpecificSettings guildSpecificSettings;
-    private final File guildConfigFile;
+    private final String settingsPath;
+    private final Map<String, GuildSpecificSettings> guildSpecificSettings;
 
-    public GuildSpecificSettingsManager() {
-        this.guildConfigFile = new File(BotSettings.DEFAULT_SETTINGS_DIR + "/" + GUILD_SETTINGS_JSON);
-        this.guildSpecificSettings = new GuildSpecificSettings(this);
+    public GuildSpecificSettingsManager(String settingsPath) {
+        this.settingsPath = settingsPath;
+        this.guildSpecificSettings = new HashMap<>();
     }
 
-    public void readSettings() throws IOException {
+    private GuildSpecificSettings readSettings(Guild guild) {
+        File guildConfigFile = getSettingsFileForGuild(guild.getId());
+        GuildSpecificSettings settingsForGuild = new GuildSpecificSettings(guild.getId(), this);
+
         if (!guildConfigFile.exists()) {
-            writeSettings();
-            log.warn(String.format("Created %1$s.", GUILD_SETTINGS_JSON));
+            writeSettings(settingsForGuild);
+            guildSpecificSettings.put(guild.getId(), settingsForGuild);
+            log.warn(String.format("Created %1$s.", guildConfigFile.getName()));
         } else {
-            this.guildSpecificSettings = Bot.gson.fromJson(
-                    Files.readAllLines(guildConfigFile.toPath()).stream()
-                            .map(String::trim)
-                            .filter(s -> !s.startsWith("#") && !s.isEmpty())
-                            .reduce((a, b) -> a += b)
-                            .orElse(""),
-                    GuildSpecificSettings.class
-            );
-            this.guildSpecificSettings.setManager(this);
+            try {
+                settingsForGuild = Bot.gson.fromJson(
+                        Files.readAllLines(guildConfigFile.toPath()).stream()
+                                .map(String::trim)
+                                .filter(s -> !s.startsWith("#") && !s.isEmpty())
+                                .reduce((a, b) -> a += b)
+                                .orElse(""),
+                        GuildSpecificSettings.class
+                );
+                settingsForGuild.setManager(this);
+                guildSpecificSettings.put(guild.getId(), settingsForGuild);
+            } catch (IOException e) {
+                log.error("Failed to read GuildSpecificSettings. Application might still be working.", e);
+            }
         }
+
+        return settingsForGuild;
     }
 
-    final void writeSettings() {
+    final void writeSettings(GuildSpecificSettings settings) {
         try {
-            FileUtils.writeGson(guildSpecificSettings, guildConfigFile);
+            FileUtils.createFolderIfAbsent(settingsPath);
+            FileUtils.writeGson(settings, getSettingsFileForGuild(settings.getGuildId()));
         } catch (IOException e) {
             log.error("Failed to write GuildSpecificSettings. Application might still be working.", e);
         }
@@ -54,6 +68,16 @@ public class GuildSpecificSettingsManager implements GuildSettingsManager<GuildS
 
     @Override
     public GuildSpecificSettings getSettings(Guild guild) {
-        return guildSpecificSettings;
+        GuildSpecificSettings settingsForGuild = guildSpecificSettings.get(guild.getId());
+
+        if (settingsForGuild == null) {
+            settingsForGuild = readSettings(guild);
+        }
+
+        return settingsForGuild;
+    }
+
+    private File getSettingsFileForGuild(String guildId) {
+        return new File(settingsPath + guildId + "_" + GUILD_SETTINGS_JSON);
     }
 }

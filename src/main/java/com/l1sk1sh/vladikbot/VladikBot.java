@@ -53,14 +53,14 @@ final class VladikBot {
         try {
             EventWaiter waiter = new EventWaiter();
             BotSettingsManager botSettingsManager = new BotSettingsManager();
-            GuildSpecificSettingsManager guildSpecificSettingsManager = new GuildSpecificSettingsManager();
             OfflineStorageManager offlineStorageManager = new OfflineStorageManager();
 
             botSettingsManager.readSettings();
-            guildSpecificSettingsManager.readSettings();
             offlineStorageManager.readSettings();
 
             BotSettings botSettings = botSettingsManager.getSettings();
+
+            GuildSpecificSettingsManager guildSpecificSettingsManager = new GuildSpecificSettingsManager(botSettings.getSettingsFolder());
 
             Bot bot = new Bot(waiter, botSettingsManager, guildSpecificSettingsManager, offlineStorageManager);
 
