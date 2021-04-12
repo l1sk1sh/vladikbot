@@ -40,3 +40,4 @@
 0. Centralize thread running (bot.getThreadpool().execute(() ->)
 0. Work with shards and move all files to the database (Vortex)
 0. Migrate to database, instead of .json files (json handling becomes complex)
+0. Migrate from GSON to Moshi
