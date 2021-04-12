@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * @author Oliver Johnson
  */
-@SuppressWarnings({"FieldCanBeLocal", "CanBeFinal"})
+@SuppressWarnings({"CanBeFinal"})
 public class OfflineStorage {
     private transient OfflineStorageManager manager;
 

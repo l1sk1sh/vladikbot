@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 public class MemeFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MemeFeedTask.class);
 
-    private Bot bot;
+    private final Bot bot;
 
     MemeFeedTask(Bot bot) {
         this.bot = bot;

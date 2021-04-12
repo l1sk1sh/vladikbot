@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Role;
 
 import java.awt.*;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -34,7 +35,7 @@ public class StatusCommand extends Command {
                 .setColor(new Color(244, 160, 0))
                 .addField("Owner", (settings.getOwnerId() == 0)
                         ? "Owner is not set"
-                        : event.getGuild().getMemberById(settings.getOwnerId()).getUser().getAsTag(), true)
+                        : Objects.requireNonNull(event.getGuild().getMemberById(settings.getOwnerId())).getUser().getAsTag(), true)
                 .addField("Region", event.getGuild().getRegionRaw(), true)
                 .addField("Channel Categories", Integer.toString(event.getGuild().getCategories().size()), true)
                 .addField("Text Channels", Integer.toString(event.getGuild().getTextChannels().size()), true)

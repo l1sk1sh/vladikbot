@@ -1,9 +1,11 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.api.entities.User;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -24,13 +26,13 @@ public class SkipCommand extends MusicCommand {
     @Override
     public void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        if (event.getAuthor().getIdLong() == audioHandler.getRequester()) {
+        if (event.getAuthor().getIdLong() == Objects.requireNonNull(audioHandler).getRequester()) {
             event.reply(String.format("%1$s Skipped **%2$s**.",
                     event.getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title));
             audioHandler.getPlayer().stopTrack();
         } else {
-            int listeners = (int) event.getSelfMember().getVoiceState().getChannel().getMembers().stream()
-                    .filter(member -> !member.getUser().isBot() && !member.getVoiceState().isDeafened()).count();
+            int listeners = (int) Objects.requireNonNull(event.getSelfMember().getVoiceState().getChannel()).getMembers().stream()
+                    .filter(member -> !member.getUser().isBot() && !Objects.requireNonNull(member.getVoiceState()).isDeafened()).count();
             String message;
 
             if (audioHandler.getVotes().contains(event.getAuthor().getId())) {

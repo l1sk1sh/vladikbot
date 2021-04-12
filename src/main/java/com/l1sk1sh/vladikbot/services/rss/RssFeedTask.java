@@ -25,8 +25,8 @@ final class RssFeedTask implements Runnable {
     private final String rssUrl;
     private final String resourceImageUrl;
     private final Color newsColor;
-    private CircularFifoQueue<String> lastSentArticleIdS;
-    private Bot bot;
+    private final CircularFifoQueue<String> lastSentArticleIdS;
+    private final Bot bot;
 
     RssFeedTask(RssResource resource, String rssUrl, String resourceImageUrl, Color newsColor, Bot bot) {
         this.resource = resource;

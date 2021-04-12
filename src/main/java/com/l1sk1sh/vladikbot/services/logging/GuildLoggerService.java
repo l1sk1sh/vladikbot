@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -123,7 +124,7 @@ public class GuildLoggerService {
 
         String avatarUrl = event.getUser().getAvatarUrl();
         try {
-            URL url = new URL(avatarUrl.replace("." + Const.FileType.gif.name(), "." + Const.FileType.png.name()));
+            URL url = new URL(Objects.requireNonNull(avatarUrl).replace("." + Const.FileType.gif.name(), "." + Const.FileType.png.name()));
 
             if (!DownloadUtils.downloadAndSaveToFolder(url, pathToAvatars)) {
                 log.error("Failed to save avatar from url '{}'.", url.toString());

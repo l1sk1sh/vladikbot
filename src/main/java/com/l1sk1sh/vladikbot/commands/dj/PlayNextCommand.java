@@ -2,15 +2,17 @@ package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Message;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -64,7 +66,7 @@ public class PlayNextCommand extends DJCommand {
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            int pos = audioHandler.addTrackToFront(new QueuedTrack(track, event.getAuthor())) + 1;
+            int pos = Objects.requireNonNull(audioHandler).addTrackToFront(new QueuedTrack(track, event.getAuthor())) + 1;
 
             String addMessage = FormatUtils.filter(String.format(
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",

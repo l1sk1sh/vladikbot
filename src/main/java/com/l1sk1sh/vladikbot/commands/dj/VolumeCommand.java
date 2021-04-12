@@ -5,6 +5,8 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 
+import java.util.Objects;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -23,7 +25,7 @@ public class VolumeCommand extends DJCommand {
     @Override
     public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        int volume = audioHandler.getPlayer().getVolume();
+        int volume = Objects.requireNonNull(audioHandler).getPlayer().getVolume();
         int maxVolume = 150;
 
         if (event.getArgs().isEmpty()) {

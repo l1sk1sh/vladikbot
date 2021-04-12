@@ -3,12 +3,12 @@ package com.l1sk1sh.vladikbot.commands.music;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
-import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.commands.dj.DJCommand;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -19,6 +19,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,7 +43,7 @@ public class PlayCommand extends MusicCommand {
     public void doCommand(CommandEvent event) {
         if (event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty()) {
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            if (audioHandler.getPlayer().getPlayingTrack() != null && audioHandler.getPlayer().isPaused()) {
+            if (Objects.requireNonNull(audioHandler).getPlayer().getPlayingTrack() != null && audioHandler.getPlayer().isPaused()) {
                 if (DJCommand.checkDJPermission(event)) {
                     audioHandler.getPlayer().setPaused(false);
                     event.replySuccess(String.format("Resumed **%1$s**.",
@@ -102,7 +103,7 @@ public class PlayCommand extends MusicCommand {
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
+            int pos = Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
 
             String addMessage = FormatUtils.filter(String.format(
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
@@ -148,7 +149,7 @@ public class PlayCommand extends MusicCommand {
             playlist.getTracks().forEach((track) -> {
                 if (!bot.getBotSettings().isTooLong(track) && !track.equals(exclude)) {
                     AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-                    audioHandler.addTrack(new QueuedTrack(track, event.getAuthor()));
+                    Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getAuthor()));
                     count[0]++;
                 }
             });
@@ -251,7 +252,7 @@ public class PlayCommand extends MusicCommand {
             {
                 AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                 playlist.loadTracks(bot.getPlayerManager(),
-                        (audioTrack) -> audioHandler.addTrack(new QueuedTrack(audioTrack, event.getAuthor())), () ->
+                        (audioTrack) -> Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(audioTrack, event.getAuthor())), () ->
                         {
 
                             String errorMessage = event.getClient().getWarning() + " No tracks were loaded!";

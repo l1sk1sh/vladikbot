@@ -2,12 +2,14 @@ package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -40,22 +42,22 @@ public abstract class MusicCommand extends Command {
         }
 
         bot.getPlayerManager().setUpHandler(event.getGuild()); /* No point in constantly checking for this later */
-        if (bePlaying && !((AudioHandler) event.getGuild().getAudioManager().getSendingHandler())
+        if (bePlaying && !((AudioHandler) Objects.requireNonNull(event.getGuild().getAudioManager().getSendingHandler()))
                 .isMusicPlaying(event.getJDA())) {
             event.replyError("There must be music playing to use that!");
             return;
         }
 
         if (beListening) {
-            VoiceChannel current = event.getGuild().getSelfMember().getVoiceState().getChannel();
+            VoiceChannel current = Objects.requireNonNull(event.getGuild().getSelfMember().getVoiceState()).getChannel();
             if (current == null) {
                 current = bot.getGuildSettings(event.getGuild()).getVoiceChannel(event.getGuild());
             }
 
             GuildVoiceState userState = event.getMember().getVoiceState();
-            if (!userState.inVoiceChannel()
+            if (!Objects.requireNonNull(userState).inVoiceChannel()
                     || userState.isDeafened()
-                    || (current != null && !userState.getChannel().equals(current))) {
+                    || (current != null && !Objects.requireNonNull(userState.getChannel()).equals(current))) {
                 event.replyError(String.format("You must be listening in *%1$s* to use that!",
                         (current == null ? "a voice channel" : current.getName())));
                 return;
@@ -71,7 +73,7 @@ public abstract class MusicCommand extends Command {
                 try {
                     event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());
                 } catch (PermissionException ex) {
-                    event.replyError(String.format("I am unable to connect to **%1$s**!", userState.getChannel().getName()));
+                    event.replyError(String.format("I am unable to connect to **%1$s**!", Objects.requireNonNull(userState.getChannel()).getName()));
                     return;
                 }
             }

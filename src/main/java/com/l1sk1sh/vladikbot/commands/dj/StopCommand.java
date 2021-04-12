@@ -4,6 +4,8 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 
+import java.util.Objects;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -21,7 +23,7 @@ public class StopCommand extends DJCommand {
     @Override
     public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        audioHandler.stopAndClear();
+        Objects.requireNonNull(audioHandler).stopAndClear();
         event.getGuild().getAudioManager().closeAudioConnection();
         event.replySuccess("The player has stopped and the queue has been cleared.");
     }

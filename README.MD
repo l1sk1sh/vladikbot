@@ -7,9 +7,13 @@ Bot is written using JDA library and common sense.
 - [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases) for discord chat backup solution
 - [Dyno Bot](https://dyno.gg/bot) for great ideas on how to improve and extend bot
 #### Recommended launch options
-- -Dconsole.encoding=UTF-8 
-- -Dfile.encoding=UTF-8 
-- -Djenkins
-- -Droot_log_level=INFO
+- `-Dconsole.encoding=UTF-8` 
+- `-Dfile.encoding=UTF-8` 
+- `-Djenkins` (_for Jenkins specific logging layout_)
+- `-Droot_log_level=INFO`
 #### Docker
-To ensure smooth Docker performance, make sure to expose 2375 port without TSL in Docker Settings.
+To ensure smooth Docker performance, make sure to expose `2375 port without TSL` in Docker Settings.
+
+_Note_: Bot itself could be Dockerized and it already has configurations for it. 
+However, bot uses docker container `tyrrrz/discordchatexporter`, and full dockerization either requires socket connection between two
+containers or integration of `tyrrrz/discordchatexporter` right into bot. As for now, there is no dire need for Docker.

@@ -40,7 +40,7 @@ public class DockerService {
     private static final String CONTAINER_WORKDIR_COPY = ".";
     private static final String CONTAINER_WORKDIR = "/app/out/" + CONTAINER_WORKDIR_COPY;
 
-    private DockerClient docker;
+    private final DockerClient docker;
     private Container backupContainer;
     private final List<String> logs = new ArrayList<>();
 

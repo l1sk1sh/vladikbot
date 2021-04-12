@@ -19,7 +19,7 @@ public class RssService {
 
     private final Bot bot;
     private boolean initialized = false;
-    private Set<ScheduledFuture<?>> scheduledRssFeeds = new HashSet<>();
+    private final Set<ScheduledFuture<?>> scheduledRssFeeds = new HashSet<>();
 
     public RssService(Bot bot) {
         this.bot = bot;

@@ -2,10 +2,12 @@ package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jlyrics.LyricsClient;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -30,7 +32,7 @@ public class LyricsCommand extends MusicCommand {
         event.getChannel().sendTyping().queue();
         String title;
         if (event.getArgs().isEmpty()) {
-            title = ((AudioHandler) event.getGuild().getAudioManager().getSendingHandler())
+            title = ((AudioHandler) Objects.requireNonNull(event.getGuild().getAudioManager().getSendingHandler()))
                     .getPlayer().getPlayingTrack().getInfo().title;
         } else {
             title = event.getArgs();

@@ -1,11 +1,13 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -27,7 +29,7 @@ public class RemoveCommand extends MusicCommand {
     @Override
     public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        if (audioHandler.getQueue().isEmpty()) {
+        if (Objects.requireNonNull(audioHandler).getQueue().isEmpty()) {
             event.replyError("There is nothing in the queue!");
             return;
         }

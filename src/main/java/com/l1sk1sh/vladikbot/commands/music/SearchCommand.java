@@ -2,10 +2,10 @@ package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -15,6 +15,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -78,7 +79,7 @@ public class SearchCommand extends MusicCommand {
                 return;
             }
             AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
+            int pos = Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
             message.editMessage(FormatUtils.filter(String.format(
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
                     event.getClient().getSuccess(),
@@ -106,7 +107,7 @@ public class SearchCommand extends MusicCommand {
                             return;
                         }
                         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-                        int pos = audioHandler.addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
+                        int pos = Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getAuthor())) + 1;
                         event.replySuccess(String.format(
                                 "Added **%1$s** (`%2$s`) %3$s.",
                                 FormatUtils.filter(track.getInfo().title),

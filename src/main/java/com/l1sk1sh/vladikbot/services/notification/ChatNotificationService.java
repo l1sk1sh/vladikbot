@@ -14,6 +14,7 @@ import java.awt.*;
 public class ChatNotificationService {
     private final Bot bot;
     private TextChannel notificationChannel;
+    @SuppressWarnings("FieldCanBeLocal")
     private Guild notificationGuild;
 
     public ChatNotificationService(Bot bot) {

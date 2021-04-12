@@ -51,7 +51,7 @@ tasks.composeUp {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:4.2.0_224'
+    implementation 'net.dv8tion:JDA:4.2.1'
     implementation 'com.jagrosh:jda-utilities:3.0.5'
     implementation 'com.jagrosh:JLyrics:0.4'
     implementation 'com.google.code.gson:gson:2.8.6'

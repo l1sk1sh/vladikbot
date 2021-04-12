@@ -1,8 +1,10 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -22,7 +24,7 @@ public class ShuffleCommand extends MusicCommand {
     @Override
     public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        int shuffle = audioHandler.getQueue().shuffle(event.getAuthor().getIdLong());
+        int shuffle = Objects.requireNonNull(audioHandler).getQueue().shuffle(event.getAuthor().getIdLong());
         switch (shuffle) {
             case 0:
                 event.replyError("You don't have any music in the queue to shuffle!");

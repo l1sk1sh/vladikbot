@@ -4,6 +4,8 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 
+import java.util.Objects;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -21,7 +23,7 @@ public class PauseCommand extends DJCommand {
     @Override
     public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        if (audioHandler.getPlayer().isPaused()) {
+        if (Objects.requireNonNull(audioHandler).getPlayer().isPaused()) {
             event.replyWarning(String.format("The player is already paused! Use `%1$splay` to unpause!",
                     event.getClient().getPrefix()));
             return;

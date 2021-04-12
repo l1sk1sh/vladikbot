@@ -22,7 +22,7 @@ public class ReminderService {
     private final Bot bot;
     private Reminder reminder;
     private String errorMessage;
-    private Map<Long, ScheduledFuture<?>> scheduledReminders;
+    private final Map<Long, ScheduledFuture<?>> scheduledReminders;
 
     public ReminderService(Bot bot) {
         this.bot = bot;

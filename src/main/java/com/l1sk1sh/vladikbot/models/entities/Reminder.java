@@ -4,7 +4,7 @@ import java.util.Date;
 
 @SuppressWarnings("unused")
 public class Reminder {
-    private long id;
+    private final long id;
     private Date dateOfReminder;
     private String textOfReminder;
     private String textChannelId;

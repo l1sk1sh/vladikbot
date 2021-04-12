@@ -5,6 +5,8 @@ import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.api.entities.User;
 
+import java.util.Objects;
+
 /**
  * @author Oliver Johnson
  * Changes from original source:
@@ -23,7 +25,7 @@ public class ForceSkipCommand extends DJCommand {
     @Override
     public final void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        User user = event.getJDA().getUserById(audioHandler.getRequester());
+        User user = event.getJDA().getUserById(Objects.requireNonNull(audioHandler).getRequester());
         event.replySuccess(String.format("Skipped **%1$s** (requested by *%2$s*).",
                 audioHandler.getPlayer().getPlayingTrack().getInfo().title,
                 (user == null ? "someone" : user.getName())));

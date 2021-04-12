@@ -3,25 +3,21 @@
 0. Change usage of deprecated callback LogContainerResultCallback()
 0. Create all backup using Name + IDs of channels
 0. Automatic backup separation per date should be done into every separate channel. Current realization will remove channel backup, if it was removed from guild
-1. Add commands
-   8. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
-   19. `remindme [reminder]` - Set a reminder
-   21. `whois [user mention]` - Get user information
-   22. `whoisip [ip]` - Get info from WHOISIP service (https://ip-api.com/docs/api:json)
-   23. `distance  [coords] [coords]` - Get the distance between two coordinates
-45. Add 'docker logs' command to log.debug if one of backups has failed
-14. Implement wordFrequencyAnalyzer
-18. Separate auto reply per guild
-19. Separate status rotation per guild
-20. Extend logger to every error\warning reply
-23. Perform code analysis and fix issues (especially duplicates)
-24. Embedded message couldn't be switched using emoji after certain time
-27. Cyclomatic complexity
-29. Understand how ownership of commands works
-31. Remove IOException for certain types (like rule not found)
-35. Calculate auto backup time from last moment of backup. Not absolute time
-39. Add RichPresence to game activity
-40. Add news module:
+0. Add commands
+   0. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
+   0. `whois [user mention]` - Get user information
+0. Add 'docker logs' command to log.debug if one of backups has failed
+0. Separate auto reply per guild
+0. Separate status rotation per guild
+0. Extend logger to every error\warning reply
+0. Perform code analysis and fix issues (especially duplicates)
+0. An embedded message couldn't be switched using emoji after certain time
+0. Cyclomatic complexity
+0. Understand how ownership of commands works
+0. Remove IOException for certain types (like rule not found)
+0. Calculate auto backup time from last moment of backup. Not absolute time
+0. Add RichPresence to game activity
+0. Add news module:
     1. Gaming news
     3. Major world news
     4. Major local news
@@ -29,20 +25,18 @@
     6. NSFW
     7. WHO notifications API (https://www.who.int/csr/don/en/)
     8. Word of the day
-42. Deal with duplicate code
-43. Extend reply core:
-    2. Creat word usage frequency and add replies accordingly
-    3. Добавить возможность процентно задать распределение между двумя режимами ответа. Настраивается параметром извне.
-    4. Создать историю последних ответов, так, что бы ответы запоминались на указанный срок и не повторялись. Настраивается параметром извне.
-    5. Добавить запретный словарик часто встречаемых междуимений и обращений, как "так, ага, угу, хаха". Настраивается параметром извне.
-    6. Сейчас, при ответе по вхождению, он ищет линейно от начала до конца фразы и если первое слово совпало, всегда использует его. Добавить выбор рандомной фразы для вхождения.  Настраивается параметром извне.
-    7. Самые частые обращение к боту, нужно добавить в запретный словарик, так как они будут чаще всего использовать при общении с ним. Такие как: "влад, владик".
-    8. Научить бота отвечать на обращение (@bot)
-    8. Разделить разные словари, так что бы можно было задавать отдельные правила, для отдельно подключаемых словарей.
-    9. Добавити лімітацію на відповідь бота на певні канали (також, винести це в Guild Settings)
-    10. При первинному зчитуванні списку reply заміняти смайли на усі доступні на сервері (або заміняти на етапі відправки повідомлення для зменшення кількості операцій ІО)
-    11. Ігнорувати команди (ті які починаються з "~")
-44. Rebuild settings file if some setting is missing from .json
-45. Centralize thread running (bot.getThreadpool().execute(() ->)
-46. Почати працювати з Шардами (багато гільдій) і перенести усі файли в базу (Vortex)
-47. Migrate to database, instead of .json files (json handlind becomes complex)
+0. Deal with duplicate code
+0. Extend reply core:
+    0. Create word usage frequency and add replies accordingly
+    0. Create history of replies and do not use same reply for period of time
+    0. Create a dictionary of forbidden words (to avoid replies to "yes" "okay" "etc")
+    0. Look for random matched word from string. As for now, reply is made to the first matched word. It would be nice to reply to a random word from list of matched words.
+    0. Create a dictionary of bot's names in order to create reply to @bot, Vlad, etc
+    0. Create different dictionaries
+    0. Limit bot's replying to specific channels or add blacklisted channels
+    0. Use actual emoji, not ids (:emoji:)
+    0. Ignore commands "~" in replies
+0. Rebuild settings file if some setting is missing from .json
+0. Centralize thread running (bot.getThreadpool().execute(() ->)
+0. Work with shards and move all files to the database (Vortex)
+0. Migrate to database, instead of .json files (json handling becomes complex)

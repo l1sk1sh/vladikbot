@@ -1,10 +1,12 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+
+import java.util.Objects;
 
 /**
  * @author Oliver Johnson
@@ -24,7 +26,7 @@ public class NowPlayingCommand extends MusicCommand {
     @Override
     public void doCommand(CommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        Message message = audioHandler.getNowPlaying(event.getJDA());
+        Message message = Objects.requireNonNull(audioHandler).getNowPlaying(event.getJDA());
         if (message == null) {
             event.reply(audioHandler.getNoMusicPlaying(event.getJDA()));
             bot.getNowPlayingHandler().clearLastNPMessage(event.getGuild());

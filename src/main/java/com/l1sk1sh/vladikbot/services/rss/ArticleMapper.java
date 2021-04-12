@@ -59,7 +59,7 @@ class ArticleMapper {
     }
 
     private static Date getDateFromArticle(Item article) throws ParseException {
-        if (!article.getPubDate().isPresent()) {
+        if (article.getPubDate().isEmpty()) {
             log.warn("Article doesn't have date.");
             return null;
         }
@@ -77,7 +77,7 @@ class ArticleMapper {
     }
 
     static String getTitleAsId(Item article) {
-        if (!article.getTitle().isPresent()) {
+        if (article.getTitle().isEmpty()) {
             return EMPTY_TITLE;
         }
 

@@ -1,16 +1,15 @@
 package com.l1sk1sh.vladikbot.services.logging;
 
+import com.l1sk1sh.vladikbot.models.FixedCache;
+import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Message.Attachment;
+import net.dv8tion.jda.api.sharding.ShardManager;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import com.l1sk1sh.vladikbot.models.FixedCache;
-
-import net.dv8tion.jda.api.sharding.ShardManager;
-import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.Message.Attachment;
 
 /**
  * @author Oliver Johnson
@@ -56,7 +55,7 @@ public class MessageCache {
             username = message.getAuthor().getName();
             discriminator = message.getAuthor().getDiscriminator();
             channel = message.getChannel().getIdLong();
-            guild = message.getGuild() == null ? 0L : message.getGuild().getIdLong();
+            guild = message.getGuild().getIdLong();
             attachments = message.getAttachments();
         }
 

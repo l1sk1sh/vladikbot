@@ -14,6 +14,7 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +204,7 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onShutdown(ShutdownEvent event) {
+    public void onShutdown(@NotNull ShutdownEvent event) {
         bot.shutdown();
     }
 }

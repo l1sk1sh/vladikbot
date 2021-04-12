@@ -1,11 +1,11 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
-import com.l1sk1sh.vladikbot.settings.BotSettings;
-import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader.Playlist;
+import com.l1sk1sh.vladikbot.settings.BotSettings;
+import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
@@ -22,10 +22,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
 
 import java.nio.ByteBuffer;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Oliver Johnson
@@ -86,7 +83,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     }
 
     public boolean isMusicPlaying(JDA jda) {
-        return guild(jda).getSelfMember().getVoiceState().inVoiceChannel() && audioPlayer.getPlayingTrack() != null;
+        return Objects.requireNonNull(Objects.requireNonNull(guild(jda).getSelfMember().getVoiceState())).inVoiceChannel() && audioPlayer.getPlayingTrack() != null;
     }
 
     public Set<String> getVotes() {
@@ -174,7 +171,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             AudioTrack track = audioPlayer.getPlayingTrack();
             MessageBuilder messageBuilder = new MessageBuilder();
             messageBuilder.append(FormatUtils.filter(botSettings.getSuccessEmoji() + " **Now Playing in "
-                    + guild.getSelfMember().getVoiceState().getChannel().getName() + "...**"));
+                    + Objects.requireNonNull(Objects.requireNonNull(guild.getSelfMember().getVoiceState()).getChannel()).getName() + "...**"));
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setColor(guild.getSelfMember().getColor());

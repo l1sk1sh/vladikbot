@@ -2,9 +2,11 @@ package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
+import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+
+import java.util.Objects;
 
 /**
  * Command that provides users the ability to move a track in the playlist.
@@ -46,7 +48,7 @@ public class MoveTrackCommand extends DJCommand {
 
         /* Validate that from and to are available */
         AudioHandler handler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-        FairQueue<QueuedTrack> queue = handler.getQueue();
+        FairQueue<QueuedTrack> queue = Objects.requireNonNull(handler).getQueue();
         if (isUnavailablePosition(queue, from)) {
             String reply = String.format("`%d` is not a valid position in the queue!", from);
             event.replyError(reply);
