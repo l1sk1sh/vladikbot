@@ -79,6 +79,6 @@ public class AloneInVoiceHandler {
         return guild.getAudioManager().getConnectedChannel().getMembers().stream()
                 .noneMatch(x ->
                         !Objects.requireNonNull(x.getVoiceState()).isDeafened()
-                                && x.getIdLong() != bot.getJDA().getSelfUser().getIdLong());
+                                && !x.getUser().isBot());
     }
 }
