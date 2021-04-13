@@ -1,15 +1,10 @@
 package com.l1sk1sh.vladikbot.domain;
 
+import lombok.Getter;
+
 @SuppressWarnings({"unused"})
+@Getter
 public class Quote {
     private String content;
     private String author;
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
 }

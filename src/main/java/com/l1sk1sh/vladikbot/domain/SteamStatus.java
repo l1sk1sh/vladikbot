@@ -1,6 +1,11 @@
 package com.l1sk1sh.vladikbot.domain;
 
+import lombok.Getter;
+import lombok.ToString;
+
 @SuppressWarnings("unused")
+@Getter
+@ToString
 public class SteamStatus {
     private int online;
     private Services services;

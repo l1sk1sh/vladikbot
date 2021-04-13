@@ -1,8 +1,13 @@
 package com.l1sk1sh.vladikbot.domain;
 
-import java.util.Arrays;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 @SuppressWarnings("unused")
+@Getter
+@Setter
+@ToString
 public class ISSInfo {
     private String latitude;
     private String longitude;
@@ -26,10 +31,6 @@ public class ISSInfo {
         return daynum;
     }
 
-    public void setAstronauts(Astronauts astronauts) {
-        this.astronauts = astronauts;
-    }
-
     public String getPeopleNames() {
         StringBuilder peopleList = new StringBuilder();
 
@@ -48,31 +49,6 @@ public class ISSInfo {
 
         private static class People {
             String name;
-
-            @Override
-            public String toString() {
-                return "People{" +
-                        "name='" + name + '\'' +
-                        '}';
-            }
         }
-
-        @Override
-        public String toString() {
-            return "Astronauts{" +
-                    "people=" + Arrays.toString(people) +
-                    '}';
-        }
-    }
-
-    @Override
-    public String toString() {
-        return "ISSInfo{" +
-                "latitude='" + latitude + '\'' +
-                ", longitude='" + longitude + '\'' +
-                ", altitude='" + altitude + '\'' +
-                ", daynum='" + daynum + '\'' +
-                ", people=" + astronauts +
-                '}';
     }
 }

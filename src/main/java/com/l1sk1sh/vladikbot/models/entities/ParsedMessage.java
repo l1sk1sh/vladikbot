@@ -2,10 +2,17 @@ package com.l1sk1sh.vladikbot.models.entities;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvDate;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
 
 import java.util.Date;
 
-@SuppressWarnings("unused")
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 public class ParsedMessage {
     @CsvBindByName(required = true)
     private long authorID;
@@ -25,76 +32,4 @@ public class ParsedMessage {
 
     @CsvBindByName
     private String reactions;
-
-    public ParsedMessage() {
-    }
-
-    public ParsedMessage(long authorID, String author, Date date, String content, String attachments, String reactions) {
-        this.authorID = authorID;
-        this.author = author;
-        this.date = date;
-        this.content = content;
-        this.attachments = attachments;
-        this.reactions = reactions;
-    }
-
-    public long getAuthorID() {
-        return authorID;
-    }
-
-    public void setAuthorID(long authorID) {
-        this.authorID = authorID;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(String attachments) {
-        this.attachments = attachments;
-    }
-
-    public String getReactions() {
-        return reactions;
-    }
-
-    public void setReactions(String reactions) {
-        this.reactions = reactions;
-    }
-
-    @Override
-    public String toString() {
-        return "ParsedMessage{" +
-                "authorID=" + authorID +
-                ", author='" + author + '\'' +
-                ", date=" + date +
-                ", content='" + content + '\'' +
-                ", attachments='" + attachments + '\'' +
-                ", reactions='" + reactions + '\'' +
-                '}';
-    }
 }

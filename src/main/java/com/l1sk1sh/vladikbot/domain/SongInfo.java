@@ -1,9 +1,13 @@
 package com.l1sk1sh.vladikbot.domain;
 
-import java.util.Arrays;
+import lombok.Getter;
+import lombok.ToString;
+
 import java.util.Date;
 
 @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
+@Getter
+@ToString
 public class SongInfo {
     private Result[] results;
 
@@ -43,13 +47,6 @@ public class SongInfo {
         return results[0].primaryGenreName;
     }
 
-    @Override
-    public String toString() {
-        return "SongInfo{" +
-                "results=" + Arrays.toString(results) +
-                '}';
-    }
-
     public static class Result {
         private String artistName;
         private String collectionName;
@@ -60,20 +57,5 @@ public class SongInfo {
         private String artworkUrl100;
         private Date releaseDate;
         private String primaryGenreName;
-
-        @Override
-        public String toString() {
-            return "Result{" +
-                    "artistName='" + artistName + '\'' +
-                    ", collectionName='" + collectionName + '\'' +
-                    ", trackName='" + trackName + '\'' +
-                    ", artistViewUrl='" + artistViewUrl + '\'' +
-                    ", collectionViewUrl='" + collectionViewUrl + '\'' +
-                    ", trackViewUrl='" + trackViewUrl + '\'' +
-                    ", artworkUrl100='" + artworkUrl100 + '\'' +
-                    ", releaseDate=" + releaseDate +
-                    ", primaryGenreName='" + primaryGenreName + '\'' +
-                    '}';
-        }
     }
 }

@@ -17,3 +17,6 @@ To ensure smooth Docker performance, make sure to expose `2375 port without TSL`
 _Note_: Bot itself could be Dockerized and it already has configurations for it. 
 However, bot uses docker container `tyrrrz/discordchatexporter`, and full dockerization either requires socket connection between two
 containers or integration of `tyrrrz/discordchatexporter` right into bot. As for now, there is no dire need for Docker.
+
+#### Development setup
+Install `Lombok` plugin and enable `anotations processing` in the settings of your IDE

@@ -72,7 +72,7 @@ public class CountryCommand extends Command {
                     .setAuthor(countryInfo.getName(), countryInfo.getFlag(), null)
                     .setColor(new Color(20, 120, 120))
                     .addField("Population", countryInfo.getFormattedPopulation(), true)
-                    .addField("Capital City", countryInfo.getCapitalCity(), true)
+                    .addField("Capital City", countryInfo.getCapital(), true)
                     .addField("Main currency", countryInfo.getMainCurrencyName()
                             + " (" + countryInfo.getMainCurrencySymbol() + ")", true)
                     .addField("Located in", countryInfo.getSubregion(), true)
