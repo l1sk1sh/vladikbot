@@ -29,3 +29,4 @@
     1. Mood scale for bot. The better the mood - better and kinder replies
     1. Add functions /feed bot/
     2. Add stats for bot 
+0. Fix Steam Status API
