@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class PermissionsCommand extends AdminCommand {

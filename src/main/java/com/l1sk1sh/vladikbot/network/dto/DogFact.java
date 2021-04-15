@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.network.dto;
 import lombok.Getter;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
 @Getter

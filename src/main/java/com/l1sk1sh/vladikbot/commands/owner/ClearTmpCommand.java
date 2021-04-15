@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class ClearTmpCommand extends OwnerCommand {

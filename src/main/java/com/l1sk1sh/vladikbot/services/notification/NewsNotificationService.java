@@ -16,7 +16,7 @@ import java.awt.*;
 import java.util.Optional;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class NewsNotificationService {

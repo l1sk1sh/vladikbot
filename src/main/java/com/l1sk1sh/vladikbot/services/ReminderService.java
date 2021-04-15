@@ -22,7 +22,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class ReminderService {

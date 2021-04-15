@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class GuildLoggerCommand extends AdminCommand {

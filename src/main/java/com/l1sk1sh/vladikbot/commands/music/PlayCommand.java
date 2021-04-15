@@ -29,7 +29,7 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * - DI Spring

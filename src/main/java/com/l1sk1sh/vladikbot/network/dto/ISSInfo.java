@@ -5,7 +5,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @SuppressWarnings({"unused"})
 @Getter

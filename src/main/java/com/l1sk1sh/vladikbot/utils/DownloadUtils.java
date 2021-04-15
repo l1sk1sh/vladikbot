@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 public final class DownloadUtils {
     private static final Logger log = LoggerFactory.getLogger(DownloadUtils.class);

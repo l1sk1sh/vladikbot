@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class BotSettingsManager implements SettingsUpdateListener {

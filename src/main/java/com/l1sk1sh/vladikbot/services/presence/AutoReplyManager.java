@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class AutoReplyManager {

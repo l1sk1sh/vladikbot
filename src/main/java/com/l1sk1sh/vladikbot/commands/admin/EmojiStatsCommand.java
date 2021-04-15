@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 import static java.util.stream.Collectors.toMap;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class EmojiStatsCommand extends AdminCommand {

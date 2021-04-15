@@ -11,7 +11,7 @@ import java.io.File;
 import java.io.IOException;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 public class BackupTextChannelService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(BackupTextChannelService.class);

@@ -20,7 +20,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * - Files changed to .json

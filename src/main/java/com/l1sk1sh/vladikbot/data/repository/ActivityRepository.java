@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Long> {

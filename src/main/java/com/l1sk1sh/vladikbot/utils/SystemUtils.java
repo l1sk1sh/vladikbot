@@ -12,7 +12,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 public final class SystemUtils {
     private SystemUtils() {}

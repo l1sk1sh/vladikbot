@@ -9,7 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @RequiredArgsConstructor
 @NoArgsConstructor

@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class RollDiceCommand extends Command {

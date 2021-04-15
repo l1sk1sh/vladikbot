@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class StatusCommand extends Command {

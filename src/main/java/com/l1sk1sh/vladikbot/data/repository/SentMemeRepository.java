@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Repository
 public interface SentMemeRepository extends JpaRepository<SentMeme, Long> {

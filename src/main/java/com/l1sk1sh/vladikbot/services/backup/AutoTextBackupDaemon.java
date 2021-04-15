@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class AutoTextBackupDaemon implements ScheduledTask {

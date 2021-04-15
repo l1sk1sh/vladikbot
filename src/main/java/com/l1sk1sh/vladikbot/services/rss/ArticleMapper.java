@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 final class ArticleMapper {
     private static final Logger log = LoggerFactory.getLogger(ArticleMapper.class);

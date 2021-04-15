@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 final class RssFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(RssFeedTask.class);

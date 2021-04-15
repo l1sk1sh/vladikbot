@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 public final class Const {
     private Const() {}

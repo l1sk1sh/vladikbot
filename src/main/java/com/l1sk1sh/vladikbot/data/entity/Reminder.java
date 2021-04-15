@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @SuppressWarnings("unused")
 @Getter

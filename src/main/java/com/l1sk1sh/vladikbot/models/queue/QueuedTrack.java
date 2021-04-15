@@ -5,7 +5,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.User;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * @author John Grosh

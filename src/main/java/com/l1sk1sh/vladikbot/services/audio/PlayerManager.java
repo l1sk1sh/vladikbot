@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * - DI Spring

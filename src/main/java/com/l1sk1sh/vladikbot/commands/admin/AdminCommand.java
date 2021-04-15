@@ -4,7 +4,7 @@ import com.jagrosh.jdautilities.command.Command;
 import net.dv8tion.jda.api.Permission;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * - DI Spring

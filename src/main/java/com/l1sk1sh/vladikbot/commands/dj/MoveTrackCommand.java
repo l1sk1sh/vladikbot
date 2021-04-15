@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * Command that provides users the ability to move a track in the playlist.
  *
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * - DI Spring

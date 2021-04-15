@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.nio.file.*;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class ClearTmpService {

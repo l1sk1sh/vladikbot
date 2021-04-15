@@ -6,7 +6,7 @@ import javax.persistence.*;
 import java.util.List;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @RequiredArgsConstructor
 @NoArgsConstructor

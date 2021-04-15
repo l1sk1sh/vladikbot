@@ -3,7 +3,7 @@ package com.l1sk1sh.vladikbot.utils;
 import java.util.Arrays;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 public final class StringUtils {
     private StringUtils() {}

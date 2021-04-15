@@ -36,7 +36,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @SpringBootApplication
 class VladikBot {

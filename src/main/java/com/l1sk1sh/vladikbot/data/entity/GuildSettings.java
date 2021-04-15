@@ -17,7 +17,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @NoArgsConstructor
 @Getter

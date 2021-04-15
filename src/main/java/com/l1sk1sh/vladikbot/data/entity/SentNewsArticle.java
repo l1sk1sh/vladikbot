@@ -6,7 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Getter
 @Setter

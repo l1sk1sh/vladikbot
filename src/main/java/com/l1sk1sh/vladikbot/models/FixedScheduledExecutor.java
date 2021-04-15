@@ -14,7 +14,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 public class FixedScheduledExecutor {
     private static final Logger log = LoggerFactory.getLogger(FixedScheduledExecutor.class);

@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class ActivitySimulationCommand extends AdminCommand {

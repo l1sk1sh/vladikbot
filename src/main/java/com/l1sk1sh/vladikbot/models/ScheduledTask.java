@@ -1,7 +1,7 @@
 package com.l1sk1sh.vladikbot.models;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 public interface ScheduledTask {
     String getTaskName();

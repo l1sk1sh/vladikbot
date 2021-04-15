@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.text.NumberFormat;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
 @Getter

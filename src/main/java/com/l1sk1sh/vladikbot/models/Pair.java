@@ -1,7 +1,7 @@
 package com.l1sk1sh.vladikbot.models;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * @author John Grosh

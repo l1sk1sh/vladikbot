@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @SuppressWarnings({"CanBeFinal", "FieldMayBeFinal"})
 @Getter

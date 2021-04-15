@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * @param <K> key type
  * @param <V> cache item type
- * @author Oliver Johnson
+ * @author l1sk1sh
  * Changes from original source:
  * - Reformatted code
  * @author John Grosh

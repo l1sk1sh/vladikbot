@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.List;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 class MemeFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MemeFeedTask.class);

@@ -15,7 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import java.awt.*;
 
 /**
- * @author Oliver Johnson
+ * @author l1sk1sh
  */
 @Service
 public class CatPictureCommand extends Command {
