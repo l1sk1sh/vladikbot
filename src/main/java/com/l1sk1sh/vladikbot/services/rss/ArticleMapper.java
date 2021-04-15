@@ -1,7 +1,7 @@
 package com.l1sk1sh.vladikbot.services.rss;
 
 import com.apptastic.rssreader.Item;
-import com.l1sk1sh.vladikbot.models.entities.NewsMessage;
+import com.l1sk1sh.vladikbot.models.NewsDiscordMessage;
 import org.jsoup.Jsoup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +22,7 @@ class ArticleMapper {
     private static final String DESCRIPTION_CUT_ENDING = "[…]";
     private static final int DESCRIPTION_MAX_LENGTH = 350;
 
-    static NewsMessage mapRssArticleToNewsMessage(Item article, RssResource resource, String resourceImageUrl) {
+    static NewsDiscordMessage mapRssArticleToNewsMessage(Item article, RssService.RssResource resource, String resourceImageUrl) {
         String description = "";
         String imageUrl = null;
         String articleUrl = null;
@@ -48,7 +48,7 @@ class ArticleMapper {
             log.warn("Failed to parse {} publication date.", resource, e);
         }
 
-        return new NewsMessage(
+        return new NewsDiscordMessage(
                 article.getTitle().isPresent() ? article.getTitle().get() : "",
                 description,
                 imageUrl,

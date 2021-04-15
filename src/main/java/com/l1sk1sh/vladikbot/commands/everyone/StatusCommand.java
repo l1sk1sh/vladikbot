@@ -2,11 +2,13 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.settings.BotSettings;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Role;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.util.Arrays;
@@ -15,15 +17,17 @@ import java.util.Objects;
 /**
  * @author Oliver Johnson
  */
+@Service
 public class StatusCommand extends Command {
-    private final BotSettings settings;
+    private final BotSettingsManager settings;
 
-    public StatusCommand(BotSettings settings) {
+    @Autowired
+    public StatusCommand(BotSettingsManager settings) {
+        this.settings = settings;
         this.name = "status";
         this.help = "shows the bots status";
         this.aliases = new String[]{"info"};
         this.guildOnly = true;
-        this.settings = settings;
     }
 
     @Override
@@ -33,9 +37,9 @@ public class StatusCommand extends Command {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(event.getGuild().getName(), null, event.getGuild().getIconUrl())
                 .setColor(new Color(244, 160, 0))
-                .addField("Owner", (settings.getOwnerId() == 0)
+                .addField("Owner", (settings.get().getOwnerId() == 0)
                         ? "Owner is not set"
-                        : Objects.requireNonNull(event.getGuild().getMemberById(settings.getOwnerId())).getUser().getAsTag(), true)
+                        : Objects.requireNonNull(event.getGuild().getMemberById(settings.get().getOwnerId())).getUser().getAsTag(), true)
                 .addField("Region", event.getGuild().getRegionRaw(), true)
                 .addField("Channel Categories", Integer.toString(event.getGuild().getCategories().size()), true)
                 .addField("Text Channels", Integer.toString(event.getGuild().getTextChannels().size()), true)

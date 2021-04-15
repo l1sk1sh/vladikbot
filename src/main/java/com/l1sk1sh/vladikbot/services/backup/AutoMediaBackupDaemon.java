@@ -1,32 +1,50 @@
 package com.l1sk1sh.vladikbot.services.backup;
 
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
+import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class AutoMediaBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoMediaBackupDaemon.class);
-    private final FixedScheduledExecutor fixedScheduledExecutor;
-    private final Bot bot;
+
     private final static int MIN_DAY_BEFORE_BACKUP = 1;
 
-    public AutoMediaBackupDaemon(Bot bot) {
-        this.bot = bot;
-        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getBackgroundThreadPool());
+    private final JDA jda;
+    private final BotSettingsManager settings;
+    private final DockerService dockerService;
+    private final ChatNotificationService notificationService;
+    private final FixedScheduledExecutor fixedScheduledExecutor;
+
+    @Autowired
+    public AutoMediaBackupDaemon(JDA jda, @Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
+                                 BotSettingsManager settings, DockerService dockerService, ChatNotificationService notificationService) {
+        this.jda = jda;
+        this.settings = settings;
+        this.dockerService = dockerService;
+        this.notificationService = notificationService;
+        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, backgroundThreadPool);
     }
 
     @Override
@@ -36,27 +54,27 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
     @Override
     public void execute() {
-        if (!bot.isDockerRunning()) {
+        if (!settings.get().isDockerRunning()) {
             return;
         }
 
-        if (!bot.getBotSettings().shouldAutoMediaBackup()) {
+        if (!settings.get().isAutoMediaBackup()) {
             return;
         }
 
-        if (bot.isLockedAutoBackup()) {
+        if (settings.get().isLockedAutoBackup()) {
             return;
         }
 
-        if (bot.isLockedBackup()) {
+        if (settings.get().isLockedBackup()) {
             /* pool-4-thread-1 is trying to call "execute" multiple times */
             return;
         }
-        bot.setLockedAutoBackup(true);
+        settings.get().setLockedAutoBackup(true);
 
-        bot.getOfflineStorage().setLastAutoMediaBackupTime(System.currentTimeMillis());
+        settings.get().setLastAutoMediaBackupTime(System.currentTimeMillis());
 
-        List<TextChannel> availableChannels = bot.getAvailableTextChannels();
+        List<TextChannel> availableChannels = BotUtils.getAvailableTextChannels(jda);
         List<String> failedMediaChannels = new ArrayList<>();
 
         log.info("Automatic media backup has started it's execution.");
@@ -65,17 +83,17 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
             log.info("Starting text backup for auto media backup of channel {} at guild {}", channel.getName(), channel.getGuild());
 
             try {
-                String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "media/"
+                String pathToGuildBackup = settings.get().getRotationBackupFolder() + "media/"
                         + channel.getGuild().getId() + "/";
 
                 FileUtils.createFolderIfAbsent(pathToGuildBackup);
 
                 /* Creating new thread from text backup service and waiting for it to finish */
                 BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
-                        bot,
-                        channel.getId(),
+                        settings,
+                        dockerService, channel.getId(),
                         Const.BackupFileType.HTML_DARK,
-                        bot.getBotSettings().getLocalTmpFolder(),
+                        settings.get().getLocalTmpFolder(),
                         null,
                         null,
                         false
@@ -86,7 +104,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                 try {
                     backupChannelServiceThread.join();
                 } catch (InterruptedException e) {
-                    bot.getNotificationService().sendEmbeddedError(channel.getGuild(), "Text backup process required for media backup was interrupted!");
+                    notificationService.sendEmbeddedError(channel.getGuild(), "Text backup process required for media backup was interrupted!");
                     continue;
                 }
 
@@ -99,7 +117,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
                 File exportedTextFile = backupTextChannelService.getBackupFile();
 
                 BackupMediaService backupMediaService = new BackupMediaService(
-                        bot,
+                        settings,
                         channel.getId(),
                         exportedTextFile,
                         pathToGuildBackup,
@@ -128,17 +146,17 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
             } catch (Exception e) {
                 log.error("Failed to create auto media backup", e);
-                bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
+                notificationService.sendEmbeddedError(channel.getGuild(),
                         String.format("Auto media backup of chat `%1$s` has failed due to: `%2$s`", channel.getName(), e.getLocalizedMessage()));
                 failedMediaChannels.add(channel.getName());
 
             } finally {
-                bot.setLockedAutoBackup(false);
+                settings.get().setLockedAutoBackup(false);
             }
         }
 
         log.info("Automatic media backup has finished it's execution.");
-        bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto media backup has finished. %1$s",
+        notificationService.sendEmbeddedInfo(null, String.format("Auto media backup has finished. %1$s",
                 (failedMediaChannels.isEmpty())
                         ? "All channels were backed up."
                         : "Failed channels: `" + Arrays.toString(failedMediaChannels.toArray()) + "`")
@@ -147,21 +165,23 @@ public class AutoMediaBackupDaemon implements ScheduledTask {
 
     @Override
     public void start() {
-        long lastBackupTime = (bot.getOfflineStorage().getLastAutoMediaBackupTime() == 0)
+        log.info("Enabling auto media backup service...");
+
+        long lastBackupTime = (settings.get().getLastAutoMediaBackupTime() == 0)
                 ? System.currentTimeMillis()
-                : bot.getOfflineStorage().getLastAutoMediaBackupTime();
+                : settings.get().getLastAutoMediaBackupTime();
         int differenceInDays = DateAndTimeUtils.getDifferenceInDaysBetweenUnixTimestamps(lastBackupTime, System.currentTimeMillis());
 
-        int dayDelay = (differenceInDays >= bot.getBotSettings().getDelayDaysForAutoMediaBackup())
-                ? bot.getBotSettings().getDelayDaysForAutoMediaBackup()
+        int dayDelay = (differenceInDays >= settings.get().getDelayDaysForAutoMediaBackup())
+                ? settings.get().getDelayDaysForAutoMediaBackup()
                 : MIN_DAY_BEFORE_BACKUP;
-        int targetHour = bot.getBotSettings().getTargetHourForAutoMediaBackup();
+        int targetHour = settings.get().getTargetHourForAutoMediaBackup();
         int targetMin = 0;
         int targetSec = 0;
-        fixedScheduledExecutor.startExecutionAt(dayDelay, bot.getBotSettings().getDelayDaysForAutoMediaBackup(), targetHour, targetMin, targetSec);
+        fixedScheduledExecutor.startExecutionAt(dayDelay, settings.get().getDelayDaysForAutoMediaBackup(), targetHour, targetMin, targetSec);
         log.info(String.format("Media backup will be performed in %2d days at %02d:%02d:%02d local time. " +
                         "Consequent tasks will be launched with fixed delay in %2d days.",
-                dayDelay, targetHour, targetMin, targetSec, bot.getBotSettings().getDelayDaysForAutoMediaBackup()));
+                dayDelay, targetHour, targetMin, targetSec, settings.get().getDelayDaysForAutoMediaBackup()));
     }
 
     @Override

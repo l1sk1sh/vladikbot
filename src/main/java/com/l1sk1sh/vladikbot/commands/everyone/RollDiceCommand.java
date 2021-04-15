@@ -2,16 +2,23 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class RollDiceCommand extends Command {
 
+    private final Random random;
+
+    @Autowired
     public RollDiceCommand() {
+        this.random = new Random();
         this.name = "dice";
         this.aliases = new String[]{"roll"};
         this.help = "Roll the dice (support optional size d4, d8, d10, d12, d20, d00)";
@@ -72,6 +79,6 @@ public class RollDiceCommand extends Command {
 
     private int between(int max) {
         int min = 1;
-        return Bot.rand.nextInt(max - min + 1) + min;
+        return random.nextInt(max - min + 1) + min;
     }
 }

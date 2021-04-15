@@ -2,30 +2,36 @@ package com.l1sk1sh.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.JDAUtilitiesInfo;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.tools.PlayerLibrary;
 import net.dv8tion.jda.api.JDAInfo;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.ChannelType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
- * @author John Grosh (john.a.grosh@gmail.com)
+ * - Reformatted code
+ * - DI Spring
+ * @author John Grosh
  */
+@Service
 public class DebugCommand extends OwnerCommand {
     private static final Logger log = LoggerFactory.getLogger(DebugCommand.class);
     private final static String[] PROPERTIES = {"java.version", "java.vm.name", "java.vm.specification.version",
             "java.runtime.name", "java.runtime.version", "java.specification.version", "os.arch", "os.name"};
 
-    private final Bot bot;
+    private final BotSettingsManager settings;
 
-    public DebugCommand(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public DebugCommand(BotSettingsManager settings) {
+        this.settings = settings;
         this.name = "debug";
         this.help = "shows debug info";
         this.guildOnly = false;
@@ -41,12 +47,12 @@ public class DebugCommand extends OwnerCommand {
         }
 
         sb.append("\n\nJMusicBot Information:")
-                .append("\n  Owner = ").append(bot.getBotSettings().getOwnerId())
-                .append("\n  Prefix = ").append(bot.getBotSettings().getPrefix())
-                .append("\n  MaxSeconds = ").append(bot.getBotSettings().getMaxSeconds())
-                .append("\n  NPImages = ").append(bot.getBotSettings().useNpImages())
-                .append("\n  SongInStatus = ").append(bot.getBotSettings().shouldSongBeInStatus())
-                .append("\n  LeaveChannel = ").append(bot.getBotSettings().shouldLeaveChannel());
+                .append("\n  Owner = ").append(settings.get().getOwnerId())
+                .append("\n  Prefix = ").append(settings.get().getPrefix())
+                .append("\n  MaxSeconds = ").append(settings.get().getMaxSeconds())
+                .append("\n  NPImages = ").append(settings.get().isNpImages())
+                .append("\n  SongInStatus = ").append(settings.get().isSongInStatus())
+                .append("\n  LeaveChannel = ").append(settings.get().isLeaveChannel());
 
         sb.append("\n\nDependency Information:")
                 .append("\n  JDA Version = ").append(JDAInfo.VERSION)
@@ -72,6 +78,6 @@ public class DebugCommand extends OwnerCommand {
             event.reply("Debug Information: " + sb.toString() + "");
         }
 
-        log.info("Debug command was sent to {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
+        log.info("Debug command was sent to {}.", FormatUtils.formatAuthor(event));
     }
 }

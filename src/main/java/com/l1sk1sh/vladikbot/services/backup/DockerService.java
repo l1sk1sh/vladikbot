@@ -11,12 +11,14 @@ import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientBuilder;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.command.LogContainerResultCallback;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import javax.ws.rs.ProcessingException;
 import java.io.File;
@@ -32,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Oliver Johnson
  */
+@Service
 public class DockerService {
     private static final Logger log = LoggerFactory.getLogger(DockerService.class);
 
@@ -44,9 +47,10 @@ public class DockerService {
     private Container backupContainer;
     private final List<String> logs = new ArrayList<>();
 
-    public DockerService(Bot bot) {
+    @Autowired
+    public DockerService(BotSettingsManager settings) {
         DockerClientConfig config = DefaultDockerClientConfig.createDefaultConfigBuilder()
-                .withDockerHost(bot.getBotSettings().getDockerHost())
+                .withDockerHost(settings.get().getDockerHost())
                 .build();
 
         this.docker = DockerClientBuilder.getInstance(config)

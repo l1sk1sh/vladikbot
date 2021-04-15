@@ -1,25 +1,32 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.nio.file.*;
 
+/**
+ * @author Oliver Johnson
+ */
+@Service
 public class ClearTmpService {
+    private final BotSettingsManager settings;
     private final String localTmpPath;
-    private final Bot bot;
 
-    public ClearTmpService(Bot bot) {
-        this.bot = bot;
-        this.localTmpPath = bot.getBotSettings().getLocalTmpFolder();
+    @Autowired
+    public ClearTmpService(BotSettingsManager settings) {
+        this.settings = settings;
+        this.localTmpPath = this.settings.get().getLocalTmpFolder();
     }
 
     public final void clear() throws IOException {
         try {
-            bot.setLockedBackup(true);
+            settings.get().setLockedBackup(true);
             deleteDirectoryRecursion(Paths.get(localTmpPath));
         } finally {
-            bot.setLockedBackup(false);
+            settings.get().setLockedBackup(false);
         }
     }
 

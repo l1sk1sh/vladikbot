@@ -1,26 +1,39 @@
 package com.l1sk1sh.vladikbot.services.notification;
 
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.entities.NewsMessage;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.models.NewsDiscordMessage;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.util.Optional;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class NewsNotificationService {
-    private final Bot bot;
+
+    private final JDA jda;
+    private final BotSettingsManager settings;
+    private final GuildSettingsRepository guildSettingsRepository;
     private TextChannel newsChannel;
 
-    public NewsNotificationService(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public NewsNotificationService(JDA jda, BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
+        this.jda = jda;
+        this.settings = settings;
+        this.guildSettingsRepository = guildSettingsRepository;
     }
 
-    public final void sendNewsArticle(Guild guild, NewsMessage message, Color color) {
+    public final void sendNewsArticle(Guild guild, NewsDiscordMessage message, Color color) {
         if (isNewsChannelMissing(guild)) {
             return;
         }
@@ -40,18 +53,19 @@ public class NewsNotificationService {
     }
 
     private boolean isNewsChannelMissing(Guild guild) {
-        Guild newsGuild = guild;
 
         /* In case this guild doesn't have news channel, sending notification to maintainer */
-        if (newsGuild == null) {
-            newsGuild = bot.getJDA().getGuildById(bot.getBotSettings().getMaintainerGuildId());
+        if (guild == null) {
+            guild = jda.getGuildById(settings.get().getMaintainerGuildId());
         }
 
-        if (newsGuild == null) {
+        if (guild == null) {
             return true;
         }
 
-        this.newsChannel = bot.getGuildSettings(newsGuild).getNewsChannel(newsGuild);
+        Guild finalGuild = guild;
+        Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(guild.getIdLong());
+        this.newsChannel = guildSettings.map(settings -> settings.getNewsChannel(finalGuild)).orElse(null);
 
         return (this.newsChannel == null);
     }

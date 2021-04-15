@@ -3,19 +3,24 @@ package com.l1sk1sh.vladikbot.commands.owner;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.api.entities.Activity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class SetGameCommand extends OwnerCommand {
     private static final String gameNotSetMessage = "The game could not be set!";
 
+    @Autowired
     public SetGameCommand() {
         this.name = "setgame";
-        this.arguments = "<action> <game>";
+        this.arguments = "<game>";
         this.help = "sets the game the bot is playing";
         this.guildOnly = false;
         this.children = new OwnerCommand[]{

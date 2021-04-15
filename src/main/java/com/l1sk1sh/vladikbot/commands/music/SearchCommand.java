@@ -1,10 +1,13 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -14,6 +17,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -21,15 +26,22 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class SearchCommand extends MusicCommand {
+    private final BotSettingsManager settings;
+    private final PlayerManager playerManager;
     private final OrderedMenu.Builder builder;
     String searchPrefix;
 
-    public SearchCommand(Bot bot) {
-        super(bot);
+    @Autowired
+    public SearchCommand(EventWaiter eventWaiter, GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager, BotSettingsManager settings) {
+        super(guildSettingsRepository, playerManager);
+        this.settings = settings;
+        this.playerManager = playerManager;
         this.name = "search";
         this.arguments = "<query>";
         this.help = "searches Youtube for a provided query";
@@ -41,7 +53,7 @@ public class SearchCommand extends MusicCommand {
                 .allowTextInput(true)
                 .useNumbers()
                 .useCancelButton(true)
-                .setEventWaiter(bot.getWaiter())
+                .setEventWaiter(eventWaiter)
                 .setTimeout(1, TimeUnit.MINUTES);
     }
 
@@ -52,8 +64,8 @@ public class SearchCommand extends MusicCommand {
             return;
         }
 
-        event.reply(String.format("%1$s  Searching... `[%2$s]`", bot.getBotSettings().getSearchingEmoji(), event.getArgs()),
-                m -> bot.getPlayerManager().loadItemOrdered(
+        event.reply(String.format("%1$s  Searching... `[%2$s]`", settings.get().getSearchingEmoji(), event.getArgs()),
+                m -> playerManager.loadItemOrdered(
                         event.getGuild(), searchPrefix + event.getArgs(), new ResultHandler(m, event)));
     }
 
@@ -68,13 +80,13 @@ public class SearchCommand extends MusicCommand {
 
         @Override
         public void trackLoaded(AudioTrack track) {
-            if (bot.getBotSettings().isTooLong(track)) {
+            if (settings.get().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
                         FormatUtils.formatTimeTillHours(track.getDuration()),
-                        FormatUtils.formatTimeTillHours(bot.getBotSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }
@@ -98,12 +110,12 @@ public class SearchCommand extends MusicCommand {
                     .setSelection((msg, i) ->
                     {
                         AudioTrack track = playlist.getTracks().get(i - 1);
-                        if (bot.getBotSettings().isTooLong(track)) {
+                        if (settings.get().isTooLong(track)) {
                             event.replyWarning(String.format(
                                     "This track (**%1$s**) is longer than the allowed maximum: `%2$s` > `%3$s`.",
                                     track.getInfo().title,
                                     FormatUtils.formatTimeTillHours(track.getDuration()),
-                                    bot.getBotSettings().getMaxTime()));
+                                    settings.get().getMaxTime()));
                             return;
                         }
                         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();

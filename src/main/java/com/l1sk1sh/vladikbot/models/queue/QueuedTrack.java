@@ -7,7 +7,7 @@ import net.dv8tion.jda.api.entities.User;
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
  * @author John Grosh
  */
 public class QueuedTrack implements Queueable {

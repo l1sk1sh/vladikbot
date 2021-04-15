@@ -2,46 +2,60 @@ package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public abstract class MusicCommand extends Command {
-    protected final Bot bot;
+
+    protected final GuildSettingsRepository guildSettingsRepository;
+    protected final PlayerManager playerManager;
+
     protected boolean bePlaying;
     protected boolean beListening;
 
-    protected MusicCommand(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    protected MusicCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        this.guildSettingsRepository = guildSettingsRepository;
+        this.playerManager = playerManager;
         this.guildOnly = true;
         this.category = new Category("Music");
     }
 
     @Override
     protected void execute(CommandEvent event) {
-        TextChannel textChannel = bot.getGuildSettings(event.getGuild()).getTextChannel(event.getGuild());
+        Optional<GuildSettings> settings = guildSettingsRepository.findById(event.getGuild().getIdLong());
+        TextChannel textChannel = settings.map(guildSettings -> guildSettings.getTextChannel(event.getGuild())).orElse(null);
 
         if (textChannel != null && !event.getTextChannel().equals(textChannel)) {
             try {
                 event.getMessage().delete().queue();
-            } catch (PermissionException ignore) { /* Ignore */ }
+            } catch (PermissionException ignored) {
+            }
             event.replyInDm(String.format("%1$s You can only use that command in %2$s!",
                     event.getClient().getError(), textChannel.getAsMention()));
             return;
         }
 
-        bot.getPlayerManager().setUpHandler(event.getGuild()); /* No point in constantly checking for this later */
+        playerManager.setUpHandler(event.getGuild()); /* No point in constantly checking for this later */
         if (bePlaying && !((AudioHandler) Objects.requireNonNull(event.getGuild().getAudioManager().getSendingHandler()))
                 .isMusicPlaying(event.getJDA())) {
             event.replyError("There must be music playing to use that!");
@@ -51,7 +65,7 @@ public abstract class MusicCommand extends Command {
         if (beListening) {
             VoiceChannel current = Objects.requireNonNull(event.getGuild().getSelfMember().getVoiceState()).getChannel();
             if (current == null) {
-                current = bot.getGuildSettings(event.getGuild()).getVoiceChannel(event.getGuild());
+                current = settings.map(guildSettings -> guildSettings.getVoiceChannel(event.getGuild())).orElse(null);
             }
 
             GuildVoiceState userState = event.getMember().getVoiceState();

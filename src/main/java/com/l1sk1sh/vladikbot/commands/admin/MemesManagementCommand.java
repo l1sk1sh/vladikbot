@@ -2,24 +2,35 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.services.meme.MemeService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class MemesManagementCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(MemesManagementCommand.class);
-    private final Bot bot;
 
-    public MemesManagementCommand(Bot bot) {
-        this.bot = bot;
+    private final BotSettingsManager settings;
+    private final MemeService memeService;
+    private final GuildSettingsRepository guildSettingsRepository;
+
+    @Autowired
+    public MemesManagementCommand(BotSettingsManager settings, MemeService memeService, GuildSettingsRepository guildSettingsRepository) {
+        this.settings = settings;
+        this.memeService = memeService;
+        this.guildSettingsRepository = guildSettingsRepository;
         this.name = "memes";
         this.help = "Manage memes for this guild";
         this.arguments = "<switch|setch>";
@@ -35,7 +46,7 @@ public class MemesManagementCommand extends AdminCommand {
     }
 
     private final class SwitchCommand extends AdminCommand {
-        SwitchCommand() {
+        private SwitchCommand() {
             this.name = "switch";
             this.aliases = new String[]{"change"};
             this.help = "enables or disables memes update";
@@ -51,15 +62,15 @@ public class MemesManagementCommand extends AdminCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            bot.getBotSettings().setSendMemes(true);
+                            settings.get().setSendMemes(true);
                             event.replySuccess("Memes feed is now enabled!");
-                            bot.getMemeService().start();
+                            memeService.start();
                             break;
                         case "off":
                         case "disable":
-                            bot.getBotSettings().setSendMemes(false);
+                            settings.get().setSendMemes(false);
                             event.replySuccess("Memes feed is now disabled!");
-                            bot.getMemeService().stop();
+                            memeService.stop();
                             break;
                     }
                 }
@@ -70,7 +81,7 @@ public class MemesManagementCommand extends AdminCommand {
     }
 
     private final class SetChannelCommand extends AdminCommand {
-        SetChannelCommand() {
+        private SetChannelCommand() {
             this.name = "setch";
             this.help = "sets channel for memes submission";
             this.arguments = "<channel>";
@@ -89,9 +100,12 @@ public class MemesManagementCommand extends AdminCommand {
             } else if (list.size() > 1) {
                 event.replyWarning(FormatUtils.listOfTextChannels(list, event.getArgs()));
             } else {
-                bot.getGuildSettings(event.getGuild()).setMemesChannelId(list.get(0));
-                log.info("Memes channel was set to {}. Set by {}:[{}].", list.get(0).getId(), event.getAuthor().getName(), event.getAuthor().getId());
-                event.replySuccess(String.format("Memes are being displayed in <#%1$s>.", list.get(0).getId()));
+                guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(setting -> {
+                    setting.setMemesChannelId(list.get(0).getIdLong());
+                    guildSettingsRepository.save(setting);
+                    log.info("Memes channel was set to {}. Set by {}.", list.get(0).getId(), FormatUtils.formatAuthor(event));
+                    event.replySuccess(String.format("Memes are being displayed in <#%1$s>.", list.get(0).getId()));
+                });
             }
         }
     }

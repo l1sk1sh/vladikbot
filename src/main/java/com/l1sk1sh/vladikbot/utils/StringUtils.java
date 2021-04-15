@@ -1,10 +1,6 @@
 package com.l1sk1sh.vladikbot.utils;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * @author Oliver Johnson
@@ -27,12 +23,6 @@ public final class StringUtils {
 
     public static boolean stringContainsItemFromList(String input, String[] check) {
         return Arrays.stream(check).parallel().anyMatch(input::contains);
-    }
-
-    public static String getNormalizedCurrentDate() {
-        Date date = Calendar.getInstance().getTime();
-        DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy");
-        return dateFormat.format(date);
     }
 
     public static int editDistance(String s, String t) {

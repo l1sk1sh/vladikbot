@@ -14,6 +14,9 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * @author Oliver Johnson
+ */
 public final class DownloadUtils {
     private static final Logger log = LoggerFactory.getLogger(DownloadUtils.class);
 

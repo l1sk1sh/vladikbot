@@ -1,22 +1,27 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.entities.Reminder;
+import com.l1sk1sh.vladikbot.data.entity.Reminder;
 import com.l1sk1sh.vladikbot.services.ReminderService;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class ReminderCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(ReminderCommand.class);
+
     private final ReminderService reminderService;
 
-    public ReminderCommand(Bot bot) {
+    @Autowired
+    public ReminderCommand(ReminderService reminderService) {
         this.name = "remind";
         this.aliases = new String[]{"reminder", "remindme"};
         this.help = "set reminder that will be returned by bot at specified time\r\n"
@@ -26,7 +31,7 @@ public class ReminderCommand extends AdminCommand {
                 + "\t\t `<delete> <id>` - removes reminder by its id\r\n"
                 + "\t\t `<list>` - show all scheduled reminders";
         this.arguments = "<<time> <reminder text>|<delete>|<list>";
-        this.reminderService = bot.getReminderService();
+        this.reminderService = reminderService;
         this.children = new AdminCommand[]{
                 new ReadCommand(),
                 new DeleteCommand()
@@ -40,7 +45,7 @@ public class ReminderCommand extends AdminCommand {
             return;
         }
 
-        boolean reminderProcessed = reminderService.processReminder(event.getArgs(), event.getChannel().getId(), event.getAuthor().getId());
+        boolean reminderProcessed = reminderService.processReminder(event.getArgs(), event.getChannel().getIdLong(), event.getAuthor().getIdLong());
 
         if (!reminderProcessed) {
             event.replyError(reminderService.getErrorMessage());
@@ -48,15 +53,15 @@ public class ReminderCommand extends AdminCommand {
         }
 
         Reminder scheduledReminder = reminderService.getReminder();
-        log.info("New reminder with id {} was added by {}:[{}].", scheduledReminder.getId(), event.getAuthor().getName(), event.getAuthor().getId());
+        log.info("New reminder with id {} was added by {}.", scheduledReminder.getId(), FormatUtils.formatAuthor(event));
 
         event.reply(String.format("\"%1$s\" will be reminded at %2$s",
                 scheduledReminder.getTextOfReminder(),
                 scheduledReminder.getDateOfReminder()));
     }
 
-    class ReadCommand extends AdminCommand {
-        ReadCommand() {
+    private class ReadCommand extends AdminCommand {
+        private ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list", "read"};
             this.help = "lists all scheduled reminders";
@@ -81,8 +86,8 @@ public class ReminderCommand extends AdminCommand {
         }
     }
 
-    class DeleteCommand extends AdminCommand {
-        DeleteCommand() {
+    private class DeleteCommand extends AdminCommand {
+        private DeleteCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};
             this.help = "deletes an existing reminder";
@@ -100,7 +105,7 @@ public class ReminderCommand extends AdminCommand {
                 return;
             }
 
-            log.info("Reminder with id {} was removed by {}:[{}].", reminderId, event.getAuthor().getName(), event.getAuthor().getId());
+            log.info("Reminder with id {} was removed by {}.", reminderId, FormatUtils.formatAuthor(event));
             event.replySuccess(String.format("Successfully deleted reminder with id `[%1$s]`.", reminderId));
         }
     }

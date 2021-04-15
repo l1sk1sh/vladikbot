@@ -22,9 +22,7 @@ manifest.mf
 .gradle/
 
 # Security ignore
-settings_bot.json
-settings_guild.json
-storage.json
+*.json
 
 # Local files
 app/

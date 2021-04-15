@@ -1,58 +1,54 @@
 package com.l1sk1sh.vladikbot.services.meme;
 
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.domain.Meme;
-import okhttp3.Request;
-import okhttp3.Response;
-import okhttp3.ResponseBody;
+import com.l1sk1sh.vladikbot.data.entity.SentMeme;
+import com.l1sk1sh.vladikbot.data.repository.SentMemeRepository;
+import com.l1sk1sh.vladikbot.network.dto.Meme;
+import com.l1sk1sh.vladikbot.services.notification.MemeNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
+import java.util.List;
 
-public class MemeFeedTask implements Runnable {
+/**
+ * @author Oliver Johnson
+ */
+class MemeFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MemeFeedTask.class);
 
-    private final Bot bot;
+    private final SentMemeRepository sentMemeRepository;
+    private final MemeNotificationService memeNotificationService;
+    private final RestTemplate restTemplate;
 
-    MemeFeedTask(Bot bot) {
-        this.bot = bot;
+    MemeFeedTask(SentMemeRepository sentMemeRepository, MemeNotificationService memeNotificationService) {
+        this.sentMemeRepository = sentMemeRepository;
+        this.memeNotificationService = memeNotificationService;
+        this.restTemplate = new RestTemplate();
     }
 
     @Override
     public void run() {
         log.debug("Running memes lookup...");
 
-        try {
-            Request request = new Request.Builder()
-                    .url("http://meme-api.herokuapp.com/gimme")
-                    .build();
+        Meme meme = restTemplate.getForObject("http://meme-api.herokuapp.com/gimme", Meme.class);
 
-            Response response = Bot.httpClient.newCall(request).execute();
-            ResponseBody body = response.body();
+        if (meme == null) {
+            log.error("Response body is empty.");
 
-            if (body == null) {
-                log.error("Response body is empty.");
-
-                return;
-            }
-
-            Meme meme = Bot.gson.fromJson(body.string(), Meme.class);
-
-            if (bot.getOfflineStorage().getLastMemeIds().contains(meme.getPostLink())) {
-                return;
-            }
-
-            bot.getOfflineStorage().addSentMemeId(meme.getPostLink());
-
-            log.info("Sending '{}' article ({}).", meme.getTitle(), meme.getPostLink());
-
-            bot.getMemeNotificationService().sendNewsArticle(null, meme);
-        } catch (UnknownHostException e) {
-            log.warn("Failed to retrieve a meme due to network issues.");
-        } catch (IOException e) {
-            log.error("Failed to retrieve a meme due to unexpected issue.", e);
+            return;
         }
+
+        List<SentMeme> lastSentMemes = sentMemeRepository.findTop30ByOrderByIdDesc();
+
+        boolean memeAlreadySent = lastSentMemes.stream().anyMatch(sentMeme -> sentMeme.getMemeId().equals(meme.getPostLink()));
+        if (memeAlreadySent) {
+            return;
+        }
+
+        sentMemeRepository.save(new SentMeme(meme.getPostLink()));
+
+        log.info("Sending '{}' article ({}).", meme.getTitle(), meme.getPostLink());
+
+        memeNotificationService.sendNewsArticle(null, meme);
     }
 }

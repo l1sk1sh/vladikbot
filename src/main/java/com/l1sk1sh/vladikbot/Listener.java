@@ -1,10 +1,27 @@
 package com.l1sk1sh.vladikbot;
 
-import com.l1sk1sh.vladikbot.models.entities.Reminder;
-import com.l1sk1sh.vladikbot.settings.BotSettings;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.entity.Reminder;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.services.ReminderService;
+import com.l1sk1sh.vladikbot.services.ShutdownHandler;
+import com.l1sk1sh.vladikbot.services.audio.AloneInVoiceHandler;
+import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import com.l1sk1sh.vladikbot.services.backup.AutoMediaBackupDaemon;
+import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
+import com.l1sk1sh.vladikbot.services.backup.DockerService;
+import com.l1sk1sh.vladikbot.services.logging.GuildLoggerService;
+import com.l1sk1sh.vladikbot.services.logging.MessageCache;
+import com.l1sk1sh.vladikbot.services.meme.MemeService;
+import com.l1sk1sh.vladikbot.services.presence.ActivitySimulationManager;
+import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
+import com.l1sk1sh.vladikbot.services.rss.RssService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.VoiceChannel;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -18,58 +35,99 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
  * - Removal of update
  * - Addition of permission handler
  * - Addition of multiple services executors and verifications
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 class Listener extends ListenerAdapter {
     private static final Logger log = LoggerFactory.getLogger(Listener.class);
 
-    private final Bot bot;
-    private final BotSettings botSettings;
+    private final ShutdownHandler shutdownHandler;
+    private final BotSettingsManager settings;
+    private final DockerService dockerService;
+    private final PlayerManager playerManager;
+    private final ReminderService reminderService;
+    private final RssService rssService;
+    private final MemeService memeService;
+    private final AutoTextBackupDaemon autoTextBackupDaemon;
+    private final AutoMediaBackupDaemon autoMediaBackupDaemon;
+    private final GuildLoggerService guildLoggerService;
+    private final NowPlayingHandler nowPlayingHandler;
+    private final MessageCache messageCache;
+    private final AloneInVoiceHandler aloneInVoiceHandler;
+    private final AutoReplyManager autoReplyManager;
+    private final GuildSettingsRepository guildSettingsRepository;
+    private final ActivitySimulationManager activitySimulationManager;
 
-    Listener(Bot bot) {
-        this.bot = bot;
-        this.botSettings = bot.getBotSettings();
+    @Autowired
+    Listener(ShutdownHandler shutdownHandler, BotSettingsManager settings, DockerService dockerService, PlayerManager playerManager,
+             ReminderService reminderService, RssService rssService, MemeService memeService,
+             AutoTextBackupDaemon autoTextBackupDaemon, AutoMediaBackupDaemon autoMediaBackupDaemon,
+             GuildLoggerService guildLoggerService, NowPlayingHandler nowPlayingHandler, MessageCache messageCache,
+             AloneInVoiceHandler aloneInVoiceHandler, AutoReplyManager autoReplyManager, GuildSettingsRepository guildSettingsRepository,
+             ActivitySimulationManager activitySimulationManager) {
+        this.shutdownHandler = shutdownHandler;
+        this.settings = settings;
+        this.dockerService = dockerService;
+        this.playerManager = playerManager;
+        this.reminderService = reminderService;
+        this.rssService = rssService;
+        this.memeService = memeService;
+        this.autoTextBackupDaemon = autoTextBackupDaemon;
+        this.autoMediaBackupDaemon = autoMediaBackupDaemon;
+        this.guildLoggerService = guildLoggerService;
+        this.nowPlayingHandler = nowPlayingHandler;
+        this.messageCache = messageCache;
+        this.aloneInVoiceHandler = aloneInVoiceHandler;
+        this.autoReplyManager = autoReplyManager;
+        this.guildSettingsRepository = guildSettingsRepository;
+        this.activitySimulationManager = activitySimulationManager;
     }
 
     @Override
     public void onReady(ReadyEvent event) {
+
         /* Check if bot added to Guilds */
         if (event.getJDA().getGuilds().isEmpty()) {
             log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
             log.warn(event.getJDA().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
 
-        /* Check if Docker is running */
-        if (!bot.getDockerService().isDockerRunning()) {
-            log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
-            bot.setDockerRunning(false);
-        } else {
-            bot.setDockerRunning(true);
+        /* Create settings for new Guilds */
+        for (Guild guild : event.getJDA().getGuilds()) {
+            Optional<GuildSettings> settings = guildSettingsRepository.findById(guild.getIdLong());
+            if (settings.isEmpty()) {
+                GuildSettings newSettings = new GuildSettings();
+                newSettings.setGuildId(guild.getIdLong());
+                guildSettingsRepository.save(newSettings);
+            }
         }
 
         /* Setup audio player */
-        event.getJDA().getGuilds().forEach((guild) ->
-        {
+        event.getJDA().getGuilds().forEach((guild) -> {
             try {
-                String defaultPlaylist = bot.getGuildSettings(guild).getDefaultPlaylist();
-                VoiceChannel vc = bot.getGuildSettings(guild).getVoiceChannel(guild);
-                if (defaultPlaylist != null && vc != null && bot.getPlayerManager().setUpHandler(guild).playFromDefault()) {
+                String defaultPlaylist = guildSettingsRepository.getOne(guild.getIdLong()).getDefaultPlaylist();
+                VoiceChannel vc = guildSettingsRepository.getOne(guild.getIdLong()).getVoiceChannel(guild);
+                if (defaultPlaylist != null && vc != null && playerManager.setUpHandler(guild).playFromDefault()) {
                     guild.getAudioManager().openAudioConnection(vc);
                 }
-            } catch (Exception ignore) { /* Ignore */ }
+            } catch (Exception ignored) {
+            }
 
             List<Permission> missingPermissions =
                     BotUtils.getMissingPermissions(guild.getSelfMember().getPermissions(), Const.RECOMMENDED_PERMS);
@@ -79,8 +137,43 @@ class Listener extends ListenerAdapter {
             }
         });
 
+        /* Read saved reminders and re-schedule them */
+        List<Reminder> reminders = reminderService.getAllReminders();
+        if (reminders != null && !reminders.isEmpty()) {
+            for (Reminder reminder : reminders) {
+                boolean scheduled = reminderService.scheduleReminder(reminder);
+                if (!scheduled) {
+                    reminder.setDateOfReminder(new Date(System.currentTimeMillis() + (60 * 1000)));
+                    reminderService.scheduleReminder(reminder);
+                }
+            }
+        }
+
+        /* Setup activity simulation for bot's status */
+        if (settings.get().isSimulateActivity()) {
+            activitySimulationManager.start();
+        }
+
+        /* Initiate RSS feed reader */
+        if (settings.get().isSendNews()) {
+            rssService.start();
+        }
+
+        /* Initiate memes fetcher*/
+        if (settings.get().isSendMemes()) {
+            memeService.start();
+        }
+
+        /* Check if Docker is running */
+        if (!dockerService.isDockerRunning()) {
+            log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
+            settings.get().setDockerRunning(false);
+        } else {
+            settings.get().setDockerRunning(true);
+        }
+
         /* Initiate automatic background backup */
-        if (botSettings.shouldAutoTextBackup() || botSettings.shouldAutoMediaBackup()) {
+        if (settings.get().isAutoTextBackup() || settings.get().isAutoMediaBackup()) {
             int minimumTimeDifference = 1;
             int maximumDayHour = 23;
             int defaultTextBackupDaysDelay = 2;
@@ -89,83 +182,48 @@ class Listener extends ListenerAdapter {
             int defaultMediaBackupTargetHour = 12;
             int extensionMediaHoursDelay = 2;
 
-            if (botSettings.getDelayDaysForAutoTextBackup() <= 0) {
+            if (settings.get().getDelayDaysForAutoTextBackup() <= 0) {
                 log.warn("Auto text backup delay should be more than 0.");
-                botSettings.setDelayDaysForAutoTextBackup(defaultTextBackupDaysDelay);
+                settings.get().setDelayDaysForAutoTextBackup(defaultTextBackupDaysDelay);
             }
 
-            if (botSettings.getDelayDaysForAutoMediaBackup() <= 0) {
+            if (settings.get().getDelayDaysForAutoMediaBackup() <= 0) {
                 log.warn("Auto text backup delay should be more than 0.");
-                botSettings.setDelayDaysForAutoMediaBackup(defaultMediaBackupDaysDelay);
+                settings.get().setDelayDaysForAutoMediaBackup(defaultMediaBackupDaysDelay);
             }
 
-            if (botSettings.getTargetHourForAutoTextBackup() > maximumDayHour || botSettings.getTargetHourForAutoTextBackup() < 0) {
+            if (settings.get().getTargetHourForAutoTextBackup() > maximumDayHour || settings.get().getTargetHourForAutoTextBackup() < 0) {
                 log.warn("Allowed target hour for text backup is between 1 and 24.");
-                botSettings.setTargetHourForAutoTextBackup(defaultTextBackupTargetHour);
+                settings.get().setTargetHourForAutoTextBackup(defaultTextBackupTargetHour);
             }
 
-            if (botSettings.getTargetHourForAutoMediaBackup() > maximumDayHour || botSettings.getTargetHourForAutoMediaBackup() < 0) {
+            if (settings.get().getTargetHourForAutoMediaBackup() > maximumDayHour || settings.get().getTargetHourForAutoMediaBackup() < 0) {
                 log.warn("Allowed target hour for media backup is between 1 and 24.");
-                botSettings.setTargetHourForAutoTextBackup(defaultMediaBackupTargetHour);
+                settings.get().setTargetHourForAutoTextBackup(defaultMediaBackupTargetHour);
             }
 
-            int timeDifference = Math.abs(botSettings.getTargetHourForAutoTextBackup() - botSettings.getTargetHourForAutoMediaBackup());
+            int timeDifference = Math.abs(settings.get().getTargetHourForAutoTextBackup() - settings.get().getTargetHourForAutoMediaBackup());
             if (timeDifference < minimumTimeDifference) {
                 log.warn("Auto backups should have at least 1 hour difference.");
-                botSettings.setTargetHourForAutoMediaBackup(botSettings.getTargetHourForAutoMediaBackup() + extensionMediaHoursDelay);
+                settings.get().setTargetHourForAutoMediaBackup(settings.get().getTargetHourForAutoMediaBackup() + extensionMediaHoursDelay);
             }
         }
 
-        if (botSettings.shouldAutoMediaBackup() && bot.isDockerRunning()) {
-            log.info("Enabling auto media backup service...");
-            bot.getAutoMediaBackupDaemon().start();
+        if (settings.get().isAutoMediaBackup() && settings.get().isDockerRunning()) {
+            autoMediaBackupDaemon.start();
         }
 
-        if (botSettings.shouldAutoTextBackup() && bot.isDockerRunning()) {
-            log.info("Enabling auto text backup service...");
-            bot.getAutoTextBackupDaemon().start();
-        }
-
-        /* Setup game and action simulation for bot's status */
-        if (botSettings.shouldSimulateActionsAndGamesActivity()) {
-            log.info("Enabling GAASimulation...");
-            try {
-                bot.getGameAndActionSimulationManager().start();
-            } catch (IOException ioe) {
-                log.error("Failed to enable GAASimulation:", ioe);
-                botSettings.setAutoReply(false);
-            }
-        }
-
-        /* Read saved reminders and re-schedule them */
-        List<Reminder> reminders = bot.getReminderService().getAllReminders();
-        if (reminders != null && !reminders.isEmpty()) {
-            for (Reminder reminder : reminders) {
-                boolean scheduled = bot.getReminderService().scheduleReminder(reminder);
-                if (!scheduled) {
-                    reminder.setDateOfReminder(new Date(System.currentTimeMillis() + (60 * 1000)));
-                    bot.getReminderService().scheduleReminder(reminder);
-                }
-            }
-        }
-
-        /* Initiate RSS feed reader */
-        if (botSettings.shouldSendNews()) {
-            bot.getRssService().start();
-        }
-
-        /* Initiate memes fetcher*/
-        if (botSettings.shouldSendNews()) {
-            bot.getMemeService().start();
+        if (settings.get().isAutoTextBackup() && settings.get().isDockerRunning()) {
+            autoTextBackupDaemon.start();
         }
     }
 
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
-        bot.getNowPlayingHandler().onMessageDelete(event.getGuild(), event.getMessageIdLong());
+        nowPlayingHandler.onMessageDelete(event.getGuild(), event.getMessageIdLong());
 
-        if (bot.getBotSettings().shouldLogGuildChanges()) {
-            bot.getGuildLoggerService().onMessageDelete(event);
+        if (settings.get().isLogGuildChanges()) {
+            guildLoggerService.onMessageDelete(event);
         }
     }
 
@@ -175,8 +233,8 @@ class Listener extends ListenerAdapter {
             return;
         }
 
-        if (bot.getBotSettings().shouldLogGuildChanges()) {
-            bot.getGuildLoggerService().onMessageUpdate(event);
+        if (settings.get().isLogGuildChanges()) {
+            guildLoggerService.onMessageUpdate(event);
         }
     }
 
@@ -188,29 +246,29 @@ class Listener extends ListenerAdapter {
             return;
         }
 
-        if (bot.getBotSettings().shouldAutoReply()) {
-            bot.getAutoReplyManager().reply(message);
+        if (settings.get().isAutoReply()) {
+            autoReplyManager.reply(message);
         }
 
-        if (bot.getBotSettings().shouldLogGuildChanges()) {
-            bot.getMessageCache().putMessage(message);
+        if (settings.get().isLogGuildChanges()) {
+            messageCache.putMessage(message);
         }
     }
 
     @Override
     public void onUserUpdateAvatar(UserUpdateAvatarEvent event) {
-        if (!event.getUser().isBot() && bot.getBotSettings().shouldLogGuildChanges()) {
-            bot.getGuildLoggerService().onAvatarUpdate(event);
+        if (!event.getUser().isBot() && settings.get().isLogGuildChanges()) {
+            guildLoggerService.onAvatarUpdate(event);
         }
     }
 
     @Override
     public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
-        bot.getAloneInVoiceHandler().onVoiceUpdate(event);
+        aloneInVoiceHandler.onVoiceUpdate(event);
     }
 
     @Override
     public void onShutdown(@NotNull ShutdownEvent event) {
-        bot.shutdown();
+        shutdownHandler.shutdown();
     }
 }

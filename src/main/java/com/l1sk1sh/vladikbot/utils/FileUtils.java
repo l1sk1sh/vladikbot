@@ -1,12 +1,14 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.settings.Const;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 
@@ -61,11 +63,11 @@ public final class FileUtils {
         return new String(encoded, encoding);
     }
 
-    public static void writeGson(Object object, File configFile) throws IOException {
+    public static void writeJson(Object object, File configFile, Gson gson) throws IOException {
         JsonWriter writer = new JsonWriter(new FileWriter(configFile));
         writer.setIndent("  ");
         writer.setHtmlSafe(false);
-        Bot.gson.toJson(object, object.getClass(), writer);
+        gson.toJson(object, object.getClass(), writer);
         writer.close();
     }
 }

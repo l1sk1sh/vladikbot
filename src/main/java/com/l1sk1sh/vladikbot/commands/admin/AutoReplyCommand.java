@@ -1,29 +1,37 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.entities.ReplyRule;
+import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class AutoReplyCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(AutoReplyCommand.class);
 
-    private final Bot bot;
+    private final BotSettingsManager settings;
+    private final AutoReplyManager autoReplyManager;
 
-    public AutoReplyCommand(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public AutoReplyCommand(BotSettingsManager settings, AutoReplyManager autoReplyManager) {
+        this.settings = settings;
+        this.autoReplyManager = autoReplyManager;
         this.name = "reply";
         this.help = "auto reply management";
         this.arguments = "<add|list|switch|delete|match>";
@@ -44,7 +52,7 @@ public class AutoReplyCommand extends AdminCommand {
     }
 
     private final class CreateCommand extends AdminCommand {
-        CreateCommand() {
+        private CreateCommand() {
             this.name = "make";
             this.aliases = new String[]{"create", "add"};
             this.help = "makes a new reply rule (';' - used as separator)\r\n" +
@@ -55,65 +63,60 @@ public class AutoReplyCommand extends AdminCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            try {
-                if (!Pattern.compile("^(\\{(.*?)})\\s(\\{(.*?)})$").matcher(event.getArgs()).matches()) {
-                    event.replyWarning(String.format("Input arguments `[%1$s]` " +
-                            "do not match pattern `{react to this; or to this}` `{react with this; or this}`", event.getArgs()));
+            if (!Pattern.compile("^(\\{(.*?)})\\s(\\{(.*?)})$").matcher(event.getArgs()).matches()) {
+                event.replyWarning(String.format("Input arguments `[%1$s]` " +
+                        "do not match pattern `{react to this; or to this}` `{react with this; or this}`", event.getArgs()));
+                return;
+            }
+
+            List<String> reactTo = new ArrayList<>();
+            List<String> reactWith = new ArrayList<>();
+
+            Matcher matcher = Pattern.compile("\\{(.*?)}").matcher(event.getArgs());
+            int count = 0;
+            while (matcher.find()) {
+                count++;
+                String[] array = matcher.group().split(";");
+                for (int i = 0; i < array.length; i++) {
+                    array[i] = array[i].trim().replaceAll("[{}]", "").replaceAll("[\"]", "");
+                }
+
+                if (count == 1) {
+                    Collections.addAll(reactTo, array);
+                }
+
+                if (count == 2) {
+                    Collections.addAll(reactWith, array);
+                }
+            }
+
+            for (String replyTo : reactTo) {
+                if (replyTo.isEmpty()) {
+                    event.replyError("Do not use empty words for the rule!");
                     return;
                 }
-
-                List<String> reactTo = new ArrayList<>();
-                List<String> reactWith = new ArrayList<>();
-
-                Matcher matcher = Pattern.compile("\\{(.*?)}").matcher(event.getArgs());
-                int count = 0;
-                while (matcher.find()) {
-                    count++;
-                    String[] array = matcher.group().split(";");
-                    for (int i = 0; i < array.length; i++) {
-                        array[i] = array[i].trim().replaceAll("[{}]", "").replaceAll("[\"]", "");
-                    }
-
-                    if (count == 1) {
-                        Collections.addAll(reactTo, array);
-                    }
-
-                    if (count == 2) {
-                        Collections.addAll(reactWith, array);
-                    }
-                }
-
-                for (String replyTo : reactTo) {
-                    if (replyTo.isEmpty()) {
-                        event.replyError("Do not use empty words for the rule!");
-                        return;
-                    }
-                }
-
-                for (String replyWith : reactWith) {
-                    if (replyWith.isEmpty()) {
-                        event.replyError("Do not use empty words for the rule!");
-                        return;
-                    } else if (replyWith.length() < AutoReplyManager.MIN_REPLY_TO_LENGTH) {
-                        event.replyError("Trigger words must be more or equal 3 symbols!");
-                        return;
-                    }
-                }
-
-                ReplyRule rule = new ReplyRule(reactTo, reactWith);
-                bot.getAutoReplyManager().writeRule(rule);
-                log.info("Added new reply rule: {}.", rule.toString());
-                event.replySuccess(String.format("Reply rule was added: `[%1$s]`", rule.toString()));
-            } catch (IOException ioe) {
-                log.error("IO error during addition of new reply rule execution:", ioe);
-                event.replyError(String.format("Failed to write new reply rule! `[%1$s]`", ioe.getLocalizedMessage()));
             }
+
+            for (String replyWith : reactWith) {
+                if (replyWith.isEmpty()) {
+                    event.replyError("Do not use empty words for the rule!");
+                    return;
+                } else if (replyWith.length() < AutoReplyManager.MIN_REPLY_TO_LENGTH) {
+                    event.replyError("Trigger words must be more or equal 3 symbols!");
+                    return;
+                }
+            }
+
+            ReplyRule rule = new ReplyRule(reactTo, reactWith);
+            autoReplyManager.writeRule(rule);
+            log.info("Added new reply rule: {}.", rule.toString());
+            event.replySuccess(String.format("Reply rule was added: `[%1$s]`", rule.toString()));
         }
 
     }
 
     private final class ReadCommand extends AdminCommand {
-        ReadCommand() {
+        private ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list"};
             this.help = "lists all available rules";
@@ -124,30 +127,25 @@ public class AutoReplyCommand extends AdminCommand {
         protected void execute(CommandEvent event) {
             int MAX_LIST_SIZE_TO_SHOW = 70;
 
-            try {
-                List<ReplyRule> list = bot.getAutoReplyManager().getAllRules();
+            List<ReplyRule> list = autoReplyManager.getAllRules();
 
-                if (list == null) {
-                    event.replyError("Failed to load available rules!");
-                } else if (list.isEmpty()) {
-                    event.replyWarning("There are no rules at the moment! Add new rules with `add` command.");
-                } else if (list.size() > MAX_LIST_SIZE_TO_SHOW) {
-                    event.replyWarning("Current reply dictionary is too huge to be listed. Contact owner for more details.");
-                } else {
-                    String message = event.getClient().getSuccess() + " Acting rules:\r\n";
-                    StringBuilder builder = new StringBuilder(message);
-                    list.forEach(str -> builder.append("`").append(str).append("`").append("\r\n"));
-                    event.reply(builder.toString());
-                }
-            } catch (IOException ioe) {
-                log.error("IO error during reading of existing reply rules execution:", ioe);
-                event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
+            if (list == null) {
+                event.replyError("Failed to load available rules!");
+            } else if (list.isEmpty()) {
+                event.replyWarning("There are no rules at the moment! Add new rules with `add` command.");
+            } else if (list.size() > MAX_LIST_SIZE_TO_SHOW) {
+                event.replyWarning("Current reply dictionary is too huge to be listed. Contact owner for more details.");
+            } else {
+                String message = event.getClient().getSuccess() + " Acting rules:\r\n";
+                StringBuilder builder = new StringBuilder(message);
+                list.forEach(str -> builder.append("`").append(str).append("`").append("\r\n"));
+                event.reply(builder.toString());
             }
         }
     }
 
     private final class DeleteCommand extends AdminCommand {
-        DeleteCommand() {
+        private DeleteCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};
             this.help = "deletes an existing rule";
@@ -158,23 +156,20 @@ public class AutoReplyCommand extends AdminCommand {
         @Override
         protected void execute(CommandEvent event) {
             int id = Integer.parseInt(event.getArgs().replaceAll("\\s+", "_"));
-            if (bot.getAutoReplyManager().getRuleById(id) == null) {
+            ReplyRule rule = autoReplyManager.getRuleById(id);
+
+            if (rule == null) {
                 event.replyError(String.format("Rule `%1$s` doesn't exist!", id));
             } else {
-                try {
-                    bot.getAutoReplyManager().deleteRule(id);
-                    log.info("Deleted rule {} by {}[{}].", id, event.getAuthor().getName(), event.getAuthor().getId());
-                    event.replySuccess(String.format("Successfully deleted rule `%1$s`!", id));
-                } catch (IOException e) {
-                    log.error("Failed to delete moderation rule by id '{}'.", id, e);
-                    event.replyError(String.format("Unable to delete the rule: `[%1$s]`!", e.getLocalizedMessage()));
-                }
+                autoReplyManager.deleteRule(rule);
+                log.info("Deleted rule {} by {}.", id, FormatUtils.formatAuthor(event));
+                event.replySuccess(String.format("Successfully deleted rule `%1$s`!", id));
             }
         }
     }
 
     private final class SwitchCommand extends AdminCommand {
-        SwitchCommand() {
+        private SwitchCommand() {
             this.name = "switch";
             this.aliases = new String[]{"change"};
             this.help = "enables or disables automatic moderation";
@@ -194,13 +189,13 @@ public class AutoReplyCommand extends AdminCommand {
                 switch (arg) {
                     case "on":
                     case "enable":
-                        bot.getBotSettings().setAutoReply(true);
+                        settings.get().setAutoReply(true);
                         log.info("Auto Reply was enabled by '{}'.", event.getAuthor().getName());
                         event.replySuccess("Auto Reply is now enabled!");
                         break;
                     case "off":
                     case "disable":
-                        bot.getBotSettings().setAutoReply(false);
+                        settings.get().setAutoReply(false);
                         log.info("Auto Reply was disabled by '{}'.", event.getAuthor().getName());
                         event.replySuccess("Auto Reply is now disabled!");
                         break;
@@ -210,7 +205,7 @@ public class AutoReplyCommand extends AdminCommand {
     }
 
     private final class MatchCommand extends AdminCommand {
-        MatchCommand() {
+        private MatchCommand() {
             this.name = "match";
             this.help = "either bot uses full message comparison of word by word";
             this.arguments = "<full|inline>";
@@ -228,12 +223,12 @@ public class AutoReplyCommand extends AdminCommand {
             for (String arg : args) {
                 switch (arg) {
                     case "full":
-                        bot.getBotSettings().setMatchingStrategy(Const.MatchingStrategy.full);
+                        settings.get().setMatchingStrategy(Const.MatchingStrategy.full);
                         log.info("Matching strategy is set to 'full' by '{}'.", event.getAuthor().getName());
                         event.replySuccess("Whole phrase will be used for reply from now!");
                         break;
                     case "inline":
-                        bot.getBotSettings().setMatchingStrategy(Const.MatchingStrategy.inline);
+                        settings.get().setMatchingStrategy(Const.MatchingStrategy.inline);
                         log.info("Matching strategy is set to 'inline' by '{}'.", event.getAuthor().getName());
                         event.replySuccess("Every word will be used for reply!");
                         break;
@@ -243,7 +238,7 @@ public class AutoReplyCommand extends AdminCommand {
     }
 
     private final class ChanceCommand extends AdminCommand {
-        ChanceCommand() {
+        private ChanceCommand() {
             this.name = "chance";
             this.help = "chance that bot will reply to your message. 1.0 - always replies, 0.0 - never replies";
             this.arguments = "<0.0 - 1.0>";
@@ -265,7 +260,7 @@ public class AutoReplyCommand extends AdminCommand {
                 if (replyChance < 0.0 || replyChance > 1.0) {
                     event.replyWarning(String.format("Reply chance should be in range [0.0 - 1.0]. `%1$s` given", replyChance));
                 }
-                bot.getBotSettings().setReplyChange(replyChance);
+                settings.get().setReplyChance(replyChance);
                 event.replySuccess(String.format("Reply chance is now %1$s%%", replyChance * 100));
             } catch (NumberFormatException nfe) {
                 event.replyError(String.format("Invalid number specified `[%1$s]`", lastArgument));

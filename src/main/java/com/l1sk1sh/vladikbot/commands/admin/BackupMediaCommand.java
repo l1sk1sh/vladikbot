@@ -1,31 +1,43 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.backup.BackupMediaService;
 import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
+import com.l1sk1sh.vladikbot.services.backup.DockerService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class BackupMediaCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(BackupMediaCommand.class);
-    private final Bot bot;
+
+    private final ScheduledExecutorService backupThreadPool;
+    private final BotSettingsManager settings;
+    private final DockerService dockerService;
     private String beforeDate;
     private String afterDate;
     private boolean useExistingBackup;
 
-    public BackupMediaCommand(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public BackupMediaCommand(@Qualifier("backupThreadPool") ScheduledExecutorService backupThreadPool, BotSettingsManager settings, DockerService dockerService) {
+        this.backupThreadPool = backupThreadPool;
+        this.settings = settings;
+        this.dockerService = dockerService;
         this.name = "savemedia";
         this.help = "exports all attachments of the current channel\r\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which export would be done\r\n"
@@ -39,11 +51,11 @@ public class BackupMediaCommand extends AdminCommand {
 
     @Override
     public void execute(CommandEvent event) {
-        if (!bot.isDockerRunning()) {
+        if (!settings.get().isDockerRunning()) {
             return;
         }
 
-        if (bot.isLockedBackup()) {
+        if (settings.get().isLockedBackup()) {
             event.replyWarning("Can't backup media - another backup is in progress!");
             return;
         }
@@ -54,16 +66,17 @@ public class BackupMediaCommand extends AdminCommand {
         }
 
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
-                bot,
+                settings,
+                dockerService,
                 event.getChannel().getId(),
                 Const.BackupFileType.HTML_DARK,
-                bot.getBotSettings().getLocalTmpFolder(),
+                settings.get().getLocalTmpFolder(),
                 beforeDate,
                 afterDate,
                 useExistingBackup
         );
 
-        bot.getBackupThreadPool().execute(() -> {
+        backupThreadPool.execute(() -> {
 
             /* Creating new thread from text backup service and waiting for it to finish */
             Thread backupTextChannelServiceThread = new Thread(backupTextChannelService);
@@ -86,10 +99,10 @@ public class BackupMediaCommand extends AdminCommand {
             File exportedTextFile = backupTextChannelService.getBackupFile();
 
             BackupMediaService backupMediaService = new BackupMediaService(
-                    bot,
+                    settings,
                     event.getChannel().getId(),
                     exportedTextFile,
-                    bot.getBotSettings().getLocalTmpFolder(),
+                    settings.get().getLocalTmpFolder(),
                     event.getArgs().split(" ")
             );
 

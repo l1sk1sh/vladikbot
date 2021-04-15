@@ -1,23 +1,35 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class RemoveCommand extends MusicCommand {
-    public RemoveCommand(Bot bot) {
-        super(bot);
+
+    private final GuildSettingsRepository guildSettingsRepository;
+
+    @Autowired
+    public RemoveCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
+        this.guildSettingsRepository = guildSettingsRepository;
         this.name = "remove";
         this.aliases = new String[]{"delete"};
         this.help = "removes a song from the queue";
@@ -59,7 +71,8 @@ public class RemoveCommand extends MusicCommand {
 
         boolean isDJ = event.getMember().hasPermission(Permission.MANAGE_SERVER);
         if (!isDJ) {
-            isDJ = event.getMember().getRoles().contains(bot.getGuildSettings(event.getGuild()).getDjRole(event.getGuild()));
+            Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(event.getGuild().getIdLong());
+            isDJ = event.getMember().getRoles().contains(guildSettings.map(settings -> settings.getDjRole(event.getGuild())).orElse(null));
         }
 
         QueuedTrack queuedTrack = audioHandler.getQueue().get(pos - 1);

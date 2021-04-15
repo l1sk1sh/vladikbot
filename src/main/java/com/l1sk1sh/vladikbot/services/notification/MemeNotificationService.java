@@ -1,23 +1,34 @@
 package com.l1sk1sh.vladikbot.services.notification;
 
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.domain.Meme;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.network.dto.Meme;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.awt.*;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class MemeNotificationService {
-    private final Bot bot;
-    private TextChannel newsChannel;
 
-    public MemeNotificationService(Bot bot) {
-        this.bot = bot;
+    private final JDA jda;
+    private final BotSettingsManager settings;
+    private final GuildSettingsRepository guildSettingsRepository;
+    private TextChannel memeChannel;
+
+    @Autowired
+    public MemeNotificationService(JDA jda, BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
+        this.jda = jda;
+        this.settings = settings;
+        this.guildSettingsRepository = guildSettingsRepository;
     }
 
     public final void sendNewsArticle(Guild guild, Meme meme) {
@@ -35,7 +46,7 @@ public class MemeNotificationService {
                         "https://www.redditstatic.com/icon.png"
                 );
 
-        this.newsChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+        this.memeChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
     }
 
     private boolean isMemeChannelMissing(Guild guild) {
@@ -43,15 +54,17 @@ public class MemeNotificationService {
 
         /* In case this guild doesn't have news channel, sending notification to maintainer */
         if (memeGuild == null) {
-            memeGuild = bot.getJDA().getGuildById(bot.getBotSettings().getMaintainerGuildId());
+            memeGuild = jda.getGuildById(settings.get().getMaintainerGuildId());
         }
 
         if (memeGuild == null) {
             return true;
         }
 
-        this.newsChannel = bot.getGuildSettings(memeGuild).getMemesChannel(memeGuild);
+        Guild finalMemeGuild = memeGuild;
+        guildSettingsRepository.findById(memeGuild.getIdLong()).ifPresent(
+                settings -> this.memeChannel = settings.getMemesChannel(finalMemeGuild));
 
-        return (this.newsChannel == null);
+        return (this.memeChannel == null);
     }
 }

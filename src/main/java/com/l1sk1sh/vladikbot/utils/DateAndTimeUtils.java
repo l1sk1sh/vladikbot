@@ -8,7 +8,6 @@ import java.util.Date;
  * @author Oliver Johnson
  */
 public final class DateAndTimeUtils {
-
     private DateAndTimeUtils() {}
 
     public static int getDifferenceInDaysBetweenUnixTimestamps(long beforeTimestamp, long afterTimestamp) {

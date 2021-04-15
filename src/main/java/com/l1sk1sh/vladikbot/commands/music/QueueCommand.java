@@ -1,16 +1,22 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
@@ -19,14 +25,23 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class QueueCommand extends MusicCommand {
     private final Paginator.Builder builder;
 
-    public QueueCommand(Bot bot) {
-        super(bot);
+    private final BotSettingsManager settings;
+    private final NowPlayingHandler nowPlayingHandler;
+
+    @Autowired
+    public QueueCommand(EventWaiter eventWaiter, GuildSettingsRepository guildSettingsRepository,
+                        PlayerManager playerManager, BotSettingsManager settings, NowPlayingHandler nowPlayingHandler) {
+        super(guildSettingsRepository, playerManager);
+        this.settings = settings;
+        this.nowPlayingHandler = nowPlayingHandler;
         this.name = "queue";
         this.aliases = new String[]{"list"};
         this.help = "shows the current queue";
@@ -38,7 +53,7 @@ public class QueueCommand extends MusicCommand {
                 .setFinalAction(m -> {
                     try {
                         m.clearReactions().queue();
-                    } catch (PermissionException ignore) {
+                    } catch (PermissionException ignored) {
                     }
                 })
                 .setItemsPerPage(10)
@@ -46,7 +61,7 @@ public class QueueCommand extends MusicCommand {
                 .useNumberedItems(true)
                 .showPageNumbers(true)
                 .wrapPageEnds(true)
-                .setEventWaiter(bot.getWaiter())
+                .setEventWaiter(eventWaiter)
                 .setTimeout(1, TimeUnit.MINUTES);
     }
 
@@ -55,7 +70,7 @@ public class QueueCommand extends MusicCommand {
         int pagenum = 1;
         try {
             pagenum = Integer.parseInt(event.getArgs());
-        } catch (NumberFormatException ignore) {
+        } catch (NumberFormatException ignored) {
         }
 
         AudioHandler ah = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
@@ -69,7 +84,7 @@ public class QueueCommand extends MusicCommand {
             event.reply(built, m ->
             {
                 if (nowp != null)
-                    bot.getNowPlayingHandler().setLastNPMessage(m);
+                    nowPlayingHandler.setLastNPMessage(m);
             });
             return;
         }
@@ -83,7 +98,7 @@ public class QueueCommand extends MusicCommand {
 
         long fintotal = total;
         builder.setText((i1, i2) -> getQueueTitle(ah, event.getClient().getSuccess(), songs.length, fintotal,
-                bot.getBotSettings().shouldRepeat()))
+                settings.get().isRepeat()))
                 .setItems(songs)
                 .setUsers(event.getAuthor())
                 .setColor(event.getSelfMember().getColor())

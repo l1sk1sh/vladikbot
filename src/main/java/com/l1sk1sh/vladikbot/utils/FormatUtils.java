@@ -1,17 +1,20 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.logging.MessageCache;
 import com.l1sk1sh.vladikbot.settings.Const;
 import net.dv8tion.jda.api.entities.*;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
  * @author John Grosh
  */
 public final class FormatUtils {
@@ -133,6 +136,13 @@ public final class FormatUtils {
         return formatter.format(date);
     }
 
+    public static String getNormalizedCurrentDate() {
+        Date date = Calendar.getInstance().getTime();
+        DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy");
+
+        return dateFormat.format(date);
+    }
+
     public static String filterEveryone(String input) {
         return input.replace("\u202E", "") // RTL override
                 .replace("@everyone", "@\u0435veryone") // cyrillic e
@@ -162,5 +172,9 @@ public final class FormatUtils {
 
     public static String formatFullUser(User user) {
         return filterEveryone("**" + user.getName() + "**#" + user.getDiscriminator() + " (ID:" + user.getId() + ")");
+    }
+
+    public static String formatAuthor(CommandEvent event) {
+        return String.format("{%1$s}:[{%2$s}]", event.getAuthor().getName(), event.getAuthor().getId());
     }
 }

@@ -2,29 +2,35 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.entities.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class SetDjCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(SetDjCommand.class);
-    private final Bot bot;
 
-    public SetDjCommand(Bot bot) {
+    private final GuildSettingsRepository guildSettingsRepository;
+
+    @Autowired
+    public SetDjCommand(GuildSettingsRepository guildSettingsRepository) {
+        this.guildSettingsRepository = guildSettingsRepository;
         this.name = "setdj";
         this.help = "sets the DJ role for certain music commands";
         this.arguments = "<rolename|none>";
-        this.bot = bot;
     }
 
     @Override
@@ -35,8 +41,12 @@ public class SetDjCommand extends AdminCommand {
         }
 
         if (event.getArgs().equalsIgnoreCase("none")) {
-            bot.getGuildSettings(event.getGuild()).setDjRoleId(null);
-            event.replySuccess("DJ role cleared.");
+            guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(setting -> {
+                setting.setDjRoleId(0L);
+                guildSettingsRepository.save(setting);
+                log.info("DJ role cleared. Cleared by {}.", FormatUtils.formatAuthor(event));
+                event.replySuccess("DJ role cleared.");
+            });
         } else {
             List<Role> list = FinderUtil.findRoles(event.getArgs(), event.getGuild());
             if (list.isEmpty()) {
@@ -44,10 +54,13 @@ public class SetDjCommand extends AdminCommand {
             } else if (list.size() > 1) {
                 event.replyWarning(FormatUtils.listOfRoles(list, event.getArgs()));
             } else {
-                bot.getGuildSettings(event.getGuild()).setDjRoleId(list.get(0));
-                log.info("DJ role now available for {}. Set by {}:[{}].", list.get(0).getName(), event.getAuthor().getName(), event.getAuthor().getId());
-                event.replySuccess(String.format("DJ commands can now be used by users with the **%1$s** role.",
-                        list.get(0).getName()));
+                guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(setting -> {
+                    setting.setDjRoleId(list.get(0).getIdLong());
+                    guildSettingsRepository.save(setting);
+                    log.info("DJ role now available for {}. Set by {}.", list.get(0).getName(), FormatUtils.formatAuthor(event));
+                    event.replySuccess(String.format("DJ commands can now be used by users with the **%1$s** role.",
+                            list.get(0).getName()));
+                });
             }
         }
     }

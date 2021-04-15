@@ -1,33 +1,48 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
  * - Null safety
+ * - DI Spring
  * @author Michaili K
  */
+@Service
 public class AloneInVoiceHandler {
-    private final Bot bot;
+    private final JDA jda;
+    private final ScheduledExecutorService backgroundThreadPool;
+    private final BotSettingsManager settings;
+    private final PlayerManager playerManager;
     private final HashMap<Long, Instant> aloneSince = new HashMap<>();
     private long aloneTimeUntilStop = 0;
 
-    public AloneInVoiceHandler(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public AloneInVoiceHandler(JDA jda, @Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
+                               BotSettingsManager settings, PlayerManager playerManager) {
+        this.jda = jda;
+        this.backgroundThreadPool = backgroundThreadPool;
+        this.settings = settings;
+        this.playerManager = playerManager;
     }
 
     public void init() {
-        aloneTimeUntilStop = bot.getBotSettings().getAloneTimeUntilStop();
+        aloneTimeUntilStop = settings.get().getAloneTimeUntilStop();
         if (aloneTimeUntilStop > 0) {
-            bot.getBackgroundThreadPool().scheduleWithFixedDelay(this::check, 0, 5, TimeUnit.SECONDS);
+            backgroundThreadPool.scheduleWithFixedDelay(this::check, 0, 5, TimeUnit.SECONDS);
         }
     }
 
@@ -38,7 +53,7 @@ public class AloneInVoiceHandler {
                 continue;
             }
 
-            Guild guild = bot.getJDA().getGuildById(entrySet.getKey());
+            Guild guild = jda.getGuildById(entrySet.getKey());
 
             if (guild == null) {
                 toRemove.add(entrySet.getKey());
@@ -58,7 +73,7 @@ public class AloneInVoiceHandler {
         }
 
         Guild guild = event.getEntity().getGuild();
-        if (!bot.getPlayerManager().hasHandler(guild)) {
+        if (!playerManager.hasHandler(guild)) {
             return;
         }
 

@@ -1,19 +1,25 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.OnlineStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class SetStatusCommand extends OwnerCommand {
     private static final Logger log = LoggerFactory.getLogger(SetStatusCommand.class);
 
+    @Autowired
     public SetStatusCommand() {
         this.name = "setstatus";
         this.help = "sets the status the bot displays";
@@ -30,7 +36,7 @@ public class SetStatusCommand extends OwnerCommand {
             } else {
                 event.getJDA().getPresence().setStatus(status);
                 event.replySuccess(String.format("Set the status to `%1$s`", status.getKey().toUpperCase()));
-                log.info("Status of bot was changed to {} by {}:[{}]", status.getKey().toUpperCase(), event.getAuthor().getName(), event.getAuthor().getId());
+                log.info("Status of bot was changed to {} by {}", status.getKey().toUpperCase(), FormatUtils.formatAuthor(event));
             }
         } catch (Exception e) {
             event.replyError("The status could not be set!");

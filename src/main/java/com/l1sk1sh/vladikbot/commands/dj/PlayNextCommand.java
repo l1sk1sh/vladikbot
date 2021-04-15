@@ -1,9 +1,11 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -11,18 +13,27 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.entities.Message;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class PlayNextCommand extends DJCommand {
-    public PlayNextCommand(Bot bot) {
-        super(bot);
+
+    private final BotSettingsManager settings;
+
+    @Autowired
+    public PlayNextCommand(BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
+        this.settings = settings;
         this.name = "playnext";
         this.help = "plays a single song next";
         this.arguments = "<title|URL>";
@@ -39,8 +50,8 @@ public class PlayNextCommand extends DJCommand {
         String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">")
                 ? event.getArgs().substring(1, event.getArgs().length() - 1)
                 : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getBotSettings().getLoadingEmoji(), args),
-                m -> bot.getPlayerManager().loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
+        event.reply(String.format("%1$s Loading... `[%2$s]`", settings.get().getLoadingEmoji(), args),
+                m -> super.playerManager.loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
     }
 
     private class ResultHandler implements AudioLoadResultHandler {
@@ -55,13 +66,13 @@ public class PlayNextCommand extends DJCommand {
         }
 
         private void loadSingle(AudioTrack track) {
-            if (bot.getBotSettings().isTooLong(track)) {
+            if (settings.get().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
                         FormatUtils.formatTimeTillHours(track.getDuration()),
-                        FormatUtils.formatTimeTillHours(bot.getBotSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }
@@ -106,7 +117,7 @@ public class PlayNextCommand extends DJCommand {
                                 event.getArgs()))
                 ).queue();
             } else {
-                bot.getPlayerManager().loadItemOrdered(event.getGuild(),
+                playerManager.loadItemOrdered(event.getGuild(),
                         Const.YT_SEARCH_PREFIX + event.getArgs(), new ResultHandler(message, event, true));
             }
         }

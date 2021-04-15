@@ -1,21 +1,28 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class SkipCommand extends MusicCommand {
-    public SkipCommand(Bot bot) {
-        super(bot);
+
+    @Autowired
+    public SkipCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
         this.name = "skip";
         this.aliases = new String[]{"voteskip"};
         this.help = "votes to skip the current song";
@@ -35,15 +42,15 @@ public class SkipCommand extends MusicCommand {
                     .filter(member -> !member.getUser().isBot() && !Objects.requireNonNull(member.getVoiceState()).isDeafened()).count();
             String message;
 
-            if (audioHandler.getVotes().contains(event.getAuthor().getId())) {
+            if (audioHandler.getVotes().contains(event.getAuthor().getIdLong())) {
                 message = event.getClient().getWarning() + " You already voted to skip this song `[";
             } else {
                 message = event.getClient().getSuccess() + " You voted to skip the song `[";
-                audioHandler.getVotes().add(event.getAuthor().getId());
+                audioHandler.getVotes().add(event.getAuthor().getIdLong());
             }
 
             int skippers = (int) Objects.requireNonNull(event.getSelfMember().getVoiceState().getChannel()).getMembers().stream()
-                    .filter(m -> audioHandler.getVotes().contains(m.getUser().getId())).count();
+                    .filter(m -> audioHandler.getVotes().contains(m.getUser().getIdLong())).count();
             int required = (int) Math.ceil(listeners * .55);
             message += skippers + " votes, " + required + "/" + listeners + " needed]`";
 

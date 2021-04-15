@@ -1,21 +1,28 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.entities.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class ForceSkipCommand extends DJCommand {
-    public ForceSkipCommand(Bot bot) {
-        super(bot);
+
+    @Autowired
+    public ForceSkipCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
         this.name = "forceskip";
         this.aliases = new String[]{"modskip"};
         this.help = "skips the current song";

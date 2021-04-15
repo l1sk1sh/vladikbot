@@ -1,8 +1,12 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.entities.Pair;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.models.Pair;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
+import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,28 +14,42 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class NowPlayingHandler {
-    private final Bot bot;
+    private final JDA jda;
+    private final ScheduledExecutorService frontThreadPool;
+    private final BotSettingsManager settings;
+    private final GuildSettingsRepository guildSettingsRepository;
     private final Map<Long, Pair<Long, Long>> lastNP; /* guild -> channel, message */
 
-    public NowPlayingHandler(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public NowPlayingHandler(JDA jda, @Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool,
+                             BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
+        this.jda = jda;
+        this.frontThreadPool = frontThreadPool;
+        this.settings = settings;
+        this.guildSettingsRepository = guildSettingsRepository;
         this.lastNP = new HashMap<>();
     }
 
     public void init() {
-        if (!bot.getBotSettings().useNpImages()) {
-            bot.getFrontThreadPool().scheduleWithFixedDelay(this::updateAll, 0, 5, TimeUnit.SECONDS);
+        if (!settings.get().isNpImages()) {
+            frontThreadPool.scheduleWithFixedDelay(this::updateAll, 0, 5, TimeUnit.SECONDS);
         }
     }
 
@@ -50,7 +68,7 @@ public class NowPlayingHandler {
         for (Map.Entry<Long, Pair<Long, Long>> entry : lastNP.entrySet()) {
             long guildId = entry.getKey();
 
-            Guild guild = bot.getJDA().getGuildById(guildId);
+            Guild guild = jda.getGuildById(guildId);
             if (guild == null) {
                 toRemove.add(guildId);
                 continue;
@@ -68,9 +86,9 @@ public class NowPlayingHandler {
                 continue;
             }
 
-            Message message = audioHandler.getNowPlaying(bot.getJDA());
+            Message message = audioHandler.getNowPlaying(jda);
             if (message == null) {
-                message = audioHandler.getNoMusicPlaying(bot.getJDA());
+                message = audioHandler.getNoMusicPlaying(jda);
                 toRemove.add(guildId);
             }
 
@@ -86,12 +104,14 @@ public class NowPlayingHandler {
     }
 
     public void updateTopic(long guildId, AudioHandler audioHandler, boolean wait) {
-        Guild guild = bot.getJDA().getGuildById(guildId);
+        Guild guild = jda.getGuildById(guildId);
         if (guild == null) {
             return;
         }
 
-        TextChannel textChannel = bot.getGuildSettings(guild).getTextChannel(guild);
+        Optional<GuildSettings> settings = guildSettingsRepository.findById(guild.getIdLong());
+        TextChannel textChannel = settings.map(guildSettings -> guildSettings.getTextChannel(guild)).orElse(null);
+
         if (textChannel != null && guild.getSelfMember().hasPermission(textChannel, Permission.MANAGE_CHANNEL)) {
             String otherText;
             String topic = textChannel.getTopic();
@@ -103,17 +123,17 @@ public class NowPlayingHandler {
                 otherText = "\u200B\r\n " + topic;
             }
 
-            String text = audioHandler.getTopicFormat(bot.getJDA()) + otherText;
+            String text = audioHandler.getTopicFormat(jda) + otherText;
             if (!text.equals(topic)) {
                 try {
                     /*
-                    * Normally here if 'wait' was false, we'd want to queue, however,
-                    * new discord ratelimits specifically limiting changing channel topics
-                    * mean we don't want a backlog of changes piling up, so if we hit a
-                    * ratelimit, we just won't change the topic this time
-                    */
+                     * Normally here if 'wait' was false, we'd want to queue, however,
+                     * new discord ratelimits specifically limiting changing channel topics
+                     * mean we don't want a backlog of changes piling up, so if we hit a
+                     * ratelimit, we just won't change the topic this time
+                     */
                     textChannel.getManager().setTopic(text).complete(wait);
-                } catch (PermissionException | RateLimitedException ignore) {
+                } catch (PermissionException | RateLimitedException ignored) {
                 }
             }
         }
@@ -123,13 +143,13 @@ public class NowPlayingHandler {
     void onTrackUpdate(long guildId, AudioTrack track, AudioHandler audioHandler) {
 
         /* Update bot status if applicable */
-        if (bot.getBotSettings().shouldSongBeInStatus()) {
+        if (settings.get().isSongInStatus()) {
 
-            if (track != null && bot.getJDA().getGuilds().stream()
+            if (track != null && jda.getGuilds().stream()
                     .filter(g -> Objects.requireNonNull(g.getSelfMember().getVoiceState()).inVoiceChannel()).count() <= 1) {
-                bot.getJDA().getPresence().setActivity(Activity.listening(track.getInfo().title));
+                jda.getPresence().setActivity(Activity.listening(track.getInfo().title));
             } else {
-                bot.resetGame();
+                BotUtils.resetActivity(settings.get(), jda);
             }
         }
 

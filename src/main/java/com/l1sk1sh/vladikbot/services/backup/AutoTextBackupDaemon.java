@@ -1,34 +1,52 @@
 package com.l1sk1sh.vladikbot.services.backup;
 
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
+import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
+import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class AutoTextBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoTextBackupDaemon.class);
-    private final FixedScheduledExecutor fixedScheduledExecutor;
-    private final Bot bot;
+
     private final static int MAX_AMOUNT_OF_BACKUPS_PER_CHANNEL = 2;
     private final static int MIN_DAY_BEFORE_BACKUP = 1;
 
-    public AutoTextBackupDaemon(Bot bot) {
-        this.bot = bot;
-        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, bot.getBackgroundThreadPool());
+    private final JDA jda;
+    private final BotSettingsManager settings;
+    private final DockerService dockerService;
+    private final ChatNotificationService notificationService;
+    private final FixedScheduledExecutor fixedScheduledExecutor;
+
+    @Autowired
+    public AutoTextBackupDaemon(JDA jda, @Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
+                                BotSettingsManager settings, DockerService dockerService, ChatNotificationService notificationService) {
+        this.jda = jda;
+        this.settings = settings;
+        this.dockerService = dockerService;
+        this.notificationService = notificationService;
+        this.fixedScheduledExecutor = new FixedScheduledExecutor(this, backgroundThreadPool);
     }
 
     @Override
@@ -38,27 +56,27 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
     @Override
     public void execute() {
-        if (!bot.isDockerRunning()) {
+        if (!settings.get().isDockerRunning()) {
             return;
         }
 
-        if (!bot.getBotSettings().shouldAutoTextBackup()) {
+        if (!settings.get().isAutoTextBackup()) {
             return;
         }
 
-        if (bot.isLockedAutoBackup()) {
+        if (settings.get().isLockedAutoBackup()) {
             return;
         }
 
-        if (bot.isLockedBackup()) {
+        if (settings.get().isLockedBackup()) {
             /* pool-4-thread-1 is trying to call "execute" multiple times */
             return;
         }
-        bot.setLockedAutoBackup(true);
+        settings.get().setLockedAutoBackup(true);
 
-        bot.getOfflineStorage().setLastAutoTextBackupTime(System.currentTimeMillis());
+        settings.get().setLastAutoTextBackupTime(System.currentTimeMillis());
 
-        List<TextChannel> availableChannels = bot.getAvailableTextChannels();
+        List<TextChannel> availableChannels = BotUtils.getAvailableTextChannels(jda);
         List<String> failedTextChannels = new ArrayList<>();
 
         log.info("Automatic text backup has started it's execution.");
@@ -67,15 +85,15 @@ public class AutoTextBackupDaemon implements ScheduledTask {
             log.info("Starting auto text backup of channel '{}' at guild '{}'.", channel.getName(), channel.getGuild());
 
             try {
-                String pathToGuildBackup = bot.getBotSettings().getRotationBackupFolder() + "text/"
+                String pathToGuildBackup = settings.get().getRotationBackupFolder() + "text/"
                         + channel.getGuild().getId() + "/";
 
                 FileUtils.createFolderIfAbsent(pathToGuildBackup);
 
                 /* Creating new thread from text backup service and waiting for it to finish */
                 BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
-                        bot,
-                        channel.getId(),
+                        settings,
+                        dockerService, channel.getId(),
                         Const.BackupFileType.PLAIN_TEXT,
                         pathToGuildBackup,
                         null,
@@ -105,17 +123,17 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
             } catch (Exception e) {
                 log.error("Failed to create auto backup:", e);
-                bot.getNotificationService().sendEmbeddedError(channel.getGuild(),
+                notificationService.sendEmbeddedError(channel.getGuild(),
                         String.format("Auto text backup of chat `%1$s` has failed due to: `%2$s`!", channel.getName(), e.getLocalizedMessage()));
                 failedTextChannels.add(channel.getName());
 
             } finally {
-                bot.setLockedAutoBackup(false);
+                settings.get().setLockedAutoBackup(false);
             }
         }
 
         log.info("Automatic text backup has finished it's execution.");
-        bot.getNotificationService().sendEmbeddedInfo(null, String.format("Auto text backup has finished. %1$s",
+        notificationService.sendEmbeddedInfo(null, String.format("Auto text backup has finished. %1$s",
                 (failedTextChannels.isEmpty())
                         ? "All channels were backed up."
                         : "Failed channels: `" + Arrays.toString(failedTextChannels.toArray()) + "`")
@@ -151,21 +169,23 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
     @Override
     public void start() {
-        long lastBackupTime = (bot.getOfflineStorage().getLastAutoTextBackupTime() == 0)
+        log.info("Enabling auto text backup service...");
+
+        long lastBackupTime = (settings.get().getLastAutoTextBackupTime() == 0)
                 ? System.currentTimeMillis()
-                : bot.getOfflineStorage().getLastAutoTextBackupTime();
+                : settings.get().getLastAutoTextBackupTime();
         int differenceInDays = DateAndTimeUtils.getDifferenceInDaysBetweenUnixTimestamps(lastBackupTime, System.currentTimeMillis());
 
-        int dayDelay = (differenceInDays >= bot.getBotSettings().getDelayDaysForAutoTextBackup())
-                ? bot.getBotSettings().getDelayDaysForAutoTextBackup()
+        int dayDelay = (differenceInDays >= settings.get().getDelayDaysForAutoTextBackup())
+                ? settings.get().getDelayDaysForAutoTextBackup()
                 : MIN_DAY_BEFORE_BACKUP;
-        int targetHour = bot.getBotSettings().getTargetHourForAutoTextBackup();
+        int targetHour = settings.get().getTargetHourForAutoTextBackup();
         int targetMin = 0;
         int targetSec = 0;
-        fixedScheduledExecutor.startExecutionAt(dayDelay, bot.getBotSettings().getDelayDaysForAutoTextBackup(), targetHour, targetMin, targetSec);
+        fixedScheduledExecutor.startExecutionAt(dayDelay, settings.get().getDelayDaysForAutoTextBackup(), targetHour, targetMin, targetSec);
         log.info(String.format("Text backup will be performed in %2d days at %02d:%02d:%02d local time. " +
                         "Consequent tasks will be launched with fixed delay in %2d days.",
-                dayDelay, targetHour, targetMin, targetSec, bot.getBotSettings().getDelayDaysForAutoTextBackup()));
+                dayDelay, targetHour, targetMin, targetSec, settings.get().getDelayDaysForAutoTextBackup()));
     }
 
     @Override

@@ -1,19 +1,31 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 /**
  * Command that provides users the ability to move a track in the playlist.
+ *
+ * @author Oliver Johnson
+ * Changes from original source:
+ * - Reformatted code
+ * - DI Spring
+ * @author John Grosh
  */
+@Service
 public class MoveTrackCommand extends DJCommand {
-    public MoveTrackCommand(Bot bot) {
-        super(bot);
+
+    @Autowired
+    public MoveTrackCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
         this.name = "movetrack";
         this.help = "move a track in the current queue to a different position";
         this.arguments = "<from> <to>";

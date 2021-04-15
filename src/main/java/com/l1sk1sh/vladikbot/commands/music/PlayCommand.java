@@ -2,12 +2,16 @@ package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.commands.dj.DJCommand;
+import com.l1sk1sh.vladikbot.data.entity.Playlist;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
@@ -18,6 +22,8 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -25,18 +31,32 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class PlayCommand extends DJCommand {
-    public PlayCommand(Bot bot) {
-        super(bot);
+
+    private final EventWaiter eventWaiter;
+    private final BotSettingsManager settings;
+    private final PlayerManager playerManager;
+    private final PlaylistLoader playlistLoader;
+
+    @Autowired
+    public PlayCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager,
+                       EventWaiter eventWaiter, BotSettingsManager settings, PlaylistLoader playlistLoader) {
+        super(guildSettingsRepository, playerManager);
+        this.eventWaiter = eventWaiter;
+        this.settings = settings;
+        this.playerManager = playerManager;
+        this.playlistLoader = playlistLoader;
         this.name = "play";
         this.help = "plays the provided song";
         this.arguments = "<title|URL|sub command>";
         this.beListening = true;
         this.bePlaying = false;
-        this.children = new Command[]{new PlaylistCommand(bot)};
+        this.children = new Command[]{new PlaylistCommand(guildSettingsRepository, playerManager)};
     }
 
     @Override
@@ -73,8 +93,8 @@ public class PlayCommand extends DJCommand {
                 : ((event.getArgs().isEmpty())
                 ? event.getMessage().getAttachments().get(0).getUrl()
                 : event.getArgs());
-        event.reply(String.format("%1$s Loading... `[%2$s]`", bot.getBotSettings().getLoadingEmoji(), args),
-                m -> bot.getPlayerManager().loadItemOrdered(
+        event.reply(String.format("%1$s Loading... `[%2$s]`", settings.get().getLoadingEmoji(), args),
+                m -> playerManager.loadItemOrdered(
                         event.getGuild(), args, new ResultHandler(m, event, false)
                 )
         );
@@ -92,13 +112,13 @@ public class PlayCommand extends DJCommand {
         }
 
         private void loadSingle(AudioTrack track, AudioPlaylist playlist) {
-            if (bot.getBotSettings().isTooLong(track)) {
+            if (settings.get().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                         event.getClient().getWarning(),
                         track.getInfo().title,
                         FormatUtils.formatTimeTillHours(track.getDuration()),
-                        FormatUtils.formatTimeTillHours(bot.getBotSettings().getMaxSeconds() * 1000)))
+                        FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)))
                 ).queue();
                 return;
             }
@@ -123,7 +143,7 @@ public class PlayCommand extends DJCommand {
                         playlist.getTracks().size(),
                         Const.LOAD_EMOJI))
                         .setChoices(Const.LOAD_EMOJI, Const.CANCEL_EMOJI)
-                        .setEventWaiter(bot.getWaiter())
+                        .setEventWaiter(eventWaiter)
                         .setTimeout(30, TimeUnit.SECONDS)
                         .setAction(re ->
                         {
@@ -138,7 +158,7 @@ public class PlayCommand extends DJCommand {
                 {
                     try {
                         m.clearReactions().queue();
-                    } catch (PermissionException ignore) {
+                    } catch (PermissionException ignored) {
                     }
                 }).build().display(message);
             }
@@ -147,7 +167,7 @@ public class PlayCommand extends DJCommand {
         private int loadPlaylist(AudioPlaylist playlist, AudioTrack exclude) {
             int[] count = {0};
             playlist.getTracks().forEach((track) -> {
-                if (!bot.getBotSettings().isTooLong(track) && !track.equals(exclude)) {
+                if (!settings.get().isTooLong(track) && !track.equals(exclude)) {
                     AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                     Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getAuthor()));
                     count[0]++;
@@ -178,7 +198,7 @@ public class PlayCommand extends DJCommand {
                             "%1$s All entries in this playlist %2$s were longer than the allowed maximum (`%3$s`).",
                             event.getClient().getWarning(),
                             ((playlist.getName() == null) ? "" : "(**" + playlist.getName() + "**)"),
-                            bot.getBotSettings().getMaxTime()))).queue();
+                            settings.get().getMaxTime()))).queue();
                 } else {
                     message.editMessage(FormatUtils.filter(String.format(
                             "%1$s Found %2$s with `%3$s` entries; added to the queue! %4$s",
@@ -188,7 +208,7 @@ public class PlayCommand extends DJCommand {
                             ((count < playlist.getTracks().size())
                                     ? String.format("\r\n%1$s Tracks longer than the allowed maximum (`%2$s`) have been omitted.",
                                     event.getClient().getWarning(),
-                                    bot.getBotSettings().getMaxTime())
+                                    settings.get().getMaxTime())
                                     : "")))
                     ).queue();
                 }
@@ -201,7 +221,7 @@ public class PlayCommand extends DJCommand {
                 message.editMessage(FormatUtils.filter(String.format("%1$s  No results found for `%2$s`.",
                         event.getClient().getWarning(), event.getArgs()))).queue();
             } else {
-                bot.getPlayerManager().loadItemOrdered(event.getGuild(), Const.YT_SEARCH_PREFIX
+                playerManager.loadItemOrdered(event.getGuild(), Const.YT_SEARCH_PREFIX
                         + event.getArgs(), new ResultHandler(message, event, true));
             }
         }
@@ -217,9 +237,9 @@ public class PlayCommand extends DJCommand {
         }
     }
 
-    protected static class PlaylistCommand extends MusicCommand {
-        PlaylistCommand(Bot bot) {
-            super(bot);
+    private class PlaylistCommand extends MusicCommand {
+        private PlaylistCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+            super(guildSettingsRepository, playerManager);
             this.name = "playlist";
             this.aliases = new String[]{"pl"};
             this.arguments = "<name>";
@@ -235,7 +255,7 @@ public class PlayCommand extends DJCommand {
                 return;
             }
 
-            PlaylistLoader.Playlist playlist = bot.getPlaylistLoader().getPlaylist(event.getArgs());
+            Playlist playlist = playlistLoader.getPlaylist(event.getArgs());
             if (playlist == null) {
                 event.replyError(String.format("I could not find `%1$s` in the Playlists folder.", event.getArgs()));
                 return;
@@ -246,15 +266,17 @@ public class PlayCommand extends DJCommand {
             }
 
             event.getChannel().sendMessage(String.format("%1$s Loading playlist... **%2$s**... (%3$s items).",
-                    bot.getBotSettings().getLoadingEmoji(),
+                    settings.get().getLoadingEmoji(),
                     event.getArgs(),
                     playlist.getItems().size())).queue(m ->
             {
                 AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-                playlist.loadTracks(bot.getPlayerManager(),
-                        (audioTrack) -> Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(audioTrack, event.getAuthor())), () ->
-                        {
 
+                playlistLoader.loadTracksIntoPlaylist(
+                        playlist,
+                        playerManager,
+                        (audioTrack) -> Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(audioTrack, event.getAuthor())),
+                        () -> {
                             String errorMessage = event.getClient().getWarning() + " No tracks were loaded!";
                             String successMessage = event.getClient().getSuccess()
                                     + " Loaded **" + playlist.getTracks().size() + "** tracks!";
@@ -267,7 +289,7 @@ public class PlayCommand extends DJCommand {
                             }
 
                             playlist.getErrors().forEach(
-                                    err -> builder.append("\r\n`[").append(err.getIndex() + 1).append("]` **")
+                                    err -> builder.append("\r\n`[").append(err.getNumber() + 1).append("]` **")
                                             .append(err.getItem()).append("**: ").append(err.getReason())
                             );
 
@@ -276,7 +298,8 @@ public class PlayCommand extends DJCommand {
                                 str = str.substring(0, 1994) + " (...)";
                             }
                             m.editMessage(FormatUtils.filter(str)).queue();
-                        });
+                        }
+                );
             });
         }
     }

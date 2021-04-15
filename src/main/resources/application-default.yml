@@ -1,0 +1,27 @@
+spring:
+  main:
+    web-application-type: none
+  datasource:
+    platform: h2
+    url: jdbc:h2:file:./app/database
+    driver-class-name: org.h2.Driver
+    username: vladik
+    password: password
+  jpa:
+    database: default
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: false
+      path: /h2
+      settings:
+        trace: false
+        web-allow-others: true
+  gson:
+    pretty-printing: true

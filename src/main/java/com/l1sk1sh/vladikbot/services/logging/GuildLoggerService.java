@@ -1,11 +1,9 @@
 package com.l1sk1sh.vladikbot.services.logging;
 
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.utils.DownloadUtils;
-import com.l1sk1sh.vladikbot.utils.FileUtils;
-import com.l1sk1sh.vladikbot.utils.FormatUtils;
-import com.l1sk1sh.vladikbot.utils.StringUtils;
+import com.l1sk1sh.vladikbot.utils.*;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PermissionOverride;
@@ -16,6 +14,8 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URL;
@@ -24,6 +24,7 @@ import java.util.Objects;
 /**
  * @author Oliver Johnson
  */
+@Service
 public class GuildLoggerService {
     private static final Logger log = LoggerFactory.getLogger(GuildLoggerService.class);
     private final Logger glog = LoggerFactory.getLogger("GUILD_LOGGER");
@@ -31,19 +32,24 @@ public class GuildLoggerService {
     private static final String EVENTS_LOG = "events.log";
     private static final int REACTION_EDIT_DISTANCE = 4;
 
-    private final Bot bot;
+    private final BotSettingsManager settings;
+    private final ChatNotificationService chatNotificationService;
+    private final MessageCache messageCache;
 
-    public GuildLoggerService(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public GuildLoggerService(BotSettingsManager settings, ChatNotificationService chatNotificationService, MessageCache messageCache) {
+        this.settings = settings;
+        this.chatNotificationService = chatNotificationService;
+        this.messageCache = messageCache;
 
         /* It might be good idea to create separate loggers for each guild, but who cares */
         System.setProperty("guild_log.name", GuildLoggerService.EVENTS_LOG);
-        System.setProperty("guild_log.path", bot.getBotSettings().getLogsFolder());
-        bot.resetLoggerContext();
+        System.setProperty("guild_log.path", this.settings.get().getLogsFolder());
+        SystemUtils.resetLoggerContext();
     }
 
     public void onMessageDelete(GuildMessageDeleteEvent event) {
-        MessageCache.CachedMessage oldMessage = bot.getMessageCache().pullMessage(event.getGuild(), event.getMessageIdLong());
+        MessageCache.CachedMessage oldMessage = messageCache.pullMessage(event.getGuild(), event.getMessageIdLong());
 
         if (oldMessage == null) {
             return;
@@ -69,12 +75,12 @@ public class GuildLoggerService {
                 formattedMessage, authorName, mtc.getAsMention());
 
         glog.info(notificationMessage);
-        bot.getNotificationService().sendEmbeddedWarning(event.getGuild(), notificationMessage);
+        chatNotificationService.sendEmbeddedWarning(event.getGuild(), notificationMessage);
     }
 
     public void onMessageUpdate(GuildMessageUpdateEvent event) {
         Message newMessage = event.getMessage();
-        MessageCache.CachedMessage oldMessage = bot.getMessageCache().putMessage(newMessage);
+        MessageCache.CachedMessage oldMessage = messageCache.putMessage(newMessage);
 
         if (oldMessage == null) {
             return;
@@ -108,11 +114,11 @@ public class GuildLoggerService {
                 formattedOldMessage, formattedNewMessage, FormatUtils.formatFullUser(newMessage.getAuthor()), mtc.getAsMention());
 
         glog.info(notificationMessage);
-        bot.getNotificationService().sendEmbeddedWarning(event.getGuild(), notificationMessage);
+        chatNotificationService.sendEmbeddedWarning(event.getGuild(), notificationMessage);
     }
 
     public void onAvatarUpdate(UserUpdateAvatarEvent event) {
-        String pathToAvatars = bot.getBotSettings().getLogsFolder() + "avatars/" +
+        String pathToAvatars = settings.get().getLogsFolder() + "avatars/" +
                 event.getUser().getName() + "_" + event.getUser().getId() + "/";
 
         try {

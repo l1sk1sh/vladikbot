@@ -55,10 +55,14 @@
         <appender-ref ref="GUILD-EVENTS-FILE"/>
     </logger>
 
-    <logger name="net.dv8tion.jda" level="INFO" />
-    <logger name="org.apache.http" level="INFO" />
-    <logger name="com.github.dockerjava" level="INFO" />
-    <logger name="org.apache.commons" level="INFO" />
+    <logger name="org.springframework" level="INFO"/>
+    <logger name="org.hibernate" level="INFO"/>
+    <logger name="com.zaxxer.hikari" level="INFO"/>
+    <logger name="net.dv8tion.jda" level="INFO"/>
+    <logger name="org.apache.http" level="INFO"/>
+    <logger name="com.github.dockerjava" level="INFO"/>
+    <logger name="org.apache.commons" level="INFO"/>
+    <logger name="com.sedmelluq.discord.lavaplayer." level="WARN"/>
 
     <!-- Here you can set the base log level. If DEBUG is too chatty for you, you can use INFO -->
     <!-- Possible options are: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF -->

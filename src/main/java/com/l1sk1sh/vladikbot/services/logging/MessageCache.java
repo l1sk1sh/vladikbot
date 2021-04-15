@@ -4,6 +4,7 @@ import com.l1sk1sh.vladikbot.models.FixedCache;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.sharding.ShardManager;
+import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,9 +15,11 @@ import java.util.stream.Collectors;
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
- * @author John Grosh (john.a.grosh@gmail.com)
+ * - Reformatted code
+ * - DI Spring
+ * @author John Grosh
  */
+@Service
 public class MessageCache {
     private final static int SIZE = 1000;
     private final HashMap<Long, FixedCache<Long, CachedMessage>> cache = new HashMap<>();

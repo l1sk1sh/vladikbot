@@ -1,20 +1,27 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class ShuffleCommand extends MusicCommand {
-    public ShuffleCommand(Bot bot) {
-        super(bot);
+
+    @Autowired
+    public ShuffleCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
         this.name = "shuffle";
         this.help = "shuffles songs you have added";
         this.beListening = true;
@@ -37,5 +44,4 @@ public class ShuffleCommand extends MusicCommand {
                 break;
         }
     }
-
 }

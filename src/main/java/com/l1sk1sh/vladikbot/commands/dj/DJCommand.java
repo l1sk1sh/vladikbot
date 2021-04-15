@@ -1,27 +1,34 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.commands.music.MusicCommand;
-import com.l1sk1sh.vladikbot.settings.GuildSpecificSettings;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public abstract class DJCommand extends MusicCommand {
-    protected DJCommand(Bot bot) {
-        super(bot);
+
+    @Autowired
+    protected DJCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
     }
 
     public boolean checkDJPermission(CommandEvent event) {
-        if (event.getAuthor().getId().equals(event.getClient().getOwnerId())) {
+        if (event.getAuthor().getIdLong() == event.getClient().getOwnerIdLong()) {
             return true;
         }
         if (event.getGuild() == null) {
@@ -31,8 +38,8 @@ public abstract class DJCommand extends MusicCommand {
             return true;
         }
 
-        GuildSpecificSettings settings = bot.getGuildSettings(event.getGuild());
-        Role djRole = Objects.requireNonNull(settings).getDjRole(event.getGuild());
+        Optional<GuildSettings> settings = guildSettingsRepository.findById(event.getGuild().getIdLong());
+        Role djRole = settings.map(guildSettings -> guildSettings.getDjRole(event.getGuild())).orElse(null);
         return djRole != null && (event.getMember().getRoles().contains(djRole)
                 || djRole.getIdLong() == event.getGuild().getIdLong());
     }

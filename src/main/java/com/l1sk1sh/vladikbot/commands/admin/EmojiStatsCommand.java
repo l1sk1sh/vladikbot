@@ -3,16 +3,21 @@ package com.l1sk1sh.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.services.EmojiStatsService;
 import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
+import com.l1sk1sh.vladikbot.services.backup.DockerService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.File;
@@ -20,6 +25,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import static java.util.stream.Collectors.toMap;
@@ -27,19 +33,28 @@ import static java.util.stream.Collectors.toMap;
 /**
  * @author Oliver Johnson
  */
+@Service
 public class EmojiStatsCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsCommand.class);
-    private final Paginator.Builder pbuilder;
-    private final Bot bot;
+
+    private final JDA jda;
+    private final ScheduledExecutorService backupThreadPool;
+    private final BotSettingsManager settings;
+    private final DockerService dockerService;
     private String beforeDate;
     private String afterDate;
+    private final Paginator.Builder pbuilder;
     private boolean ignoreExistingBackup;
     private boolean ignoreUnknownEmoji;
     private boolean ignoreUnicodeEmoji;
     private boolean exportCsv;
 
-    public EmojiStatsCommand(EventWaiter waiter, Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public EmojiStatsCommand(JDA jda, @Qualifier("backupThreadPool") ScheduledExecutorService backupThreadPool, EventWaiter eventWaiter, BotSettingsManager settings, DockerService dockerService) {
+        this.jda = jda;
+        this.backupThreadPool = backupThreadPool;
+        this.settings = settings;
+        this.dockerService = dockerService;
         this.name = "emojistats";
         this.help = "returns full or partial statistics **(once in 24h)** of emoji usage in the current channel\r\n"
                 + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which statics would be done\r\n"
@@ -66,17 +81,17 @@ public class EmojiStatsCommand extends AdminCommand {
                         m.delete().queue();
                     }
                 })
-                .setEventWaiter(waiter)
+                .setEventWaiter(eventWaiter)
                 .setTimeout(1, TimeUnit.MINUTES);
     }
 
     @Override
     public void execute(CommandEvent event) {
-        if (!bot.isDockerRunning()) {
+        if (!settings.get().isDockerRunning()) {
             return;
         }
 
-        if (bot.isLockedBackup()) {
+        if (settings.get().isLockedBackup()) {
             event.replyWarning("Can't calculate emoji due to another backup in process!");
             return;
         }
@@ -87,16 +102,17 @@ public class EmojiStatsCommand extends AdminCommand {
         }
 
         BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
-                bot,
+                settings,
+                dockerService,
                 event.getChannel().getId(),
                 Const.BackupFileType.CSV,
-                bot.getBotSettings().getLocalTmpFolder(),
+                settings.get().getLocalTmpFolder(),
                 beforeDate,
                 afterDate,
                 ignoreExistingBackup
         );
 
-        bot.getBackupThreadPool().execute(() -> {
+        backupThreadPool.execute(() -> {
 
             /* Creating new thread from text backup service and waiting for it to finish */
             Thread backupChannelServiceThread = new Thread(backupTextChannelService);
@@ -120,7 +136,8 @@ public class EmojiStatsCommand extends AdminCommand {
 
             /* Creating new thread from text backup service and waiting for it to finish */
             EmojiStatsService emojiStatsService = new EmojiStatsService(
-                    bot,
+                    jda,
+                    settings,
                     exportedTextFile,
                     event.getGuild().getEmotes(),
                     ignoreUnicodeEmoji,
@@ -172,7 +189,7 @@ public class EmojiStatsCommand extends AdminCommand {
                         preparedEmojiMap.put("<:" + emojiName + ":" + emojiIdList.get(0).getId() + ">",
                                 preparedEmojiMap.remove(entry.getKey()));
                     }
-                } catch (IllegalArgumentException emptyName) { /* Ignore */
+                } catch (IllegalArgumentException ignored) {
                 }
             }
         }

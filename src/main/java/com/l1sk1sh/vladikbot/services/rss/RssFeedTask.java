@@ -2,8 +2,9 @@ package com.l1sk1sh.vladikbot.services.rss;
 
 import com.apptastic.rssreader.Item;
 import com.apptastic.rssreader.RssReader;
-import com.l1sk1sh.vladikbot.Bot;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
+import com.l1sk1sh.vladikbot.data.entity.SentNewsArticle;
+import com.l1sk1sh.vladikbot.data.repository.SentNewsArticleRepository;
+import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,29 +13,34 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.http.HttpTimeoutException;
 import java.nio.channels.UnresolvedAddressException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+/**
+ * @author Oliver Johnson
+ */
 final class RssFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(RssFeedTask.class);
 
     private static final int ARTICLE_FETCH_LIMIT = 8;
 
-    private final RssResource resource;
+    private final SentNewsArticleRepository sentNewsArticleRepository;
+    private final NewsNotificationService newsNotificationService;
+    private final RssService.RssResource resource;
     private final String rssUrl;
     private final String resourceImageUrl;
     private final Color newsColor;
-    private final CircularFifoQueue<String> lastSentArticleIdS;
-    private final Bot bot;
 
-    RssFeedTask(RssResource resource, String rssUrl, String resourceImageUrl, Color newsColor, Bot bot) {
+    RssFeedTask(SentNewsArticleRepository sentNewsArticleRepository, NewsNotificationService newsNotificationService,
+                RssService.RssResource resource, String rssUrl, String resourceImageUrl, Color newsColor) {
+        this.sentNewsArticleRepository = sentNewsArticleRepository;
+        this.newsNotificationService = newsNotificationService;
         this.resource = resource;
         this.rssUrl = rssUrl;
         this.resourceImageUrl = resourceImageUrl;
         this.newsColor = newsColor;
-        this.lastSentArticleIdS = bot.getOfflineStorage().getLastArticleIds(resource);
-        this.bot = bot;
     }
 
     @Override
@@ -46,6 +52,9 @@ final class RssFeedTask implements Runnable {
             List<Item> articles = rssFeed.limit(ARTICLE_FETCH_LIMIT).collect(Collectors.toList());
             Item lastAddedArticle = null;
 
+            List<SentNewsArticle> lastSentArticles = sentNewsArticleRepository.findTop20ByNewsResourceOrderByIdDesc(resource);
+            List<SentNewsArticle> newSentArticles = new ArrayList<>();
+
             // Iterate in revers to get older articles first
             for (int i = articles.size() - 1; i >= 0; i--) {
                 String articleId = "";
@@ -56,8 +65,10 @@ final class RssFeedTask implements Runnable {
                     articleId = ArticleMapper.getTitleAsId(articles.get(i));
                 }
 
-                if (!lastSentArticleIdS.contains(articleId)) {
-                    lastSentArticleIdS.add(articleId);
+                String finalArticleId = articleId;
+                boolean articleAlreadySent = lastSentArticles.stream().anyMatch(sentArticle -> sentArticle.getArticleId().equals(finalArticleId));
+                if (!articleAlreadySent) {
+                    newSentArticles.add(new SentNewsArticle(resource, articleId));
                     lastAddedArticle = articles.get(i);
                     break;
                 }
@@ -67,10 +78,10 @@ final class RssFeedTask implements Runnable {
                 return;
             }
 
-            bot.getOfflineStorage().setLastArticleIds(resource, lastSentArticleIdS);
+            sentNewsArticleRepository.saveAll(newSentArticles);
 
-            log.info("Sending {} article ({}).", resource, lastSentArticleIdS.get(lastSentArticleIdS.size() - 1));
-            bot.getNewsNotificationService().sendNewsArticle(null, ArticleMapper.mapRssArticleToNewsMessage(lastAddedArticle, resource, resourceImageUrl), newsColor);
+            log.info("Sending {} article ({}).", resource, lastAddedArticle.getLink());
+            newsNotificationService.sendNewsArticle(null, ArticleMapper.mapRssArticleToNewsMessage(lastAddedArticle, resource, resourceImageUrl), newsColor);
         } catch (ConnectException | HttpTimeoutException | UnresolvedAddressException e) {
             log.warn("Failed to get {} article due to network issues.", resource);
         } catch (IOException e) {

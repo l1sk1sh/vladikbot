@@ -2,43 +2,42 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.domain.Quote;
+import com.l1sk1sh.vladikbot.network.dto.Quote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class QuoteCommand extends Command {
     private static final Logger log = LoggerFactory.getLogger(QuoteCommand.class);
-    private final Bot bot;
 
-    public QuoteCommand(Bot bot) {
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public QuoteCommand() {
+        this.restTemplate = new RestTemplate();
         this.name = "quote";
         this.help = "get random quote from api.quotable.io";
-        this.bot = bot;
     }
 
     @Override
     protected void execute(CommandEvent event) {
-        try {
-            Quote quote = bot.getRandomQuoteRetriever().call();
+        Quote quote = restTemplate.getForObject("https://api.quotable.io/random", Quote.class);
 
-            if (quote == null) {
-                log.warn("Quote is empty.");
-
-                return;
-            }
-
-            event.reply(String.format("\"%1$s\" %2$s",
-                    quote.getContent(),
-                    quote.getAuthor()));
-        } catch (IOException e) {
-            log.error("Failed to retrieve random quote:", e);
+        if (quote == null) {
+            log.warn("Quote is empty.");
             event.reply("\"Я тебе породив, я тебе і вб'ю!\" Тарас Бульба");
+
+            return;
         }
+
+        event.reply(String.format("\"%1$s\" %2$s",
+                quote.getContent(),
+                quote.getAuthor()));
     }
 }

@@ -1,27 +1,33 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.l1sk1sh.vladikbot.data.entity.Playlist;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
-import com.l1sk1sh.vladikbot.Bot;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
  * - Addition of separate shuffle command
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class PlaylistCommand extends OwnerCommand {
-    private final Bot bot;
-    private final String spacesLiteral = "\\s+";
+    private static final String SPACES_LITERAL = "\\s+";
 
-    public PlaylistCommand(Bot bot) {
-        this.bot = bot;
+    private final PlaylistLoader playlistLoader;
+
+    @Autowired
+    public PlaylistCommand(GuildSettingsRepository guildSettingsRepository, PlaylistLoader playlistLoader) {
+        this.playlistLoader = playlistLoader;
         this.name = "playlist";
         this.arguments = "<create|list|update|delete|default|shuffle>";
         this.help = "playlist management";
@@ -31,8 +37,8 @@ public class PlaylistCommand extends OwnerCommand {
                 new UpdateCommand(),
                 new DeleteCommand(),
                 new CreateCommand(),
-                new DefaultListCommand(bot),
-                new ShuffleCommand()
+                new ShuffleCommand(),
+                new DefaultListCommand(guildSettingsRepository)
         };
     }
 
@@ -41,8 +47,8 @@ public class PlaylistCommand extends OwnerCommand {
         event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
-    class CreateCommand extends OwnerCommand {
-        CreateCommand() {
+    private class CreateCommand extends OwnerCommand {
+        private CreateCommand() {
             this.name = "create";
             this.aliases = new String[]{"make"};
             this.help = "makes a new playlist";
@@ -52,22 +58,18 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String pname = event.getArgs().replaceAll(spacesLiteral, "_");
-            if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
-                try {
-                    bot.getPlaylistLoader().createPlaylist(pname);
-                    event.replySuccess(String.format("Successfully created playlist `%1$s`!", pname));
-                } catch (IOException e) {
-                    event.replyError(String.format("Unable to create the playlist! `[%1$s]`", e.getLocalizedMessage()));
-                }
+            String pname = event.getArgs().replaceAll(SPACES_LITERAL, "_");
+            if (playlistLoader.getPlaylist(pname) == null) {
+                playlistLoader.createPlaylist(pname);
+                event.replySuccess(String.format("Successfully created playlist `%1$s`!", pname));
             } else {
                 event.replyError(String.format("Playlist `%1$s` already exists!", pname));
             }
         }
     }
 
-    class ReadCommand extends OwnerCommand {
-        ReadCommand() {
+    private class ReadCommand extends OwnerCommand {
+        private ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list"};
             this.help = "lists all available playlists";
@@ -76,26 +78,22 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            try {
-                List<String> list = bot.getPlaylistLoader().getPlaylistNames();
-                if (list == null) {
-                    event.replyError("Failed to load available playlists!");
-                } else if (list.isEmpty()) {
-                    event.replyWarning("There are no playlists in the Playlists folder!");
-                } else {
-                    String message = event.getClient().getSuccess() + " Available playlists:\r\n";
-                    StringBuilder builder = new StringBuilder(message);
-                    list.forEach(str -> builder.append("`").append(str).append("` "));
-                    event.reply(builder.toString());
-                }
-            } catch (IOException ioe) {
-                event.replyError(String.format("Local folder couldn't be processed! `[%1$s]`", ioe.getLocalizedMessage()));
+            List<String> list = playlistLoader.getPlaylistNames();
+            if (list == null) {
+                event.replyError("Failed to load available playlists!");
+            } else if (list.isEmpty()) {
+                event.replyWarning("There are no playlists in the Playlists folder!");
+            } else {
+                String message = event.getClient().getSuccess() + " Available playlists:\r\n";
+                StringBuilder builder = new StringBuilder(message);
+                list.forEach(str -> builder.append("`").append(str).append("` "));
+                event.reply(builder.toString());
             }
         }
     }
 
-    class UpdateCommand extends OwnerCommand {
-        UpdateCommand() {
+    private class UpdateCommand extends OwnerCommand {
+        private UpdateCommand() {
             this.name = "add";
             this.aliases = new String[]{"append", "update"};
             this.help = "appends songs to an existing playlist";
@@ -105,13 +103,13 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String[] parts = event.getArgs().split(spacesLiteral, 2);
+            String[] parts = event.getArgs().split(SPACES_LITERAL, 2);
             if (parts.length < 2) {
                 event.replyError("Please include a playlist name and URLs to add!");
                 return;
             }
             String pname = parts[0];
-            PlaylistLoader.Playlist playlist = bot.getPlaylistLoader().getPlaylist(pname);
+            Playlist playlist = playlistLoader.getPlaylist(pname);
 
             if (playlist == null) {
                 event.replyError(String.format("Playlist `%1$s` doesn't exist!", pname));
@@ -130,19 +128,15 @@ public class PlaylistCommand extends OwnerCommand {
                     listOfUrlsToWrite.add(u);
                 }
 
-                try {
-                    bot.getPlaylistLoader().writePlaylist(pname, listOfUrlsToWrite);
-                    event.replySuccess(String.format(
-                            "Successfully added %1$s items to playlist `%2$s`.", urls.length, pname));
-                } catch (IOException e) {
-                    event.replyError(String.format("Unable to append the playlist! `[%1$s]`", e.getLocalizedMessage()));
-                }
+                playlistLoader.writePlaylist(pname, listOfUrlsToWrite);
+                event.replySuccess(String.format(
+                        "Successfully added %1$s items to playlist `%2$s`.", urls.length, pname));
             }
         }
     }
 
-    class DeleteCommand extends OwnerCommand {
-        DeleteCommand() {
+    private class DeleteCommand extends OwnerCommand {
+        private DeleteCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};
             this.help = "deletes an existing playlist";
@@ -152,33 +146,22 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String pname = event.getArgs().replaceAll(spacesLiteral, "_");
-            if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
+            String pname = event.getArgs().replaceAll(SPACES_LITERAL, "_");
+            if (playlistLoader.getPlaylist(pname) == null) {
                 event.replyError(String.format("Playlist `%1$s` doesn't exist!", pname));
             } else {
-                try {
-                    bot.getPlaylistLoader().deletePlaylist(pname);
+                if (playlistLoader.deletePlaylist(pname)) {
                     event.replySuccess(String.format("Successfully deleted playlist `%1$s`.", pname));
-                } catch (IOException e) {
-                    event.replyError(String.format("Unable to delete the playlist! `[%1$s]`", e.getLocalizedMessage()));
+                } else {
+                    event.replyError("Unable to delete the playlist!");
                 }
             }
         }
 
     }
 
-    static class DefaultListCommand extends AutoPlaylistCommand {
-        DefaultListCommand(Bot bot) {
-            super(bot);
-            this.name = "default";
-            this.aliases = new String[]{"setdefault"};
-            this.arguments = "<name|none>";
-            this.guildOnly = true;
-        }
-    }
-
-    class ShuffleCommand extends OwnerCommand {
-        ShuffleCommand() {
+    private class ShuffleCommand extends OwnerCommand {
+        private ShuffleCommand() {
             this.name = "shuffle";
             this.aliases = new String[]{"mix"};
             this.help = "shuffles specified playlist";
@@ -188,22 +171,31 @@ public class PlaylistCommand extends OwnerCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            String pname = event.getArgs().replaceAll(spacesLiteral, "_");
-            if (bot.getPlaylistLoader().getPlaylist(pname) == null) {
+            String pname = event.getArgs().replaceAll(SPACES_LITERAL, "_");
+            if (playlistLoader.getPlaylist(pname) == null) {
                 event.replyError(String.format("Playlist `%1$s` doesn't exist!", pname));
             } else {
-                try {
-                    List<String> list = bot.getPlaylistLoader().getPlaylistNames();
-                    if (list == null) {
-                        event.replyError("Failed to load available playlists!");
-                    } else {
-                        bot.getPlaylistLoader().shuffle(pname);
+                List<String> list = playlistLoader.getPlaylistNames();
+                if (list == null) {
+                    event.replyError("Failed to load available playlists!");
+                } else {
+                    if (playlistLoader.shuffle(pname)) {
                         event.replySuccess(String.format("Successfully shuffled playlist `%1$s`!", pname));
+                    } else {
+                        event.replyError("Unable to suffle the playlist!");
                     }
-                } catch (IOException e) {
-                    event.replyError(String.format("Unable to suffle the playlist! `[%1$s]`", e.getLocalizedMessage()));
                 }
             }
+        }
+    }
+
+    private class DefaultListCommand extends AutoPlaylistCommand {
+        private DefaultListCommand(GuildSettingsRepository guildSettingsRepository) {
+            super(playlistLoader, guildSettingsRepository);
+            this.name = "default";
+            this.aliases = new String[]{"setdefault"};
+            this.arguments = "<name|none>";
+            this.guildOnly = true;
         }
     }
 }

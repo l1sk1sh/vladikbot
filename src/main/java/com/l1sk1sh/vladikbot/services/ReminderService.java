@@ -1,35 +1,49 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.entities.Reminder;
+import com.l1sk1sh.vladikbot.data.entity.Reminder;
+import com.l1sk1sh.vladikbot.data.repository.ReminderRepository;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 import org.ocpsoft.prettytime.nlp.parse.DateGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author Oliver Johnson
+ */
+@Service
 public class ReminderService {
     private static final Logger log = LoggerFactory.getLogger(ReminderService.class);
 
-    private final Bot bot;
+    private final JDA jda;
+    private final ScheduledExecutorService frontThreadPool;
+    private final ReminderRepository reminderRepository;
     private Reminder reminder;
     private String errorMessage;
     private final Map<Long, ScheduledFuture<?>> scheduledReminders;
 
-    public ReminderService(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public ReminderService(JDA jda, @Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool, ReminderRepository reminderRepository) {
+        this.jda = jda;
+        this.frontThreadPool = frontThreadPool;
+        this.reminderRepository = reminderRepository;
         this.scheduledReminders = new HashMap<>();
     }
 
-    public boolean processReminder(String message, String channelId, String authorId) {
+    public boolean processReminder(String message, long channelId, long authorId) {
         List<DateGroup> dates = new PrettyTimeParser().parseSyntax(message);
 
         if (dates.isEmpty()) {
@@ -40,7 +54,7 @@ public class ReminderService {
         Date reminderDate = dates.get(0).getDates().get(0);
         String reminderText = message.replace(dates.get(0).getText(), "").trim();
         Reminder reminder = new Reminder(reminderDate, reminderText, channelId, authorId);
-        bot.getOfflineStorage().addReminder(reminder);
+        reminderRepository.save(reminder);
 
         return scheduleReminder(reminder);
     }
@@ -55,27 +69,27 @@ public class ReminderService {
         }
 
         Runnable remindEvent = () -> {
-            TextChannel textChannel = bot.getJDA().getTextChannelById(reminder.getTextChannelId());
+            TextChannel textChannel = jda.getTextChannelById(reminder.getTextChannelId());
             if (textChannel == null) {
                 log.error("Reminder's text channel ({}) is absent.", reminder.getTextChannelId());
-                bot.getOfflineStorage().deleteReminder(reminder);
+                reminderRepository.delete(reminder);
                 return;
             }
 
-            User author = bot.getJDA().getUserById(reminder.getAuthorId());
+            User author = jda.getUserById(reminder.getAuthorId());
 
             if (author == null) {
                 log.warn("Author of reminder is no long present.");
-                bot.getOfflineStorage().deleteReminder(reminder);
+                reminderRepository.delete(reminder);
                 return;
             }
 
             String reminderMessage = String.format("%1$s: \"%2$s\"", author.getAsMention(), reminder.getTextOfReminder());
             textChannel.sendMessage(reminderMessage).queue();
-            bot.getOfflineStorage().deleteReminder(reminder);
+            reminderRepository.delete(reminder);
         };
 
-        ScheduledFuture<?> scheduledReminder = bot.getFrontThreadPool().schedule(remindEvent, delay, TimeUnit.MILLISECONDS);
+        ScheduledFuture<?> scheduledReminder = frontThreadPool.schedule(remindEvent, delay, TimeUnit.MILLISECONDS);
         scheduledReminders.put(reminder.getId(), scheduledReminder);
 
         return true;
@@ -90,7 +104,7 @@ public class ReminderService {
     }
 
     public List<Reminder> getAllReminders() {
-        return bot.getOfflineStorage().getReminders();
+        return reminderRepository.findAll();
     }
 
     public boolean deleteReminder(long reminderId) {
@@ -101,7 +115,7 @@ public class ReminderService {
             return false;
         }
 
-        bot.getOfflineStorage().deleteReminder(reminder);
+        reminderRepository.delete(reminder);
         ScheduledFuture<?> scheduled = scheduledReminders.get(reminderId);
 
         if (scheduled == null) {

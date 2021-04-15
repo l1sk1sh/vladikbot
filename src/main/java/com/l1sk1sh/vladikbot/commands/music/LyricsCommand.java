@@ -2,24 +2,31 @@ package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jlyrics.LyricsClient;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.Permission;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Objects;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
+ * - DI Spring
  * @author John Grosh
  */
+@Service
 public class LyricsCommand extends MusicCommand {
-    private final LyricsClient client = new LyricsClient();
+    private final LyricsClient client;
 
-    public LyricsCommand(Bot bot) {
-        super(bot);
+    @Autowired
+    public LyricsCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+        super(guildSettingsRepository, playerManager);
+        this.client = new LyricsClient();
         this.name = "lyrics";
         this.help = "shows the lyrics to the currently-playing song";
         this.arguments = "<song name>";
@@ -38,8 +45,7 @@ public class LyricsCommand extends MusicCommand {
             title = event.getArgs();
         }
 
-        client.getLyrics(title).thenAccept(lyrics ->
-        {
+        client.getLyrics(title).thenAccept(lyrics -> {
             if (lyrics == null) {
                 event.replyError(String.format("Lyrics for `%1$s` could not be found!%2$s",
                         title,

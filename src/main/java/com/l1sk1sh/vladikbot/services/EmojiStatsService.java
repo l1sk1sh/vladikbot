@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.services;
 
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.models.entities.ParsedMessage;
-import com.l1sk1sh.vladikbot.models.entities.UsedEmoji;
+import com.l1sk1sh.vladikbot.models.CsvParsedDiscordMessage;
+import com.l1sk1sh.vladikbot.models.UsedEmoji;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.opencsv.CSVWriter;
@@ -12,6 +12,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
@@ -30,7 +31,8 @@ import java.util.regex.Pattern;
 public class EmojiStatsService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 
-    private final Bot bot;
+    private final JDA jda;
+    private final BotSettingsManager settings;
     private final Map<String, Integer> emojiList;
     private final List<UsedEmoji> allUsedEmojis;
     private final List<Emote> serverEmojiList;
@@ -44,11 +46,12 @@ public class EmojiStatsService implements Runnable {
     private boolean hasFailed = true;
     private File usedEmojisCsv;
 
-    public EmojiStatsService(Bot bot, File exportedTextFile, List<Emote> serverEmojiList, boolean ignoreUnicodeEmoji, boolean ignoreUnknownEmoji, boolean exportCsv) {
-        this.bot = bot;
+    public EmojiStatsService(JDA jda, BotSettingsManager settings, File exportedTextFile, List<Emote> serverEmojiList, boolean ignoreUnicodeEmoji, boolean ignoreUnknownEmoji, boolean exportCsv) {
+        this.jda = jda;
+        this.settings = settings;
         this.exportedTextFile = exportedTextFile;
         this.localUsedEmojisName = exportedTextFile.getName().replace("." + Const.FileType.csv.name(), "") + " - used emoji";
-        this.localUsedEmojisPath = bot.getBotSettings().getLocalTmpFolder() + "used-emojis/";
+        this.localUsedEmojisPath = this.settings.get().getLocalTmpFolder() + "used-emojis/";
         this.serverEmojiList = serverEmojiList;
         this.emojiList = new HashMap<>();
         this.allUsedEmojis = new ArrayList<>();
@@ -59,10 +62,10 @@ public class EmojiStatsService implements Runnable {
 
     @Override
     public void run() {
-        bot.setLockedBackup(true);
+        settings.get().setLockedBackup(true);
 
         try {
-            List<ParsedMessage> chatMessages = new ArrayList<>();
+            List<CsvParsedDiscordMessage> chatMessages = new ArrayList<>();
 
             String input = FileUtils.readFile(exportedTextFile, StandardCharsets.UTF_8);
             input = input.replaceAll("[\"]", ""); /* Removing all quotes as DockerBackup cannot properly form CSV */
@@ -70,19 +73,19 @@ public class EmojiStatsService implements Runnable {
             Reader reader = new StringReader(input);
 
             @SuppressWarnings({"unchecked", "rawtypes"})
-            CsvToBean<ParsedMessage> csv = new CsvToBeanBuilder(reader)
-                    .withType(ParsedMessage.class)
+            CsvToBean<CsvParsedDiscordMessage> csv = new CsvToBeanBuilder(reader)
+                    .withType(CsvParsedDiscordMessage.class)
                     .withIgnoreLeadingWhiteSpace(true)
                     .build();
 
             csv.setThrowExceptions(false);
 
-            Iterator<ParsedMessage> csvIterator = csv.iterator();
+            Iterator<CsvParsedDiscordMessage> csvIterator = csv.iterator();
 
             //noinspection WhileLoopReplaceableByForEach
             while (csvIterator.hasNext()) {
                 try {
-                    ParsedMessage message = csvIterator.next();
+                    CsvParsedDiscordMessage message = csvIterator.next();
                     chatMessages.add(message);
                     log.debug("Processed line '{}'.", message);
                 } catch (Exception e) { /* CsvMalformedLineException, CsvRequiredFieldEmptyException */
@@ -98,7 +101,7 @@ public class EmojiStatsService implements Runnable {
                     Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
 
             /* Retrieving all emojis into separate data collection */
-            for (ParsedMessage message : chatMessages) {
+            for (CsvParsedDiscordMessage message : chatMessages) {
 
                 /* Checking content of message for server specific emoji */
                 String textOfMessage = message.getContent();
@@ -132,7 +135,7 @@ public class EmojiStatsService implements Runnable {
 
             /* Gathering collection that will be returned to chat */
             for (UsedEmoji usedEmoji : allUsedEmojis) {
-                User user = bot.getJDA().getUserById(usedEmoji.getAuthorId());
+                User user = jda.getUserById(usedEmoji.getAuthorId());
 
                 if (user != null && user.isBot()) {
                     continue;
@@ -167,7 +170,7 @@ public class EmojiStatsService implements Runnable {
             log.error("Failed to write used emojis csv:", e);
             failMessage = "Failed to write data CSV file.";
         } finally {
-            bot.setLockedBackup(false);
+            settings.get().setLockedBackup(false);
         }
     }
 

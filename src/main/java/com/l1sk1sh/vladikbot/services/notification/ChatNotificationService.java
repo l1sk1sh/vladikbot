@@ -1,24 +1,34 @@
 package com.l1sk1sh.vladikbot.services.notification;
 
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.awt.*;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class ChatNotificationService {
-    private final Bot bot;
+    private final JDA jda;
+    private final BotSettingsManager settings;
+    private final GuildSettingsRepository guildSettingsRepository;
     private TextChannel notificationChannel;
     @SuppressWarnings("FieldCanBeLocal")
     private Guild notificationGuild;
 
-    public ChatNotificationService(Bot bot) {
-        this.bot = bot;
+    @Autowired
+    public ChatNotificationService(JDA jda, BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
+        this.jda = jda;
+        this.settings = settings;
+        this.guildSettingsRepository = guildSettingsRepository;
     }
 
     @SuppressWarnings("unused")
@@ -65,14 +75,15 @@ public class ChatNotificationService {
 
         /* In case this guild doesn't have notification channel, sending notification to maintainer */
         if (this.notificationGuild == null) {
-            this.notificationGuild = bot.getJDA().getGuildById(bot.getBotSettings().getMaintainerGuildId());
+            this.notificationGuild = jda.getGuildById(settings.get().getMaintainerGuildId());
         }
 
         if (this.notificationGuild == null) {
             return true;
         }
 
-        this.notificationChannel = bot.getGuildSettings(notificationGuild).getNotificationChannel(notificationGuild);
+        guildSettingsRepository.findById(notificationGuild.getIdLong()).ifPresent(
+                settings -> this.notificationChannel = settings.getNotificationChannel(notificationGuild));
 
         return (this.notificationChannel == null);
     }

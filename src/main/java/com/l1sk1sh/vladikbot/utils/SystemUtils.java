@@ -1,10 +1,19 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.util.ContextInitializer;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.Timer;
 import java.util.TimerTask;
 
+/**
+ * @author Oliver Johnson
+ */
 public final class SystemUtils {
     private SystemUtils() {}
 
@@ -49,5 +58,21 @@ public final class SystemUtils {
         Field charset = Charset.class.getDeclaredField("defaultCharset");
         charset.setAccessible(true);
         charset.set(null, null);
+    }
+
+    public static void resetLoggerContext() {
+        LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        ContextInitializer ci = new ContextInitializer(lc);
+        lc.reset();
+        try {
+
+            /* Prefer autoConfig() over JoranConfigurator.doConfigure() so there is no need to find the file manually */
+            ci.autoConfig();
+        } catch (JoranException e) {
+
+            /* StatusPrinter will try to log this */
+            e.printStackTrace();
+        }
+        StatusPrinter.printInCaseOfErrorsOrWarnings(lc);
     }
 }

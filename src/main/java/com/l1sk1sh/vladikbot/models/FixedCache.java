@@ -9,8 +9,8 @@ import java.util.Map;
  * @param <V> cache item type
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
- * @author John Grosh (john.a.grosh@gmail.com)
+ * - Reformatted code
+ * @author John Grosh
  */
 public class FixedCache<K, V> {
     private final Map<K, V> map;

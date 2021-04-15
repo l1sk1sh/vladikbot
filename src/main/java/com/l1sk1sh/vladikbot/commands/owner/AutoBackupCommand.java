@@ -1,20 +1,38 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.services.backup.AutoMediaBackupDaemon;
+import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class AutoBackupCommand extends OwnerCommand {
     private static final Logger log = LoggerFactory.getLogger(AutoBackupCommand.class);
-    private final Bot bot;
 
-    public AutoBackupCommand(Bot bot) {
-        this.bot = bot;
+    private final ScheduledExecutorService backupThreadPool;
+    private final BotSettingsManager settings;
+    private final AutoTextBackupDaemon autoTextBackupDaemon;
+    private final AutoMediaBackupDaemon autoMediaBackupDaemon;
+
+    @Autowired
+    public AutoBackupCommand(@Qualifier("backupThreadPool") ScheduledExecutorService backupThreadPool,
+                             BotSettingsManager settings, AutoTextBackupDaemon autoTextBackupDaemon, AutoMediaBackupDaemon autoMediaBackupDaemon) {
+        this.backupThreadPool = backupThreadPool;
+        this.settings = settings;
+        this.autoTextBackupDaemon = autoTextBackupDaemon;
+        this.autoMediaBackupDaemon = autoMediaBackupDaemon;
         this.name = "abackup";
         this.arguments = "<stext|smedia>";
         this.help = "auto backup management";
@@ -32,8 +50,8 @@ public class AutoBackupCommand extends OwnerCommand {
         event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
-    class SwitchAutoTextBackupCommand extends OwnerCommand {
-        SwitchAutoTextBackupCommand() {
+    private class SwitchAutoTextBackupCommand extends OwnerCommand {
+        private SwitchAutoTextBackupCommand() {
             this.name = "stext";
             this.help = "enables or disables auto backup for text";
             this.arguments = "<on|off>";
@@ -48,26 +66,26 @@ public class AutoBackupCommand extends OwnerCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            if (bot.getBotSettings().shouldAutoTextBackup()) {
+                            if (settings.get().isAutoTextBackup()) {
                                 log.info("Auto text backup is already enabled.");
                                 break;
                             }
 
-                            bot.getBotSettings().setAutoTextBackup(true);
-                            bot.getAutoTextBackupDaemon().start();
-                            log.info("Auto text backup was enabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
+                            settings.get().setAutoTextBackup(true);
+                            autoTextBackupDaemon.start();
+                            log.info("Auto text backup was enabled by {}.", FormatUtils.formatAuthor(event));
                             event.replySuccess("Auto Text Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
-                            if (!bot.getBotSettings().shouldAutoTextBackup()) {
+                            if (!settings.get().isAutoTextBackup()) {
                                 log.info("Auto text backup is already disabled.");
                                 break;
                             }
 
-                            bot.getBotSettings().setAutoTextBackup(false);
-                            log.info("Auto text backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
-                            bot.getAutoTextBackupDaemon().stop();
+                            settings.get().setAutoTextBackup(false);
+                            log.info("Auto text backup was disabled by {}.", FormatUtils.formatAuthor(event));
+                            autoTextBackupDaemon.stop();
                             event.replySuccess("Auto Text Backup is now disabled!");
                             break;
                     }
@@ -78,8 +96,8 @@ public class AutoBackupCommand extends OwnerCommand {
         }
     }
 
-    class SwitchAutoMediaBackupCommand extends OwnerCommand {
-        SwitchAutoMediaBackupCommand() {
+    private class SwitchAutoMediaBackupCommand extends OwnerCommand {
+        private SwitchAutoMediaBackupCommand() {
             this.name = "smedia";
             this.help = "enables or disables auto backup for media";
             this.arguments = "<on|off>";
@@ -94,26 +112,26 @@ public class AutoBackupCommand extends OwnerCommand {
                     switch (arg) {
                         case "on":
                         case "enable":
-                            if (bot.getBotSettings().shouldAutoMediaBackup()) {
+                            if (settings.get().isAutoMediaBackup()) {
                                 log.info("Auto media backup is already enabled.");
                                 break;
                             }
 
-                            bot.getBotSettings().setAutoMediaBackup(true);
-                            bot.getAutoMediaBackupDaemon().start();
-                            log.info("Auto media backup was enabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
+                            settings.get().setAutoMediaBackup(true);
+                            autoMediaBackupDaemon.start();
+                            log.info("Auto media backup was enabled by {}.", FormatUtils.formatAuthor(event));
                             event.replySuccess("Auto Media Backup is now enabled!");
                             break;
                         case "off":
                         case "disable":
-                            if (!bot.getBotSettings().shouldAutoMediaBackup()) {
+                            if (!settings.get().isAutoMediaBackup()) {
                                 log.info("Auto media backup is already disabled.");
                                 break;
                             }
 
-                            bot.getBotSettings().setAutoMediaBackup(false);
-                            bot.getAutoMediaBackupDaemon().stop();
-                            log.info("Auto media backup was disabled by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
+                            settings.get().setAutoMediaBackup(false);
+                            autoMediaBackupDaemon.stop();
+                            log.info("Auto media backup was disabled by {}.", FormatUtils.formatAuthor(event));
                             event.replySuccess("Auto Media Backup is now disabled!");
                             break;
                     }
@@ -124,8 +142,8 @@ public class AutoBackupCommand extends OwnerCommand {
         }
     }
 
-    class FullTextBackupCommand extends OwnerCommand {
-        FullTextBackupCommand() {
+    private class FullTextBackupCommand extends OwnerCommand {
+        private FullTextBackupCommand() {
             this.name = "ftext";
             this.help = "launches immediate text backup for channels";
             this.guildOnly = true;
@@ -133,14 +151,14 @@ public class AutoBackupCommand extends OwnerCommand {
 
         @Override
         protected final void execute(CommandEvent event) {
-            log.info("Full text backup is about to be executed by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
-            bot.getBackupThreadPool().execute((() -> bot.getAutoTextBackupDaemon().execute()));
+            log.info("Full text backup is about to be executed by {}.", FormatUtils.formatAuthor(event));
+            backupThreadPool.execute((autoTextBackupDaemon::execute));
             event.reply("Launched full text backup using daemon.");
         }
     }
 
-    class FullMediaBackupCommand extends OwnerCommand {
-        FullMediaBackupCommand() {
+    private class FullMediaBackupCommand extends OwnerCommand {
+        private FullMediaBackupCommand() {
             this.name = "fmedia";
             this.help = "launches immediate media backup for channels";
             this.guildOnly = true;
@@ -148,8 +166,8 @@ public class AutoBackupCommand extends OwnerCommand {
 
         @Override
         protected final void execute(CommandEvent event) {
-            log.info("Full media backup is about to be executed by {}:[{}].", event.getAuthor().getName(), event.getAuthor().getId());
-            bot.getBackupThreadPool().execute((() -> bot.getAutoMediaBackupDaemon().execute()));
+            log.info("Full media backup is about to be executed by {}.", FormatUtils.formatAuthor(event));
+            backupThreadPool.execute(autoMediaBackupDaemon::execute);
             event.reply("Launched full media backup using daemon.");
         }
     }

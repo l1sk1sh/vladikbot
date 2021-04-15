@@ -6,16 +6,20 @@ import com.l1sk1sh.vladikbot.utils.BotUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author Oliver Johnson
  */
+@Service
 public class PermissionsCommand extends AdminCommand {
 
+    @Autowired
     public PermissionsCommand() {
         this.name = "permissions";
         this.help = "shows available and missing bot permissions";

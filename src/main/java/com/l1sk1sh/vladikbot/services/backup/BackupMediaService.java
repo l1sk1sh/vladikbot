@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.services.backup;
 
-import com.l1sk1sh.vladikbot.Bot;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.DownloadUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 public class BackupMediaService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(BackupMediaService.class);
 
-    private final Bot bot;
+    private final BotSettingsManager settings;
     private final String[] args;
     private final File textBackupFile;
     private File attachmentsHtmlFile;
@@ -50,8 +50,8 @@ public class BackupMediaService implements Runnable {
     private Set<String> setOfAllAttachmentsUrls;
     private Set<String> setOfSupportedAttachmentsUrls;
 
-    public BackupMediaService(Bot bot, String channelId, File textBackupFile, String localAttachmentsListPath, String[] args) {
-        this.bot = bot;
+    public BackupMediaService(BotSettingsManager settings, String channelId, File textBackupFile, String localAttachmentsListPath, String[] args) {
+        this.settings = settings;
         this.args = args;
         this.channelId = channelId;
         this.textBackupFile = textBackupFile;
@@ -66,7 +66,7 @@ public class BackupMediaService implements Runnable {
             FileUtils.createFolderIfAbsent(localAttachmentsListPath);
             FileUtils.createFolderIfAbsent(localAttachmentsPath);
 
-            bot.setLockedBackup(true);
+            settings.get().setLockedBackup(true);
             processArguments(args);
 
             attachmentsTxtFile = FileUtils.getFileByChannelIdAndExtension(localAttachmentsListPath, channelId, Const.FileType.txt);
@@ -128,7 +128,7 @@ public class BackupMediaService implements Runnable {
             failMessage = String.format("Something bad with files happened... [%1$s]", e.getLocalizedMessage());
             log.error("Failed to read exported file, to write local file or to download media. {}", e.getLocalizedMessage());
         } finally {
-            bot.setLockedBackup(false);
+            settings.get().setLockedBackup(false);
         }
     }
 

@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
-import com.google.gson.reflect.TypeToken;
-import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.Bot;
-import com.l1sk1sh.vladikbot.utils.FileUtils;
+import com.l1sk1sh.vladikbot.data.entity.Playlist;
+import com.l1sk1sh.vladikbot.data.repository.PlaylistRepository;
+import com.l1sk1sh.vladikbot.models.PlaylistLoadError;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -11,86 +11,79 @@ import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
  * @author Oliver Johnson
  * Changes from original source:
- * - Reformating code
+ * - Reformatted code
  * - Files changed to .json
  * - Removed 'comment-shuffle' and added direct command to shuffle file itself
+ * - DI Spring
+ * - Removed playlist data-class
  * @author John Grosh
  */
+@Service
 public class PlaylistLoader {
     private static final Logger log = LoggerFactory.getLogger(PlaylistLoader.class);
 
-    private final Bot bot;
-    private final String playlistFolder;
+    private final BotSettingsManager settings;
+    private final PlaylistRepository playlistRepository;
 
-    public PlaylistLoader(Bot bot) {
-        this.bot = bot;
-        this.playlistFolder = bot.getBotSettings().getPlaylistsFolder();
+    @Autowired
+    public PlaylistLoader(BotSettingsManager settings, PlaylistRepository playlistRepository) {
+        this.settings = settings;
+        this.playlistRepository = playlistRepository;
     }
 
-    public List<String> getPlaylistNames() throws IOException {
-        if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
-            FileUtils.createFolderIfAbsent(playlistFolder);
+    public List<String> getPlaylistNames() {
+        List<Playlist> playlists = playlistRepository.findAll();
 
-            return Collections.emptyList();
-        } else {
-            File folder = new File(playlistFolder);
-            return Arrays.stream(Objects.requireNonNull(folder.listFiles((pathname) ->
-                    pathname.getName().endsWith("." + Const.FileType.json))))
-                    .map(f ->
-                            f.getName().substring(0, f.getName().length() - ("." + Const.FileType.json.name()).length())).collect(Collectors.toList());
-        }
+        return playlists.stream().map(Playlist::getName).collect(Collectors.toList());
     }
 
-    public void createPlaylist(String name) throws IOException {
-        Files.createFile(Paths.get(playlistFolder + name + "." + Const.FileType.json.name()));
+    public void createPlaylist(String name) {
+        playlistRepository.save(new Playlist(name));
         log.info("Created new playlist '{}'.", name);
     }
 
-    public void deletePlaylist(String name) throws IOException {
-        Files.delete(Paths.get(playlistFolder + name + "." + Const.FileType.json.name()));
-        log.info("Deleted playlist '{}'.", name);
-    }
+    public boolean deletePlaylist(String name) {
+        Playlist playlist = getPlaylist(name);
 
-    public void writePlaylist(String name, List<String> listToWrite) throws IOException {
-        FileUtils.writeGson(listToWrite, new File(playlistFolder + name + "." + Const.FileType.json.name()));
-    }
-
-    public Playlist getPlaylist(String name) {
-        try {
-            if (!getPlaylistNames().contains(name)) {
-                return null;
-            }
-
-            if (FileUtils.fileOrFolderIsAbsent(playlistFolder)) {
-                FileUtils.createFolderIfAbsent(playlistFolder);
-                
-                return null;
-            } else {
-                List<String> list = Bot.gson.fromJson(new FileReader(playlistFolder
-                        + name + "." + Const.FileType.json.name()), new TypeToken<List<String>>(){}.getType());
-                return new Playlist(name, list);
-            }
-        } catch (IOException e) {
-            return null;
+        if (getPlaylist(name) != null) {
+            playlistRepository.delete(playlist);
+            log.info("Deleted playlist '{}'.", name);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    public void shuffle(String name) throws IOException {
+    public void writePlaylist(String name, List<String> listToWrite) {
+        Playlist playlist = getPlaylist(name);
+
+        if (playlist == null) {
+            playlist = new Playlist(name);
+        }
+
+        playlist.setItems(listToWrite);
+
+        playlistRepository.save(playlist);
+    }
+
+    public Playlist getPlaylist(String name) {
+        return playlistRepository.getPlaylistByName(name);
+    }
+
+    public boolean shuffle(String name) {
         if (getPlaylist(name).getItems().isEmpty() || (getPlaylist(name).getItems() == null)) {
-            throw new IOException("Playlist is empty and can't be shuffled");
+            return false;
         }
 
         List<String> listToShuffle = getPlaylist(name).getItems();
@@ -101,134 +94,85 @@ public class PlaylistLoader {
             listToShuffle.set(second, tmp);
         }
         writePlaylist(name, listToShuffle);
+        return true;
     }
 
-    public class Playlist {
-        private final String name;
-        private final List<String> items;
-        private final List<AudioTrack> tracks = new LinkedList<>();
-        private final List<PlaylistLoadError> errors = new LinkedList<>();
-        private boolean loaded = false;
-
-        private Playlist(String name, List<String> items) {
-            this.name = name;
-            this.items = items;
+    public void loadTracksIntoPlaylist(Playlist playlist, AudioPlayerManager manager, Consumer<AudioTrack> consumer, Runnable callback) {
+        if (playlist.isLoaded()) {
+            return;
         }
 
-        public void loadTracks(AudioPlayerManager manager, Consumer<AudioTrack> consumer, Runnable callback) {
-            if (loaded) {
-                return;
-            }
+        playlist.setLoaded(true);
 
-            loaded = true;
+        for (int i = 0; i < playlist.getItems().size(); i++) {
+            boolean last = i + 1 == playlist.getItems().size();
+            int index = i;
+            manager.loadItemOrdered(playlist.getName(), playlist.getItems().get(i), new AudioLoadResultHandler() {
+                @Override
+                public void trackLoaded(AudioTrack at) {
+                    if (settings.get().isTooLong(at)) {
+                        playlist.getErrors().add(new PlaylistLoadError(index, playlist.getItems().get(index),
+                                "This track is longer than the allowed maximum"));
+                    } else {
+                        at.setUserData(0L);
+                        playlist.getTracks().add(at);
+                        consumer.accept(at);
+                    }
+                    if (last && callback != null) {
+                        callback.run();
+                    }
+                }
 
-            for (int i = 0; i < items.size(); i++) {
-                boolean last = i + 1 == items.size();
-                int index = i;
-                manager.loadItemOrdered(name, items.get(i), new AudioLoadResultHandler() {
-                    @Override
-                    public void trackLoaded(AudioTrack at) {
-                        if (bot.getBotSettings().isTooLong(at)) {
-                            errors.add(new PlaylistLoadError(index, items.get(index),
+                @Override
+                public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                    if (audioPlaylist.isSearchResult()) {
+                        if (settings.get().isTooLong(audioPlaylist.getTracks().get(0))) {
+                            playlist.getErrors().add(new PlaylistLoadError(index, playlist.getItems().get(index),
                                     "This track is longer than the allowed maximum"));
                         } else {
-                            at.setUserData(0L);
-                            tracks.add(at);
-                            consumer.accept(at);
+                            audioPlaylist.getTracks().get(0).setUserData(0L);
+                            playlist.getTracks().add(audioPlaylist.getTracks().get(0));
+                            consumer.accept(audioPlaylist.getTracks().get(0));
                         }
-                        if (last && callback != null) {
-                            callback.run();
-                        }
-                    }
-
-                    @Override
-                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                        if (audioPlaylist.isSearchResult()) {
-                            if (bot.getBotSettings().isTooLong(audioPlaylist.getTracks().get(0))) {
-                                errors.add(new PlaylistLoadError(index, items.get(index),
-                                        "This track is longer than the allowed maximum"));
-                            } else {
-                                audioPlaylist.getTracks().get(0).setUserData(0L);
-                                tracks.add(audioPlaylist.getTracks().get(0));
-                                consumer.accept(audioPlaylist.getTracks().get(0));
-                            }
-                        } else if (audioPlaylist.getSelectedTrack() != null) {
-                            if (bot.getBotSettings().isTooLong(audioPlaylist.getSelectedTrack())) {
-                                errors.add(new PlaylistLoadError(index, items.get(index),
-                                        "This track is longer than the allowed maximum"));
-                            } else {
-                                audioPlaylist.getSelectedTrack().setUserData(0L);
-                                tracks.add(audioPlaylist.getSelectedTrack());
-                                consumer.accept(audioPlaylist.getSelectedTrack());
-                            }
+                    } else if (audioPlaylist.getSelectedTrack() != null) {
+                        if (settings.get().isTooLong(audioPlaylist.getSelectedTrack())) {
+                            playlist.getErrors().add(new PlaylistLoadError(index, playlist.getItems().get(index),
+                                    "This track is longer than the allowed maximum"));
                         } else {
-                            List<AudioTrack> loaded = new ArrayList<>(audioPlaylist.getTracks());
+                            audioPlaylist.getSelectedTrack().setUserData(0L);
+                            playlist.getTracks().add(audioPlaylist.getSelectedTrack());
+                            consumer.accept(audioPlaylist.getSelectedTrack());
+                        }
+                    } else {
+                        List<AudioTrack> loaded = new ArrayList<>(audioPlaylist.getTracks());
 
-                            loaded.removeIf(bot.getBotSettings()::isTooLong);
-                            loaded.forEach(at -> at.setUserData(0L));
-                            tracks.addAll(loaded);
-                            loaded.forEach(consumer);
-                        }
-                        if (last && callback != null) {
-                            callback.run();
-                        }
+                        loaded.removeIf(settings.get()::isTooLong);
+                        loaded.forEach(at -> at.setUserData(0L));
+                        playlist.getTracks().addAll(loaded);
+                        loaded.forEach(consumer);
                     }
-
-                    @Override
-                    public void noMatches() {
-                        errors.add(new PlaylistLoadError(index, items.get(index), "No matches found."));
-                        if (last && callback != null) {
-                            callback.run();
-                        }
+                    if (last && callback != null) {
+                        callback.run();
                     }
+                }
 
-                    @Override
-                    public void loadFailed(FriendlyException fe) {
-                        errors.add(new PlaylistLoadError(index, items.get(index), "Failed to load track: "
-                                + fe.getLocalizedMessage()));
-                        if (last && callback != null) {
-                            callback.run();
-                        }
+                @Override
+                public void noMatches() {
+                    playlist.getErrors().add(new PlaylistLoadError(index, playlist.getItems().get(index), "No matches found."));
+                    if (last && callback != null) {
+                        callback.run();
                     }
-                });
+                }
 
-            }
-        }
-
-        public List<String> getItems() {
-            return items;
-        }
-
-        public List<AudioTrack> getTracks() {
-            return tracks;
-        }
-
-        public List<PlaylistLoadError> getErrors() {
-            return errors;
-        }
-    }
-
-    public static class PlaylistLoadError {
-        private final int number;
-        private final String item;
-        private final String reason;
-
-        private PlaylistLoadError(int number, String item, String reason) {
-            this.number = number;
-            this.item = item;
-            this.reason = reason;
-        }
-
-        public int getIndex() {
-            return number;
-        }
-
-        public String getItem() {
-            return item;
-        }
-
-        public String getReason() {
-            return reason;
+                @Override
+                public void loadFailed(FriendlyException fe) {
+                    playlist.getErrors().add(new PlaylistLoadError(index, playlist.getItems().get(index), "Failed to load track: "
+                            + fe.getLocalizedMessage()));
+                    if (last && callback != null) {
+                        callback.run();
+                    }
+                }
+            });
         }
     }
 }
