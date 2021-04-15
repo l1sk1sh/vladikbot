@@ -20,7 +20,9 @@ import com.l1sk1sh.vladikbot.services.rss.RssService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
+import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -107,6 +109,12 @@ class Listener extends ListenerAdapter {
             log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
             log.warn(event.getJDA().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
+
+        /* Setting default activity and status */
+        event.getJDA().getPresence().setActivity((settings.get().getActivity() != null)
+                ? settings.get().getActivity() : Activity.playing("Type " + settings.get().getPrefix() + "help for commands"));
+        event.getJDA().getPresence().setStatus((settings.get().getOnlineStatus() != OnlineStatus.UNKNOWN)
+                ? settings.get().getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB);
 
         /* Create settings for new Guilds */
         for (Guild guild : event.getJDA().getGuilds()) {

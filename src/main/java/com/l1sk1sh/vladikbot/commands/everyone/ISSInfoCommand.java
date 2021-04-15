@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
@@ -31,7 +32,15 @@ public class ISSInfoCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        ISSInfo issInfo = restTemplate.getForObject("https://api.wheretheiss.at/v1/satellites/25544", ISSInfo.class);
+        ISSInfo issInfo;
+        try {
+            issInfo = restTemplate.getForObject("https://api.wheretheiss.at/v1/satellites/25544", ISSInfo.class);
+        } catch (RestClientException e) {
+            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            log.error("Failed to consume API.", e);
+
+            return;
+        }
 
         if (issInfo == null) {
             log.error("'wheretheiss.at' provided empty body.");
@@ -40,7 +49,15 @@ public class ISSInfoCommand extends Command {
             return;
         }
 
-        ISSInfo.Astronauts astronauts = restTemplate.getForObject("http://api.open-notify.org/astros.json", ISSInfo.Astronauts.class);
+        ISSInfo.Astronauts astronauts;
+        try {
+            astronauts = restTemplate.getForObject("http://api.open-notify.org/astros.json", ISSInfo.Astronauts.class);
+        } catch (RestClientException e) {
+            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            log.error("Failed to consume API.", e);
+
+            return;
+        }
 
         if (astronauts == null) {
             log.warn("'open-notify.org' provided empty body.");

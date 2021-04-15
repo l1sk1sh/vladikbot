@@ -100,7 +100,7 @@ public class PlayCommand extends DJCommand {
         );
     }
 
-    private class ResultHandler implements AudioLoadResultHandler {
+    private final class ResultHandler implements AudioLoadResultHandler {
         private final Message message;
         private final CommandEvent event;
         private final boolean ytsearch;
@@ -111,6 +111,7 @@ public class PlayCommand extends DJCommand {
             this.ytsearch = ytsearch;
         }
 
+        @SuppressWarnings("DuplicatedCode")
         private void loadSingle(AudioTrack track, AudioPlaylist playlist) {
             if (settings.get().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(
@@ -237,7 +238,7 @@ public class PlayCommand extends DJCommand {
         }
     }
 
-    private class PlaylistCommand extends MusicCommand {
+    private final class PlaylistCommand extends MusicCommand {
         private PlaylistCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
             super(guildSettingsRepository, playerManager);
             this.name = "playlist";

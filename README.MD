@@ -14,7 +14,7 @@ Bot is written using JDA library and common sense.
 #### Docker
 To ensure smooth Docker performance, make sure to expose `2375 port without TSL` in Docker Settings.
 
-_Note_: Bot itself could be Dockerized and it already has configurations for it. 
+_Note_: Bot itself could be Dockerized, and it already has configurations for it. 
 However, bot uses docker container `tyrrrz/discordchatexporter`, and full dockerization either requires socket connection between two
 containers or integration of `tyrrrz/discordchatexporter` right into bot. As for now, there is no dire need for Docker.
 

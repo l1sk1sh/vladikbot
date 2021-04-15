@@ -14,9 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
@@ -196,22 +193,6 @@ public class BackupMediaCommand extends AdminCommand {
             return false;
         }
 
-        /* Check if dates are within correct period (if "before" is more than "after" date) */
-        if (beforeDate != null && afterDate != null) {
-            try {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-
-                Date before = simpleDateFormat.parse(beforeDate);
-                Date after = simpleDateFormat.parse(afterDate);
-
-                if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
-                    return false;
-                }
-            } catch (ParseException e) {
-                return false;
-            }
-        }
-
-        return true;
+        return CommandUtils.validatePeriod(beforeDate, afterDate);
     }
 }

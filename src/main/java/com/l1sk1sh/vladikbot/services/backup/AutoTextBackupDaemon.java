@@ -30,8 +30,8 @@ import java.util.concurrent.ScheduledExecutorService;
 public class AutoTextBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoTextBackupDaemon.class);
 
-    private final static int MAX_AMOUNT_OF_BACKUPS_PER_CHANNEL = 2;
-    private final static int MIN_DAY_BEFORE_BACKUP = 1;
+    private static final int MAX_AMOUNT_OF_BACKUPS_PER_CHANNEL = 2;
+    private static final int MIN_DAY_BEFORE_BACKUP = 1;
 
     private final JDA jda;
     private final BotSettingsManager settings;

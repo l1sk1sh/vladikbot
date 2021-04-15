@@ -135,14 +135,12 @@ public class BackupMediaService implements Runnable {
     private void writeAttachmentsListTxtFile() throws IOException {
         String pathToTxtFile = localAttachmentsListPath + localAttachmentsListName + "." + Const.FileType.txt.name();
 
-        BufferedWriter out = new BufferedWriter(new FileWriter(pathToTxtFile));
-
-        for (String raw : setOfAllAttachmentsUrls) {
-            out.write(raw);
-            out.newLine();
+        try (BufferedWriter out = new BufferedWriter(new FileWriter(pathToTxtFile))) {
+            for (String raw : setOfAllAttachmentsUrls) {
+                out.write(raw);
+                out.newLine();
+            }
         }
-
-        out.close();
 
         attachmentsTxtFile = new File(pathToTxtFile);
     }

@@ -5,6 +5,9 @@ import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author Oliver Johnson
@@ -43,5 +46,31 @@ public final class CommandUtils {
 
     public static boolean validateBackupDateFormat(String date) {
         return date.matches("([0-9]{2})/([0-9]{2})/([0-9]{4})");
+    }
+
+    /**
+     * Check if dates are within correct period (if "before" is more than "after" date)
+     *
+     * @param beforeDate end of the period
+     * @param afterDate  start of the period
+     * @return true, if period is valid
+     */
+    public static boolean validatePeriod(String beforeDate, String afterDate) {
+        if (beforeDate != null && afterDate != null) {
+            try {
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
+
+                Date before = simpleDateFormat.parse(beforeDate);
+                Date after = simpleDateFormat.parse(afterDate);
+
+                if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
+                    return false;
+                }
+            } catch (ParseException e) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

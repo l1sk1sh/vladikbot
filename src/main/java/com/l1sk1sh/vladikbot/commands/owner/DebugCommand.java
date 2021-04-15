@@ -24,7 +24,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DebugCommand extends OwnerCommand {
     private static final Logger log = LoggerFactory.getLogger(DebugCommand.class);
-    private final static String[] PROPERTIES = {"java.version", "java.vm.name", "java.vm.specification.version",
+    private static final String[] PROPERTIES = {"java.version", "java.vm.name", "java.vm.specification.version",
             "java.runtime.name", "java.runtime.version", "java.specification.version", "os.arch", "os.name"};
 
     private final BotSettingsManager settings;

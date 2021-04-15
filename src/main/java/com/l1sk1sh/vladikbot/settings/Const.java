@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public final class Const {
     private Const() {}
 
-    public final static List<Permission> RECOMMENDED_PERMS = new ArrayList<>();
+    public static final List<Permission> RECOMMENDED_PERMS = new ArrayList<>();
     static {
         RECOMMENDED_PERMS.add(Permission.MESSAGE_READ);
         RECOMMENDED_PERMS.add(Permission.MESSAGE_WRITE);
@@ -29,7 +29,7 @@ public final class Const {
         RECOMMENDED_PERMS.add(Permission.NICKNAME_CHANGE);
     }
 
-    public final static List<GatewayIntent> REQUIRED_INTENTS = new ArrayList<>();
+    public static final List<GatewayIntent> REQUIRED_INTENTS = new ArrayList<>();
     static {
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_MEMBERS);
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_EMOJIS);
@@ -51,18 +51,18 @@ public final class Const {
     public static final String YT_SEARCH_PREFIX = "ytsearch:";
     public static final String SC_SEARCH_PREFIX = "scsearch:";
 
-    public final static String PLAY_EMOJI = "\u25B6";               // ▶
-    public final static String PAUSE_EMOJI = "\u23F8";              // ⏸
-    public final static String STOP_EMOJI = "\u23F9";               // ⏹
-    public final static String REPEAT_EMOJI = "\uD83D\uDD01";       // 🔁
-    public final static String PROGRESS_EMOJI = "\uD83D\uDD18";     // 🔘
-    public final static String HEADPHONES_EMOJI = "\uD83C\uDFA7";   // 🎧
-    public final static String LOAD_EMOJI = "\uD83D\uDCE5";         // 📥
-    public final static String CANCEL_EMOJI = "\uD83D\uDEAB";       // 🚫
-    public final static String VOLUME_OFF_EMOJI = "\uD83D\uDD07";   // 🔇
-    public final static String VOLUME_30_EMOJI = "\uD83D\uDD08";    // 🔈
-    public final static String VOLUME_70_EMOJI = "\uD83D\uDD09";    // 🔉
-    public final static String VOLUME_100_EMOJI = "\uD83D\uDD0A";   // 🔊
+    public static final String PLAY_EMOJI = "\u25B6";               // ▶
+    public static final String PAUSE_EMOJI = "\u23F8";              // ⏸
+    public static final String STOP_EMOJI = "\u23F9";               // ⏹
+    public static final String REPEAT_EMOJI = "\uD83D\uDD01";       // 🔁
+    public static final String PROGRESS_EMOJI = "\uD83D\uDD18";     // 🔘
+    public static final String HEADPHONES_EMOJI = "\uD83C\uDFA7";   // 🎧
+    public static final String LOAD_EMOJI = "\uD83D\uDCE5";         // 📥
+    public static final String CANCEL_EMOJI = "\uD83D\uDEAB";       // 🚫
+    public static final String VOLUME_OFF_EMOJI = "\uD83D\uDD07";   // 🔇
+    public static final String VOLUME_30_EMOJI = "\uD83D\uDD08";    // 🔈
+    public static final String VOLUME_70_EMOJI = "\uD83D\uDD09";    // 🔉
+    public static final String VOLUME_100_EMOJI = "\uD83D\uDD0A";   // 🔊
 
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
 

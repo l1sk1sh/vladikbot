@@ -5,7 +5,12 @@ package com.l1sk1sh.vladikbot.models;
  */
 public interface ScheduledTask {
     String getTaskName();
+
     void execute();
+
+    @SuppressWarnings("unused")
     void start();
+
+    @SuppressWarnings("unused")
     void stop();
 }

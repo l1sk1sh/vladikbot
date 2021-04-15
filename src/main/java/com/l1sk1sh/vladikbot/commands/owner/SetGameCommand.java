@@ -48,7 +48,7 @@ public class SetGameCommand extends OwnerCommand {
         }
     }
 
-    private final static class SetStreamCommand extends OwnerCommand {
+    private static final class SetStreamCommand extends OwnerCommand {
         private SetStreamCommand() {
             this.name = "stream";
             this.aliases = new String[]{"twitch", Const.StatusAction.streaming.name()};
@@ -58,7 +58,7 @@ public class SetGameCommand extends OwnerCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             String[] parts = event.getArgs().split("\\s+", 2);
             if (parts.length < 2) {
                 event.replyError("Please include a twitch username and the name of the game to 'stream'.");
@@ -74,7 +74,7 @@ public class SetGameCommand extends OwnerCommand {
         }
     }
 
-    private final static class SetListenCommand extends OwnerCommand {
+    private static final class SetListenCommand extends OwnerCommand {
         private SetListenCommand() {
             this.name = "listen";
             this.aliases = new String[]{Const.StatusAction.listening.name()};
@@ -84,7 +84,7 @@ public class SetGameCommand extends OwnerCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             if (event.getArgs().isEmpty()) {
                 event.replyError("Please include a title to listen to!");
                 return;
@@ -102,7 +102,7 @@ public class SetGameCommand extends OwnerCommand {
         }
     }
 
-    private final static class SetWatchCommand extends OwnerCommand {
+    private static final class SetWatchCommand extends OwnerCommand {
         private SetWatchCommand() {
             this.name = "watch";
             this.aliases = new String[]{Const.StatusAction.watching.name()};
@@ -112,7 +112,7 @@ public class SetGameCommand extends OwnerCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             if (event.getArgs().isEmpty()) {
                 event.replyError("Please include a title to watch!");
                 return;

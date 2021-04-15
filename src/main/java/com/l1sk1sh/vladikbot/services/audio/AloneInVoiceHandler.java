@@ -27,7 +27,7 @@ public class AloneInVoiceHandler {
     private final ScheduledExecutorService backgroundThreadPool;
     private final BotSettingsManager settings;
     private final PlayerManager playerManager;
-    private final HashMap<Long, Instant> aloneSince = new HashMap<>();
+    private final Map<Long, Instant> aloneSince = new HashMap<>();
     private long aloneTimeUntilStop = 0;
 
     @Autowired

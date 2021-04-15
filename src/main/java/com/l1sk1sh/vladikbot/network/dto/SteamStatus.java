@@ -15,31 +15,31 @@ public class SteamStatus {
     private long time;
 
     public String getWebsiteStatus() {
-        return services.cms.status;
+        return services.getCms().getStatus();
     }
 
     public String getWebsiteOnline() {
-        return services.cms.title;
+        return services.getCms().getTitle();
     }
 
     public String getCommunityStatus() {
-        return services.community.status;
+        return services.getCommunity().getStatus();
     }
 
     public String getCommunityOnline() {
-        return services.community.title;
+        return services.getCommunity().getTitle();
     }
 
     public String getDatabaseHealth() {
-        return services.database.title;
+        return services.getDatabase().getTitle();
     }
 
     public String getIngameStatus() {
-        return services.ingame.status;
+        return services.getIngame().getStatus();
     }
 
     public String getIngameAmount() {
-        return services.ingame.title;
+        return services.getIngame().getTitle();
     }
 
     public int getOnline() {
@@ -50,29 +50,34 @@ public class SteamStatus {
         return time;
     }
 
+    @Getter
     private static class Services {
-        CMS cms;
-        Community community;
-        Database database;
-        InGame ingame;
+        private CMS cms;
+        private Community community;
+        private Database database;
+        private InGame ingame;
 
+        @Getter
         private static class CMS {
-            String status;
-            String title;
+            private String status;
+            private String title;
         }
 
+        @Getter
         private static class Community {
-            String status;
-            String title;
+            private String status;
+            private String title;
         }
 
+        @Getter
         private static class Database {
-            String title;
+            private String title;
         }
 
+        @Getter
         private static class InGame {
-            String status;
-            String title;
+            private String status;
+            private String title;
         }
     }
 }

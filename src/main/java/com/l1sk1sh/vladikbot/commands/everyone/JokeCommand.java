@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -27,7 +28,15 @@ public class JokeCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        DadJoke dadJoke = restTemplate.getForObject("https://icanhazdadjoke.com/", DadJoke.class);
+        DadJoke dadJoke;
+        try {
+            dadJoke = restTemplate.getForObject("https://icanhazdadjoke.com/", DadJoke.class);
+        } catch (RestClientException e) {
+            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            log.error("Failed to consume API.", e);
+
+            return;
+        }
 
         if (dadJoke == null) {
             log.error("Response body is empty.");

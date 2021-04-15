@@ -1,10 +1,9 @@
 #### ToDo List
-0. Perform code analysis and fix issues (especially duplicates)
 0. An embedded message couldn't be switched using emoji after certain time
-0. Migrate to database, instead of .json files (json handling becomes complex)
 0. Add commands
     1. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
     1. `whois [user mention]` - Get user information
+    1. `saypm` - Send a private message to the user
 0. Rework news module:
     1. Gaming news
     1. Major world news
@@ -30,4 +29,3 @@
     1. Add functions /feed bot/
     2. Add stats for bot 
 0. Fix Steam Status API
-0. Update all doc comments

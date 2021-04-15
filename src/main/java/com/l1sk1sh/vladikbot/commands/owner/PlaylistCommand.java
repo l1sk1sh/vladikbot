@@ -47,7 +47,7 @@ public class PlaylistCommand extends OwnerCommand {
         event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
-    private class CreateCommand extends OwnerCommand {
+    private final class CreateCommand extends OwnerCommand {
         private CreateCommand() {
             this.name = "create";
             this.aliases = new String[]{"make"};
@@ -68,7 +68,7 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    private class ReadCommand extends OwnerCommand {
+    private final class ReadCommand extends OwnerCommand {
         private ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list"};
@@ -92,7 +92,7 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    private class UpdateCommand extends OwnerCommand {
+    private final class UpdateCommand extends OwnerCommand {
         private UpdateCommand() {
             this.name = "add";
             this.aliases = new String[]{"append", "update"};
@@ -135,7 +135,7 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    private class DeleteCommand extends OwnerCommand {
+    private final class DeleteCommand extends OwnerCommand {
         private DeleteCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};
@@ -160,7 +160,7 @@ public class PlaylistCommand extends OwnerCommand {
 
     }
 
-    private class ShuffleCommand extends OwnerCommand {
+    private final class ShuffleCommand extends OwnerCommand {
         private ShuffleCommand() {
             this.name = "shuffle";
             this.aliases = new String[]{"mix"};
@@ -189,7 +189,7 @@ public class PlaylistCommand extends OwnerCommand {
         }
     }
 
-    private class DefaultListCommand extends AutoPlaylistCommand {
+    private final class DefaultListCommand extends AutoPlaylistCommand {
         private DefaultListCommand(GuildSettingsRepository guildSettingsRepository) {
             super(playlistLoader, guildSettingsRepository);
             this.name = "default";

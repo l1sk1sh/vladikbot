@@ -19,7 +19,6 @@ import javax.persistence.Table;
 /**
  * @author Oliver Johnson
  */
-@SuppressWarnings("FieldMayBeFinal")
 @NoArgsConstructor
 @Getter
 @Setter

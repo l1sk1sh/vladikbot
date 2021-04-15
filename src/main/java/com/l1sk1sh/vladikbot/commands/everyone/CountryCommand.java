@@ -11,9 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -49,7 +51,15 @@ public class CountryCommand extends Command {
             return;
         }
 
-        ResponseEntity<CountryInfo> response = restTemplate.getForEntity("https://restcountries.eu/rest/v2/name/" + countryCode.toLowerCase(), CountryInfo.class);
+        ResponseEntity<CountryInfo[]> response;
+        try {
+            response = restTemplate.getForEntity("https://restcountries.eu/rest/v2/name/" + countryCode.toLowerCase(), CountryInfo[].class);
+        } catch (RestClientException e) {
+            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            log.error("Failed to consume API.", e);
+
+            return;
+        }
 
         if (response.getStatusCode() != HttpStatus.OK) {
             event.replyWarning(String.format("Country `%1$s` was not found.", countryCode));
@@ -57,7 +67,7 @@ public class CountryCommand extends Command {
             return;
         }
 
-        CountryInfo countryInfo = response.getBody();
+        CountryInfo countryInfo = Objects.requireNonNull(response.getBody())[0];
 
         if (countryInfo == null) {
             log.error("Response body is empty.");

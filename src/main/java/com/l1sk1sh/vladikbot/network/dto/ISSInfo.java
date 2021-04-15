@@ -7,7 +7,7 @@ import lombok.ToString;
 /**
  * @author Oliver Johnson
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused"})
 @Getter
 @Setter
 @ToString
@@ -37,21 +37,23 @@ public class ISSInfo {
     public String getPeopleNames() {
         StringBuilder peopleList = new StringBuilder();
 
-        for (int i = 0; i < astronauts.people.length; i++) {
+        for (int i = 0; i < astronauts.getPeople().length; i++) {
             peopleList.append(i + 1)
                     .append(". ")
-                    .append(astronauts.people[i].name)
+                    .append(astronauts.getPeople()[i].getName())
                     .append("\r\n");
         }
 
         return peopleList.toString();
     }
 
+    @Getter
     public static class Astronauts {
-        People[] people;
+        private People[] people;
 
+        @Getter
         private static class People {
-            String name;
+            private String name;
         }
     }
 }

@@ -83,8 +83,9 @@ public class QueueCommand extends MusicCommand {
                     .setEmbed((nowp == null ? nonowp : nowp).getEmbeds().get(0)).build();
             event.reply(built, m ->
             {
-                if (nowp != null)
+                if (nowp != null) {
                     nowPlayingHandler.setLastNPMessage(m);
+                }
             });
             return;
         }

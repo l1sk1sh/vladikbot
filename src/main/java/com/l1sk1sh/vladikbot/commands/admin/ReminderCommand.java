@@ -60,7 +60,7 @@ public class ReminderCommand extends AdminCommand {
                 scheduledReminder.getDateOfReminder()));
     }
 
-    private class ReadCommand extends AdminCommand {
+    private final class ReadCommand extends AdminCommand {
         private ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list", "read"};
@@ -68,7 +68,7 @@ public class ReminderCommand extends AdminCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             List<Reminder> list = reminderService.getAllReminders();
             if (list == null) {
                 event.replyError("Failed to load available reminders!");
@@ -86,7 +86,7 @@ public class ReminderCommand extends AdminCommand {
         }
     }
 
-    private class DeleteCommand extends AdminCommand {
+    private final class DeleteCommand extends AdminCommand {
         private DeleteCommand() {
             this.name = "delete";
             this.aliases = new String[]{"remove"};

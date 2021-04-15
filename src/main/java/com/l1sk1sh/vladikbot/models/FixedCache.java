@@ -42,10 +42,12 @@ public class FixedCache<K, V> {
         return map.remove(key);
     }
 
+    @SuppressWarnings("unused")
     public V get(K key) {
         return map.get(key);
     }
 
+    @SuppressWarnings("unused")
     public boolean contains(K key) {
         return map.containsKey(key);
     }

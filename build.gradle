@@ -51,6 +51,7 @@ dockerCompose {
 }
 
 tasks.composeUp {
+    //noinspection GrUnresolvedAccess
     dependsOn shadowJar
 }
 

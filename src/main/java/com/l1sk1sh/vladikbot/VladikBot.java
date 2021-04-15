@@ -8,7 +8,6 @@ import com.l1sk1sh.vladikbot.commands.dj.*;
 import com.l1sk1sh.vladikbot.commands.everyone.*;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
-import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
@@ -16,8 +15,6 @@ import lombok.Getter;
 import lombok.Setter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
@@ -161,7 +158,7 @@ class VladikBot {
     private ShutdownCommand shutdownCommand;
 
     @Setter(onMethod = @__({@Autowired}))
-    private BotSettingsManager botSettingsManager;
+    private BotSettingsManager settings;
     @Setter(onMethod = @__({@Autowired}))
     private Listener listener;
     @Setter(onMethod = @__({@Autowired}))
@@ -190,7 +187,10 @@ class VladikBot {
                     .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE)
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
-            jda.addEventListener(readinessListener = new ReadinessListener());
+
+            readinessListener = new ReadinessListener();
+            jda.addEventListener(readinessListener);
+
             return jda;
         } catch (LoginException e) {
             log.error("Invalid username and/or password.");
@@ -241,25 +241,18 @@ class VladikBot {
         }
 
         try {
-            botSettingsManager.readSettings();
-
-            BotSettings botSettings = botSettingsManager.get();
+            settings.readSettings();
 
             CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
-                    .setPrefix(botSettings.getPrefix())
-                    .setOwnerId(Long.toString(botSettings.getOwnerId()))
-                    .setEmojis(botSettings.getSuccessEmoji(), botSettings.getWarningEmoji(), botSettings.getErrorEmoji())
-                    .setHelpWord(botSettings.getHelpWord())
-                    .setStatus((botSettings.getOnlineStatus() != OnlineStatus.UNKNOWN)
-                            ? botSettings.getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB)
-                    .setActivity((botSettings.getActivity() != null)
-                            ? botSettings.getActivity() : Activity.playing("your dad"))
-                    .setLinkedCacheSize(200)
+                    .setPrefix(settings.get().getPrefix())
+                    .setOwnerId(Long.toString(settings.get().getOwnerId()))
+                    .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
+                    .setHelpWord(settings.get().getHelpWord())
+                    .setLinkedCacheSize(1024)
                     .addCommands(
                             new PingCommand(),
                             settingsCommand,
                             statusCommand,
-                            debugCommand,
                             quoteCommand,
                             songInfoCommand,
                             dogFactCommand,
@@ -272,23 +265,6 @@ class VladikBot {
                             flipCoinCommand,
                             issInfoCommand,
                             jokeCommand,
-                            reminderCommand,
-
-                            setNotificationChannelCommand,
-                            setDjCommand,
-                            setTextChannelCommand,
-                            setVoiceChannelCommand,
-
-                            permissionsCommand,
-                            backupMediaCommand,
-                            backupTextChannelCommand,
-                            emojiStatsCommand,
-                            autoReplyCommand,
-                            activitySimulationCommand,
-                            newsManagementCommand,
-                            memesManagementCommand,
-                            guildLoggerCommand,
-                            sayCommand,
 
                             forceSkipCommand,
                             pauseCommand,
@@ -298,16 +274,6 @@ class VladikBot {
                             stopCommand,
                             volumeCommand,
                             moveTrackCommand,
-
-                            autoPlaylistCommand,
-                            playlistCommand,
-                            setAvatarCommand,
-                            setGameCommand,
-                            setNameCommand,
-                            setStatusCommand,
-                            clearTmpCommand,
-                            autoBackupCommand,
-
                             lyricsCommand,
                             nowPlayingCommand,
                             playCommand,
@@ -319,6 +285,31 @@ class VladikBot {
                             skipCommand,
                             soundCloudSearchCommand,
 
+                            reminderCommand,
+                            sayCommand,
+                            permissionsCommand,
+                            backupMediaCommand,
+                            backupTextChannelCommand,
+                            emojiStatsCommand,
+                            autoReplyCommand,
+                            activitySimulationCommand,
+                            newsManagementCommand,
+                            memesManagementCommand,
+                            guildLoggerCommand,
+                            setNotificationChannelCommand,
+                            setDjCommand,
+                            setTextChannelCommand,
+                            setVoiceChannelCommand,
+
+                            autoPlaylistCommand,
+                            playlistCommand,
+                            clearTmpCommand,
+                            autoBackupCommand,
+                            debugCommand,
+                            setAvatarCommand,
+                            setGameCommand,
+                            setNameCommand,
+                            setStatusCommand,
                             shutdownCommand
                     );
 

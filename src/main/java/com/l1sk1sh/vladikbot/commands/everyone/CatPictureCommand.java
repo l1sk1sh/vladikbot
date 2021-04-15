@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
@@ -31,7 +32,15 @@ public class CatPictureCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        CatPicture[] catPictures = restTemplate.getForObject("https://api.thecatapi.com/v1/images/search", CatPicture[].class);
+        CatPicture[] catPictures;
+        try {
+            catPictures = restTemplate.getForObject("https://api.thecatapi.com/v1/images/search", CatPicture[].class);
+        } catch (RestClientException e) {
+            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            log.error("Failed to consume API.", e);
+
+            return;
+        }
 
         if (catPictures == null) {
             log.error("Failed to retrieve a cat picture.");

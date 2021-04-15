@@ -35,7 +35,7 @@ public class SearchCommand extends MusicCommand {
     private final BotSettingsManager settings;
     private final PlayerManager playerManager;
     private final OrderedMenu.Builder builder;
-    String searchPrefix;
+    protected String searchPrefix;
 
     @Autowired
     public SearchCommand(EventWaiter eventWaiter, GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager, BotSettingsManager settings) {
@@ -69,7 +69,7 @@ public class SearchCommand extends MusicCommand {
                         event.getGuild(), searchPrefix + event.getArgs(), new ResultHandler(m, event)));
     }
 
-    private class ResultHandler implements AudioLoadResultHandler {
+    private final class ResultHandler implements AudioLoadResultHandler {
         private final Message message;
         private final CommandEvent event;
 
@@ -78,6 +78,7 @@ public class SearchCommand extends MusicCommand {
             this.event = event;
         }
 
+        @SuppressWarnings("DuplicatedCode")
         @Override
         public void trackLoaded(AudioTrack track) {
             if (settings.get().isTooLong(track)) {

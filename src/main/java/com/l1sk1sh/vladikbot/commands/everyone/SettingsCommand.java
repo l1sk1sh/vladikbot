@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.util.Optional;
 
 /**
  * @author Oliver Johnson
@@ -41,15 +42,20 @@ public class SettingsCommand extends Command {
     @Override
     @SuppressWarnings("ConstantConditions") /* Suppressed as inspector can't detect null verification further in the code  */
     protected void execute(CommandEvent event) {
-        GuildSettings guildSettings = guildSettingsRepository.getOne(event.getGuild().getIdLong());
+        Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(event.getGuild().getIdLong());
+
+        String defaultPlaylist = guildSettings.map(GuildSettings::getDefaultPlaylist).orElse(null);
+        TextChannel textChannel = guildSettings.map(settings -> settings.getTextChannel(event.getGuild())).orElse(null);
+        VoiceChannel voiceChannel = guildSettings.map(settings -> settings.getVoiceChannel(event.getGuild())).orElse(null);
+        TextChannel notificationChannel = guildSettings.map(settings -> settings.getNotificationChannel(event.getGuild())).orElse(null);
+        TextChannel newsChannel = guildSettings.map(settings -> settings.getNewsChannel(event.getGuild())).orElse(null);
+        TextChannel memesChannel = guildSettings.map(settings -> settings.getMemesChannel(event.getGuild())).orElse(null);
+        Role djRole = guildSettings.map(settings -> settings.getDjRole(event.getGuild())).orElse(null);
+
         MessageBuilder builder = new MessageBuilder()
                 .append(Const.HEADPHONES_EMOJI + " **")
                 .append(FormatUtils.filter(event.getSelfUser().getName()))
                 .append("** settings:");
-        TextChannel textChannel = guildSettings.getTextChannel(event.getGuild());
-        TextChannel notificationChannel = guildSettings.getNotificationChannel(event.getGuild());
-        VoiceChannel voiceChannel = guildSettings.getVoiceChannel(event.getGuild());
-        Role djRole = guildSettings.getDjRole(event.getGuild());
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(new Color(244, 160, 0))
@@ -59,13 +65,17 @@ public class SettingsCommand extends Command {
                                 + "\r\nVoice Channel: **"
                                 + ((voiceChannel == null) ? "Any" : voiceChannel.getName()) + "**"
                                 + "\r\nNotification Channel: **"
-                                + ((notificationChannel == null) ? "Any" : notificationChannel.getName()) + "**"
+                                + ((notificationChannel == null) ? "None" : notificationChannel.getName()) + "**"
+                                + "\r\nNews Channel: **"
+                                + ((newsChannel == null) ? "None" : newsChannel.getName()) + "**"
+                                + "\r\nMemes Channel: **"
+                                + ((memesChannel == null) ? "None" : memesChannel.getName()) + "**"
                                 + "\r\nDJ Role: **"
                                 + ((djRole == null) ? "None" : djRole.getName()) + "**"
                                 + "\r\nRepeat Mode: **"
                                 + (settings.get().isRepeat() ? "on" : "off") + "**"
                                 + "\r\nDefault Playlist: **"
-                                + ((guildSettings.getDefaultPlaylist() == null) ? "None" : guildSettings.getDefaultPlaylist()) + "**"
+                                + ((defaultPlaylist == null) ? "None" : defaultPlaylist) + "**"
                                 + "\r\nAuto Reply: **"
                                 + (settings.get().isAutoReply() ? "on" : "off") + "**"
                                 + "\r\nAuto Reply Matching Strategy: **"

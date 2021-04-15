@@ -64,10 +64,10 @@ public final class FileUtils {
     }
 
     public static void writeJson(Object object, File configFile, Gson gson) throws IOException {
-        JsonWriter writer = new JsonWriter(new FileWriter(configFile));
-        writer.setIndent("  ");
-        writer.setHtmlSafe(false);
-        gson.toJson(object, object.getClass(), writer);
-        writer.close();
+        try (JsonWriter writer = new JsonWriter(new FileWriter(configFile))) {
+            writer.setIndent("  ");
+            writer.setHtmlSafe(false);
+            gson.toJson(object, object.getClass(), writer);
+        }
     }
 }

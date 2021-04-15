@@ -29,7 +29,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class AutoMediaBackupDaemon implements ScheduledTask {
     private static final Logger log = LoggerFactory.getLogger(AutoMediaBackupDaemon.class);
 
-    private final static int MIN_DAY_BEFORE_BACKUP = 1;
+    private static final int MIN_DAY_BEFORE_BACKUP = 1;
 
     private final JDA jda;
     private final BotSettingsManager settings;

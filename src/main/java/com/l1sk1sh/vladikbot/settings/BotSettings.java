@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.entities.Activity;
 /**
  * @author Oliver Johnson
  */
-@SuppressWarnings({"FieldCanBeLocal", "CanBeFinal", "FieldMayBeFinal"})
+@SuppressWarnings({"CanBeFinal", "FieldMayBeFinal"})
 @Getter
 public class BotSettings {
 

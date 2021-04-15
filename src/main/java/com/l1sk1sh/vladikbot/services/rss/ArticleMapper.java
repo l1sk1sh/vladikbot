@@ -15,12 +15,15 @@ import java.util.regex.Pattern;
 /**
  * @author Oliver Johnson
  */
-class ArticleMapper {
+final class ArticleMapper {
     private static final Logger log = LoggerFactory.getLogger(ArticleMapper.class);
 
     private static final String EMPTY_TITLE = "Empty title";
     private static final String DESCRIPTION_CUT_ENDING = "[…]";
     private static final int DESCRIPTION_MAX_LENGTH = 350;
+
+    private ArticleMapper() {
+    }
 
     static NewsDiscordMessage mapRssArticleToNewsMessage(Item article, RssService.RssResource resource, String resourceImageUrl) {
         String description = "";
@@ -68,12 +71,12 @@ class ArticleMapper {
     }
 
     private static String getNormalizedDescription(String description) {
-        description = description.replaceAll(DESCRIPTION_CUT_ENDING, "");
-        if (description.length() > DESCRIPTION_MAX_LENGTH) {
-            int indexOfNextSpace = description.indexOf(' ', DESCRIPTION_MAX_LENGTH);
-            description = description.substring(0, indexOfNextSpace);
+        String desc = description.replaceAll(DESCRIPTION_CUT_ENDING, "");
+        if (desc.length() > DESCRIPTION_MAX_LENGTH) {
+            int indexOfNextSpace = desc.indexOf(' ', DESCRIPTION_MAX_LENGTH);
+            desc = desc.substring(0, indexOfNextSpace);
         }
-        return description + " " + DESCRIPTION_CUT_ENDING;
+        return desc + " " + DESCRIPTION_CUT_ENDING;
     }
 
     static String getTitleAsId(Item article) {

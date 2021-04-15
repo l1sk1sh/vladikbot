@@ -54,7 +54,7 @@ public class PlayNextCommand extends DJCommand {
                 m -> super.playerManager.loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
     }
 
-    private class ResultHandler implements AudioLoadResultHandler {
+    private final class ResultHandler implements AudioLoadResultHandler {
         private final Message message;
         private final CommandEvent event;
         private final boolean ytsearch;
@@ -65,6 +65,7 @@ public class PlayNextCommand extends DJCommand {
             this.ytsearch = ytsearch;
         }
 
+        @SuppressWarnings("DuplicatedCode")
         private void loadSingle(AudioTrack track) {
             if (settings.get().isTooLong(track)) {
                 message.editMessage(FormatUtils.filter(String.format(

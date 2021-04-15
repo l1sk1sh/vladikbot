@@ -88,7 +88,7 @@ public class MemesManagementCommand extends AdminCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             if (event.getArgs().isEmpty()) {
                 event.replyError("Please include a text channel.");
                 return;

@@ -107,7 +107,7 @@ public class PlaylistLoader {
         for (int i = 0; i < playlist.getItems().size(); i++) {
             boolean last = i + 1 == playlist.getItems().size();
             int index = i;
-            manager.loadItemOrdered(playlist.getName(), playlist.getItems().get(i), new AudioLoadResultHandler() {
+            AudioLoadResultHandler audioLoadResultHandler = new AudioLoadResultHandler() {
                 @Override
                 public void trackLoaded(AudioTrack at) {
                     if (settings.get().isTooLong(at)) {
@@ -172,7 +172,8 @@ public class PlaylistLoader {
                         callback.run();
                     }
                 }
-            });
+            };
+            manager.loadItemOrdered(playlist.getName(), playlist.getItems().get(i), audioLoadResultHandler);
         }
     }
 }

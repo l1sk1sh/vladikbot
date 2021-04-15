@@ -48,6 +48,7 @@ public class GuildLoggerService {
         SystemUtils.resetLoggerContext();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public void onMessageDelete(GuildMessageDeleteEvent event) {
         MessageCache.CachedMessage oldMessage = messageCache.pullMessage(event.getGuild(), event.getMessageIdLong());
 
@@ -78,6 +79,7 @@ public class GuildLoggerService {
         chatNotificationService.sendEmbeddedWarning(event.getGuild(), notificationMessage);
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public void onMessageUpdate(GuildMessageUpdateEvent event) {
         Message newMessage = event.getMessage();
         MessageCache.CachedMessage oldMessage = messageCache.putMessage(newMessage);
@@ -92,7 +94,7 @@ public class GuildLoggerService {
             return;
         }
 
-        if (newMessage.getContentRaw().equals(oldMessage.getContentRaw())) {
+        if (newMessage.getContentRaw().equals(oldMessage.getContent())) {
             return;
         }
 

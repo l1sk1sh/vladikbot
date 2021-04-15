@@ -1,6 +1,8 @@
 package com.l1sk1sh.vladikbot.services.logging;
 
 import com.l1sk1sh.vladikbot.models.FixedCache;
+import lombok.AccessLevel;
+import lombok.Getter;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -9,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -21,8 +24,8 @@ import java.util.stream.Collectors;
  */
 @Service
 public class MessageCache {
-    private final static int SIZE = 1000;
-    private final HashMap<Long, FixedCache<Long, CachedMessage>> cache = new HashMap<>();
+    private static final int SIZE = 1000;
+    private final Map<Long, FixedCache<Long, CachedMessage>> cache = new HashMap<>();
 
     public CachedMessage putMessage(Message m) {
         if (!cache.containsKey(m.getGuild().getIdLong())) {
@@ -38,6 +41,7 @@ public class MessageCache {
         return cache.get(guild.getIdLong()).pull(messageId);
     }
 
+    @SuppressWarnings("unused")
     public List<CachedMessage> getMessages(Guild guild, Predicate<CachedMessage> predicate) {
         if (!cache.containsKey(guild.getIdLong())) {
             return Collections.emptyList();
@@ -45,9 +49,12 @@ public class MessageCache {
         return cache.get(guild.getIdLong()).getValues().stream().filter(predicate).collect(Collectors.toList());
     }
 
-    public static class CachedMessage implements ISnowflake {
+    @Getter
+    public static final class CachedMessage implements ISnowflake {
+        @Getter(AccessLevel.NONE)
+        private final long id;
+        private final long channel, guild;
         private final String content, username, discriminator;
-        private final long id, channel, guild;
         private final User author;
         private final List<Attachment> attachments;
 
@@ -62,30 +69,16 @@ public class MessageCache {
             attachments = message.getAttachments();
         }
 
-        public String getContentRaw() {
-            return content;
+        @Override
+        public long getIdLong() {
+            return id;
         }
 
-        public List<Attachment> getAttachments() {
-            return attachments;
+        public TextChannel getTextChannel(Guild guild) {
+            return guild.getTextChannelById(channel);
         }
 
-        public User getAuthor() {
-            return author;
-        }
-
-        public String getUsername() {
-            return username;
-        }
-
-        public String getDiscriminator() {
-            return discriminator;
-        }
-
-        public long getAuthorId() {
-            return author.getIdLong();
-        }
-
+        @SuppressWarnings("unused")
         public TextChannel getTextChannel(ShardManager shardManager) {
             if (guild == 0L) {
                 return null;
@@ -97,24 +90,12 @@ public class MessageCache {
             return g.getTextChannelById(channel);
         }
 
-        public long getTextChannelId() {
-            return channel;
-        }
-
-        public TextChannel getTextChannel(Guild guild) {
-            return guild.getTextChannelById(channel);
-        }
-
+        @SuppressWarnings("unused")
         public Guild getGuild(ShardManager shardManager) {
             if (guild == 0L) {
                 return null;
             }
             return shardManager.getGuildById(guild);
-        }
-
-        @Override
-        public long getIdLong() {
-            return id;
         }
     }
 }

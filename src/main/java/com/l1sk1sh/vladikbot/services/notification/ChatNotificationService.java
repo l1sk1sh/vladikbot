@@ -21,7 +21,6 @@ public class ChatNotificationService {
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
     private TextChannel notificationChannel;
-    @SuppressWarnings("FieldCanBeLocal")
     private Guild notificationGuild;
 
     @Autowired

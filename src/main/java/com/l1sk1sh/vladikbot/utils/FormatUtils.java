@@ -87,6 +87,7 @@ public final class FormatUtils {
         return out.toString();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public static String listOfVoiceChannels(List<VoiceChannel> list, String query) {
         final int voiceChannelsListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple voice channels found matching \"" + query + "\":");
@@ -102,6 +103,7 @@ public final class FormatUtils {
         return out.toString();
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public static String listOfRoles(List<Role> list, String query) {
         final int rolesListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
@@ -157,15 +159,16 @@ public final class FormatUtils {
     }
 
     public static String formatMessage(MessageCache.CachedMessage message) {
-        StringBuilder sb = new StringBuilder(message.getContentRaw());
+        StringBuilder sb = new StringBuilder(message.getContent());
         message.getAttachments().forEach(att -> sb.append("\n").append(att.getUrl()));
         return sb.length() > 2048 ? sb.toString().substring(0, 2040) : sb.toString();
     }
 
     public static String formatCachedMessageFullUser(MessageCache.CachedMessage msg) {
-        return filterEveryone("**" + msg.getUsername() + "**#" + msg.getDiscriminator() + " (ID:" + msg.getAuthorId() + ")");
+        return filterEveryone("**" + msg.getUsername() + "**#" + msg.getDiscriminator() + " (ID:" + msg.getAuthor().getId() + ")");
     }
 
+    @SuppressWarnings("unused")
     public static String formatUser(User user) {
         return filterEveryone("**" + user.getName() + "**#" + user.getDiscriminator());
     }

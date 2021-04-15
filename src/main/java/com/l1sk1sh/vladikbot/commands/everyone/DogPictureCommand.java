@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
@@ -31,7 +32,15 @@ public class DogPictureCommand extends Command {
 
     @Override
     protected void execute(CommandEvent event) {
-        DogPicture dogPicture = restTemplate.getForObject("https://dog.ceo/api/breeds/image/random", DogPicture.class);
+        DogPicture dogPicture;
+        try {
+            dogPicture = restTemplate.getForObject("https://dog.ceo/api/breeds/image/random", DogPicture.class);
+        } catch (RestClientException e) {
+            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            log.error("Failed to consume API.", e);
+
+            return;
+        }
 
         if (dogPicture == null) {
             log.error("Response body is empty.");

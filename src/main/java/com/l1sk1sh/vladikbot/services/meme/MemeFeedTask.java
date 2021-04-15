@@ -6,6 +6,7 @@ import com.l1sk1sh.vladikbot.network.dto.Meme;
 import com.l1sk1sh.vladikbot.services.notification.MemeNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -30,7 +31,13 @@ class MemeFeedTask implements Runnable {
     public void run() {
         log.debug("Running memes lookup...");
 
-        Meme meme = restTemplate.getForObject("http://meme-api.herokuapp.com/gimme", Meme.class);
+        Meme meme;
+        try {
+            meme = restTemplate.getForObject("http://meme-api.herokuapp.com/gimme", Meme.class);
+        } catch (RestClientException e) {
+            log.error("Failed to get meme.", e);
+            return;
+        }
 
         if (meme == null) {
             log.error("Response body is empty.");

@@ -53,18 +53,19 @@ public class NewsNotificationService {
     }
 
     private boolean isNewsChannelMissing(Guild guild) {
+        Guild newsGuild = guild;
 
         /* In case this guild doesn't have news channel, sending notification to maintainer */
-        if (guild == null) {
-            guild = jda.getGuildById(settings.get().getMaintainerGuildId());
+        if (newsGuild == null) {
+            newsGuild = jda.getGuildById(settings.get().getMaintainerGuildId());
         }
 
-        if (guild == null) {
+        if (newsGuild == null) {
             return true;
         }
 
-        Guild finalGuild = guild;
-        Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(guild.getIdLong());
+        Guild finalGuild = newsGuild;
+        Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(newsGuild.getIdLong());
         this.newsChannel = guildSettings.map(settings -> settings.getNewsChannel(finalGuild)).orElse(null);
 
         return (this.newsChannel == null);

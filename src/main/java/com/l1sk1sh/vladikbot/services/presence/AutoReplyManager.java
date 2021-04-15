@@ -81,12 +81,10 @@ public class AutoReplyManager {
             }
         }
 
-        if (!toRemoveRules.isEmpty()) {
-            if (replyRules.removeAll(toRemoveRules)) {
-                replyRulesRepository.deleteAll(toRemoveRules);
-                log.info("Reply rules were automatically removed due to shortness.");
-                log.trace("Removed rules: {}", Arrays.toString(toRemoveRules.toArray()));
-            }
+        if (!toRemoveRules.isEmpty() && replyRules.removeAll(toRemoveRules)) {
+            replyRulesRepository.deleteAll(toRemoveRules);
+            log.info("Reply rules were automatically removed due to shortness.");
+            log.trace("Removed rules: {}", Arrays.toString(toRemoveRules.toArray()));
         }
 
         if (matchingRules.isEmpty()) {

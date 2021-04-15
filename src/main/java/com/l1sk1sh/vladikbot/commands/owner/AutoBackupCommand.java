@@ -50,7 +50,7 @@ public class AutoBackupCommand extends OwnerCommand {
         event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
     }
 
-    private class SwitchAutoTextBackupCommand extends OwnerCommand {
+    private final class SwitchAutoTextBackupCommand extends OwnerCommand {
         private SwitchAutoTextBackupCommand() {
             this.name = "stext";
             this.help = "enables or disables auto backup for text";
@@ -59,7 +59,7 @@ public class AutoBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             String[] args = event.getArgs().split("\\s+");
             if (args.length > 0) {
                 for (String arg : args) {
@@ -96,7 +96,7 @@ public class AutoBackupCommand extends OwnerCommand {
         }
     }
 
-    private class SwitchAutoMediaBackupCommand extends OwnerCommand {
+    private final class SwitchAutoMediaBackupCommand extends OwnerCommand {
         private SwitchAutoMediaBackupCommand() {
             this.name = "smedia";
             this.help = "enables or disables auto backup for media";
@@ -105,7 +105,7 @@ public class AutoBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             String[] args = event.getArgs().split("\\s+");
             if (args.length > 0) {
                 for (String arg : args) {
@@ -142,7 +142,7 @@ public class AutoBackupCommand extends OwnerCommand {
         }
     }
 
-    private class FullTextBackupCommand extends OwnerCommand {
+    private final class FullTextBackupCommand extends OwnerCommand {
         private FullTextBackupCommand() {
             this.name = "ftext";
             this.help = "launches immediate text backup for channels";
@@ -150,14 +150,14 @@ public class AutoBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             log.info("Full text backup is about to be executed by {}.", FormatUtils.formatAuthor(event));
             backupThreadPool.execute((autoTextBackupDaemon::execute));
             event.reply("Launched full text backup using daemon.");
         }
     }
 
-    private class FullMediaBackupCommand extends OwnerCommand {
+    private final class FullMediaBackupCommand extends OwnerCommand {
         private FullMediaBackupCommand() {
             this.name = "fmedia";
             this.help = "launches immediate media backup for channels";
@@ -165,7 +165,7 @@ public class AutoBackupCommand extends OwnerCommand {
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected void execute(CommandEvent event) {
             log.info("Full media backup is about to be executed by {}.", FormatUtils.formatAuthor(event));
             backupThreadPool.execute(autoMediaBackupDaemon::execute);
             event.reply("Launched full media backup using daemon.");

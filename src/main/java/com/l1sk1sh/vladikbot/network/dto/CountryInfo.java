@@ -28,11 +28,11 @@ public class CountryInfo {
     }
 
     public String getMainCurrencyName() {
-        return currencies[0].name;
+        return currencies[0].getName();
     }
 
     public String getMainCurrencySymbol() {
-        return currencies[0].symbol;
+        return currencies[0].getSymbol();
     }
 
     public String getFormattedArea() {
@@ -41,8 +41,9 @@ public class CountryInfo {
         return format.format(area);
     }
 
+    @Getter
     private static class Currency {
-        String name;
-        String symbol;
+        private String name;
+        private String symbol;
     }
 }

@@ -116,6 +116,8 @@ public class AutoReplyCommand extends AdminCommand {
     }
 
     private final class ReadCommand extends AdminCommand {
+        private static final int MAX_LIST_SIZE_TO_SHOW = 70;
+
         private ReadCommand() {
             this.name = "all";
             this.aliases = new String[]{"available", "list"};
@@ -125,7 +127,6 @@ public class AutoReplyCommand extends AdminCommand {
 
         @Override
         protected void execute(CommandEvent event) {
-            int MAX_LIST_SIZE_TO_SHOW = 70;
 
             List<ReplyRule> list = autoReplyManager.getAllRules();
 

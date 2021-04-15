@@ -21,8 +21,6 @@ import org.springframework.stereotype.Service;
 
 import java.awt.*;
 import java.io.File;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
@@ -85,6 +83,7 @@ public class EmojiStatsCommand extends AdminCommand {
                 .setTimeout(1, TimeUnit.MINUTES);
     }
 
+    @SuppressWarnings("DuplicatedCode")
     @Override
     public void execute(CommandEvent event) {
         if (!settings.get().isDockerRunning()) {
@@ -267,22 +266,6 @@ public class EmojiStatsCommand extends AdminCommand {
             return false;
         }
 
-        /* Check if dates are within correct period (if "before" is more than "after" date) */
-        if (beforeDate != null && afterDate != null) {
-            try {
-                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM/dd/yyyy");
-
-                Date before = simpleDateFormat.parse(beforeDate);
-                Date after = simpleDateFormat.parse(afterDate);
-
-                if (before.compareTo(after) < 0 || before.compareTo(after) == 0) {
-                    return false;
-                }
-            } catch (ParseException e) {
-                return false;
-            }
-        }
-
-        return true;
+        return CommandUtils.validatePeriod(beforeDate, afterDate);
     }
 }

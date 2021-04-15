@@ -64,13 +64,11 @@ public class EmojiStatsService implements Runnable {
     public void run() {
         settings.get().setLockedBackup(true);
 
-        try {
+        try (Reader reader = new StringReader(
+                FileUtils.readFile(exportedTextFile, StandardCharsets.UTF_8)
+                        .replaceAll("[\"]", "")) /* Removing all quotes as DockerBackup cannot properly form CSV */
+        ) {
             List<CsvParsedDiscordMessage> chatMessages = new ArrayList<>();
-
-            String input = FileUtils.readFile(exportedTextFile, StandardCharsets.UTF_8);
-            input = input.replaceAll("[\"]", ""); /* Removing all quotes as DockerBackup cannot properly form CSV */
-
-            Reader reader = new StringReader(input);
 
             @SuppressWarnings({"unchecked", "rawtypes"})
             CsvToBean<CsvParsedDiscordMessage> csv = new CsvToBeanBuilder(reader)
@@ -92,8 +90,6 @@ public class EmojiStatsService implements Runnable {
                     log.error("Failed to parse line with exception:", e);
                 }
             }
-
-            reader.close();
 
             Matcher emojiMatcher;
             Pattern serverEmojiPattern = Pattern.compile(":[A-Za-z0-9]+:");
@@ -184,15 +180,15 @@ public class EmojiStatsService implements Runnable {
         FileUtils.createFolderIfAbsent(localUsedEmojisPath);
         String pathToCsv = localUsedEmojisPath + localUsedEmojisName + "." + Const.FileType.csv.name();
         usedEmojisCsv = new File(pathToCsv);
-        Writer writer = Files.newBufferedWriter(usedEmojisCsv.toPath());
+        try (Writer writer = Files.newBufferedWriter(usedEmojisCsv.toPath())) {
 
-        @SuppressWarnings({"unchecked", "rawtypes"})
-        StatefulBeanToCsv<UsedEmoji> beanToCsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
-                .build();
+            @SuppressWarnings({"unchecked", "rawtypes"})
+            StatefulBeanToCsv<UsedEmoji> beanToCsv = new StatefulBeanToCsvBuilder(writer)
+                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                    .build();
 
-        beanToCsv.write(allUsedEmojis);
-        writer.close();
+            beanToCsv.write(allUsedEmojis);
+        }
     }
 
     private boolean isEmojiServerInList(String emoji) {
