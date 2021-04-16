@@ -15,41 +15,42 @@ public class SongInfo {
     private Result[] results;
 
     public String getArtistName() {
-        return results[0].artistName;
+        return results[0].getArtistName();
     }
 
     public String getCollectionName() {
-        return results[0].collectionName;
+        return results[0].getCollectionName();
     }
 
     public String getTrackName() {
-        return results[0].trackName;
+        return results[0].getTrackName();
     }
 
     public String getArtistViewUrl() {
-        return results[0].artistViewUrl;
+        return results[0].getArtistViewUrl();
     }
 
     public String getCollectionViewUrl() {
-        return results[0].collectionViewUrl;
+        return results[0].getCollectionViewUrl();
     }
 
     public String getTrackViewUrl() {
-        return results[0].trackViewUrl;
+        return results[0].getTrackViewUrl();
     }
 
     public String getArtworkUrl100() {
-        return results[0].artworkUrl100;
+        return results[0].getArtworkUrl100();
     }
 
     public Date getReleaseDate() {
-        return results[0].releaseDate;
+        return results[0].getReleaseDate();
     }
 
     public String getPrimaryGenreName() {
-        return results[0].primaryGenreName;
+        return results[0].getPrimaryGenreName();
     }
 
+    @Getter
     public static class Result {
         private String artistName;
         private String collectionName;
