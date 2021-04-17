@@ -1,14 +1,16 @@
 package com.l1sk1sh.vladikbot.utils;
 
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DateAndTimeUtils {
-    private DateAndTimeUtils() {}
 
     public static int getDifferenceInDaysBetweenUnixTimestamps(long beforeTimestamp, long afterTimestamp) {
         Date beforeDate = new Date();

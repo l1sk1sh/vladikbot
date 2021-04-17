@@ -3,12 +3,12 @@ package com.l1sk1sh.vladikbot.services.notification;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.network.dto.Meme;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -16,6 +16,7 @@ import java.awt.*;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class MemeNotificationService {
 
@@ -24,14 +25,7 @@ public class MemeNotificationService {
     private final GuildSettingsRepository guildSettingsRepository;
     private TextChannel memeChannel;
 
-    @Autowired
-    public MemeNotificationService(JDA jda, BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
-        this.jda = jda;
-        this.settings = settings;
-        this.guildSettingsRepository = guildSettingsRepository;
-    }
-
-    public final void sendNewsArticle(Guild guild, Meme meme) {
+    public final void sendMemesArticle(Guild guild, Meme meme) {
         if (isMemeChannelMissing(guild)) {
             return;
         }

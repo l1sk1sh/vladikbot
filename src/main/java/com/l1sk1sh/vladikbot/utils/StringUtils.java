@@ -1,12 +1,15 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+
 import java.util.Arrays;
 
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class StringUtils {
-    private StringUtils() {}
 
     public static String replaceLast(String string, String find, String replace) {
         int lastIndex = string.lastIndexOf(find);

@@ -4,6 +4,8 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
@@ -14,8 +16,8 @@ import java.util.TimerTask;
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class SystemUtils {
-    private SystemUtils() {}
 
     /**
      * Exits the JVM, trying to do it nicely, otherwise doing it nastily.

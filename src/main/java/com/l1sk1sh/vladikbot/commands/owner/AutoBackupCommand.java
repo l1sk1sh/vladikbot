@@ -21,13 +21,14 @@ import java.util.concurrent.ScheduledExecutorService;
 public class AutoBackupCommand extends OwnerCommand {
     private static final Logger log = LoggerFactory.getLogger(AutoBackupCommand.class);
 
+    @Qualifier("backupThreadPool")
     private final ScheduledExecutorService backupThreadPool;
     private final BotSettingsManager settings;
     private final AutoTextBackupDaemon autoTextBackupDaemon;
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
 
     @Autowired
-    public AutoBackupCommand(@Qualifier("backupThreadPool") ScheduledExecutorService backupThreadPool,
+    public AutoBackupCommand(ScheduledExecutorService backupThreadPool,
                              BotSettingsManager settings, AutoTextBackupDaemon autoTextBackupDaemon, AutoMediaBackupDaemon autoMediaBackupDaemon) {
         this.backupThreadPool = backupThreadPool;
         this.settings = settings;

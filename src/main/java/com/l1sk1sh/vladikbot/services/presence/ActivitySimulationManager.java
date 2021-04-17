@@ -3,10 +3,10 @@ package com.l1sk1sh.vladikbot.services.presence;
 import com.l1sk1sh.vladikbot.data.entity.Activity;
 import com.l1sk1sh.vladikbot.data.repository.ActivityRepository;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -21,22 +21,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class ActivitySimulationManager {
     private static final Logger log = LoggerFactory.getLogger(ActivitySimulationManager.class);
 
     private final JDA jda;
+    @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
-    private final Random random;
     private final ActivityRepository activityRepository;
-
-    @Autowired
-    public ActivitySimulationManager(JDA jda, @Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool, ActivityRepository activityRepository) {
-        this.jda = jda;
-        this.frontThreadPool = frontThreadPool;
-        this.random = new Random();
-        this.activityRepository = activityRepository;
-    }
+    private final Random random = new Random();
 
     private ScheduledFuture<?> scheduledFuture;
     private List<Activity> simulationRules = new ArrayList<>();

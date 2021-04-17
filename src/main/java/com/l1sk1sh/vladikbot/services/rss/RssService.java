@@ -4,9 +4,9 @@ import com.l1sk1sh.vladikbot.data.repository.SentNewsArticleRepository;
 import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -20,26 +20,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class RssService {
     private static final Logger log = LoggerFactory.getLogger(RssService.class);
 
+    @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final SentNewsArticleRepository sentNewsArticleRepository;
     private final NewsNotificationService newsNotificationService;
     private final BotSettingsManager settings;
-    private final Set<ScheduledFuture<?>> scheduledRssFeeds;
+    private final Set<ScheduledFuture<?>> scheduledRssFeeds = new HashSet<>();
     private boolean initialized = false;
-
-    @Autowired
-    public RssService(@Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool, SentNewsArticleRepository sentNewsArticleRepository,
-                      NewsNotificationService newsNotificationService, BotSettingsManager settings) {
-        this.frontThreadPool = frontThreadPool;
-        this.sentNewsArticleRepository = sentNewsArticleRepository;
-        this.newsNotificationService = newsNotificationService;
-        this.settings = settings;
-        this.scheduledRssFeeds = new HashSet<>();
-    }
 
     public void start() {
         if (!settings.get().isSendNews()) {

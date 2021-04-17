@@ -1,23 +1,21 @@
 package com.l1sk1sh.vladikbot.settings;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class BotSettingsManager implements SettingsUpdateListener {
     private static final Logger log = LoggerFactory.getLogger(BotSettingsManager.class);
@@ -26,17 +24,10 @@ public class BotSettingsManager implements SettingsUpdateListener {
     public static final String BOT_SETTINGS_JSON = "settings_bot.json";
 
     private final Gson gson;
-    private BotSettings botSettings;
-    private final File botConfigFile;
+    private BotSettings botSettings = new BotSettings(this);
+    private final File botConfigFile = new File(DEFAULT_SETTINGS_DIR + "/" + BOT_SETTINGS_JSON);
 
-    @Autowired
-    public BotSettingsManager(Gson gson) {
-        this.gson = gson;
-        this.botConfigFile = new File(DEFAULT_SETTINGS_DIR + "/" + BOT_SETTINGS_JSON);
-        this.botSettings = new BotSettings(this);
-    }
-
-    public void readSettings() throws IOException {
+    public void init() throws IOException {
         if (!botConfigFile.exists()) {
             writeSettings();
             log.warn(String.format("Created %1$s. You will have to setup it manually", BOT_SETTINGS_JSON));
@@ -69,23 +60,5 @@ public class BotSettingsManager implements SettingsUpdateListener {
     @Override
     public void onSettingsUpdated() {
         writeSettings();
-    }
-
-    /**
-     * "Hacker" way of reading token fod JDA initialization to avoid circular dependency
-     *
-     * @return String with token form settings_bot.json
-     * @throws IOException for any IO exception
-     */
-    public static String readRawToken() throws IOException {
-        File settingsFile = new File(DEFAULT_SETTINGS_DIR + "/" + BOT_SETTINGS_JSON);
-        if (!settingsFile.exists()) {
-            FileUtils.writeJson(new BotSettings(null), settingsFile, new Gson());
-        }
-        JsonElement json = JsonParser.parseReader(new FileReader(settingsFile));
-        if (json.isJsonObject()) {
-            return json.getAsJsonObject().get("token").getAsString();
-        }
-        return null;
     }
 }

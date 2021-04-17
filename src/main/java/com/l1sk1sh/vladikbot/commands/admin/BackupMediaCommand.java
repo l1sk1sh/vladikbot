@@ -23,6 +23,7 @@ import java.util.concurrent.ScheduledExecutorService;
 public class BackupMediaCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(BackupMediaCommand.class);
 
+    @Qualifier("backupThreadPool")
     private final ScheduledExecutorService backupThreadPool;
     private final BotSettingsManager settings;
     private final DockerService dockerService;
@@ -31,7 +32,7 @@ public class BackupMediaCommand extends AdminCommand {
     private boolean useExistingBackup;
 
     @Autowired
-    public BackupMediaCommand(@Qualifier("backupThreadPool") ScheduledExecutorService backupThreadPool, BotSettingsManager settings, DockerService dockerService) {
+    public BackupMediaCommand(ScheduledExecutorService backupThreadPool, BotSettingsManager settings, DockerService dockerService) {
         this.backupThreadPool = backupThreadPool;
         this.settings = settings;
         this.dockerService = dockerService;

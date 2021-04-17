@@ -3,6 +3,8 @@ package com.l1sk1sh.vladikbot.utils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import java.io.File;
 import java.text.ParseException;
@@ -12,8 +14,8 @@ import java.util.Date;
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CommandUtils {
-    private CommandUtils() {}
 
     public static StringBuilder getListOfChildCommands(CommandEvent event, Command[] children, String nameOfParentCommand) {
         String message = event.getClient().getWarning() + " " + nameOfParentCommand + " has following commands:\r\n";

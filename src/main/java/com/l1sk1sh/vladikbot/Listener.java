@@ -20,6 +20,7 @@ import com.l1sk1sh.vladikbot.services.rss.RssService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
@@ -37,7 +38,6 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -55,6 +55,7 @@ import java.util.Optional;
  * - DI Spring
  * @author John Grosh
  */
+@RequiredArgsConstructor
 @Service
 class Listener extends ListenerAdapter {
     private static final Logger log = LoggerFactory.getLogger(Listener.class);
@@ -75,31 +76,6 @@ class Listener extends ListenerAdapter {
     private final AutoReplyManager autoReplyManager;
     private final GuildSettingsRepository guildSettingsRepository;
     private final ActivitySimulationManager activitySimulationManager;
-
-    @Autowired
-    Listener(ShutdownHandler shutdownHandler, BotSettingsManager settings, DockerService dockerService, PlayerManager playerManager,
-             ReminderService reminderService, RssService rssService, MemeService memeService,
-             AutoTextBackupDaemon autoTextBackupDaemon, AutoMediaBackupDaemon autoMediaBackupDaemon,
-             GuildLoggerService guildLoggerService, NowPlayingHandler nowPlayingHandler, MessageCache messageCache,
-             AloneInVoiceHandler aloneInVoiceHandler, AutoReplyManager autoReplyManager, GuildSettingsRepository guildSettingsRepository,
-             ActivitySimulationManager activitySimulationManager) {
-        this.shutdownHandler = shutdownHandler;
-        this.settings = settings;
-        this.dockerService = dockerService;
-        this.playerManager = playerManager;
-        this.reminderService = reminderService;
-        this.rssService = rssService;
-        this.memeService = memeService;
-        this.autoTextBackupDaemon = autoTextBackupDaemon;
-        this.autoMediaBackupDaemon = autoMediaBackupDaemon;
-        this.guildLoggerService = guildLoggerService;
-        this.nowPlayingHandler = nowPlayingHandler;
-        this.messageCache = messageCache;
-        this.aloneInVoiceHandler = aloneInVoiceHandler;
-        this.autoReplyManager = autoReplyManager;
-        this.guildSettingsRepository = guildSettingsRepository;
-        this.activitySimulationManager = activitySimulationManager;
-    }
 
     @Override
     public void onReady(ReadyEvent event) {

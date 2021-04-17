@@ -7,9 +7,9 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -23,26 +23,17 @@ import java.util.concurrent.ScheduledExecutorService;
  * - DI Spring
  * @author John Grosh
  */
+@RequiredArgsConstructor
 @Service
 public class PlayerManager extends DefaultAudioPlayerManager {
 
     private final JDA jda;
+    @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final PlaylistLoader playlistLoader;
     private final NowPlayingHandler nowPlayingHandler;
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
-
-    @Autowired
-    public PlayerManager(JDA jda, @Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool, PlaylistLoader playlistLoader, NowPlayingHandler nowPlayingHandler,
-                         BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
-        this.jda = jda;
-        this.frontThreadPool = frontThreadPool;
-        this.playlistLoader = playlistLoader;
-        this.nowPlayingHandler = nowPlayingHandler;
-        this.settings = settings;
-        this.guildSettingsRepository = guildSettingsRepository;
-    }
 
     public final void init() {
         AudioSourceManagers.registerRemoteSources(this);

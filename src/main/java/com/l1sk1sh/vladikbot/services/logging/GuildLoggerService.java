@@ -4,6 +4,7 @@ import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.*;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PermissionOverride;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -24,6 +24,7 @@ import java.util.Objects;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class GuildLoggerService {
     private static final Logger log = LoggerFactory.getLogger(GuildLoggerService.class);
@@ -36,11 +37,7 @@ public class GuildLoggerService {
     private final ChatNotificationService chatNotificationService;
     private final MessageCache messageCache;
 
-    @Autowired
-    public GuildLoggerService(BotSettingsManager settings, ChatNotificationService chatNotificationService, MessageCache messageCache) {
-        this.settings = settings;
-        this.chatNotificationService = chatNotificationService;
-        this.messageCache = messageCache;
+    public void init() {
 
         /* It might be good idea to create separate loggers for each guild, but who cares */
         System.setProperty("guild_log.name", GuildLoggerService.EVENTS_LOG);

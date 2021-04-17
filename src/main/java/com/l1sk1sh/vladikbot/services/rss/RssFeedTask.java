@@ -5,6 +5,7 @@ import com.apptastic.rssreader.RssReader;
 import com.l1sk1sh.vladikbot.data.entity.SentNewsArticle;
 import com.l1sk1sh.vladikbot.data.repository.SentNewsArticleRepository;
 import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ import java.util.stream.Stream;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 final class RssFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(RssFeedTask.class);
 
@@ -32,16 +34,6 @@ final class RssFeedTask implements Runnable {
     private final String rssUrl;
     private final String resourceImageUrl;
     private final Color newsColor;
-
-    RssFeedTask(SentNewsArticleRepository sentNewsArticleRepository, NewsNotificationService newsNotificationService,
-                RssService.RssResource resource, String rssUrl, String resourceImageUrl, Color newsColor) {
-        this.sentNewsArticleRepository = sentNewsArticleRepository;
-        this.newsNotificationService = newsNotificationService;
-        this.resource = resource;
-        this.rssUrl = rssUrl;
-        this.resourceImageUrl = resourceImageUrl;
-        this.newsColor = newsColor;
-    }
 
     @Override
     public void run() {
@@ -80,7 +72,7 @@ final class RssFeedTask implements Runnable {
 
             sentNewsArticleRepository.saveAll(newSentArticles);
 
-            log.info("Sending {} article ({}).", resource, lastAddedArticle.getLink());
+            log.info("Sending '{}' article ({}).", resource, lastAddedArticle.getLink());
             newsNotificationService.sendNewsArticle(null, ArticleMapper.mapRssArticleToNewsMessage(lastAddedArticle, resource, resourceImageUrl), newsColor);
         } catch (ConnectException | HttpTimeoutException | UnresolvedAddressException e) {
             log.warn("Failed to get {} article due to network issues.", resource);

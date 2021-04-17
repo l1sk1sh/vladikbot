@@ -6,6 +6,7 @@ import com.l1sk1sh.vladikbot.models.Pair;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
@@ -14,7 +15,6 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -29,23 +29,15 @@ import java.util.concurrent.TimeUnit;
  * - DI Spring
  * @author John Grosh
  */
+@RequiredArgsConstructor
 @Service
 public class NowPlayingHandler {
     private final JDA jda;
+    @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
     private final Map<Long, Pair<Long, Long>> lastNP; /* guild -> channel, message */
-
-    @Autowired
-    public NowPlayingHandler(JDA jda, @Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool,
-                             BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
-        this.jda = jda;
-        this.frontThreadPool = frontThreadPool;
-        this.settings = settings;
-        this.guildSettingsRepository = guildSettingsRepository;
-        this.lastNP = new HashMap<>();
-    }
 
     public void init() {
         if (!settings.get().isNpImages()) {

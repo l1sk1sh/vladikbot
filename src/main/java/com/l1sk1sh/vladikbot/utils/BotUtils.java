@@ -2,6 +2,8 @@ package com.l1sk1sh.vladikbot.utils;
 
 import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
@@ -26,8 +28,8 @@ import java.util.stream.Collectors;
  * - Removal of update version methods
  * @author John Grosh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class BotUtils {
-    private BotUtils() {}
 
     public static InputStream imageFromUrl(String url) {
         if (url == null) {

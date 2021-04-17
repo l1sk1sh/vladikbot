@@ -4,10 +4,10 @@ import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
 import com.l1sk1sh.vladikbot.data.repository.ReplyRulesRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,24 +18,17 @@ import java.util.Random;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class AutoReplyManager {
     private static final Logger log = LoggerFactory.getLogger(AutoReplyManager.class);
 
     public static final int MIN_REPLY_TO_LENGTH = 3;
 
-    private final Random random;
     private final BotSettingsManager settings;
     private final ReplyRulesRepository replyRulesRepository;
-    private List<ReplyRule> replyRules;
-
-    @Autowired
-    public AutoReplyManager(BotSettingsManager settings, ReplyRulesRepository replyRulesRepository) {
-        this.settings = settings;
-        this.replyRulesRepository = replyRulesRepository;
-        this.replyRules = new ArrayList<>();
-        this.random = new Random();
-    }
+    private final Random random = new Random();
+    private List<ReplyRule> replyRules = new ArrayList<>();
 
     public void init() {
         replyRules = replyRulesRepository.findAll();

@@ -3,6 +3,8 @@ package com.l1sk1sh.vladikbot.utils;
 import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +17,9 @@ import java.nio.file.*;
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileUtils {
     private static final Logger log = LoggerFactory.getLogger(FileUtils.class);
-
-    private FileUtils() {}
 
     public static File getFileByChannelIdAndExtension(String pathToDir, String channelId, Const.FileType extension) throws IOException {
         Files.createDirectories(Paths.get(pathToDir));

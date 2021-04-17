@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.services;
 
 import com.l1sk1sh.vladikbot.data.entity.Reminder;
 import com.l1sk1sh.vladikbot.data.repository.ReminderRepository;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
@@ -9,7 +10,6 @@ import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 import org.ocpsoft.prettytime.nlp.parse.DateGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -24,24 +24,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class ReminderService {
     private static final Logger log = LoggerFactory.getLogger(ReminderService.class);
 
     private final JDA jda;
+    @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final ReminderRepository reminderRepository;
     private Reminder reminder;
     private String errorMessage;
-    private final Map<Long, ScheduledFuture<?>> scheduledReminders;
-
-    @Autowired
-    public ReminderService(JDA jda, @Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool, ReminderRepository reminderRepository) {
-        this.jda = jda;
-        this.frontThreadPool = frontThreadPool;
-        this.reminderRepository = reminderRepository;
-        this.scheduledReminders = new HashMap<>();
-    }
+    private final Map<Long, ScheduledFuture<?>> scheduledReminders = new HashMap<>();
 
     public boolean processReminder(String message, long channelId, long authorId) {
         List<DateGroup> dates = new PrettyTimeParser().parseSyntax(message);

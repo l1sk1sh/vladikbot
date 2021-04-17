@@ -3,6 +3,8 @@ package com.l1sk1sh.vladikbot.utils;
 import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.logging.MessageCache;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
 
 import java.text.DateFormat;
@@ -17,9 +19,8 @@ import java.util.List;
  * - Reformatted code
  * @author John Grosh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FormatUtils {
-    private FormatUtils() {
-    }
 
     public static String formatTimeTillHours(long duration) {
         final float durationDivider = 1000f;

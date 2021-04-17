@@ -2,12 +2,12 @@ package com.l1sk1sh.vladikbot.services.notification;
 
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -15,6 +15,7 @@ import java.awt.*;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class ChatNotificationService {
     private final JDA jda;
@@ -22,13 +23,6 @@ public class ChatNotificationService {
     private final GuildSettingsRepository guildSettingsRepository;
     private TextChannel notificationChannel;
     private Guild notificationGuild;
-
-    @Autowired
-    public ChatNotificationService(JDA jda, BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
-        this.jda = jda;
-        this.settings = settings;
-        this.guildSettingsRepository = guildSettingsRepository;
-    }
 
     @SuppressWarnings("unused")
     public final void sendRawMessage(Guild guild, String message) {

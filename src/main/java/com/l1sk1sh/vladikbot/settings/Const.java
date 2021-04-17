@@ -1,5 +1,7 @@
 package com.l1sk1sh.vladikbot.settings;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
@@ -11,8 +13,8 @@ import java.util.stream.Collectors;
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class Const {
-    private Const() {}
 
     public static final List<Permission> RECOMMENDED_PERMS = new ArrayList<>();
     static {

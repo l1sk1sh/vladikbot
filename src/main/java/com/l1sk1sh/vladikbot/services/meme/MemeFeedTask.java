@@ -4,6 +4,7 @@ import com.l1sk1sh.vladikbot.data.entity.SentMeme;
 import com.l1sk1sh.vladikbot.data.repository.SentMemeRepository;
 import com.l1sk1sh.vladikbot.network.dto.Meme;
 import com.l1sk1sh.vladikbot.services.notification.MemeNotificationService;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
@@ -14,18 +15,13 @@ import java.util.List;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 class MemeFeedTask implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(MemeFeedTask.class);
 
     private final SentMemeRepository sentMemeRepository;
     private final MemeNotificationService memeNotificationService;
-    private final RestTemplate restTemplate;
-
-    MemeFeedTask(SentMemeRepository sentMemeRepository, MemeNotificationService memeNotificationService) {
-        this.sentMemeRepository = sentMemeRepository;
-        this.memeNotificationService = memeNotificationService;
-        this.restTemplate = new RestTemplate();
-    }
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
     public void run() {
@@ -56,6 +52,6 @@ class MemeFeedTask implements Runnable {
 
         log.info("Sending '{}' article ({}).", meme.getTitle(), meme.getPostLink());
 
-        memeNotificationService.sendNewsArticle(null, meme);
+        memeNotificationService.sendMemesArticle(null, meme);
     }
 }

@@ -1,6 +1,8 @@
 package com.l1sk1sh.vladikbot.utils;
 
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +19,9 @@ import java.util.regex.Pattern;
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class DownloadUtils {
     private static final Logger log = LoggerFactory.getLogger(DownloadUtils.class);
-
-    private DownloadUtils() {}
 
     public static String getFilenameFromUrl(String url) {
         String tempUrl = StringUtils.replaceLast(url, "/", "_"); /* Replacing last '/' */

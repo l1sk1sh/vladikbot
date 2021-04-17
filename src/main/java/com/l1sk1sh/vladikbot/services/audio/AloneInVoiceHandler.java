@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
+import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -21,23 +21,16 @@ import java.util.concurrent.TimeUnit;
  * - DI Spring
  * @author Michaili K
  */
+@RequiredArgsConstructor
 @Service
 public class AloneInVoiceHandler {
     private final JDA jda;
+    @Qualifier("backgroundThreadPool")
     private final ScheduledExecutorService backgroundThreadPool;
     private final BotSettingsManager settings;
     private final PlayerManager playerManager;
     private final Map<Long, Instant> aloneSince = new HashMap<>();
     private long aloneTimeUntilStop = 0;
-
-    @Autowired
-    public AloneInVoiceHandler(JDA jda, @Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
-                               BotSettingsManager settings, PlayerManager playerManager) {
-        this.jda = jda;
-        this.backgroundThreadPool = backgroundThreadPool;
-        this.settings = settings;
-        this.playerManager = playerManager;
-    }
 
     public void init() {
         aloneTimeUntilStop = settings.get().getAloneTimeUntilStop();

@@ -8,10 +8,16 @@ import com.l1sk1sh.vladikbot.commands.dj.*;
 import com.l1sk1sh.vladikbot.commands.everyone.*;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
+import com.l1sk1sh.vladikbot.services.audio.AloneInVoiceHandler;
+import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import com.l1sk1sh.vladikbot.services.logging.GuildLoggerService;
+import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -42,6 +48,209 @@ import java.util.concurrent.ScheduledExecutorService;
 class VladikBot {
     private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
+    private final JDA jda;
+    private final BotSettingsManager settings;
+    private final ReadinessListener readinessListener;
+
+    @Setter(onMethod = @__({@Autowired}))
+    private Listener listener;
+    @Setter(onMethod = @__({@Autowired}))
+    private EventWaiter eventWaiter;
+    @Setter(onMethod = @__({@Autowired}))
+    private PlayerManager playerManager;
+    @Setter(onMethod = @__({@Autowired}))
+    private NowPlayingHandler nowPlayingHandler;
+    @Setter(onMethod = @__({@Autowired}))
+    private AloneInVoiceHandler aloneInVoiceHandler;
+    @Setter(onMethod = @__({@Autowired}))
+    private AutoReplyManager autoReplyManager;
+    @Setter(onMethod = @__({@Autowired}))
+    private GuildLoggerService guildLoggerService;
+
+    @Autowired
+    public VladikBot(BotSettingsManager settings) {
+        this.settings = settings;
+        this.readinessListener = new ReadinessListener();
+        this.jda = initJda();
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(VladikBot.class, args);
+    }
+
+    private JDA initJda() {
+        try {
+            settings.init();
+
+            JDA jda = JDABuilder.create(settings.get().getToken(), Const.REQUIRED_INTENTS)
+                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
+                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE)
+                    .setBulkDeleteSplittingEnabled(true)
+                    .build();
+
+            jda.addEventListener(readinessListener);
+
+            return jda;
+        } catch (LoginException e) {
+            log.error("Invalid username and/or password.");
+            SystemUtils.exit(1);
+        } catch (IOException e) {
+            log.error("Error while reading settings.", e);
+            SystemUtils.exit(1);
+        }
+
+        return null;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void init() {
+        Charset defaultCharset = Charset.defaultCharset();
+        String utf9canonical = "utf-8";
+
+        if (!defaultCharset.toString().equalsIgnoreCase(utf9canonical)) {
+            log.warn("Default charset is '{}'. Consider changing to 'UTF-8' by setting JVM options '-Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8'.", defaultCharset);
+        }
+
+        if (!System.getProperty("java.vm.name").contains("64")) {
+            log.warn("It appears that you may not be using a supported Java version. Please use 64-bit java.");
+        }
+
+        playerManager.init();
+        nowPlayingHandler.init();
+        aloneInVoiceHandler.init();
+        autoReplyManager.init();
+        guildLoggerService.init();
+
+        CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
+                .setPrefix(settings.get().getPrefix())
+                .setOwnerId(Long.toString(settings.get().getOwnerId()))
+                .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
+                .setHelpWord(settings.get().getHelpWord())
+                .setLinkedCacheSize(1024)
+                .addCommands(
+                        /* Order of commands is important for 'help' command output */
+                        new PingCommand(),
+                        settingsCommand,
+                        statusCommand,
+                        quoteCommand,
+                        songInfoCommand,
+                        dogFactCommand,
+                        catFactCommand,
+                        dogPictureCommand,
+                        catPictureCommand,
+                        rollDiceCommand,
+                        countryCommand,
+                        steamStatusCommand,
+                        flipCoinCommand,
+                        issInfoCommand,
+                        jokeCommand,
+
+                        forceSkipCommand,
+                        pauseCommand,
+                        playNextCommand,
+                        repeatCommand,
+                        skipToCommand,
+                        stopCommand,
+                        volumeCommand,
+                        moveTrackCommand,
+                        lyricsCommand,
+                        nowPlayingCommand,
+                        playCommand,
+                        playlistsCommand,
+                        queueCommand,
+                        removeCommand,
+                        searchCommand,
+                        shuffleCommand,
+                        skipCommand,
+                        soundCloudSearchCommand,
+
+                        reminderCommand,
+                        sayCommand,
+                        permissionsCommand,
+                        backupMediaCommand,
+                        backupTextChannelCommand,
+                        emojiStatsCommand,
+                        autoReplyCommand,
+                        activitySimulationCommand,
+                        newsManagementCommand,
+                        memesManagementCommand,
+                        guildLoggerCommand,
+                        setNotificationChannelCommand,
+                        setDjCommand,
+                        setTextChannelCommand,
+                        setVoiceChannelCommand,
+
+                        autoPlaylistCommand,
+                        playlistCommand,
+                        clearTmpCommand,
+                        autoBackupCommand,
+                        debugCommand,
+                        setAvatarCommand,
+                        setGameCommand,
+                        setNameCommand,
+                        setStatusCommand,
+                        shutdownCommand
+                );
+        jda.addEventListener(
+                eventWaiter,
+                commandClientBuilder.build(),
+                listener
+        );
+
+        /* Throwing previously captured event into main Listener */
+        listener.onReady(readinessListener.getEvent());
+    }
+
+    @Bean
+    @Scope("singleton")
+    public JDA jda() {
+        return jda;
+    }
+
+    @Bean
+    @Scope("singleton")
+    public EventWaiter eventWaiter() {
+        return new EventWaiter();
+    }
+
+    @Bean(name = "frontThreadPool")
+    @Scope("singleton")
+    public ScheduledExecutorService frontThreadPool() {
+        return Executors.newSingleThreadScheduledExecutor();
+    }
+
+    @Bean(name = "backgroundThreadPool")
+    @Scope("singleton")
+    public ScheduledExecutorService backgroundThreadPool() {
+        return Executors.newScheduledThreadPool(2);
+    }
+
+    @Bean(name = "backupThreadPool")
+    @Scope("singleton")
+    public ScheduledExecutorService backupThreadPool() {
+        return Executors.newSingleThreadScheduledExecutor();
+    }
+
+    /**
+     * Listener is used to capture ReadyEvent and then re-throw it to main Listener when Spring initialization is complete
+     *
+     * @see Listener
+     */
+    @NoArgsConstructor
+    public static class ReadinessListener extends ListenerAdapter {
+
+        @Getter
+        private ReadyEvent event;
+
+        @Override
+        public void onReady(@NotNull ReadyEvent event) {
+            this.event = event;
+        }
+    }
+
+    /**
+     * Commands used in the Bot
+     */
     @Setter(onMethod = @__({@Autowired}))
     private ActivitySimulationCommand activitySimulationCommand;
     @Setter(onMethod = @__({@Autowired}))
@@ -156,183 +365,4 @@ class VladikBot {
     private SetStatusCommand setStatusCommand;
     @Setter(onMethod = @__({@Autowired}))
     private ShutdownCommand shutdownCommand;
-
-    @Setter(onMethod = @__({@Autowired}))
-    private BotSettingsManager settings;
-    @Setter(onMethod = @__({@Autowired}))
-    private Listener listener;
-    @Setter(onMethod = @__({@Autowired}))
-    private EventWaiter eventWaiter;
-
-    private JDA jda;
-    private ReadinessListener readinessListener;
-
-    public static void main(String[] args) {
-        SpringApplication.run(VladikBot.class, args);
-    }
-
-    @Bean
-    @Scope("singleton")
-    public JDA jda() {
-        try {
-            String token = BotSettingsManager.readRawToken();
-
-            if (token == null) {
-                log.error("Token is missing or empty. Check settings file.");
-                SystemUtils.exit(1);
-            }
-
-            jda = JDABuilder.create(token, Const.REQUIRED_INTENTS)
-                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE)
-                    .setBulkDeleteSplittingEnabled(true)
-                    .build();
-
-            readinessListener = new ReadinessListener();
-            jda.addEventListener(readinessListener);
-
-            return jda;
-        } catch (LoginException e) {
-            log.error("Invalid username and/or password.");
-            SystemUtils.exit(1);
-        } catch (IOException e) {
-            log.error("Error while reading token.", e);
-            SystemUtils.exit(1);
-        }
-
-        return null;
-    }
-
-    @Bean
-    @Scope("singleton")
-    public EventWaiter eventWaiter() {
-        return new EventWaiter();
-    }
-
-    @Bean(name = "frontThreadPool")
-    @Scope("singleton")
-    public ScheduledExecutorService frontThreadPool() {
-        return Executors.newSingleThreadScheduledExecutor();
-    }
-
-    @Bean(name = "backgroundThreadPool")
-    @Scope("singleton")
-    public ScheduledExecutorService backgroundThreadPool() {
-        return Executors.newScheduledThreadPool(2);
-    }
-
-    @Bean(name = "backupThreadPool")
-    @Scope("singleton")
-    public ScheduledExecutorService backupThreadPool() {
-        return Executors.newSingleThreadScheduledExecutor();
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void init() {
-        Charset defaultCharset = Charset.defaultCharset();
-        String utf9canonical = "utf-8";
-
-        if (!defaultCharset.toString().equalsIgnoreCase(utf9canonical)) {
-            log.warn("Default charset is '{}'. Consider changing to 'UTF-8' by setting JVM options '-Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8'.", defaultCharset);
-        }
-
-        if (!System.getProperty("java.vm.name").contains("64")) {
-            log.warn("It appears that you may not be using a supported Java version. Please use 64-bit java.");
-        }
-
-        try {
-            settings.readSettings();
-
-            CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
-                    .setPrefix(settings.get().getPrefix())
-                    .setOwnerId(Long.toString(settings.get().getOwnerId()))
-                    .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
-                    .setHelpWord(settings.get().getHelpWord())
-                    .setLinkedCacheSize(1024)
-                    .addCommands(
-                            new PingCommand(),
-                            settingsCommand,
-                            statusCommand,
-                            quoteCommand,
-                            songInfoCommand,
-                            dogFactCommand,
-                            catFactCommand,
-                            dogPictureCommand,
-                            catPictureCommand,
-                            rollDiceCommand,
-                            countryCommand,
-                            steamStatusCommand,
-                            flipCoinCommand,
-                            issInfoCommand,
-                            jokeCommand,
-
-                            forceSkipCommand,
-                            pauseCommand,
-                            playNextCommand,
-                            repeatCommand,
-                            skipToCommand,
-                            stopCommand,
-                            volumeCommand,
-                            moveTrackCommand,
-                            lyricsCommand,
-                            nowPlayingCommand,
-                            playCommand,
-                            playlistsCommand,
-                            queueCommand,
-                            removeCommand,
-                            searchCommand,
-                            shuffleCommand,
-                            skipCommand,
-                            soundCloudSearchCommand,
-
-                            reminderCommand,
-                            sayCommand,
-                            permissionsCommand,
-                            backupMediaCommand,
-                            backupTextChannelCommand,
-                            emojiStatsCommand,
-                            autoReplyCommand,
-                            activitySimulationCommand,
-                            newsManagementCommand,
-                            memesManagementCommand,
-                            guildLoggerCommand,
-                            setNotificationChannelCommand,
-                            setDjCommand,
-                            setTextChannelCommand,
-                            setVoiceChannelCommand,
-
-                            autoPlaylistCommand,
-                            playlistCommand,
-                            clearTmpCommand,
-                            autoBackupCommand,
-                            debugCommand,
-                            setAvatarCommand,
-                            setGameCommand,
-                            setNameCommand,
-                            setStatusCommand,
-                            shutdownCommand
-                    );
-
-            jda.addEventListener(
-                    eventWaiter,
-                    commandClientBuilder.build(),
-                    listener
-            );
-            listener.onReady(readinessListener.getEvent());
-        } catch (IOException e) {
-            log.error("Error while reading or writing a file.", e);
-            SystemUtils.exit(1);
-        }
-    }
-
-    public static class ReadinessListener extends ListenerAdapter {
-
-        @Getter
-        private ReadyEvent event;
-
-        @Override
-        public void onReady(@NotNull ReadyEvent event) {
-            this.event = event;
-        }
-    }
 }

@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.services.logging;
 import com.l1sk1sh.vladikbot.models.FixedCache;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.Message.Attachment;
 import net.dv8tion.jda.api.sharding.ShardManager;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * - DI Spring
  * @author John Grosh
  */
+@NoArgsConstructor
 @Service
 public class MessageCache {
     private static final int SIZE = 1000;

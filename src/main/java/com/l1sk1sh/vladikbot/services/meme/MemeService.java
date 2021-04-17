@@ -4,9 +4,9 @@ import com.l1sk1sh.vladikbot.data.repository.SentMemeRepository;
 import com.l1sk1sh.vladikbot.services.notification.MemeNotificationService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -17,25 +17,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author l1sk1sh
  */
+@RequiredArgsConstructor
 @Service
 public class MemeService {
     private static final Logger log = LoggerFactory.getLogger(MemeService.class);
 
+    @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final BotSettingsManager settings;
     private final SentMemeRepository sentMemeRepository;
     private final MemeNotificationService memeNotificationService;
     private boolean initialized = false;
     private ScheduledFuture<?> scheduledMemeFeed;
-
-    @Autowired
-    public MemeService(@Qualifier("frontThreadPool") ScheduledExecutorService frontThreadPool, BotSettingsManager settings,
-                       SentMemeRepository sentMemeRepository, MemeNotificationService memeNotificationService) {
-        this.frontThreadPool = frontThreadPool;
-        this.settings = settings;
-        this.sentMemeRepository = sentMemeRepository;
-        this.memeNotificationService = memeNotificationService;
-    }
 
     public void start() {
         if (!settings.get().isSendMemes()) {
