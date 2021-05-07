@@ -29,3 +29,4 @@
     1. Add functions /feed bot/
     2. Add stats for bot 
 0. Fix Steam Status API
+0. Start using slash for commands of the bot
