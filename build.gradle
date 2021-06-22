@@ -7,7 +7,6 @@ buildscript {
 plugins {
     id 'java'
     id 'idea'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
     id 'com.avast.gradle.docker-compose' version '0.13.0'
     id 'org.springframework.boot' version '2.4.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -31,15 +30,8 @@ jar {
     }
 }
 
-shadowJar {
-    //noinspection GrDeprecatedAPIUsage
-    baseName = 'vladik'
-    //noinspection GrDeprecatedAPIUsage
-    classifier = null
-    //noinspection GrDeprecatedAPIUsage
-    version = null
-    //noinspection GrDeprecatedAPIUsage
-    destinationDir = file(".docker/bot")
+bootJar {
+    launchScript()
 }
 
 dockerCompose {
@@ -52,7 +44,7 @@ dockerCompose {
 
 tasks.composeUp {
     //noinspection GrUnresolvedAccess
-    dependsOn shadowJar
+    dependsOn bootJar
 }
 
 dependencies {
@@ -84,4 +76,19 @@ dependencies {
     implementation 'com.github.docker-java:docker-java:3.2.1'
 
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
+}
+
+afterEvaluate {
+    bootJar.finalizedBy(copyExecutableJar)
+}
+
+task copyExecutableJar {
+    doLast {
+        copy {
+            from "$rootDir/build/libs"
+            include "vladikbot-${version}.jar"
+            into ".docker/bot"
+            rename "(.+).jar", "vladik.jar"
+        }
+    }
 }
