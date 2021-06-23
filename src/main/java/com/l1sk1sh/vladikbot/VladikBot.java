@@ -118,7 +118,7 @@ class VladikBot {
         }
 
         try {
-            Server tcpServer = org.h2.tools.Server.createTcpServer().start();
+            Server tcpServer = org.h2.tools.Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers").start();
             if (tcpServer != null) {
                 log.info("H2 TCP server has been started with port '{}' and URL '{}'", tcpServer.getPort(), tcpServer.getURL());
             }
