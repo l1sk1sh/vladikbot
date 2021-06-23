@@ -30,3 +30,5 @@
     2. Add stats for bot 
 0. Fix Steam Status API
 0. Start using slash for commands of the bot
+0. Add bot commands reaction to default slash (Discord API updated)
+0. Add custom status to the bot (with emojis)
