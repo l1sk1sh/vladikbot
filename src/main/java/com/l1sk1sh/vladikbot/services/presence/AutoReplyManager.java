@@ -112,20 +112,14 @@ public class AutoReplyManager {
     public void writeRule(ReplyRule rule) {
         log.debug("Writing new reply rule '{}'.", rule);
 
-        if (getRuleById(rule.getId()) != null) {
-            log.info("Rule '{}' already exists. Removing...", rule.getId());
-            deleteRule(rule);
-        }
-
-        replyRules.add(rule);
+        replyRules.add(replyRulesRepository.save(rule));
     }
 
     public void deleteRule(ReplyRule rule) {
         log.info("Trying to remove reply rule '{}'...", rule);
-        if (replyRules.remove(rule)) {
-            replyRulesRepository.delete(rule);
-            log.info("Rule '{}' has been removed.", rule);
-        }
+        replyRulesRepository.delete(rule);
+        replyRules.stream().filter(r -> r.getId() == rule.getId()).findFirst()
+                .ifPresent(runtimeActivity -> replyRules.remove(runtimeActivity));
     }
 
     public List<ReplyRule> getAllRules() {

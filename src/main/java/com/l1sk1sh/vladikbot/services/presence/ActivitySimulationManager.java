@@ -47,9 +47,7 @@ public class ActivitySimulationManager {
     public void writeRule(Activity rule) {
         log.debug("Writing new ActivitySimulation rule '{}'.", rule);
 
-        activityRepository.save(rule);
-
-        simulationRules.add(rule);
+        simulationRules.add(activityRepository.save(rule));
     }
 
     public void deleteRule(String activityName) throws IOException {
@@ -61,7 +59,8 @@ public class ActivitySimulationManager {
 
         log.info("Trying to remove ActivitySimulation rule '{}'...", rule);
         activityRepository.delete(rule);
-        simulationRules.remove(rule);
+        simulationRules.stream().filter(r -> r.getId() == rule.getId()).findFirst()
+                .ifPresent(runtimeActivity -> simulationRules.remove(runtimeActivity));
     }
 
     public List<Activity> getAllRules() {

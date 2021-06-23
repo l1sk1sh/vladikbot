@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot;
 
+import com.google.gson.Gson;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.Reminder;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
@@ -20,6 +21,8 @@ import com.l1sk1sh.vladikbot.services.rss.RssService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
+import com.l1sk1sh.vladikbot.utils.FileUtils;
+import com.l1sk1sh.vladikbot.utils.MigrationUtils;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
@@ -60,6 +63,7 @@ import java.util.Optional;
 class Listener extends ListenerAdapter {
     private static final Logger log = LoggerFactory.getLogger(Listener.class);
 
+    private final Gson gson;
     private final ShutdownHandler shutdownHandler;
     private final BotSettingsManager settings;
     private final DockerService dockerService;
@@ -78,7 +82,18 @@ class Listener extends ListenerAdapter {
     private final ActivitySimulationManager activitySimulationManager;
 
     @Override
-    public void onReady(ReadyEvent event) {
+    public void onReady(@NotNull ReadyEvent event) {
+
+        /* Execute migrations if necessary */
+        if (!FileUtils.fileOrFolderIsAbsent("./" + MigrationUtils.REPLIES_FILE_NAME)) {
+            log.debug("Migrating .json file with reply rules to database...");
+            MigrationUtils.migrateReplyRules(autoReplyManager, gson);
+        }
+
+        if (!FileUtils.fileOrFolderIsAbsent("./" + MigrationUtils.SIMULATIONS_FILE_NAME)) {
+            log.debug("Migrating .json file with activities to database...");
+            MigrationUtils.migrateActivities(activitySimulationManager, gson);
+        }
 
         /* Check if bot added to Guilds */
         if (event.getJDA().getGuilds().isEmpty()) {

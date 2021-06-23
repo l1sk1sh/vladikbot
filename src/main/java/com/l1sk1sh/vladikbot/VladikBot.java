@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import org.h2.tools.Server;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +39,7 @@ import org.springframework.context.event.EventListener;
 import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -113,6 +115,15 @@ class VladikBot {
 
         if (!System.getProperty("java.vm.name").contains("64")) {
             log.warn("It appears that you may not be using a supported Java version. Please use 64-bit java.");
+        }
+
+        try {
+            Server tcpServer = org.h2.tools.Server.createTcpServer().start();
+            if (tcpServer != null) {
+                log.info("H2 TCP server has been started with port '{}' and URL '{}'", tcpServer.getPort(), tcpServer.getURL());
+            }
+        } catch (SQLException e) {
+            log.error("Failed to launch H2 server.", e);
         }
 
         playerManager.init();
