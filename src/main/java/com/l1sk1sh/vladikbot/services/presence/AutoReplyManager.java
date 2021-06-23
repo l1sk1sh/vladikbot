@@ -36,7 +36,11 @@ public class AutoReplyManager {
 
     public void reply(Message message) {
         if (message.getMentionedMembers().contains(message.getGuild().getSelfMember())) {
-            message.getTextChannel().sendMessage("\"I'm sorry, I don't take orders. I barely take suggestions.\"").queue();
+            if (!replyRules.isEmpty()) {
+                ReplyRule randomRule = replyRules.get(random.nextInt(replyRules.size()));
+                String randomReply = randomRule.getReactWithList().get(random.nextInt(randomRule.getReactWithList().size()));
+                message.getTextChannel().sendMessage(randomReply).queue();
+            }
             return;
         }
 
