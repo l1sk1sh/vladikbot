@@ -65,7 +65,7 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.3'
     implementation 'org.fusesource.jansi:jansi:2.3.2'
 
-    implementation 'com.opencsv:opencsv:5.4'
+    implementation 'com.opencsv:opencsv:5.5.2'
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'com.apptastic:rssreader:2.5.0'
 

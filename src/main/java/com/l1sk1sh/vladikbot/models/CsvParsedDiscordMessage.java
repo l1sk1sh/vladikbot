@@ -2,10 +2,7 @@ package com.l1sk1sh.vladikbot.models;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvDate;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.Date;
 
@@ -16,6 +13,7 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
+@NoArgsConstructor
 public class CsvParsedDiscordMessage {
 
     @CsvBindByName(required = true)
