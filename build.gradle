@@ -1,6 +1,7 @@
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
 }
 
@@ -25,6 +26,7 @@ compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
 jar {
+    //noinspection GroovyAssignabilityCheck
     manifest {
         attributes 'Main-Class': 'com.l1sk1sh.vladikbot.VladikBot'
     }
@@ -48,10 +50,10 @@ tasks.composeUp {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:4.2.1_255'
+    implementation 'net.dv8tion:JDA:4.3.0_312'
     implementation 'com.jagrosh:jda-utilities:3.0.5'
-    implementation 'com.jagrosh:JLyrics:0.4'
-    implementation 'com.sedmelluq:lavaplayer:1.3.75'
+    implementation 'com.jagrosh:JLyrics:0.5'
+    implementation 'com.sedmelluq:lavaplayer:1.3.78'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'

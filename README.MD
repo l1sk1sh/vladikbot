@@ -3,7 +3,7 @@ Bot is written using JDA library and common sense.
 #### Credits
 - [JDA](https://github.com/DV8FromTheWorld/JDA) for flexible and intuitive Discord API Java wrapper
 - [Yui-bot](https://github.com/DV8FromTheWorld/Yui) for basic idea of how discord bot should work
-- [JMusic](https://github.com/jagrosh/MusicBot) (_Apr 2, 2021_) for wonderful and simple MusicBot, that has become a core of project
+- [JMusic](https://github.com/jagrosh/MusicBot) (_Aug 31, 2021_) for wonderful and simple MusicBot, that has become a core of project
 - [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases) for discord chat backup solution
 - [Dyno Bot](https://dyno.gg/bot) for great ideas on how to improve and extend bot
 #### Recommended launch options

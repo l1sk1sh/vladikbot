@@ -86,7 +86,7 @@ class VladikBot {
 
             JDA jda = JDABuilder.create(settings.get().getToken(), Const.REQUIRED_INTENTS)
                     .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE)
+                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE, CacheFlag.ONLINE_STATUS)
                     .setBulkDeleteSplittingEnabled(true)
                     .build();
 
