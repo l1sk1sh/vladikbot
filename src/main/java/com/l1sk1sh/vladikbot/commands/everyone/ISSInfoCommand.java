@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.network.dto.ISSInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.awt.*;
  * @author l1sk1sh
  */
 @Service
-public class ISSInfoCommand extends Command {
+public class ISSInfoCommand extends SlashCommand {
     private static final Logger log = LoggerFactory.getLogger(DogFactCommand.class);
 
     private final RestTemplate restTemplate;
@@ -27,24 +27,24 @@ public class ISSInfoCommand extends Command {
     public ISSInfoCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "space";
-        this.help = "get ISS current info";
+        this.help = "Get ISS current info";
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected void execute(SlashCommandEvent event) {
         ISSInfo issInfo;
         try {
             issInfo = restTemplate.getForObject("https://api.wheretheiss.at/v1/satellites/25544", ISSInfo.class);
         } catch (RestClientException e) {
-            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (issInfo == null) {
+            event.reply("Couldn't get IIS info.").setEphemeral(true).queue();
             log.error("'wheretheiss.at' provided empty body.");
-            event.replyWarning("Couldn't get IIS info.");
 
             return;
         }
@@ -53,7 +53,7 @@ public class ISSInfoCommand extends Command {
         try {
             astronauts = restTemplate.getForObject("http://api.open-notify.org/astros.json", ISSInfo.Astronauts.class);
         } catch (RestClientException e) {
-            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
@@ -74,6 +74,6 @@ public class ISSInfoCommand extends Command {
                 .addField("Humans in space", issInfo.getPeopleNames(), true)
                 .setImage("http://businessforum.com/nasa01.JPEG");
 
-        event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+        event.reply(builder.setEmbeds(embedBuilder.build()).build()).queue();
     }
 }

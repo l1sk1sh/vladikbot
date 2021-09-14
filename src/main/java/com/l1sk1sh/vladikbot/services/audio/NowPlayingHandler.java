@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.Pair;
@@ -32,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Service
 public class NowPlayingHandler {
-    private final JDA jda;
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final BotSettingsManager settings;
@@ -56,6 +56,7 @@ public class NowPlayingHandler {
     private void updateAll() {
         /* Might be subject to bug connected with music playing. Review commit when this message was added */
         Set<Long> toRemove = new HashSet<>();
+        JDA jda = VladikBot.jda();
 
         for (Map.Entry<Long, Pair<Long, Long>> entry : lastNP.entrySet()) {
             long guildId = entry.getKey();
@@ -96,6 +97,7 @@ public class NowPlayingHandler {
     }
 
     public void updateTopic(long guildId, AudioHandler audioHandler, boolean wait) {
+        JDA jda = VladikBot.jda();
         Guild guild = jda.getGuildById(guildId);
         if (guild == null) {
             return;
@@ -136,6 +138,7 @@ public class NowPlayingHandler {
 
         /* Update bot status if applicable */
         if (settings.get().isSongInStatus()) {
+            JDA jda = VladikBot.jda();
 
             if (track != null && jda.getGuilds().stream()
                     .filter(g -> Objects.requireNonNull(g.getSelfMember().getVoiceState()).inVoiceChannel()).count() <= 1) {

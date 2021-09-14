@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.services.notification;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -18,7 +18,6 @@ import java.awt.*;
 @RequiredArgsConstructor
 @Service
 public class ChatNotificationService {
-    private final JDA jda;
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
     private TextChannel notificationChannel;
@@ -68,7 +67,7 @@ public class ChatNotificationService {
 
         /* In case this guild doesn't have notification channel, sending notification to maintainer */
         if (this.notificationGuild == null) {
-            this.notificationGuild = jda.getGuildById(settings.get().getMaintainerGuildId());
+            this.notificationGuild = VladikBot.jda().getGuildById(settings.get().getMaintainerGuildId());
         }
 
         if (this.notificationGuild == null) {

@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
@@ -20,7 +21,6 @@ import java.util.concurrent.ScheduledExecutorService;
 public class ShutdownHandler {
     private static final Logger log = LoggerFactory.getLogger(ShutdownHandler.class);
 
-    private final JDA jda;
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     @Qualifier("backgroundThreadPool")
@@ -40,6 +40,7 @@ public class ShutdownHandler {
         frontThreadPool.shutdownNow();
         backgroundThreadPool.shutdownNow();
         backupThreadPool.shutdownNow();
+        JDA jda = VladikBot.jda();
         if (jda.getStatus() != JDA.Status.SHUTTING_DOWN) {
             jda.getGuilds().forEach(g -> {
                 g.getAudioManager().closeAudioConnection();

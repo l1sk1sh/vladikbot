@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.services.presence;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.Activity;
 import com.l1sk1sh.vladikbot.data.repository.ActivityRepository;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -26,7 +26,6 @@ import java.util.concurrent.TimeUnit;
 public class ActivitySimulationManager {
     private static final Logger log = LoggerFactory.getLogger(ActivitySimulationManager.class);
 
-    private final JDA jda;
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final ActivityRepository activityRepository;
@@ -85,13 +84,13 @@ public class ActivitySimulationManager {
 
             switch (rule.getStatusAction()) {
                 case playing:
-                    jda.getPresence().setActivity(net.dv8tion.jda.api.entities.Activity.playing(rule.getActivityName()));
+                    VladikBot.jda().getPresence().setActivity(net.dv8tion.jda.api.entities.Activity.playing(rule.getActivityName()));
                     break;
                 case listening:
-                    jda.getPresence().setActivity(net.dv8tion.jda.api.entities.Activity.listening(rule.getActivityName()));
+                    VladikBot.jda().getPresence().setActivity(net.dv8tion.jda.api.entities.Activity.listening(rule.getActivityName()));
                     break;
                 case watching:
-                    jda.getPresence().setActivity(net.dv8tion.jda.api.entities.Activity.watching(rule.getActivityName()));
+                    VladikBot.jda().getPresence().setActivity(net.dv8tion.jda.api.entities.Activity.watching(rule.getActivityName()));
                     break;
             }
         };

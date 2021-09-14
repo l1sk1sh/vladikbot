@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.services;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.Reminder;
 import com.l1sk1sh.vladikbot.data.repository.ReminderRepository;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 public class ReminderService {
     private static final Logger log = LoggerFactory.getLogger(ReminderService.class);
 
-    private final JDA jda;
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final ReminderRepository reminderRepository;
@@ -63,14 +62,14 @@ public class ReminderService {
         }
 
         Runnable remindEvent = () -> {
-            TextChannel textChannel = jda.getTextChannelById(reminder.getTextChannelId());
+            TextChannel textChannel = VladikBot.jda().getTextChannelById(reminder.getTextChannelId());
             if (textChannel == null) {
                 log.error("Reminder's text channel ({}) is absent.", reminder.getTextChannelId());
                 reminderRepository.delete(reminder);
                 return;
             }
 
-            User author = jda.getUserById(reminder.getAuthorId());
+            User author = VladikBot.jda().getUserById(reminder.getAuthorId());
 
             if (author == null) {
                 log.warn("Author of reminder is no long present.");

@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Service
 public class AloneInVoiceHandler {
-    private final JDA jda;
     @Qualifier("backgroundThreadPool")
     private final ScheduledExecutorService backgroundThreadPool;
     private final BotSettingsManager settings;
@@ -46,7 +45,7 @@ public class AloneInVoiceHandler {
                 continue;
             }
 
-            Guild guild = jda.getGuildById(entrySet.getKey());
+            Guild guild = VladikBot.jda().getGuildById(entrySet.getKey());
 
             if (guild == null) {
                 toRemove.add(entrySet.getKey());

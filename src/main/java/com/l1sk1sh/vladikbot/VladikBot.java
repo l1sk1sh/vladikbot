@@ -2,7 +2,6 @@ package com.l1sk1sh.vladikbot;
 
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.jagrosh.jdautilities.examples.command.PingCommand;
 import com.l1sk1sh.vladikbot.commands.admin.*;
 import com.l1sk1sh.vladikbot.commands.dj.*;
 import com.l1sk1sh.vladikbot.commands.everyone.*;
@@ -16,16 +15,11 @@ import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.h2.tools.Server;
-import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,12 +41,11 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author l1sk1sh
  */
 @SpringBootApplication
-class VladikBot {
+public class VladikBot {
     private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
-    private final JDA jda;
+    private static JDA jda;
     private final BotSettingsManager settings;
-    private final ReadinessListener readinessListener;
 
     @Setter(onMethod = @__({@Autowired}))
     private Listener listener;
@@ -72,36 +65,10 @@ class VladikBot {
     @Autowired
     public VladikBot(BotSettingsManager settings) {
         this.settings = settings;
-        this.readinessListener = new ReadinessListener();
-        this.jda = initJda();
     }
 
     public static void main(String[] args) {
         SpringApplication.run(VladikBot.class, args);
-    }
-
-    private JDA initJda() {
-        try {
-            settings.init();
-
-            JDA jda = JDABuilder.create(settings.get().getToken(), Const.REQUIRED_INTENTS)
-                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
-                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE, CacheFlag.ONLINE_STATUS)
-                    .setBulkDeleteSplittingEnabled(true)
-                    .build();
-
-            jda.addEventListener(readinessListener);
-
-            return jda;
-        } catch (LoginException e) {
-            log.error("Invalid username and/or password.");
-            SystemUtils.exit(1);
-        } catch (IOException e) {
-            log.error("Error while reading settings.", e);
-            SystemUtils.exit(1);
-        }
-
-        return null;
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -126,6 +93,13 @@ class VladikBot {
             log.error("Failed to launch H2 server.", e);
         }
 
+        try {
+            settings.init();
+        } catch (IOException e) {
+            log.error("Error while reading settings.", e);
+            SystemUtils.exit(1);
+        }
+
         playerManager.init();
         nowPlayingHandler.init();
         aloneInVoiceHandler.init();
@@ -138,9 +112,10 @@ class VladikBot {
                 .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
                 .setHelpWord(settings.get().getHelpWord())
                 .setLinkedCacheSize(1024)
-                .addCommands(
-                        /* Order of commands is important for 'help' command output */
-                        new PingCommand(),
+                .forceGuildOnly("518033082037698560") // Force specific guild for debug purposes
+                .addSlashCommands(
+                        /* Everyone commands */
+                        pingCommand,
                         settingsCommand,
                         statusCommand,
                         quoteCommand,
@@ -151,10 +126,21 @@ class VladikBot {
                         catPictureCommand,
                         rollDiceCommand,
                         countryCommand,
-                        steamStatusCommand,
                         flipCoinCommand,
                         issInfoCommand,
-                        jokeCommand,
+                        jokeCommand
+
+                        /* Music commands */
+
+                        /* Music commands DJ only */
+
+                        /* Administrator commands */
+
+                        /* Owner commands */
+
+                )
+                .addCommands(
+                        /* Order of commands is important for 'help' command output */
 
                         forceSkipCommand,
                         pauseCommand,
@@ -164,7 +150,6 @@ class VladikBot {
                         stopCommand,
                         volumeCommand,
                         moveTrackCommand,
-                        lyricsCommand,
                         nowPlayingCommand,
                         playCommand,
                         playlistsCommand,
@@ -202,19 +187,28 @@ class VladikBot {
                         setStatusCommand,
                         shutdownCommand
                 );
-        jda.addEventListener(
-                eventWaiter,
-                commandClientBuilder.build(),
-                listener
-        );
 
-        /* Throwing previously captured event into main Listener */
-        listener.onReady(readinessListener.getEvent());
+        try {
+            jda = JDABuilder.create(settings.get().getToken(), Const.REQUIRED_INTENTS)
+                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
+                    .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE, CacheFlag.ONLINE_STATUS)
+                    .setBulkDeleteSplittingEnabled(true)
+                    .addEventListeners(
+                            eventWaiter,
+                            commandClientBuilder.build(),
+                            listener
+                    )
+                    .build();
+        } catch (LoginException e) {
+            log.error("Invalid username and/or password.");
+            SystemUtils.exit(1);
+        }
     }
 
-    @Bean
-    @Scope("singleton")
-    public JDA jda() {
+    /**
+     * Should be called only after initialization, that is done later then beans initialization.
+     */
+    public static JDA jda() {
         return jda;
     }
 
@@ -240,23 +234,6 @@ class VladikBot {
     @Scope("singleton")
     public ScheduledExecutorService backupThreadPool() {
         return Executors.newSingleThreadScheduledExecutor();
-    }
-
-    /**
-     * Listener is used to capture ReadyEvent and then re-throw it to main Listener when Spring initialization is complete
-     *
-     * @see Listener
-     */
-    @NoArgsConstructor
-    public static class ReadinessListener extends ListenerAdapter {
-
-        @Getter
-        private ReadyEvent event;
-
-        @Override
-        public void onReady(@NotNull ReadyEvent event) {
-            this.event = event;
-        }
     }
 
     /**
@@ -325,6 +302,8 @@ class VladikBot {
     @Setter(onMethod = @__({@Autowired}))
     private JokeCommand jokeCommand;
     @Setter(onMethod = @__({@Autowired}))
+    private PingCommand pingCommand;
+    @Setter(onMethod = @__({@Autowired}))
     private QuoteCommand quoteCommand;
     @Setter(onMethod = @__({@Autowired}))
     private RollDiceCommand rollDiceCommand;
@@ -334,10 +313,6 @@ class VladikBot {
     private SongInfoCommand songInfoCommand;
     @Setter(onMethod = @__({@Autowired}))
     private StatusCommand statusCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private SteamStatusCommand steamStatusCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private LyricsCommand lyricsCommand;
     @Setter(onMethod = @__({@Autowired}))
     private NowPlayingCommand nowPlayingCommand;
     @Setter(onMethod = @__({@Autowired}))

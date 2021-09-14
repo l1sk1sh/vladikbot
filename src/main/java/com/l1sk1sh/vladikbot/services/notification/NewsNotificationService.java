@@ -1,11 +1,11 @@
 package com.l1sk1sh.vladikbot.services.notification;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.NewsDiscordMessage;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -20,7 +20,6 @@ import java.awt.*;
 @Service
 public class NewsNotificationService {
 
-    private final JDA jda;
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
     private TextChannel newsChannel;
@@ -49,7 +48,7 @@ public class NewsNotificationService {
 
         /* In case this guild doesn't have news channel, sending notification to maintainer */
         if (newsGuild == null) {
-            newsGuild = jda.getGuildById(settings.get().getMaintainerGuildId());
+            newsGuild = VladikBot.jda().getGuildById(settings.get().getMaintainerGuildId());
         }
 
         if (newsGuild == null) {

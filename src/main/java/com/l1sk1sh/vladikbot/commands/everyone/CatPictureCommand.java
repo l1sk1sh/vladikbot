@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.network.dto.CatPicture;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.awt.*;
  * @author l1sk1sh
  */
 @Service
-public class CatPictureCommand extends Command {
+public class CatPictureCommand extends SlashCommand {
     private static final Logger log = LoggerFactory.getLogger(CatPictureCommand.class);
 
     private final RestTemplate restTemplate;
@@ -27,24 +27,24 @@ public class CatPictureCommand extends Command {
     public CatPictureCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "cat";
-        this.help = "get random cat picture";
+        this.help = "Get a random cat picture";
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected void execute(SlashCommandEvent event) {
         CatPicture[] catPictures;
         try {
             catPictures = restTemplate.getForObject("https://api.thecatapi.com/v1/images/search", CatPicture[].class);
         } catch (RestClientException e) {
-            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (catPictures == null) {
+            event.reply("Failed to retrieve cat's picture.").setEphemeral(true).queue();
             log.error("Failed to retrieve a cat picture.");
-            event.replyError("Failed to retrieve cat's picture.");
 
             return;
         }
@@ -55,6 +55,6 @@ public class CatPictureCommand extends Command {
                 .setColor(new Color(20, 120, 120))
                 .setImage(catPictures[0].getUrl());
 
-        event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+        event.reply(builder.setEmbeds(embedBuilder.build()).build()).queue();
     }
 }

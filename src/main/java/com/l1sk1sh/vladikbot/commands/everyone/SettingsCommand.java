@@ -1,7 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
@@ -12,6 +11,7 @@ import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ import java.util.Optional;
  * @author John Grosh
  */
 @Service
-public class SettingsCommand extends Command {
+public class SettingsCommand extends SlashCommand {
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
 
@@ -34,14 +34,13 @@ public class SettingsCommand extends Command {
     public SettingsCommand(BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository) {
         this.settings = settings;
         this.name = "settings";
-        this.help = "shows the bots settings";
-        this.guildOnly = true;
+        this.help = "Shows the bots settings";
         this.guildSettingsRepository = guildSettingsRepository;
     }
 
     @Override
     @SuppressWarnings("ConstantConditions") /* Suppressed as inspector can't detect null verification further in the code  */
-    protected void execute(CommandEvent event) {
+    protected void execute(SlashCommandEvent event) {
         Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(event.getGuild().getIdLong());
 
         String defaultPlaylist = guildSettings.map(GuildSettings::getDefaultPlaylist).orElse(null);
@@ -54,7 +53,7 @@ public class SettingsCommand extends Command {
 
         MessageBuilder builder = new MessageBuilder()
                 .append(Const.HEADPHONES_EMOJI + " **")
-                .append(FormatUtils.filter(event.getSelfUser().getName()))
+                .append(FormatUtils.filter(event.getJDA().getSelfUser().getName()))
                 .append("** settings:");
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -92,7 +91,6 @@ public class SettingsCommand extends Command {
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()
                         + " audio connections", null);
-        event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+        event.reply(builder.setEmbeds(embedBuilder.build()).build()).setEphemeral(true).queue();
     }
-
 }

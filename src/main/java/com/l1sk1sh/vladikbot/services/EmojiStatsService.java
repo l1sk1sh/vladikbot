@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.services;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.models.CsvParsedDiscordMessage;
 import com.l1sk1sh.vladikbot.models.UsedEmoji;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
@@ -12,7 +13,6 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
@@ -31,7 +31,6 @@ import java.util.regex.Pattern;
 public class EmojiStatsService implements Runnable {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsService.class);
 
-    private final JDA jda;
     private final BotSettingsManager settings;
     private final Map<String, Integer> emojiList;
     private final List<UsedEmoji> allUsedEmojis;
@@ -46,8 +45,7 @@ public class EmojiStatsService implements Runnable {
     private boolean hasFailed = true;
     private File usedEmojisCsv;
 
-    public EmojiStatsService(JDA jda, BotSettingsManager settings, File exportedTextFile, List<Emote> serverEmojiList, boolean ignoreUnicodeEmoji, boolean ignoreUnknownEmoji, boolean exportCsv) {
-        this.jda = jda;
+    public EmojiStatsService(BotSettingsManager settings, File exportedTextFile, List<Emote> serverEmojiList, boolean ignoreUnicodeEmoji, boolean ignoreUnknownEmoji, boolean exportCsv) {
         this.settings = settings;
         this.exportedTextFile = exportedTextFile;
         this.localUsedEmojisName = exportedTextFile.getName().replace("." + Const.FileType.csv.name(), "") + " - used emoji";
@@ -131,7 +129,7 @@ public class EmojiStatsService implements Runnable {
 
             /* Gathering collection that will be returned to chat */
             for (UsedEmoji usedEmoji : allUsedEmojis) {
-                User user = jda.getUserById(usedEmoji.getAuthorId());
+                User user = VladikBot.jda().getUserById(usedEmoji.getAuthorId());
 
                 if (user != null && user.isBot()) {
                     continue;

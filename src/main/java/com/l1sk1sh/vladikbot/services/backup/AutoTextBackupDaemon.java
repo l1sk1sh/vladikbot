@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.services.backup;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.models.FixedScheduledExecutor;
 import com.l1sk1sh.vladikbot.models.ScheduledTask;
 import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
@@ -8,7 +9,6 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.TextChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,16 +33,14 @@ public class AutoTextBackupDaemon implements ScheduledTask {
     private static final int MAX_AMOUNT_OF_BACKUPS_PER_CHANNEL = 2;
     private static final int MIN_DAY_BEFORE_BACKUP = 1;
 
-    private final JDA jda;
     private final BotSettingsManager settings;
     private final DockerService dockerService;
     private final ChatNotificationService notificationService;
     private final FixedScheduledExecutor fixedScheduledExecutor;
 
     @Autowired
-    public AutoTextBackupDaemon(JDA jda, @Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
+    public AutoTextBackupDaemon(@Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
                                 BotSettingsManager settings, DockerService dockerService, ChatNotificationService notificationService) {
-        this.jda = jda;
         this.settings = settings;
         this.dockerService = dockerService;
         this.notificationService = notificationService;
@@ -76,7 +74,7 @@ public class AutoTextBackupDaemon implements ScheduledTask {
 
         settings.get().setLastAutoTextBackupTime(System.currentTimeMillis());
 
-        List<TextChannel> availableChannels = BotUtils.getAvailableTextChannels(jda);
+        List<TextChannel> availableChannels = BotUtils.getAvailableTextChannels(VladikBot.jda());
         List<String> failedTextChannels = new ArrayList<>();
 
         log.info("Automatic text backup has started it's execution.");

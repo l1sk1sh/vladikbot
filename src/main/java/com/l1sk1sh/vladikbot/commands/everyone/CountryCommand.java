@@ -1,10 +1,13 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.network.dto.CountryInfo;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +18,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -22,8 +26,10 @@ import java.util.regex.Pattern;
  * @author l1sk1sh
  */
 @Service
-public class CountryCommand extends Command {
+public class CountryCommand extends SlashCommand {
     private static final Logger log = LoggerFactory.getLogger(CatPictureCommand.class);
+
+    private static final String ISO_CODE_OPTION_KEY = "country";
 
     private final RestTemplate restTemplate;
 
@@ -31,22 +37,23 @@ public class CountryCommand extends Command {
     public CountryCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "country";
-        this.help = "get info on a country using 2,3-letters ISO code";
-        this.arguments = "<2,3-letters code>";
+        this.help = "Get info on a country";
+        this.options = Collections.singletonList(new OptionData(OptionType.STRING, ISO_CODE_OPTION_KEY, "2 or 3 letter ISO country code").setRequired(true));
     }
 
     @Override
-    protected void execute(CommandEvent event) {
-        if (event.getArgs().isEmpty()) {
-            event.replyWarning("Please include country code. Example: `country usa`");
+    protected void execute(SlashCommandEvent event) {
+        OptionMapping isoCodeOption = event.getOption(ISO_CODE_OPTION_KEY);
+        if (isoCodeOption == null) {
+            event.reply("Please include country code. Example: `country usa`").setEphemeral(true).queue();
 
             return;
         }
 
-        String countryCode = event.getArgs();
+        String countryCode = isoCodeOption.getAsString();
         final Pattern countryCodePattern = Pattern.compile("^[A-Za-z]{2,3}$");
         if (!countryCodePattern.matcher(countryCode).matches()) {
-            event.replyWarning("Country code should be exactly 2,3 latin letters.");
+            event.reply("Country code should be exactly 2 or 3 latin letters.").setEphemeral(true).queue();
 
             return;
         }
@@ -55,14 +62,14 @@ public class CountryCommand extends Command {
         try {
             response = restTemplate.getForEntity("https://restcountries.eu/rest/v2/name/" + countryCode.toLowerCase(), CountryInfo[].class);
         } catch (RestClientException e) {
-            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (response.getStatusCode() != HttpStatus.OK) {
-            event.replyWarning(String.format("Country `%1$s` was not found.", countryCode));
+            event.replyFormat("Country `%1$s` was not found.", countryCode).setEphemeral(true).queue();
 
             return;
         }
@@ -70,8 +77,8 @@ public class CountryCommand extends Command {
         CountryInfo countryInfo = Objects.requireNonNull(response.getBody())[0];
 
         if (countryInfo == null) {
+            event.replyFormat("Country `%1$s` was not found.", countryCode).setEphemeral(true).queue();
             log.error("Response body is empty.");
-            event.replyWarning(String.format("Country `%1$s` was not found.", countryCode));
 
             return;
         }
@@ -89,6 +96,6 @@ public class CountryCommand extends Command {
                 .addField("Native Name", countryInfo.getNativeName(), true)
                 .addField("Area", countryInfo.getFormattedArea() + " km", true);
 
-        event.getChannel().sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
+        event.reply(builder.setEmbeds(embedBuilder.build()).build()).queue();
     }
 }

@@ -6,6 +6,7 @@ Bot is written using JDA library and common sense.
 - [JMusic](https://github.com/jagrosh/MusicBot) (_Aug 31, 2021_) for wonderful and simple MusicBot, that has become a core of project
 - [DiscordChatExporter](https://github.com/Tyrrrz/DiscordChatExporter/releases) for discord chat backup solution
 - [Dyno Bot](https://dyno.gg/bot) for great ideas on how to improve and extend bot
+- [JDA-Chewtils](https://github.com/Chew/JDA-Chewtils) for replacing original JDA-Utilities
 #### Recommended launch options
 - `-Dconsole.encoding=UTF-8` 
 - `-Dfile.encoding=UTF-8` 

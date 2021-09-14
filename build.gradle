@@ -1,6 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
     }
 }
@@ -14,8 +13,9 @@ plugins {
 }
 
 repositories {
-    jcenter()
     mavenCentral()
+    maven { url 'https://jitpack.io' }
+    maven { url "https://m2.chew.pro/releases" }
     maven { url 'https://m2.dv8tion.net/releases' }
 }
 
@@ -51,8 +51,7 @@ tasks.composeUp {
 
 dependencies {
     implementation 'net.dv8tion:JDA:4.3.0_312'
-    implementation 'com.jagrosh:jda-utilities:3.0.5'
-    implementation 'com.jagrosh:JLyrics:0.5'
+    implementation 'pw.chew:jda-chewtils:1.22.0'
     implementation 'com.sedmelluq:lavaplayer:1.3.78'
 
     implementation 'org.springframework.boot:spring-boot-starter'
@@ -69,7 +68,7 @@ dependencies {
 
     implementation 'com.opencsv:opencsv:5.5.2'
     implementation 'org.jsoup:jsoup:1.13.1'
-    implementation 'com.apptastic:rssreader:2.5.0'
+    implementation 'com.github.w3stling:rssreader:v2.5.0'
 
     implementation 'org.ocpsoft.prettytime:prettytime-nlp:5.0.0.Final'
 

@@ -9,7 +9,6 @@ import com.l1sk1sh.vladikbot.services.backup.DockerService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.exceptions.PermissionException;
@@ -35,7 +34,6 @@ import static java.util.stream.Collectors.toMap;
 public class EmojiStatsCommand extends AdminCommand {
     private static final Logger log = LoggerFactory.getLogger(EmojiStatsCommand.class);
 
-    private final JDA jda;
     @Qualifier("backupThreadPool")
     private final ScheduledExecutorService backupThreadPool;
     private final BotSettingsManager settings;
@@ -49,8 +47,7 @@ public class EmojiStatsCommand extends AdminCommand {
     private boolean exportCsv;
 
     @Autowired
-    public EmojiStatsCommand(JDA jda, ScheduledExecutorService backupThreadPool, EventWaiter eventWaiter, BotSettingsManager settings, DockerService dockerService) {
-        this.jda = jda;
+    public EmojiStatsCommand(ScheduledExecutorService backupThreadPool, EventWaiter eventWaiter, BotSettingsManager settings, DockerService dockerService) {
         this.backupThreadPool = backupThreadPool;
         this.settings = settings;
         this.dockerService = dockerService;
@@ -136,7 +133,6 @@ public class EmojiStatsCommand extends AdminCommand {
 
             /* Creating new thread from text backup service and waiting for it to finish */
             EmojiStatsService emojiStatsService = new EmojiStatsService(
-                    jda,
                     settings,
                     exportedTextFile,
                     event.getGuild().getEmotes(),

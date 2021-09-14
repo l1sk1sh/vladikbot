@@ -8,7 +8,6 @@ import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
 import lombok.RequiredArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,6 @@ import java.util.concurrent.ScheduledExecutorService;
 @Service
 public class PlayerManager extends DefaultAudioPlayerManager {
 
-    private final JDA jda;
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final PlaylistLoader playlistLoader;
@@ -49,7 +47,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
 
             AudioPlayer player = createPlayer();
             player.setVolume(volume);
-            audioHandler = new AudioHandler(jda, frontThreadPool, this, guild, player, settings, guildSettings.orElse(null), playlistLoader, nowPlayingHandler);
+            audioHandler = new AudioHandler(frontThreadPool, this, guild, player, settings, guildSettings.orElse(null), playlistLoader, nowPlayingHandler);
             player.addListener(audioHandler);
             guild.getAudioManager().setSendingHandler(audioHandler);
         } else {

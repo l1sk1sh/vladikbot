@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
-import com.jagrosh.jdautilities.command.Command;
-import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.network.dto.Quote;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
  * @author l1sk1sh
  */
 @Service
-public class QuoteCommand extends Command {
+public class QuoteCommand extends SlashCommand {
     private static final Logger log = LoggerFactory.getLogger(QuoteCommand.class);
 
     private final RestTemplate restTemplate;
@@ -23,16 +23,16 @@ public class QuoteCommand extends Command {
     public QuoteCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "quote";
-        this.help = "get random quote from api.quotable.io";
+        this.help = "Get a random quote";
     }
 
     @Override
-    protected void execute(CommandEvent event) {
+    protected void execute(SlashCommandEvent event) {
         Quote quote;
         try {
             quote = restTemplate.getForObject("https://api.quotable.io/random", Quote.class);
         } catch (RestClientException e) {
-            event.replyError(String.format("Error occurred: `%1$s`", e.getLocalizedMessage()));
+            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
@@ -40,13 +40,11 @@ public class QuoteCommand extends Command {
 
         if (quote == null) {
             log.warn("Quote is empty.");
-            event.reply("\"Я тебе породив, я тебе і вб'ю!\" Тарас Бульба");
+            event.reply("\"Я тебе породив, я тебе і вб'ю!\" Тарас Бульба").setEphemeral(true).queue();
 
             return;
         }
 
-        event.reply(String.format("\"%1$s\" %2$s",
-                quote.getContent(),
-                quote.getAuthor()));
+        event.replyFormat("\"%1$s\" %2$s", quote.getContent(), quote.getAuthor()).queue();
     }
 }

@@ -28,7 +28,6 @@
     1. Mood scale for bot. The better the mood - better and kinder replies
     1. Add functions /feed bot/
     2. Add stats for bot 
-0. Fix Steam Status API
-0. Start using slash for commands of the bot
+0. Continue using slash for commands of the bot
 0. Add bot commands reaction to default slash (Discord API updated)
 0. Add custom status to the bot (with emojis)

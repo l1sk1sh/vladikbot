@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
+import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.Playlist;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
@@ -33,7 +34,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class AudioHandler extends AudioEventAdapter implements AudioSendHandler {
 
-    private final JDA jda;
     private final ScheduledExecutorService frontThreadPool;
     private final BotSettingsManager settings;
     private final GuildSettings guildSettings;
@@ -50,9 +50,8 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
     private AudioFrame lastFrame;
 
-    AudioHandler(JDA jda, ScheduledExecutorService frontThreadPool, PlayerManager playerManager, Guild guild, AudioPlayer player,
+    AudioHandler(ScheduledExecutorService frontThreadPool, PlayerManager playerManager, Guild guild, AudioPlayer player,
                  BotSettingsManager settings, GuildSettings guildSettings, PlaylistLoader playlistLoader, NowPlayingHandler nowPlayingHandler) {
-        this.jda = jda;
         this.frontThreadPool = frontThreadPool;
         this.playerManager = playerManager;
         this.audioPlayer = player;
@@ -291,7 +290,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     }
 
     public void closeAudioConnection() {
-        Guild guild = guild(jda);
+        Guild guild = guild(VladikBot.jda());
         if (guild != null) {
             frontThreadPool.submit(() -> guild.getAudioManager().closeAudioConnection());
         }
