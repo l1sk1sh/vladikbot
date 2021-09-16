@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * @author l1sk1sh
@@ -137,6 +138,16 @@ public final class FormatUtils {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss dd/MM/yyyy");
 
         return formatter.format(date);
+    }
+
+    public static String getDateAndTimeFromTimestamp(long timestamp) {
+        return SimpleDateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG, Locale.UK).format(timestamp);
+    }
+
+    public static String getReadableDuration(long duration) {
+        SimpleDateFormat formatter = new SimpleDateFormat("mm:ss");
+
+        return formatter.format(new Date(duration));
     }
 
     public static String getNormalizedCurrentDate() {

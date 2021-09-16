@@ -45,7 +45,7 @@ public class CountryCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         OptionMapping isoCodeOption = event.getOption(ISO_CODE_OPTION_KEY);
         if (isoCodeOption == null) {
-            event.reply("Please include country code. Example: `country usa`").setEphemeral(true).queue();
+            event.replyFormat("1$s Include country code. Example: `country usa`", getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -53,7 +53,7 @@ public class CountryCommand extends SlashCommand {
         String countryCode = isoCodeOption.getAsString();
         final Pattern countryCodePattern = Pattern.compile("^[A-Za-z]{2,3}$");
         if (!countryCodePattern.matcher(countryCode).matches()) {
-            event.reply("Country code should be exactly 2 or 3 latin letters.").setEphemeral(true).queue();
+            event.replyFormat("1$s Country code should be exactly 2 or 3 latin letters.", getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -62,14 +62,14 @@ public class CountryCommand extends SlashCommand {
         try {
             response = restTemplate.getForEntity("https://restcountries.eu/rest/v2/name/" + countryCode.toLowerCase(), CountryInfo[].class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (response.getStatusCode() != HttpStatus.OK) {
-            event.replyFormat("Country `%1$s` was not found.", countryCode).setEphemeral(true).queue();
+            event.replyFormat("1$s Country `%2$s` was not found.", getClient().getError(), countryCode).setEphemeral(true).queue();
 
             return;
         }
@@ -77,7 +77,7 @@ public class CountryCommand extends SlashCommand {
         CountryInfo countryInfo = Objects.requireNonNull(response.getBody())[0];
 
         if (countryInfo == null) {
-            event.replyFormat("Country `%1$s` was not found.", countryCode).setEphemeral(true).queue();
+            event.replyFormat("1$s Country `%2$s` was not found.", getClient().getError(), countryCode).setEphemeral(true).queue();
             log.error("Response body is empty.");
 
             return;

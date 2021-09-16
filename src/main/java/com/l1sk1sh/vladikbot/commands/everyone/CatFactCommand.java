@@ -32,14 +32,14 @@ public class CatFactCommand extends SlashCommand {
         try {
             catFact = restTemplate.getForObject("https://catfact.ninja/fact", CatFact.class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (catFact == null) {
-            event.reply("Failed to retrieve cat's fact.").setEphemeral(true).queue();
+            event.replyFormat("%1$s Failed to retrieve cat's fact.", getClient().getError()).setEphemeral(true).queue();
             log.error("Failed to retrieve a cat fact.");
 
             return;

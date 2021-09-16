@@ -1,10 +1,13 @@
 package com.l1sk1sh.vladikbot.utils;
 
 import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandEvent;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.text.ParseException;
@@ -19,10 +22,20 @@ public final class CommandUtils {
 
     public static StringBuilder getListOfChildCommands(CommandEvent event, Command[] children, String nameOfParentCommand) {
         String message = event.getClient().getWarning() + " " + nameOfParentCommand + " has following commands:\r\n";
+        return getListOfCommands(children, nameOfParentCommand, message, event.getClient());
+    }
+
+    public static StringBuilder getListOfChildCommands(SlashCommand command, Command[] children, String nameOfParentCommand) {
+        String message = command.getClient() + " " + nameOfParentCommand + " has following commands:\r\n";
+        return getListOfCommands(children, nameOfParentCommand, message, command.getClient());
+    }
+
+    @NotNull
+    private static StringBuilder getListOfCommands(Command[] children, String nameOfParentCommand, String message, CommandClient client) {
         StringBuilder builder = new StringBuilder(message);
         for (Command cmd : children) {
             builder.append("\r\n`")
-                    .append(event.getClient().getPrefix())
+                    .append(client.getPrefix())
                     .append(nameOfParentCommand)
                     .append(" ")
                     .append(cmd.getName())

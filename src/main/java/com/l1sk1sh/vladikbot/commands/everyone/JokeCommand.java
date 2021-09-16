@@ -32,19 +32,19 @@ public class JokeCommand extends SlashCommand {
         try {
             dadJoke = restTemplate.getForObject("https://icanhazdadjoke.com/", DadJoke.class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (dadJoke == null) {
+            event.replyFormat("%1$s Couldn't get any jokes", getClient().getError()).setEphemeral(true).queue();
             log.error("Response body is empty.");
-            event.reply("Couldn't get any jokes").setEphemeral(true).queue();
 
             return;
         }
 
-        event.reply(String.format("\"%1$s\"", dadJoke.getJoke())).queue();
+        event.replyFormat("\"%1$s\"", dadJoke.getJoke()).queue();
     }
 }

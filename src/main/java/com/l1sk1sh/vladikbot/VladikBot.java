@@ -105,6 +105,7 @@ public class VladikBot {
         aloneInVoiceHandler.init();
         autoReplyManager.init();
         guildLoggerService.init();
+        minecraftServerCommand.init();
 
         CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                 .setPrefix(settings.get().getPrefix())
@@ -112,7 +113,9 @@ public class VladikBot {
                 .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
                 .setHelpWord(settings.get().getHelpWord())
                 .setLinkedCacheSize(1024)
-                .forceGuildOnly("518033082037698560") // Force specific guild for debug purposes
+                .forceGuildOnly((settings.get().getForceGuildId() > 0L)
+                        ? String.valueOf(settings.get().getForceGuildId())
+                        : null)
                 .addSlashCommands(
                         /* Everyone commands */
                         pingCommand,
@@ -128,13 +131,14 @@ public class VladikBot {
                         countryCommand,
                         flipCoinCommand,
                         issInfoCommand,
-                        jokeCommand
+                        jokeCommand,
 
                         /* Music commands */
 
                         /* Music commands DJ only */
 
                         /* Administrator commands */
+                        minecraftServerCommand
 
                         /* Owner commands */
 
@@ -257,6 +261,8 @@ public class VladikBot {
     private NewsManagementCommand newsManagementCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PermissionsCommand permissionsCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private MinecraftServerCommand minecraftServerCommand;
     @Setter(onMethod = @__({@Autowired}))
     private ReminderCommand reminderCommand;
     @Setter(onMethod = @__({@Autowired}))

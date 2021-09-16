@@ -39,7 +39,7 @@ public class RollDiceCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         OptionMapping sizeOption = event.getOption(SIZE_OPTION_KEY);
         if (sizeOption == null) {
-            event.reply("Please add dice size into arguments. Supported sizes: d4, d8, d10, d12, d20, d00").setEphemeral(true).queue();
+            event.replyFormat("%1$s Please add dice size into arguments. Supported sizes: d4, d8, d10, d12, d20, d00", getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -72,7 +72,7 @@ public class RollDiceCommand extends SlashCommand {
                 diceSize = 100;
                 break;
             default:
-                event.reply("Dice size must be one of [d4, d8, d10, d12, d20, d00]!").setEphemeral(true).queue();
+                event.replyFormat("%1$s Dice size must be one of [d4, d8, d10, d12, d20, d00]!", getClient().getWarning()).setEphemeral(true).queue();
                 return;
         }
 

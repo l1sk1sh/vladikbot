@@ -17,6 +17,8 @@ import org.springframework.web.client.RestTemplate;
 public class QuoteCommand extends SlashCommand {
     private static final Logger log = LoggerFactory.getLogger(QuoteCommand.class);
 
+    private static final String DEFAULT_QUOTE = "\"Я тебе породив, я тебе і вб'ю!\" Тарас Бульба";
+
     private final RestTemplate restTemplate;
 
     @Autowired
@@ -32,7 +34,7 @@ public class QuoteCommand extends SlashCommand {
         try {
             quote = restTemplate.getForObject("https://api.quotable.io/random", Quote.class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
@@ -40,7 +42,7 @@ public class QuoteCommand extends SlashCommand {
 
         if (quote == null) {
             log.warn("Quote is empty.");
-            event.reply("\"Я тебе породив, я тебе і вб'ю!\" Тарас Бульба").setEphemeral(true).queue();
+            event.reply(DEFAULT_QUOTE).setEphemeral(true).queue();
 
             return;
         }

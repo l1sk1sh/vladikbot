@@ -36,14 +36,14 @@ public class CatPictureCommand extends SlashCommand {
         try {
             catPictures = restTemplate.getForObject("https://api.thecatapi.com/v1/images/search", CatPicture[].class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (catPictures == null) {
-            event.reply("Failed to retrieve cat's picture.").setEphemeral(true).queue();
+            event.replyFormat("%1$s Failed to retrieve cat's picture.", getClient().getError()).setEphemeral(true).queue();
             log.error("Failed to retrieve a cat picture.");
 
             return;

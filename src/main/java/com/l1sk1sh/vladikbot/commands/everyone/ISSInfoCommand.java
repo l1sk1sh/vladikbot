@@ -36,14 +36,14 @@ public class ISSInfoCommand extends SlashCommand {
         try {
             issInfo = restTemplate.getForObject("https://api.wheretheiss.at/v1/satellites/25544", ISSInfo.class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (issInfo == null) {
-            event.reply("Couldn't get IIS info.").setEphemeral(true).queue();
+            event.replyFormat("%1$s Couldn't get IIS info.", getClient().getError()).setEphemeral(true).queue();
             log.error("'wheretheiss.at' provided empty body.");
 
             return;
@@ -53,7 +53,7 @@ public class ISSInfoCommand extends SlashCommand {
         try {
             astronauts = restTemplate.getForObject("http://api.open-notify.org/astros.json", ISSInfo.Astronauts.class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;

@@ -51,7 +51,7 @@ public class SongInfoCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         OptionMapping option = event.getOption(SONG_NAME_OPTION_KEY);
         if (option == null) {
-            event.reply("Please include a song name.").setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include a song name.", getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -59,7 +59,7 @@ public class SongInfoCommand extends SlashCommand {
         final String searchQuery = option.getAsString();
         final Pattern searchPattern = Pattern.compile("^[А-Яа-яA-Za-z0-9 ]++$");
         if (!searchPattern.matcher(searchQuery).matches()) {
-            event.reply("Search query should contain only cyrillic or latin letters and numbers.").setEphemeral(true).queue();
+            event.replyFormat("%1$s Search query should contain only cyrillic or latin letters and numbers.", getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -76,14 +76,14 @@ public class SongInfoCommand extends SlashCommand {
         try {
             songInfo = restTemplate.getForObject(uri, SongInfo.class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (songInfo == null || songInfo.getResults().length == 0) {
-            event.replyFormat("Song `%1$s` was not found.", searchQuery).setEphemeral(true).queue();
+            event.replyFormat("%1$s Song `%2$s` was not found.", getClient().getError(), searchQuery).setEphemeral(true).queue();
             log.error("Response body is empty.");
 
             return;

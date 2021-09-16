@@ -24,6 +24,7 @@ public class BotSettings {
     private String token = "MY_BOT_TOKEN";                              // Bot token taken from discord developer portal
     private long ownerId = 0L;                                          // Id of the person, who is hosting the bot
     private long maintainerGuildId = 0L;                                // Id of Guild that will be used to maintaining notifs
+    private long forceGuildId = 0L;                                     // Id of Guild that will be used for fast commands update (single guild or debug)
     private String workdir = "./app";                                   // Working directory for all files
     private String localTmpFolder = workdir + "/tmp/";                  // Local tmp for workdir
     private String rotationBackupFolder = workdir + "/backup/";         // Local rotation backup folder (that will be stored)
@@ -59,14 +60,17 @@ public class BotSettings {
     private int delayDaysForAutoTextBackup = 0;                         // Set delay in days between text backups
     private int delayDaysForAutoMediaBackup = 0;                        // Set delay in days between text backups
     private String dockerHost = "tcp://localhost:2375";                 // Set custom docker host
+    private String jenkinsApiHost = "http://127.0.0.1:8080";            // Set jenkins API host
+    private String jenkinsApiUsername = "bot";                          // Set jenkins API username
+    private String jenkinsApiPassword = "JENKINS_API_TOKEN";            // Set jenkins API password
 
     /* Runtime and bot specific internal configs */
     @Setter
-    private transient boolean lockedBackup = false;             // Holds value for running backup
+    private transient boolean lockedBackup = false;                     // Holds value for running backup
     @Setter
-    private transient boolean lockedAutoBackup = false;         // Holds value for running auto backup
+    private transient boolean lockedAutoBackup = false;                 // Holds value for running auto backup
     @Setter
-    private transient boolean dockerRunning = false;            // Holds value for docker status
+    private transient boolean dockerRunning = false;                    // Holds value for docker status
     private long lastAutoTextBackupTime = 0L;                           // Holds time of last auto text backup
     private long lastAutoMediaBackupTime = 0L;                          // Holds time of last auto media backup
 

@@ -36,14 +36,14 @@ public class DogPictureCommand extends SlashCommand {
         try {
             dogPicture = restTemplate.getForObject("https://dog.ceo/api/breeds/image/random", DogPicture.class);
         } catch (RestClientException e) {
-            event.replyFormat("Error occurred: `%1$s`", e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (dogPicture == null) {
-            event.reply("Couldn't get dog picture").setEphemeral(true).queue();
+            event.replyFormat("%1$s Couldn't get dog picture", getClient().getError()).setEphemeral(true).queue();
             log.error("Response body is empty.");
 
             return;

@@ -36,7 +36,7 @@ public class StatusCommand extends SlashCommand {
 
         Guild currentGuild = event.getGuild();
         if (currentGuild == null) {
-            event.reply("This command should not be called in DMs!").queue();
+            event.replyFormat("%1$s This command should not be called in DMs!", getClient().getError()).queue();
 
             return;
         }
