@@ -31,3 +31,6 @@
 0. Continue using slash for commands of the bot
 0. Add bot commands reaction to default slash (Discord API updated)
 0. Add custom status to the bot (with emojis)
+0. Get detailed info on discord user
+0. Make repeatable reminder
+0. Ask bot to generate invite link
