@@ -86,11 +86,13 @@ public class MinecraftServerCommand extends AdminV2Command {
                         .setAuthor("Minecraft server status", null, "https://cdn.icon-icons.com/icons2/2699/PNG/512/minecraft_logo_icon_168974.png")
                         .setColor(new Color(114, 56, 45))
                         .addField("Server status is", (latestBuild.isBuilding()) ? getClient().getSuccess() + " **Online**" : getClient().getError() + " **Offline**", false)
-                        .addBlankField(false)
                         .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(latestBuild.getTimestamp()), false)
                         .addField("Time online", FormatUtils.getReadableDuration(latestBuild.getDuration()), false)
-                        .addField((latestBuild.isBuilding()) ? "" : "Last server stop result", (latestBuild.isBuilding()) ? "" : latestBuild.getResult(), false)
                         .setImage("https://lh3.googleusercontent.com/proxy/rrJe5P0KT8F1TTrpx1XTq0IJ0sRKYx25ISU_RZZ_kN46euV4tdYw7wGj2I_8F9CuYXuS4CXQXPAvqYli7Y32fS1mQk05cY4Ut5rrtvNSnCcAV6gV-X5Dx8mEIScgfSYzqKGiexpU_9jKAw");
+
+                if (!latestBuild.isBuilding()) {
+                    embedBuilder.addField("Last server stop result", latestBuild.getResult(), false);
+                }
 
                 event.reply(builder.setEmbeds(embedBuilder.build()).build()).queue();
             } catch (RestClientException e) {
