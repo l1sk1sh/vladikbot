@@ -134,8 +134,26 @@ public class VladikBot {
                         jokeCommand,
 
                         /* Music commands */
+                        nowPlayingCommand,
+                        playCommand,
+                        playPlaylistCommand,
+                        playlistsCommand,
+                        queueCommand,
+                        removeCommand,
+                        searchCommand,
+                        shuffleCommand,
+                        skipCommand,
+                        soundCloudSearchCommand,
 
                         /* Music commands DJ only */
+                        skipForceCommand,
+                        moveTrackCommand,
+                        pauseCommand,
+                        playNextCommand,
+                        repeatCommand,
+                        skipToCommand,
+                        stopCommand,
+                        volumeCommand,
 
                         /* Administrator commands */
                         minecraftServerCommand
@@ -145,24 +163,6 @@ public class VladikBot {
                 )
                 .addCommands(
                         /* Order of commands is important for 'help' command output */
-
-                        forceSkipCommand,
-                        pauseCommand,
-                        playNextCommand,
-                        repeatCommand,
-                        skipToCommand,
-                        stopCommand,
-                        volumeCommand,
-                        moveTrackCommand,
-                        nowPlayingCommand,
-                        playCommand,
-                        playlistsCommand,
-                        queueCommand,
-                        removeCommand,
-                        searchCommand,
-                        shuffleCommand,
-                        skipCommand,
-                        soundCloudSearchCommand,
 
                         reminderCommand,
                         sayCommand,
@@ -276,7 +276,7 @@ public class VladikBot {
     @Setter(onMethod = @__({@Autowired}))
     private SetVoiceChannelCommand setVoiceChannelCommand;
     @Setter(onMethod = @__({@Autowired}))
-    private ForceSkipCommand forceSkipCommand;
+    private SkipForceCommand skipForceCommand;
     @Setter(onMethod = @__({@Autowired}))
     private MoveTrackCommand moveTrackCommand;
     @Setter(onMethod = @__({@Autowired}))
@@ -323,6 +323,8 @@ public class VladikBot {
     private NowPlayingCommand nowPlayingCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PlayCommand playCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private PlayPlaylistCommand playPlaylistCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PlaylistsCommand playlistsCommand;
     @Setter(onMethod = @__({@Autowired}))

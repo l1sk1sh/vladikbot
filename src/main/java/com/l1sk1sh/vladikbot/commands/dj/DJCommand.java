@@ -1,15 +1,16 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.commands.music.MusicCommand;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -27,14 +28,14 @@ public abstract class DJCommand extends MusicCommand {
         super(guildSettingsRepository, playerManager);
     }
 
-    public boolean checkDJPermission(CommandEvent event) {
-        if (event.getAuthor().getIdLong() == event.getClient().getOwnerIdLong()) {
+    public boolean checkDJPermission(SlashCommandEvent event) {
+        if (event.getUser().getIdLong() == getClient().getOwnerIdLong()) {
             return true;
         }
         if (event.getGuild() == null) {
             return true;
         }
-        if (event.getMember().hasPermission(Permission.MANAGE_CHANNEL)) {
+        if (Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_CHANNEL)) {
             return true;
         }
 

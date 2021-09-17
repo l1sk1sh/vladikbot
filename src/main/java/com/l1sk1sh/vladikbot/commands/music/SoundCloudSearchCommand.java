@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
  * Changes from original source:
  * - Reformatted code
  * - DI Spring
+ * - Moving to JDA-Chewtils
  * @author John Grosh
  */
 @Service
@@ -21,8 +22,8 @@ public class SoundCloudSearchCommand extends SearchCommand {
     @Autowired
     public SoundCloudSearchCommand(EventWaiter eventWaiter, GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager, BotSettingsManager settings) {
         super(eventWaiter, guildSettingsRepository, playerManager, settings);
-        this.name = "scsearch";
-        this.help = "searches Soundcloud for a provided query";
+        this.name = "msearchsoundcloud";
+        this.help = "Searches Soundcloud for a provided query";
         this.searchPrefix = Const.SC_SEARCH_PREFIX;
     }
 }

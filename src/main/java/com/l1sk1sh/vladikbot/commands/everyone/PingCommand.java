@@ -22,7 +22,7 @@ public class PingCommand extends SlashCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        event.deferReply().setEphemeral(true).queue();
+        event.deferReply(true).queue();
 
         Message message = event.getHook().retrieveOriginal().complete();
         event.getHook().editOriginal(

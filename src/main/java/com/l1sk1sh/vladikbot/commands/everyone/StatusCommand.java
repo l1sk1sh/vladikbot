@@ -32,8 +32,6 @@ public class StatusCommand extends SlashCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        MessageBuilder builder = new MessageBuilder();
-
         Guild currentGuild = event.getGuild();
         if (currentGuild == null) {
             event.replyFormat("%1$s This command should not be called in DMs!", getClient().getError()).queue();
@@ -41,6 +39,7 @@ public class StatusCommand extends SlashCommand {
             return;
         }
 
+        MessageBuilder builder = new MessageBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(currentGuild.getName(), null, currentGuild.getIconUrl())
                 .setColor(new Color(244, 160, 0))

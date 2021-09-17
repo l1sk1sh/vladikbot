@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
@@ -12,10 +11,14 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -28,39 +31,49 @@ import java.util.Objects;
 @Service
 public class PlayNextCommand extends DJCommand {
 
+    private static final String SONG_OPTION_KEY = "song";
+
     private final BotSettingsManager settings;
 
     @Autowired
     public PlayNextCommand(BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
         super(guildSettingsRepository, playerManager);
         this.settings = settings;
-        this.name = "playnext";
-        this.help = "plays a single song next";
-        this.arguments = "<title|URL>";
+        this.name = "mplaynext";
+        this.help = "Plays a single song next";
+        this.options = Collections.singletonList(new OptionData(OptionType.STRING, SONG_OPTION_KEY, "Song's name or URL to be played next").setRequired(true));
         this.beListening = true;
         this.bePlaying = false;
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
-        if (event.getArgs().isEmpty() && event.getMessage().getAttachments().isEmpty()) {
-            event.replyWarning("Please include a song title or URL!");
+    public void doCommand(SlashCommandEvent event) {
+        OptionMapping songOption = event.getOption(SONG_OPTION_KEY);
+        if (songOption == null) {
+            event.replyFormat("%1$s Please include a song name or URL.", getClient().getWarning()).setEphemeral(true).queue();
+
             return;
         }
-        String args = event.getArgs().startsWith("<") && event.getArgs().endsWith(">")
-                ? event.getArgs().substring(1, event.getArgs().length() - 1)
-                : event.getArgs().isEmpty() ? event.getMessage().getAttachments().get(0).getUrl() : event.getArgs();
-        event.reply(String.format("%1$s Loading... `[%2$s]`", settings.get().getLoadingEmoji(), args),
-                m -> super.playerManager.loadItemOrdered(event.getGuild(), args, new ResultHandler(m, event, false)));
+
+        String song = songOption.getAsString();
+
+        if (song.isEmpty()) {
+            event.replyFormat("%1$s Please include a song name or URL.", getClient().getWarning()).setEphemeral(true).queue();
+
+            return;
+        }
+
+        playerManager.loadItemOrdered(event.getGuild(), song, new ResultHandler(song, event, false));
     }
 
     private final class ResultHandler implements AudioLoadResultHandler {
-        private final Message message;
-        private final CommandEvent event;
+
+        private final String song;
+        private final SlashCommandEvent event;
         private final boolean ytsearch;
 
-        private ResultHandler(Message message, CommandEvent event, boolean ytsearch) {
-            this.message = message;
+        private ResultHandler(String song, SlashCommandEvent event, boolean ytsearch) {
+            this.song = song;
             this.event = event;
             this.ytsearch = ytsearch;
         }
@@ -68,26 +81,27 @@ public class PlayNextCommand extends DJCommand {
         @SuppressWarnings("DuplicatedCode")
         private void loadSingle(AudioTrack track) {
             if (settings.get().isTooLong(track)) {
-                message.editMessage(FormatUtils.filter(String.format(
+                event.replyFormat(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
-                        event.getClient().getWarning(),
-                        track.getInfo().title,
+                        getClient().getWarning(),
+                        FormatUtils.filter(track.getInfo().title),
                         FormatUtils.formatTimeTillHours(track.getDuration()),
-                        FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)))
-                ).queue();
+                        FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)
+                ).setEphemeral(true).queue();
+
                 return;
             }
-            AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
-            int pos = Objects.requireNonNull(audioHandler).addTrackToFront(new QueuedTrack(track, event.getAuthor())) + 1;
 
-            String addMessage = FormatUtils.filter(String.format(
+            AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
+            int position = Objects.requireNonNull(audioHandler).addTrackToFront(new QueuedTrack(track, event.getUser())) + 1;
+
+            event.replyFormat(
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
-                    event.getClient().getSuccess(),
-                    track.getInfo().title,
+                    getClient().getSuccess(),
+                    FormatUtils.filter(track.getInfo().title),
                     FormatUtils.formatTimeTillHours(track.getDuration()),
-                    ((pos == 0) ? "to begin playing" : " to the queue at position " + pos))
-            );
-            message.editMessage(addMessage).queue();
+                    ((position == 0) ? "to begin playing" : " to the queue at position " + position)
+            ).queue();
         }
 
         @Override
@@ -112,26 +126,21 @@ public class PlayNextCommand extends DJCommand {
         @Override
         public void noMatches() {
             if (ytsearch) {
-                message.editMessage(FormatUtils.filter(
-                        String.format("%1$s No results found for `%2$s1`.",
-                                event.getClient().getWarning(),
-                                event.getArgs()))
-                ).queue();
+                event.replyFormat("%1$s  No results found for `%2$s`.",
+                        getClient().getWarning(), FormatUtils.filter(song)).setEphemeral(true).queue();
             } else {
-                playerManager.loadItemOrdered(event.getGuild(),
-                        Const.YT_SEARCH_PREFIX + event.getArgs(), new ResultHandler(message, event, true));
+                playerManager.loadItemOrdered(event.getGuild(), Const.YT_SEARCH_PREFIX
+                        + song, new ResultHandler(song, event, true));
             }
         }
 
         @Override
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == FriendlyException.Severity.COMMON) {
-                message.editMessage(String.format("%1$s Error loading: %2$s.",
-                        event.getClient().getError(),
-                        throwable.getLocalizedMessage())
-                ).queue();
+                event.replyFormat("%1$s  Error loading: %2$s.", getClient().getError(),
+                        throwable.getLocalizedMessage()).setEphemeral(true).queue();
             } else {
-                message.editMessage(String.format("%1$s Error loading track.", event.getClient().getError())).queue();
+                event.replyFormat("%1$s  Error loading track.", getClient().getError()).setEphemeral(true).queue();
             }
         }
     }

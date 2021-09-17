@@ -8,6 +8,7 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.VoiceChannel;
@@ -23,6 +24,7 @@ import java.util.Optional;
  * Changes from original source:
  * - Reformatted code
  * - DI Spring
+ * - Moving to JDA-Chewtils
  * @author John Grosh
  */
 @Service
@@ -35,13 +37,21 @@ public class SettingsCommand extends SlashCommand {
         this.settings = settings;
         this.name = "settings";
         this.help = "Shows the bots settings";
+        this.guildOnly = true;
         this.guildSettingsRepository = guildSettingsRepository;
     }
 
     @Override
     @SuppressWarnings("ConstantConditions") /* Suppressed as inspector can't detect null verification further in the code  */
     protected void execute(SlashCommandEvent event) {
-        Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(event.getGuild().getIdLong());
+        Guild currentGuild = event.getGuild();
+        if (currentGuild == null) {
+            event.replyFormat("%1$s This command should not be called in DMs!", getClient().getError()).queue();
+
+            return;
+        }
+
+        Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(currentGuild.getIdLong());
 
         String defaultPlaylist = guildSettings.map(GuildSettings::getDefaultPlaylist).orElse(null);
         TextChannel textChannel = guildSettings.map(settings -> settings.getTextChannel(event.getGuild())).orElse(null);

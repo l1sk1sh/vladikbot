@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +14,7 @@ import java.util.List;
  * Changes from original source:
  * - Reformatted code
  * - DI Spring
+ * - Moving to JDA-Chewtils
  * @author John Grosh
  */
 @Service
@@ -25,28 +26,25 @@ public class PlaylistsCommand extends MusicCommand {
     public PlaylistsCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager, PlaylistLoader playlistLoader) {
         super(guildSettingsRepository, playerManager);
         this.playlistLoader = playlistLoader;
-        this.name = "playlists";
-        this.aliases = new String[]{"pls"};
-        this.help = "shows the available playlists";
-        this.guildOnly = true;
-        this.beListening = false;
+        this.name = "mplaylists";
+        this.help = "Shows the available playlists";
         this.beListening = false;
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public void doCommand(SlashCommandEvent event) {
         List<String> list = playlistLoader.getPlaylistNames();
         if (list == null) {
-            event.replyError("Failed to load available playlists!");
+            event.replyFormat("%1$s Failed to load available playlists!", getClient().getError()).setEphemeral(true).queue();
         } else if (list.isEmpty()) {
-            event.replyWarning("There are no playlists in the Playlists folder!");
+            event.replyFormat("%1$s There are no playlists!", getClient().getError()).setEphemeral(true).queue();
         } else {
-            String message = event.getClient().getSuccess() + " Available playlists:\r\n";
+            String message = getClient().getSuccess() + " Available playlists:\r\n";
             StringBuilder builder = new StringBuilder(message);
             list.forEach(str -> builder.append("`").append(str).append("` "));
-            builder.append("\r\nType `").append(event.getClient().getTextualPrefix())
+            builder.append("\r\nType `").append(getClient().getTextualPrefix())
                     .append("play playlist <name>` to play a playlist");
-            event.reply(builder.toString());
+            event.reply(builder.toString()).queue();
         }
     }
 }

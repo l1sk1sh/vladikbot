@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
@@ -14,10 +13,15 @@ import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -27,11 +31,14 @@ import java.util.concurrent.TimeUnit;
  * Changes from original source:
  * - Reformatted code
  * - DI Spring
+ * - Moving to JDA-Chewtils
  * @author John Grosh
  */
 @Service
 public class QueueCommand extends MusicCommand {
     private final Paginator.Builder builder;
+
+    private static final String PAGE_NUM_OPTION_KEY = "pagenum";
 
     private final BotSettingsManager settings;
     private final NowPlayingHandler nowPlayingHandler;
@@ -42,12 +49,11 @@ public class QueueCommand extends MusicCommand {
         super(guildSettingsRepository, playerManager);
         this.settings = settings;
         this.nowPlayingHandler = nowPlayingHandler;
-        this.name = "queue";
-        this.aliases = new String[]{"list"};
-        this.help = "shows the current queue";
-        this.arguments = "<pagenum>";
-        this.bePlaying = true;
+        this.name = "mqueue";
+        this.help = "Shows the current music queue";
+        this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, PAGE_NUM_OPTION_KEY, "Switch to selected page of the queue").setRequired(false));
         this.botPermissions = new Permission[]{Permission.MESSAGE_ADD_REACTION, Permission.MESSAGE_EMBED_LINKS};
+        this.bePlaying = true;
         builder = new Paginator.Builder()
                 .setColumns(1)
                 .setFinalAction(m -> {
@@ -62,33 +68,35 @@ public class QueueCommand extends MusicCommand {
                 .showPageNumbers(true)
                 .wrapPageEnds(true)
                 .setEventWaiter(eventWaiter)
-                .setTimeout(1, TimeUnit.MINUTES);
+                .setTimeout(2, TimeUnit.MINUTES);
     }
 
     @Override
-    public void doCommand(CommandEvent event) {
+    public void doCommand(SlashCommandEvent event) {
         int pagenum = 1;
-        try {
-            pagenum = Integer.parseInt(event.getArgs());
-        } catch (NumberFormatException ignored) {
+        OptionMapping pagenumOption = event.getOption(PAGE_NUM_OPTION_KEY);
+        if (pagenumOption != null) {
+            pagenum = (int) pagenumOption.getAsLong();
         }
 
-        AudioHandler ah = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+        AudioHandler ah = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         List<QueuedTrack> list = Objects.requireNonNull(ah).getQueue().getList();
         if (list.isEmpty()) {
             Message nowp = ah.getNowPlaying(event.getJDA());
             Message nonowp = ah.getNoMusicPlaying(event.getJDA());
             Message built = new MessageBuilder()
-                    .setContent(event.getClient().getWarning() + " There is no music in the queue!")
-                    .setEmbed((nowp == null ? nonowp : nowp).getEmbeds().get(0)).build();
-            event.reply(built, m ->
-            {
-                if (nowp != null) {
-                    nowPlayingHandler.setLastNPMessage(m);
-                }
-            });
+                    .setContent(getClient().getWarning() + " There is no music in the queue!")
+                    .setEmbeds((nowp == null ? nonowp : nowp).getEmbeds().get(0)).build();
+
+            event.reply(built).queue();
+
+            if (nowp != null) {
+                nowPlayingHandler.setLastNPMessage(event.getHook().retrieveOriginal().complete());
+            }
+
             return;
         }
+
 
         String[] songs = new String[list.size()];
         long total = 0;
@@ -98,13 +106,15 @@ public class QueueCommand extends MusicCommand {
         }
 
         long fintotal = total;
-        builder.setText((i1, i2) -> getQueueTitle(ah, event.getClient().getSuccess(), songs.length, fintotal,
+        builder.setText((i1, i2) -> getQueueTitle(ah, getClient().getSuccess(), songs.length, fintotal,
                 settings.get().isRepeat()))
                 .setItems(songs)
-                .setUsers(event.getAuthor())
-                .setColor(event.getSelfMember().getColor())
+                .setUsers(event.getUser())
+                .setColor(event.getGuild().getSelfMember().getColor())
         ;
-        builder.build().paginate(event.getChannel(), pagenum);
+
+        event.replyFormat("%1$s Loading...", settings.get().getLoadingEmoji()).queue();
+        builder.build().paginate(event.getHook().retrieveOriginal().complete(), pagenum);
     }
 
     private String getQueueTitle(AudioHandler audioPlayer, String success, int songslength, long total, boolean repeatmode) {

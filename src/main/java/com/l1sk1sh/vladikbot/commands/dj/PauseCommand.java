@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,22 +22,20 @@ public class PauseCommand extends DJCommand {
     @Autowired
     public PauseCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
         super(guildSettingsRepository, playerManager);
-        this.name = "pause";
-        this.help = "pauses the current song";
+        this.name = "mpause";
+        this.help = "Pauses the current song";
         this.bePlaying = true;
     }
 
     @Override
-    public final void doCommand(CommandEvent event) {
-        AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
+    public final void doCommand(SlashCommandEvent event) {
+        AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         if (Objects.requireNonNull(audioHandler).getPlayer().isPaused()) {
-            event.replyWarning(String.format("The player is already paused! Use `%1$splay` to unpause!",
-                    event.getClient().getPrefix()));
+            event.replyFormat("%1$s The player is already paused.", getClient().getWarning()).setEphemeral(true).queue();
+
             return;
         }
         audioHandler.getPlayer().setPaused(true);
-        event.replySuccess(String.format("Paused **%1$s**. Type `%2$splay` to unpause!",
-                audioHandler.getPlayer().getPlayingTrack().getInfo().title,
-                event.getClient().getPrefix()));
+        event.replyFormat("Paused **%1$s**.", audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
     }
 }
