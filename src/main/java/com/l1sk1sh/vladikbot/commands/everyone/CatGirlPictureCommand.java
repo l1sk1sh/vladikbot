@@ -18,6 +18,9 @@ import org.springframework.web.client.RestTemplate;
 import java.awt.*;
 import java.util.Collections;
 
+/**
+ * @author dmitrijbes
+ */
 @Service
 public class CatGirlPictureCommand extends SlashCommand {
     private static final Logger log = LoggerFactory.getLogger(CatGirlPictureCommand.class);
@@ -39,9 +42,9 @@ public class CatGirlPictureCommand extends SlashCommand {
         OptionMapping tagOption = event.getOption(TAG_OPTION_KEY);
         String tag = (tagOption != null) ? tagOption.getAsString() : "neko";
 
-        CatGirlPicture[] catGirlPictures;
+        CatGirlPicture catGirlPictures;
         try {
-            catGirlPictures = restTemplate.getForObject("https://nekos.life/api/v2/img/" + tag, CatGirlPicture[].class);
+            catGirlPictures = restTemplate.getForObject("https://nekos.life/api/v2/img/" + tag, CatGirlPicture.class);
         } catch (RestClientException e) {
             event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
@@ -49,9 +52,17 @@ public class CatGirlPictureCommand extends SlashCommand {
             return;
         }
 
-        if (catGirlPictures == null || catGirlPictures.length == 0) {
+        if (catGirlPictures == null) {
             event.replyFormat("%1$s Failed to retrieve catgirl's picture.", getClient().getError()).setEphemeral(true).queue();
             log.error("Failed to retrieve a catgirl picture.");
+
+            return;
+        }
+
+        String catPictureUrlOrResponse = catGirlPictures.getUrl();
+
+        if (catPictureUrlOrResponse.isEmpty() || catPictureUrlOrResponse.equalsIgnoreCase("404")) {
+            event.replyFormat("%1$s No kitty for you!", "\uD83D\uDC31").setEphemeral(true).queue();
 
             return;
         }
@@ -60,7 +71,7 @@ public class CatGirlPictureCommand extends SlashCommand {
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("Nyan!", null, null)
                 .setColor(new Color(20, 120, 120))
-                .setImage(catGirlPictures[0].getUrl());
+                .setImage(catPictureUrlOrResponse);
 
         event.reply(builder.setEmbeds(embedBuilder.build()).build()).queue();
     }
