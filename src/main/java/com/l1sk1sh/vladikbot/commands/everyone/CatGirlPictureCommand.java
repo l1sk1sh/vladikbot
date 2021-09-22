@@ -63,7 +63,7 @@ public class CatGirlPictureCommand extends SlashCommand {
 
         String catPictureUrlOrResponse = catGirlPictures.getUrl();
 
-        if (catPictureUrlOrResponse.isEmpty() || catPictureUrlOrResponse.equalsIgnoreCase("404")) {
+        if (catPictureUrlOrResponse == null || catPictureUrlOrResponse.isEmpty() || catPictureUrlOrResponse.equalsIgnoreCase("404")) {
             event.replyFormat("%1$s No kitty for you!", "\uD83D\uDC31").setEphemeral(true).queue();
 
             return;
