@@ -20,6 +20,8 @@ import java.util.Collections;
 
 /**
  * @author not l1sk1sh
+ *
+ * More extended info on nekos.life API could be found here https://www.npmjs.com/package/nekos.life
  */
 @Service
 public class CatGirlPictureCommand extends SlashCommand {
