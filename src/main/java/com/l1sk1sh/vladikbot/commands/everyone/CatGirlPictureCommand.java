@@ -49,7 +49,7 @@ public class CatGirlPictureCommand extends SlashCommand {
             return;
         }
 
-        if (catGirlPictures == null) {
+        if (catGirlPictures == null || catGirlPictures.length == 0) {
             event.replyFormat("%1$s Failed to retrieve catgirl's picture.", getClient().getError()).setEphemeral(true).queue();
             log.error("Failed to retrieve a catgirl picture.");
 
