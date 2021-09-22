@@ -6,4 +6,5 @@ import lombok.Getter;
 @Getter
 public class CatGirlPicture {
     private String url;
+    private String msg;
 }
