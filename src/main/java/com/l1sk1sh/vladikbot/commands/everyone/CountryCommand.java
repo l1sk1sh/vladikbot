@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  */
 @Service
 public class CountryCommand extends SlashCommand {
-    private static final Logger log = LoggerFactory.getLogger(CatPictureCommand.class);
+    private static final Logger log = LoggerFactory.getLogger(CountryCommand.class);
 
     private static final String ISO_CODE_OPTION_KEY = "country";
 
