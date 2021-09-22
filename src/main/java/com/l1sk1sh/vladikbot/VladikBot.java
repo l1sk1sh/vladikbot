@@ -127,6 +127,7 @@ public class VladikBot {
                         catFactCommand,
                         dogPictureCommand,
                         catPictureCommand,
+                        catGirlPictureCommand,
                         rollDiceCommand,
                         countryCommand,
                         flipCoinCommand,
@@ -295,6 +296,8 @@ public class VladikBot {
     private CatFactCommand catFactCommand;
     @Setter(onMethod = @__({@Autowired}))
     private CatPictureCommand catPictureCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private CatGirlPictureCommand catGirlPictureCommand;
     @Setter(onMethod = @__({@Autowired}))
     private CountryCommand countryCommand;
     @Setter(onMethod = @__({@Autowired}))
