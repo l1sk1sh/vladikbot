@@ -38,7 +38,7 @@ public class CatGirlPictureCommand extends SlashCommand {
 
         CatGirlPicture[] catGirlPictures;
         try {
-            catGirlPictures = restTemplate.getForObject("https://nekos.life/api/v2/img/", CatGirlPicture[].class);
+            catGirlPictures = restTemplate.getForObject("https://nekos.life/api/v2/img/" + tagOption, CatGirlPicture[].class);
         } catch (RestClientException e) {
             event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
