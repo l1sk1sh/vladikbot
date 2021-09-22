@@ -5,6 +5,9 @@ import com.l1sk1sh.vladikbot.network.dto.CatGirlPicture;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +16,12 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
+import java.util.Collections;
 
 @Service
 public class CatGirlPictureCommand extends SlashCommand {
     private static final Logger log = LoggerFactory.getLogger(CatGirlPictureCommand.class);
+
     private static final String TAG_OPTION_KEY = "tag";
 
     private final RestTemplate restTemplate;
@@ -26,9 +31,7 @@ public class CatGirlPictureCommand extends SlashCommand {
         this.restTemplate = new RestTemplate();
         this.name = "catgirl";
         this.help = "Get a random catgirl picture";
-        List<OptionData> options = new ArrayList<>();
-        options.add(new OptionData(OptionType.STRING, TAG_OPTION_KEY, "Picture tag ;3").setRequired(false));
-        this.options = options;
+        this.options = Collections.singletonList(new OptionData(OptionType.STRING, TAG_OPTION_KEY, "Picture tag ;3").setRequired(false));
     }
 
     @Override
@@ -42,12 +45,14 @@ public class CatGirlPictureCommand extends SlashCommand {
         } catch (RestClientException e) {
             event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
+
             return;
         }
 
         if (catGirlPictures == null) {
             event.replyFormat("%1$s Failed to retrieve catgirl's picture.", getClient().getError()).setEphemeral(true).queue();
             log.error("Failed to retrieve a catgirl picture.");
+
             return;
         }
 
