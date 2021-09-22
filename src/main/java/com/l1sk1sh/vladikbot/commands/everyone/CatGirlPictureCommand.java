@@ -37,11 +37,11 @@ public class CatGirlPictureCommand extends SlashCommand {
     @Override
     protected void execute(SlashCommandEvent event) {
         OptionMapping tagOption = event.getOption(TAG_OPTION_KEY);
-        String tag = tagOption != null ? tagOption.getAsString() : "neko";
+        String tag = (tagOption != null) ? tagOption.getAsString() : "neko";
 
         CatGirlPicture[] catGirlPictures;
         try {
-            catGirlPictures = restTemplate.getForObject("https://nekos.life/api/v2/img/" + tagOption, CatGirlPicture[].class);
+            catGirlPictures = restTemplate.getForObject("https://nekos.life/api/v2/img/" + tag, CatGirlPicture[].class);
         } catch (RestClientException e) {
             event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
