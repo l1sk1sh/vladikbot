@@ -19,7 +19,7 @@ import java.awt.*;
 import java.util.Collections;
 
 /**
- * @author dmitrijbes
+ * @author not l1sk1sh
  */
 @Service
 public class CatGirlPictureCommand extends SlashCommand {
