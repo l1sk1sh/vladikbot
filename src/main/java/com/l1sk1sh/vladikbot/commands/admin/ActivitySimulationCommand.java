@@ -1,25 +1,29 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.Activity;
 import com.l1sk1sh.vladikbot.services.presence.ActivitySimulationManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * @author l1sk1sh
  */
 @Service
-public class ActivitySimulationCommand extends AdminCommand {
+public class ActivitySimulationCommand extends AdminV2Command {
     private static final Logger log = LoggerFactory.getLogger(ActivitySimulationCommand.class);
 
     private final BotSettingsManager settings;
@@ -29,12 +33,10 @@ public class ActivitySimulationCommand extends AdminCommand {
     public ActivitySimulationCommand(BotSettingsManager settings, ActivitySimulationManager activitySimulationManager) {
         this.settings = settings;
         this.activitySimulationManager = activitySimulationManager;
-        this.name = "simactivity";
-        this.aliases = new String[]{"simactivity"};
+        this.name = "activity";
         this.help = "Activity simulation management";
-        this.arguments = "<add|list|switch|delete>";
         this.guildOnly = false;
-        this.children = new AdminCommand[]{
+        this.children = new AdminV2Command[]{
                 new CreateCommand(),
                 new ReadCommand(),
                 new SwitchCommand(),
@@ -43,130 +45,162 @@ public class ActivitySimulationCommand extends AdminCommand {
     }
 
     @Override
-    protected final void execute(CommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
+    protected final void execute(SlashCommandEvent event) {
+        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
     }
 
-    class CreateCommand extends AdminCommand {
+    private class CreateCommand extends AdminV2Command {
+
+        private static final String ACTION_OPTION_KEY = "action";
+        private static final String ACTIVITY_OPTION_KEY = "activity";
+
         CreateCommand() {
             this.name = "create";
-            this.aliases = new String[]{"make", "add"};
-            this.help = "creates new activity rule";
-            this.arguments = "<action> <activity>"; /* Used twisted to simplify UX (for ex. 'playing WoW', instead of 'WoW playing') */
-            this.guildOnly = false;
+            this.help = "Creates new activity rule";
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.STRING, ACTION_OPTION_KEY, "Action in the status").setRequired(true));
+            options.add(new OptionData(OptionType.STRING, ACTIVITY_OPTION_KEY, "Activity of the status").setRequired(true));
+            this.options = options;
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
-            if (event.getArgs().isEmpty()) {
-                event.replyError("Please include pair *action* *activity*!");
+        protected final void execute(SlashCommandEvent event) {
+            OptionMapping actionOption = event.getOption(ACTION_OPTION_KEY);
+            if (actionOption == null) {
+                event.replyFormat("%1$s Please specify activity of the status. Supported actions: `[%1$s, %2$s, %3$s]`!",
+                        getClient().getWarning(),
+                        Const.StatusAction.playing,
+                        Const.StatusAction.listening,
+                        Const.StatusAction.watching
+                ).setEphemeral(true).queue();
+
+                return;
+            }
+
+            OptionMapping activityOption = event.getOption(ACTIVITY_OPTION_KEY);
+            if (activityOption == null) {
+                event.replyFormat("%1$s Status description should not be empty!",
+                        getClient().getWarning()
+                ).setEphemeral(true).queue();
+
                 return;
             }
 
             Const.StatusAction action;
-            if (event.getArgs().toLowerCase().startsWith(Const.StatusAction.playing.name())) {
+            String actionOptionString = actionOption.getAsString();
+
+            if (actionOptionString.toLowerCase().startsWith(Const.StatusAction.playing.name())) {
                 action = Const.StatusAction.playing;
-            } else if (event.getArgs().toLowerCase().startsWith(Const.StatusAction.listening.name())) {
+            } else if (actionOptionString.toLowerCase().startsWith(Const.StatusAction.listening.name())) {
                 action = Const.StatusAction.listening;
-            } else if (event.getArgs().toLowerCase().startsWith(Const.StatusAction.watching.name())) {
+            } else if (actionOptionString.toLowerCase().startsWith(Const.StatusAction.watching.name())) {
                 action = Const.StatusAction.watching;
             } else {
-                event.replyWarning(String.format("Action word must be one of `[%1$s, %2$s, %3$s]`!",
+                event.replyFormat("%1$s Action must be one of `[%1$s, %2$s, %3$s]`!",
+                        getClient().getWarning(),
                         Const.StatusAction.playing,
                         Const.StatusAction.listening,
-                        Const.StatusAction.watching));
+                        Const.StatusAction.watching
+                ).setEphemeral(true).queue();
+
                 return;
             }
 
-            Activity newPair = new Activity(
-                    event.getArgs().substring(action.name().length()).trim(), action);
-
+            Activity newPair = new Activity(activityOption.getAsString(), action);
             activitySimulationManager.writeRule(newPair);
             log.info("Added new rule to ActivitySimulation: {}.", newPair);
-            event.replySuccess("New rule was added.");
+            event.reply("New rule was added.").setEphemeral(true).queue();
         }
     }
 
-    class ReadCommand extends AdminCommand {
+    private class ReadCommand extends AdminV2Command {
         ReadCommand() {
-            this.name = "all";
-            this.aliases = new String[]{"available", "list", "read"};
-            this.help = "lists all available rules";
+            this.name = "list";
             this.guildOnly = true;
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
+        protected final void execute(SlashCommandEvent event) {
             List<Activity> list = activitySimulationManager.getAllRules();
             if (list == null) {
-                event.replyError("Failed to load available rules!");
+                event.replyFormat("%1$s Failed to load available rules!", getClient().getError()).setEphemeral(true).queue();
             } else if (list.isEmpty()) {
-                event.replyWarning("There are no records available!");
+                event.replyFormat("%1$s There are no records available!", getClient().getWarning()).setEphemeral(true).queue();
             } else {
-                String message = event.getClient().getSuccess() + " Acting rules:\r\n";
+                String message = getClient().getSuccess() + " Acting rules:\r\n";
                 StringBuilder builder = new StringBuilder(message);
-                list.forEach(rule -> builder.append("`").append(rule.getStatusAction()).append(" ").append(rule.getActivityName()).append("`").append("\r\n"));
-                event.reply(builder.toString());
+                list.forEach(rule -> builder.append("`")
+                        .append(rule.getId()).append(" ")
+                        .append(rule.getStatusAction()).append(" ")
+                        .append(rule.getActivityName()).append("`")
+                        .append("\r\n"));
+                event.reply(builder.toString()).setEphemeral(true).queue();
             }
         }
     }
 
-    class SwitchCommand extends AdminCommand {
+    private class SwitchCommand extends AdminV2Command {
+
+        private static final String SWITCH_OPTION_KEY = "switch";
+
         SwitchCommand() {
             this.name = "switch";
-            this.aliases = new String[]{"change"};
-            this.help = "enables or disables simulation of bot's activity";
-            this.arguments = "<on|off>";
-            this.guildOnly = false;
+            this.help = "Sets or shows simulation of bot's activity";
+            this.options = Collections.singletonList(new OptionData(OptionType.BOOLEAN, SWITCH_OPTION_KEY, "Enable or disable activity simulation").setRequired(false));
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
-            String[] args = event.getArgs().split("\\s+");
-            if (args.length > 0) {
-                for (String arg : args) {
-                    switch (arg) {
-                        case "on":
-                        case "enable":
-                            settings.get().setSimulateActivity(true);
-                            event.replySuccess("Simulation of bot's activity is now enabled!");
-                            activitySimulationManager.start();
-                            break;
-                        case "off":
-                        case "disable":
-                            settings.get().setSimulateActivity(false);
-                            event.replySuccess("Simulation of bot's activity is now disabled!");
-                            activitySimulationManager.stop();
-                            break;
-                    }
-                }
-            } else {
-                event.replyWarning("Specify `on` or `off` argument for this command!");
+        protected final void execute(SlashCommandEvent event) {
+            boolean currentSetting = settings.get().isSimulateActivity();
+
+            OptionMapping simulateActivityOption = event.getOption(SWITCH_OPTION_KEY);
+            if (simulateActivityOption == null) {
+                event.replyFormat("Activity simulation is `%1$s`", (currentSetting ? "ON" : "OFF")).setEphemeral(true).queue();
+
+                return;
             }
+
+            boolean newSetting = simulateActivityOption.getAsBoolean();
+
+            if (currentSetting == newSetting) {
+                event.replyFormat("Activity simulation is `%1$s`", (currentSetting ? "ON" : "OFF")).setEphemeral(true).queue();
+
+                return;
+            }
+
+            settings.get().setSimulateActivity(newSetting);
+            if (newSetting) {
+                activitySimulationManager.start();
+            } else {
+                activitySimulationManager.stop();
+            }
+
+            event.replyFormat("Activity simulation is `%1$s`", (newSetting ? "ON" : "OFF")).queue();
         }
     }
 
-    class DeleteCommand extends AdminCommand {
+    private class DeleteCommand extends AdminV2Command {
+
+        private static final String ID_OPTION_KEY = "id";
+
         DeleteCommand() {
             this.name = "delete";
-            this.aliases = new String[]{"remove"};
-            this.help = "deletes an existing activity rule";
-            this.arguments = "<activity>";
-            this.guildOnly = false;
+            this.help = "Deletes an existing activity rule";
+            this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, ID_OPTION_KEY, "Id of the rule to be deleted").setRequired(true));
         }
 
         @Override
-        protected final void execute(CommandEvent event) {
-            String activityName = event.getArgs().replaceAll("\\s+", " ");
+        protected final void execute(SlashCommandEvent event) {
+            OptionMapping idOption = event.getOption(ID_OPTION_KEY);
+            if (idOption == null) {
+                event.replyFormat("%1$s Id of command is required", getClient().getWarning()).setEphemeral(true).queue();
 
-            try {
-                activitySimulationManager.deleteRule(activityName);
-                log.info("ActivitySimulation rule with activity {} was removed by {}.", activityName, FormatUtils.formatAuthor(event));
-                event.replySuccess(String.format("Successfully deleted rule with activity `[%1$s]`.", activityName));
-            } catch (IOException ioe) {
-                log.error("IO error during removal of ActivitySimulation rule", ioe);
-                event.replyError(String.format("Unable to delete this rule, that has activity `[%1$s]`.", ioe.getLocalizedMessage()));
+                return;
             }
+
+            activitySimulationManager.deleteRule(idOption.getAsLong());
+            log.info("ActivitySimulation rule with id {} was removed by {}.", idOption.getAsLong(), FormatUtils.formatAuthor(event));
+            event.replyFormat("Successfully deleted rule with id `[%1$s]`.", idOption.getAsLong()).setEphemeral(true).queue();
         }
     }
 }

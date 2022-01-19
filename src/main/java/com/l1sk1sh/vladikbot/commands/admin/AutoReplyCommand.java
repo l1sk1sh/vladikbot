@@ -1,28 +1,30 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author l1sk1sh
  */
 @Service
-public class AutoReplyCommand extends AdminCommand {
+public class AutoReplyCommand extends AdminV2Command {
     private static final Logger log = LoggerFactory.getLogger(AutoReplyCommand.class);
 
     private final BotSettingsManager settings;
@@ -33,10 +35,9 @@ public class AutoReplyCommand extends AdminCommand {
         this.settings = settings;
         this.autoReplyManager = autoReplyManager;
         this.name = "reply";
-        this.help = "auto reply management";
-        this.arguments = "<add|list|switch|delete|match>";
+        this.help = "Auto reply management";
         this.guildOnly = false;
-        this.children = new AdminCommand[]{
+        this.children = new AdminV2Command[]{
                 new CreateCommand(),
                 new ReadCommand(),
                 new SwitchCommand(),
@@ -47,224 +48,239 @@ public class AutoReplyCommand extends AdminCommand {
     }
 
     @Override
-    protected void execute(CommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString());
+    protected void execute(SlashCommandEvent event) {
+        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
     }
 
-    private final class CreateCommand extends AdminCommand {
+    private final class CreateCommand extends AdminV2Command {
+
+        private static final String REPLY_TO_OPTION_KEY = "action";
+        private static final String REPLY_WITH_OPTION_KEY = "activity";
+
+        private static final String OPTION_SEPARATOR = ";";
+
         private CreateCommand() {
-            this.name = "make";
-            this.aliases = new String[]{"create", "add"};
-            this.help = "makes a new reply rule (';' - used as separator)\r\n" +
-                    "Example: *reply add {fbi; open up} {POLICE, OPEN UP!; You've played your role, criminal!}*";
-            this.arguments = "<{react to}> <{react with}>";
-            this.guildOnly = false;
+            this.name = "create";
+            this.help = "Creates a new reply rule";
+            List<OptionData> options = new ArrayList<>();
+            options.add(new OptionData(OptionType.STRING, REPLY_TO_OPTION_KEY, "List of words bot will reply to (use " + OPTION_SEPARATOR + " as a separator for multiple phrases at once.").setRequired(true));
+            options.add(new OptionData(OptionType.STRING, REPLY_WITH_OPTION_KEY, "List of words bot will reply with (use " + OPTION_SEPARATOR + " as a separator for multiple phrases at once.").setRequired(true));
+            this.options = options;
         }
 
         @Override
-        protected void execute(CommandEvent event) {
-            if (!Pattern.compile("^(\\{(.*?)})\\s(\\{(.*?)})$").matcher(event.getArgs()).matches()) {
-                event.replyWarning(String.format("Input arguments `[%1$s]` " +
-                        "do not match pattern `{react to this; or to this}` `{react with this; or this}`", event.getArgs()));
+        protected void execute(SlashCommandEvent event) {
+            OptionMapping replyToOption = event.getOption(REPLY_TO_OPTION_KEY);
+            if (replyToOption == null) {
+                event.replyFormat("%1$s Please enter 'reply to' words.",
+                        getClient().getWarning()
+                ).setEphemeral(true).queue();
+
                 return;
             }
 
-            List<String> reactTo = new ArrayList<>();
-            List<String> reactWith = new ArrayList<>();
+            OptionMapping replyWithOption = event.getOption(REPLY_WITH_OPTION_KEY);
+            if (replyWithOption == null) {
+                event.replyFormat("%1$s Please enter 'reply with' words.",
+                        getClient().getWarning()
+                ).setEphemeral(true).queue();
 
-            Matcher matcher = Pattern.compile("\\{(.*?)}").matcher(event.getArgs());
-            int count = 0;
-            while (matcher.find()) {
-                count++;
-                String[] array = matcher.group().split(";");
-                for (int i = 0; i < array.length; i++) {
-                    array[i] = array[i].trim().replaceAll("[{}]", "").replaceAll("[\"]", "");
-                }
-
-                if (count == 1) {
-                    Collections.addAll(reactTo, array);
-                }
-
-                if (count == 2) {
-                    Collections.addAll(reactWith, array);
-                }
+                return;
             }
 
-            for (String replyTo : reactTo) {
-                if (replyTo.isEmpty()) {
-                    event.replyError("Do not use empty words for the rule!");
-                    return;
-                }
-            }
+            List<String> reactTo = Arrays.asList(replyToOption.getAsString().split(OPTION_SEPARATOR));
+            List<String> reactWith = Arrays.asList(replyWithOption.getAsString().split(OPTION_SEPARATOR));
 
-            for (String replyWith : reactWith) {
-                if (replyWith.isEmpty()) {
-                    event.replyError("Do not use empty words for the rule!");
-                    return;
-                } else if (replyWith.length() < AutoReplyManager.MIN_REPLY_TO_LENGTH) {
-                    event.replyError("Trigger words must be more or equal 3 symbols!");
-                    return;
-                }
+            reactTo.removeIf(String::isBlank);
+            reactTo.removeIf(str -> str.length() < AutoReplyManager.MIN_REPLY_TO_LENGTH);
+
+            reactWith.removeIf(String::isBlank);
+            reactWith.removeIf(str -> str.length() < AutoReplyManager.MIN_REPLY_TO_LENGTH);
+
+            if (reactTo.isEmpty() || reactWith.isEmpty()) {
+                event.replyFormat("%1$s Cannot add new reply rule due to empty words (spaces) or words that are less than %2$s character.",
+                        getClient().getWarning(),
+                        AutoReplyManager.MIN_REPLY_TO_LENGTH
+                ).setEphemeral(true).queue();
+
+                return;
             }
 
             ReplyRule rule = new ReplyRule(reactTo, reactWith);
             autoReplyManager.writeRule(rule);
             log.info("Added new reply rule: {}.", rule.toString());
-            event.replySuccess(String.format("Reply rule was added: `[%1$s]`", rule.toString()));
+            event.reply("New rule was added.").setEphemeral(true).queue();
         }
-
     }
 
-    private final class ReadCommand extends AdminCommand {
+    private final class ReadCommand extends AdminV2Command {
         private static final int MAX_LIST_SIZE_TO_SHOW = 70;
 
         private ReadCommand() {
-            this.name = "all";
-            this.aliases = new String[]{"available", "list"};
-            this.help = "lists all available rules";
+            this.name = "list";
+            this.help = "Lists all available rules";
             this.guildOnly = true;
         }
 
         @Override
-        protected void execute(CommandEvent event) {
-
+        protected void execute(SlashCommandEvent event) {
             List<ReplyRule> list = autoReplyManager.getAllRules();
 
             if (list == null) {
-                event.replyError("Failed to load available rules!");
+                event.replyFormat("%1$s Failed to load available rules!", getClient().getError()).setEphemeral(true).queue();
             } else if (list.isEmpty()) {
-                event.replyWarning("There are no rules at the moment! Add new rules with `add` command.");
+                event.replyFormat("%1$s There are no records available!", getClient().getWarning()).setEphemeral(true).queue();
             } else if (list.size() > MAX_LIST_SIZE_TO_SHOW) {
-                event.replyWarning("Current reply dictionary is too huge to be listed. Contact owner for more details.");
+                event.replyFormat("%1$s Current reply dictionary is too huge to be listed. Contact owner for more details.", getClient().getWarning()).setEphemeral(true).queue();
             } else {
-                String message = event.getClient().getSuccess() + " Acting rules:\r\n";
+                String message = getClient().getSuccess() + " Acting rules:\r\n";
                 StringBuilder builder = new StringBuilder(message);
-                list.forEach(str -> builder.append("`").append(str).append("`").append("\r\n"));
-                event.reply(builder.toString());
+                list.forEach(str -> builder.append("`")
+                        .append(str)
+                        .append("`")
+                        .append("\r\n"));
+                event.reply(builder.toString()).setEphemeral(true).queue();
             }
         }
     }
 
-    private final class DeleteCommand extends AdminCommand {
-        private DeleteCommand() {
-            this.name = "delete";
-            this.aliases = new String[]{"remove"};
-            this.help = "deletes an existing rule";
-            this.arguments = "<name>";
-            this.guildOnly = false;
+    private final class SwitchCommand extends AdminV2Command {
+
+        private static final String SWITCH_OPTION_KEY = "switch";
+
+        private SwitchCommand() {
+            this.name = "switch";
+            this.help = "Enables or disables automatic moderation";
+            this.options = Collections.singletonList(new OptionData(OptionType.BOOLEAN, SWITCH_OPTION_KEY, "Enable or disable automatic reply").setRequired(false));
         }
 
         @Override
-        protected void execute(CommandEvent event) {
-            int id = Integer.parseInt(event.getArgs().replaceAll("\\s+", "_"));
+        protected void execute(SlashCommandEvent event) {
+            boolean currentSetting = settings.get().isAutoReply();
+
+            OptionMapping autoReplyOption = event.getOption(SWITCH_OPTION_KEY);
+            if (autoReplyOption == null) {
+                event.replyFormat("Auto reply is `%1$s`", (currentSetting ? "ON" : "OFF")).setEphemeral(true).queue();
+
+                return;
+            }
+
+            boolean newSetting = autoReplyOption.getAsBoolean();
+
+            if (currentSetting == newSetting) {
+                event.replyFormat("Auto reply is `%1$s`", (currentSetting ? "ON" : "OFF")).setEphemeral(true).queue();
+
+                return;
+            }
+
+            settings.get().setAutoReply(newSetting);
+            event.replyFormat("Auto reply is `%1$s`", (newSetting ? "ON" : "OFF")).setEphemeral(true).queue();
+        }
+    }
+
+    private final class DeleteCommand extends AdminV2Command {
+
+        private static final String ID_OPTION_KEY = "id";
+
+        private DeleteCommand() {
+            this.name = "delete";
+            this.help = "Deletes an existing rule";
+            this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, ID_OPTION_KEY, "Id of the rule to be deleted").setRequired(true));
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            OptionMapping idOption = event.getOption(ID_OPTION_KEY);
+            if (idOption == null) {
+                event.replyFormat("%1$s Id of command is required", getClient().getWarning()).setEphemeral(true).queue();
+
+                return;
+            }
+
+            long id = idOption.getAsLong();
             ReplyRule rule = autoReplyManager.getRuleById(id);
 
             if (rule == null) {
-                event.replyError(String.format("Rule `%1$s` doesn't exist!", id));
+                event.replyFormat("Rule `%1$s` doesn't exist!", getClient().getWarning(), id).setEphemeral(true).queue();
             } else {
                 autoReplyManager.deleteRule(rule);
-                log.info("Deleted rule {} by {}.", id, FormatUtils.formatAuthor(event));
-                event.replySuccess(String.format("Successfully deleted rule `%1$s`!", id));
+                log.info("Reply rule with id {} was removed by {}.", idOption.getAsLong(), FormatUtils.formatAuthor(event));
+                event.replyFormat("Successfully deleted rule with id `[%1$s]`.", idOption.getAsLong()).setEphemeral(true).queue();
             }
         }
     }
 
-    private final class SwitchCommand extends AdminCommand {
-        private SwitchCommand() {
-            this.name = "switch";
-            this.aliases = new String[]{"change"};
-            this.help = "enables or disables automatic moderation";
-            this.arguments = "<on|off>";
-            this.guildOnly = false;
-        }
+    private final class MatchCommand extends AdminV2Command {
 
-        @Override
-        protected void execute(CommandEvent event) {
-            String[] args = event.getArgs().split("\\s+");
-            if (args.length == 0) {
-                event.replyWarning("Specify `on` or `off` argument for this command!");
-                return;
-            }
+        private static final String MATCH_STRATEGY_OPTION_KEY = "match";
 
-            for (String arg : args) {
-                switch (arg) {
-                    case "on":
-                    case "enable":
-                        settings.get().setAutoReply(true);
-                        log.info("Auto Reply was enabled by '{}'.", event.getAuthor().getName());
-                        event.replySuccess("Auto Reply is now enabled!");
-                        break;
-                    case "off":
-                    case "disable":
-                        settings.get().setAutoReply(false);
-                        log.info("Auto Reply was disabled by '{}'.", event.getAuthor().getName());
-                        event.replySuccess("Auto Reply is now disabled!");
-                        break;
-                }
-            }
-        }
-    }
-
-    private final class MatchCommand extends AdminCommand {
         private MatchCommand() {
             this.name = "match";
-            this.help = "either bot uses full message comparison of word by word";
-            this.arguments = "<full|inline>";
+            this.help = "Either bot uses full message comparison of word by word";
+            options.add(new OptionData(OptionType.STRING, MATCH_STRATEGY_OPTION_KEY, "Select either `full` or `online`").setRequired(true));
             this.guildOnly = false;
         }
 
         @Override
-        protected void execute(CommandEvent event) {
-            String[] args = event.getArgs().split("\\s+");
-            if (args.length == 0) {
-                event.replyWarning("Specify `full` or `inline` argument for this command!");
+        protected void execute(SlashCommandEvent event) {
+            OptionMapping matchOption = event.getOption(MATCH_STRATEGY_OPTION_KEY);
+            if (matchOption == null) {
+                event.replyFormat("%1$s Matching option should not be empty!",
+                        getClient().getWarning()
+                ).setEphemeral(true).queue();
+
                 return;
             }
 
-            for (String arg : args) {
-                switch (arg) {
-                    case "full":
-                        settings.get().setMatchingStrategy(Const.MatchingStrategy.full);
-                        log.info("Matching strategy is set to 'full' by '{}'.", event.getAuthor().getName());
-                        event.replySuccess("Whole phrase will be used for reply from now!");
-                        break;
-                    case "inline":
-                        settings.get().setMatchingStrategy(Const.MatchingStrategy.inline);
-                        log.info("Matching strategy is set to 'inline' by '{}'.", event.getAuthor().getName());
-                        event.replySuccess("Every word will be used for reply!");
-                        break;
-                }
+            String matchingStrategy = matchOption.getAsString();
+            Const.MatchingStrategy strategy;
+            try {
+                strategy = Const.MatchingStrategy.valueOf(matchingStrategy.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                event.replyFormat("%1$s Specify either `full` or `inline` strategy.", getClient().getWarning()).setEphemeral(true).queue();
+
+                return;
             }
+
+            settings.get().setMatchingStrategy(Const.MatchingStrategy.FULL);
+            log.info("Matching strategy is set to '{}' by '{}'.", strategy, FormatUtils.formatAuthor(event));
+            event.replyFormat("Changed current matching strategy to `%1$s`.", strategy.name().toLowerCase()).queue();
         }
     }
 
-    private final class ChanceCommand extends AdminCommand {
+    private final class ChanceCommand extends AdminV2Command {
+
+        private static final String CHANCE_OPTION_KEY = "chance";
+
         private ChanceCommand() {
             this.name = "chance";
-            this.help = "chance that bot will reply to your message. 1.0 - always replies, 0.0 - never replies";
-            this.arguments = "<0.0 - 1.0>";
+            this.help = "Chance that bot will reply to your message. ";
+            options.add(new OptionData(OptionType.STRING, CHANCE_OPTION_KEY, "1.0 - always replies, 0.0 - never replies").setRequired(true));
             this.guildOnly = false;
         }
 
         @Override
-        protected void execute(CommandEvent event) {
-            String[] args = event.getArgs().split("\\s+");
-            if (args.length == 0) {
-                event.replyWarning("Specify double value as a chance of reply!");
+        protected void execute(SlashCommandEvent event) {
+            OptionMapping chanceOption = event.getOption(CHANCE_OPTION_KEY);
+            if (chanceOption == null) {
+                event.replyFormat("%1$s Reply chance should not be empty!",
+                        getClient().getWarning()
+                ).setEphemeral(true).queue();
+
                 return;
             }
 
-            String lastArgument = args[args.length - 1];
-
             try {
-                double replyChance = Double.parseDouble(lastArgument);
+                double replyChance = Double.parseDouble(chanceOption.getAsString());
                 if (replyChance < 0.0 || replyChance > 1.0) {
-                    event.replyWarning(String.format("Reply chance should be in range [0.0 - 1.0]. `%1$s` given", replyChance));
+                    event.replyFormat("%1$s Reply chance should be in range [0.0 - 1.0]. `%2$s` given", getClient().getWarning(), replyChance).setEphemeral(true).queue();
+
+                    return;
                 }
                 settings.get().setReplyChance(replyChance);
-                event.replySuccess(String.format("Reply chance is now %1$s%%", replyChance * 100));
+                event.replyFormat("%1$s Reply chance is now %2$s%%", replyChance * 100).queue();
             } catch (NumberFormatException nfe) {
-                event.replyError(String.format("Invalid number specified `[%1$s]`", lastArgument));
+                event.replyFormat("%1$s Invalid number specified `[%2$s]`", getClient().getWarning(), chanceOption.getAsString()).setEphemeral(true).queue();
             }
         }
     }

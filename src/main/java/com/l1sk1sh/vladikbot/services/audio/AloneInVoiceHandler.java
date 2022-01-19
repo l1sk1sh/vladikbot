@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,7 +24,9 @@ import java.util.concurrent.TimeUnit;
  */
 @RequiredArgsConstructor
 @Service
+@Order
 public class AloneInVoiceHandler {
+
     @Qualifier("backgroundThreadPool")
     private final ScheduledExecutorService backgroundThreadPool;
     private final BotSettingsManager settings;

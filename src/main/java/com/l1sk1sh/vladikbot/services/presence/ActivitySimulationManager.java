@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -49,16 +48,11 @@ public class ActivitySimulationManager {
         simulationRules.add(activityRepository.save(rule));
     }
 
-    public void deleteRule(String activityName) throws IOException {
-        Activity rule = activityRepository.getActivityByActivityName(activityName);
+    public void deleteRule(long commandId) {
+        log.info("Trying to remove ActivitySimulation rule with ID '{}'...", commandId);
+        activityRepository.deleteById(commandId);
 
-        if (rule == null) {
-            throw new IOException("Rule was not found");
-        }
-
-        log.info("Trying to remove ActivitySimulation rule '{}'...", rule);
-        activityRepository.delete(rule);
-        simulationRules.stream().filter(r -> r.getId() == rule.getId()).findFirst()
+        simulationRules.stream().filter(r -> r.getId() == commandId).findFirst()
                 .ifPresent(runtimeActivity -> simulationRules.remove(runtimeActivity));
     }
 

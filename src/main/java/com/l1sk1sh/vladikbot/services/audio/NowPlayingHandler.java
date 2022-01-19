@@ -33,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 @Service
 public class NowPlayingHandler {
+
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final BotSettingsManager settings;

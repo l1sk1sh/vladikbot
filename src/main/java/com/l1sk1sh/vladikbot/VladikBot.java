@@ -178,6 +178,7 @@ public class VladikBot {
                         guildLoggerCommand,
                         setNotificationChannelCommand,
                         setDjCommand,
+                        setSkipAudioRatioCommand,
                         setTextChannelCommand,
                         setVoiceChannelCommand,
 
@@ -272,6 +273,8 @@ public class VladikBot {
     private SetDjCommand setDjCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetNotificationChannelCommand setNotificationChannelCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private SetSkipAudioRatioCommand setSkipAudioRatioCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetTextChannelCommand setTextChannelCommand;
     @Setter(onMethod = @__({@Autowired}))
