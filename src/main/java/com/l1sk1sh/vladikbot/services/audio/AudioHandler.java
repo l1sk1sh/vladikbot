@@ -191,7 +191,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             AudioTrack track = audioPlayer.getPlayingTrack();
             MessageBuilder messageBuilder = new MessageBuilder();
             messageBuilder.append(FormatUtils.filter(settings.get().getSuccessEmoji() + " **Now Playing in "
-                    + Objects.requireNonNull(Objects.requireNonNull(guild.getSelfMember().getVoiceState()).getChannel()).getName() + "...**"));
+                    + Objects.requireNonNull(Objects.requireNonNull(guild.getSelfMember().getVoiceState()).getChannel()).getAsMention() + "...**"));
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setColor(guild.getSelfMember().getColor());

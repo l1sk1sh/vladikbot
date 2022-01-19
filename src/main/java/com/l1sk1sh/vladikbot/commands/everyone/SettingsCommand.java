@@ -82,7 +82,7 @@ public class SettingsCommand extends SlashCommand {
                                 + "\r\nDJ Role: **"
                                 + ((djRole == null) ? "None" : djRole.getName()) + "**"
                                 + "\r\nRepeat Mode: **"
-                                + (settings.get().isRepeat() ? "on" : "off") + "**"
+                                + (settings.get().getRepeat().getUserFriendlyName()) + "**"
                                 + "\r\nDefault Playlist: **"
                                 + ((defaultPlaylist == null) ? "None" : defaultPlaylist) + "**"
                                 + "\r\nAuto Reply: **"

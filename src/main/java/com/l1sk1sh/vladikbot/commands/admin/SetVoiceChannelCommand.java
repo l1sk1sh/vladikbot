@@ -58,7 +58,7 @@ public class SetVoiceChannelCommand extends AdminCommand {
                     setting.setVoiceChannelId(list.get(0).getIdLong());
                     guildSettingsRepository.save(setting);
                     log.info("Music can be used played in {}. Set by {}.", list.get(0).getId(), FormatUtils.formatAuthor(event));
-                    event.replySuccess(String.format("Music can now only be played in **%1$s**.", list.get(0).getName()));
+                    event.replySuccess(String.format("Music can now only be played in **%1$s**.", list.get(0).getAsMention()));
                 });
             }
         }

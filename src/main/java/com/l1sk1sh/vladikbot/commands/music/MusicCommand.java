@@ -78,9 +78,9 @@ public abstract class MusicCommand extends SlashCommand {
             if (!Objects.requireNonNull(userState).inVoiceChannel()
                     || userState.isDeafened()
                     || (current != null && !Objects.requireNonNull(userState.getChannel()).equals(current))) {
-                event.replyFormat("%1$s You must be listening in *%2$s* to use that!",
+                event.replyFormat("%1$s You must be listening in %2$s to use that!",
                         getClient().getWarning(),
-                        (current == null ? "a voice channel" : current.getName())
+                        (current == null ? "a voice channel" : current.getAsMention())
                 ).setEphemeral(true).queue();
 
                 return;
@@ -97,9 +97,9 @@ public abstract class MusicCommand extends SlashCommand {
                 try {
                     event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());
                 } catch (PermissionException ex) {
-                    event.replyFormat("%1$s Unable to connect to **%2$s**!",
+                    event.replyFormat("%1$s Unable to connect to %2$s!",
                             getClient().getWarning(),
-                            Objects.requireNonNull(userState.getChannel()).getName()
+                            Objects.requireNonNull(userState.getChannel()).getAsMention()
                     ).setEphemeral(true).queue();
 
                     return;

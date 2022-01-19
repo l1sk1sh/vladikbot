@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.commands.music;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.models.AudioRepeatMode;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
@@ -107,7 +108,7 @@ public class QueueCommand extends MusicCommand {
 
         long fintotal = total;
         builder.setText((i1, i2) -> getQueueTitle(ah, getClient().getSuccess(), songs.length, fintotal,
-                settings.get().isRepeat()))
+                settings.get().getRepeat()))
                 .setItems(songs)
                 .setUsers(event.getUser())
                 .setColor(event.getGuild().getSelfMember().getColor())
@@ -117,7 +118,7 @@ public class QueueCommand extends MusicCommand {
         builder.build().paginate(event.getHook().retrieveOriginal().complete(), pagenum);
     }
 
-    private String getQueueTitle(AudioHandler audioPlayer, String success, int songslength, long total, boolean repeatmode) {
+    private String getQueueTitle(AudioHandler audioPlayer, String success, int songslength, long total, AudioRepeatMode repeatmode) {
         StringBuilder stringBuilder = new StringBuilder();
         if (audioPlayer.getPlayer().getPlayingTrack() != null) {
             stringBuilder.append(audioPlayer.getPlayer().isPaused()
@@ -127,6 +128,6 @@ public class QueueCommand extends MusicCommand {
 
         return FormatUtils.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)
                 .append(" entries | `").append(FormatUtils.formatTimeTillHours(total)).append("` ")
-                .append(repeatmode ? "| " + Const.REPEAT_EMOJI : "").toString());
+                .append(repeatmode.getEmoji() != null ? "| " + repeatmode.getEmoji() : "").toString());
     }
 }

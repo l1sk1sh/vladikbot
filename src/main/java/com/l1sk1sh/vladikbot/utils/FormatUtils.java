@@ -80,7 +80,7 @@ public final class FormatUtils {
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
 
         for (int i = 0; i < textChannelsListLimit && i < list.size(); i++) {
-            out.append("\r\n - ").append(list.get(i).getName()).append(" (<#").append(list.get(i).getId()).append(">)");
+            out.append("\r\n - ").append(list.get(i).getAsMention()).append(" (<#").append(list.get(i).getId()).append(">)");
         }
 
         if (list.size() > textChannelsListLimit) {
@@ -96,7 +96,7 @@ public final class FormatUtils {
         StringBuilder out = new StringBuilder(" Multiple voice channels found matching \"" + query + "\":");
 
         for (int i = 0; i < voiceChannelsListLimit && i < list.size(); i++) {
-            out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
+            out.append("\r\n - ").append(list.get(i).getAsMention()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
 
         if (list.size() > voiceChannelsListLimit) {
@@ -112,7 +112,7 @@ public final class FormatUtils {
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
 
         for (int i = 0; i < rolesListLimit && i < list.size(); i++) {
-            out.append("\r\n - ").append(list.get(i).getName()).append(" (ID:").append(list.get(i).getId()).append(")");
+            out.append("\r\n - ").append(list.get(i).getAsMention()).append(" (ID:").append(list.get(i).getId()).append(")");
         }
 
         if (list.size() > rolesListLimit) {
