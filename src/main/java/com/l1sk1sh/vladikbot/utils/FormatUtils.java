@@ -6,6 +6,7 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -191,5 +192,9 @@ public final class FormatUtils {
 
     public static String formatAuthor(CommandEvent event) {
         return String.format("{%1$s}:[{%2$s}]", event.getAuthor().getName(), event.getAuthor().getId());
+    }
+
+    public static String formatAuthor(SlashCommandEvent event) {
+        return String.format("{%1$s}:[{%2$s}]", event.getUser().getName(), event.getUser().getId());
     }
 }

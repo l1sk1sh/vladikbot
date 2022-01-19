@@ -129,8 +129,8 @@ public final class Const {
     }
 
     public enum MatchingStrategy {
-        full,
-        inline
+        FULL,
+        INLINE
     }
 
     public static final String[] NAME_INVALID_CHARS = new String[]{":", "*", "\"", "\\", "/", "|", "<", ">"};

@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.services.audio;
 import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.Playlist;
+import com.l1sk1sh.vladikbot.models.AudioRequestMetadata;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
@@ -103,11 +104,12 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         return audioPlayer;
     }
 
-    public long getRequester() {
+    public AudioRequestMetadata getRequestMetadata() {
         if (audioPlayer.getPlayingTrack() == null || audioPlayer.getPlayingTrack().getUserData(Long.class) == null) {
-            return 0;
+            return AudioRequestMetadata.EMPTY;
         }
-        return audioPlayer.getPlayingTrack().getUserData(Long.class);
+        AudioRequestMetadata rm = audioPlayer.getPlayingTrack().getUserData(AudioRequestMetadata.class);
+        return rm == null ? AudioRequestMetadata.EMPTY : rm;
     }
 
     public boolean playFromDefault() {
@@ -151,7 +153,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         /* If the track ended normally, and we're in repeat mode, re-add it to the queue */
         if (endReason == AudioTrackEndReason.FINISHED && settings.get().isRepeat()) {
             queue.add(new QueuedTrack(track.makeClone(),
-                    track.getUserData(Long.class) == null ? 0L : track.getUserData(Long.class)));
+                    track.getUserData(AudioRequestMetadata.class)));
         }
 
         if (queue.isEmpty()) {
@@ -187,12 +189,14 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
             EmbedBuilder embedBuilder = new EmbedBuilder();
             embedBuilder.setColor(guild.getSelfMember().getColor());
-            if (getRequester() != 0) {
+            AudioRequestMetadata rm = getRequestMetadata();
+            if (rm.getOwner() != 0L) {
 
-                User user = guild.getJDA().getUserById(getRequester());
+                User user = guild.getJDA().getUserById(rm.getUser().getId());
                 if (user == null) {
-                    embedBuilder.setAuthor("Unknown (ID:" + getRequester() + ")",
-                            null, null);
+                    embedBuilder.setAuthor(rm.getUser().getUsername() + "#" + rm.getUser().getDiscrim(),
+                            null,
+                            rm.getUser().getAvatar());
                 } else {
                     embedBuilder.setAuthor(user.getName() + "#" + user.getDiscriminator(),
                             null, user.getEffectiveAvatarUrl());
@@ -241,7 +245,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
     String getTopicFormat(JDA jda) {
         if (isMusicPlaying(jda)) {
-            long userId = getRequester();
+            long userId = getRequestMetadata().getOwner();
             AudioTrack track = audioPlayer.getPlayingTrack();
             String title = track.getInfo().title;
 

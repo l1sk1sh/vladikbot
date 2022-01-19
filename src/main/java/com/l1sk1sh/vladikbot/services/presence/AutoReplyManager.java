@@ -64,13 +64,13 @@ public class AutoReplyManager {
                     continue;
                 }
 
-                if ((settings.get().getMatchingStrategy() == Const.MatchingStrategy.inline)
+                if ((settings.get().getMatchingStrategy() == Const.MatchingStrategy.INLINE)
                         && message.getContentStripped().contains(singleReact)) {
                     log.trace("Inline react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
                     matchingRules.add(rule);
                 }
 
-                if ((settings.get().getMatchingStrategy() == Const.MatchingStrategy.full)
+                if ((settings.get().getMatchingStrategy() == Const.MatchingStrategy.FULL)
                         && message.getContentStripped().equals(singleReact)) {
                     log.trace("Full react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
                     matchingRules.add(rule);

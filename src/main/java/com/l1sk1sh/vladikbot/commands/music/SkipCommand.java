@@ -1,9 +1,10 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.models.AudioRequestMetadata;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import net.dv8tion.jda.api.entities.User;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,9 +22,12 @@ import java.util.Objects;
 @Service
 public class SkipCommand extends MusicCommand {
 
+    private final BotSettingsManager settings;
+
     @Autowired
-    public SkipCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+    public SkipCommand(BotSettingsManager settings, GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
         super(guildSettingsRepository, playerManager);
+        this.settings = settings;
         this.name = "mskip";
         this.help = "Votes to skip the current song";
         this.beListening = true;
@@ -33,7 +37,8 @@ public class SkipCommand extends MusicCommand {
     @Override
     public void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-        if (event.getUser().getIdLong() == Objects.requireNonNull(audioHandler).getRequester()) {
+        AudioRequestMetadata rm = Objects.requireNonNull(audioHandler).getRequestMetadata();
+        if (event.getUser().getIdLong() == rm.getOwner()) {
             event.replyFormat("%1$s Skipped **%2$s**.",
                     getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
             audioHandler.getPlayer().stopTrack();
@@ -51,19 +56,16 @@ public class SkipCommand extends MusicCommand {
 
             int skippers = (int) Objects.requireNonNull(event.getGuild().getSelfMember().getVoiceState().getChannel()).getMembers().stream()
                     .filter(m -> audioHandler.getVotes().contains(m.getUser().getIdLong())).count();
-            int required = (int) Math.ceil(listeners * .55);
+            int required = (int) Math.ceil(listeners * settings.get().getAudioSkipRatio());
             message += skippers + " votes, " + required + "/" + listeners + " needed]`";
 
             if (skippers >= required) {
-                User user = event.getJDA().getUserById(audioHandler.getRequester());
                 message += String.format("\r\n%1$s Skipped **%2$s**%3$s.",
                         getClient().getSuccess(),
                         audioHandler.getPlayer().getPlayingTrack().getInfo().title,
-                        ((audioHandler.getRequester() == 0)
-                                ? ""
-                                : String.format(" (requested by %1$s",
-                                ((user == null) ? "someone" : "**" + user.getName() + "**") + ")")
-                        )
+                        (rm.getOwner() == 0L
+                                ? "(autoplay)"
+                                : "(requested by **" + rm.getUser().getUsername() + "**)")
                 );
 
                 audioHandler.getPlayer().stopTrack();

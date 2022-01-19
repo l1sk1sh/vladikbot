@@ -47,8 +47,9 @@ public class BotSettings {
     private boolean npImages = true;                                    // Display search images
     private boolean repeat = true;                                      // If repeat mode is available
     private boolean autoReply = false;                                  // If to automatically reply to certain phrases
-    private Const.MatchingStrategy matchingStrategy = Const.MatchingStrategy.full; // How reply rules should be matched
+    private Const.MatchingStrategy matchingStrategy = Const.MatchingStrategy.FULL; // How reply rules should be matched
     private double replyChance = 1.0;                                   // Change that bot will reply
+    private double audioSkipRatio = 0.55;                               // Voting ratio to skip current song
     private boolean simulateActivity = false;                           // If bot should change statuses by himself
     private boolean sendNews = true;                                    // If bot should update news channel
     private boolean sendMemes = true;                                   // If bot should update memes channel
@@ -103,6 +104,11 @@ public class BotSettings {
 
     public void setReplyChance(double replyChance) {
         this.replyChance = replyChance;
+        listener.onSettingsUpdated();
+    }
+
+    public void setAudioSkipRatio(double skipRatio) {
+        this.audioSkipRatio = skipRatio;
         listener.onSettingsUpdated();
     }
 

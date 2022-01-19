@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.models.AudioRequestMetadata;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,10 +31,10 @@ public class SkipForceCommand extends DJCommand {
     @Override
     public final void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-        User user = event.getJDA().getUserById(Objects.requireNonNull(audioHandler).getRequester());
+        AudioRequestMetadata rm = Objects.requireNonNull(audioHandler).getRequestMetadata();
         event.replyFormat("Skipped **%1$s** (requested by *%2$s*).",
                 audioHandler.getPlayer().getPlayingTrack().getInfo().title,
-                (user == null ? "someone" : user.getName())).queue();
+                (rm.getOwner() == 0L ? "(autoplay)" : "(requested by **" + rm.getUser().getUsername() + "**)")).queue();
         audioHandler.getPlayer().stopTrack();
     }
 }
