@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.services.audio;
 import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.Playlist;
+import com.l1sk1sh.vladikbot.models.AudioRepeatMode;
 import com.l1sk1sh.vladikbot.models.AudioRequestMetadata;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
@@ -150,10 +151,15 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     /* Audio Events */
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+        AudioRepeatMode repeatMode = settings.get().getRepeat();
         /* If the track ended normally, and we're in repeat mode, re-add it to the queue */
-        if (endReason == AudioTrackEndReason.FINISHED && settings.get().isRepeat()) {
-            queue.add(new QueuedTrack(track.makeClone(),
-                    track.getUserData(AudioRequestMetadata.class)));
+        if (endReason == AudioTrackEndReason.FINISHED && repeatMode != AudioRepeatMode.OFF) {
+            QueuedTrack clone = new QueuedTrack(track.makeClone(), track.getUserData(AudioRequestMetadata.class));
+            if (repeatMode == AudioRepeatMode.ALL) {
+                queue.add(clone);
+            } else {
+                queue.addAt(0, clone);
+            }
         }
 
         if (queue.isEmpty()) {

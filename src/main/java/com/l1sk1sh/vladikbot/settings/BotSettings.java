@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.settings;
 
+import com.l1sk1sh.vladikbot.models.AudioRepeatMode;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -45,7 +46,7 @@ public class BotSettings {
     private boolean leaveChannel = true;                                // Leave channel if no one is listening
     private boolean songInStatus = false;                               // Show song as status
     private boolean npImages = true;                                    // Display search images
-    private boolean repeat = true;                                      // If repeat mode is available
+    private AudioRepeatMode repeat = AudioRepeatMode.OFF;               // Current repeat mode
     private boolean autoReply = false;                                  // If to automatically reply to certain phrases
     private Const.MatchingStrategy matchingStrategy = Const.MatchingStrategy.FULL; // How reply rules should be matched
     private double replyChance = 1.0;                                   // Change that bot will reply
@@ -87,7 +88,7 @@ public class BotSettings {
         return BotUtils.parseStatus(onlineStatus);
     }
 
-    public final void setRepeat(boolean repeat) {
+    public final void setRepeat(AudioRepeatMode repeat) {
         this.repeat = repeat;
         listener.onSettingsUpdated();
     }
