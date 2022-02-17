@@ -1,199 +1,155 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.backup.BackupMediaService;
-import com.l1sk1sh.vladikbot.services.backup.BackupTextChannelService;
-import com.l1sk1sh.vladikbot.services.backup.DockerService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
+import java.util.Collections;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @Service
 public class BackupMediaCommand extends AdminCommand {
-    private static final Logger log = LoggerFactory.getLogger(BackupMediaCommand.class);
 
-    @Qualifier("backupThreadPool")
-    private final ScheduledExecutorService backupThreadPool;
-    private final BotSettingsManager settings;
-    private final DockerService dockerService;
-    private String beforeDate;
-    private String afterDate;
-    private boolean useExistingBackup;
-
-    @Autowired
-    public BackupMediaCommand(ScheduledExecutorService backupThreadPool, BotSettingsManager settings, DockerService dockerService) {
-        this.backupThreadPool = backupThreadPool;
-        this.settings = settings;
-        this.dockerService = dockerService;
-        this.name = "savemedia";
-        this.help = "exports all attachments of the current channel\r\n"
-                + "\t\t `-b, --before <mm/dd/yyyy>` - specifies date till which export would be done\r\n"
-                + "\t\t `-a, --after  <mm/dd/yyyy>` - specifies date from which export would be done\r\n"
-                + "\t\t `-z, --zip` - zip flag that creates local copy of files from media links\r\n"
-                + "\t\t `--format <csv|html>` - desired format of backup";
-        this.arguments = "-a, -b, -f, -a, -z";
-        this.guildOnly = true;
-        this.useExistingBackup = true;
+    private BackupMediaCommand(BotSettingsManager settings, @Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool, BackupMediaService backupMediaService) {
+        this.name = "backup_media";
+        this.help = "Media backup management";
+        this.children = new AdminCommand[]{
+                new Auto(settings),
+                new Do(backgroundThreadPool, backupMediaService),
+                new Export(backgroundThreadPool, backupMediaService),
+                new Reset(backupMediaService)
+        };
     }
 
     @Override
-    public void execute(CommandEvent event) {
-        if (!settings.get().isDockerRunning()) {
-            return;
-        }
-
-        if (settings.get().isLockedBackup()) {
-            event.replyWarning("Can't backup media - another backup is in progress!");
-            return;
-        }
-        event.reply("Getting attachments. Be patient...");
-
-        if (!processArguments(event.getArgs().split(" "))) {
-            event.replyError(String.format("Failed to processes provided arguments: [%1$s].", event.getArgs()));
-        }
-
-        BackupTextChannelService backupTextChannelService = new BackupTextChannelService(
-                settings,
-                dockerService,
-                event.getChannel().getId(),
-                Const.BackupFileType.HTML_DARK,
-                settings.get().getLocalTmpFolder(),
-                beforeDate,
-                afterDate,
-                useExistingBackup
-        );
-
-        backupThreadPool.execute(() -> {
-
-            /* Creating new thread from text backup service and waiting for it to finish */
-            Thread backupTextChannelServiceThread = new Thread(backupTextChannelService);
-            log.info("Starting backupTextChannelService...");
-            backupTextChannelServiceThread.start();
-            try {
-                backupTextChannelServiceThread.join();
-            } catch (InterruptedException e) {
-                log.error("BackupTextChannel was interrupted:", e);
-                event.replyError("Text channel backup process was interrupted!");
-                return;
-            }
-
-            if (backupTextChannelService.hasFailed()) {
-                log.error("BackupTextChannelService has failed: [{}].", backupTextChannelService.getFailMessage());
-                event.replyError(String.format("Text channel backup has failed! `[%1$s]`", backupTextChannelService.getFailMessage()));
-                return;
-            }
-
-            File exportedTextFile = backupTextChannelService.getBackupFile();
-
-            BackupMediaService backupMediaService = new BackupMediaService(
-                    settings,
-                    event.getChannel().getId(),
-                    exportedTextFile,
-                    settings.get().getLocalTmpFolder(),
-                    event.getArgs().split(" ")
-            );
-
-            /* Creating new thread from media backup service and waiting for it to finish */
-            Thread backupMediaServiceThread = new Thread(backupMediaService);
-            log.info("Starting backupMediaService...");
-            backupMediaServiceThread.start();
-            try {
-                backupMediaServiceThread.join();
-            } catch (InterruptedException e) {
-                event.replyError("Media backup process was interrupted!");
-                return;
-            }
-
-            if (backupMediaService.hasFailed()) {
-                log.error("BackupMediaService has failed: [{}].", backupTextChannelService.getFailMessage());
-                event.replyError(String.format("Media backup has filed! `[%1$s]`", backupMediaService.getFailMessage()));
-                return;
-            }
-
-            File attachmentHtmlFile = backupMediaService.getAttachmentHtmlFile();
-            File attachmentTxtFile = backupMediaService.getAttachmentsTxtFile();
-
-            if (!attachmentHtmlFile.exists() || !attachmentTxtFile.exists()) {
-                log.error("Media files are absent, however services reported success.");
-                event.replyError("Failed to find media files!");
-                return;
-            }
-
-            if (attachmentHtmlFile.length() < Const.EIGHT_MEGABYTES_IN_BYTES) {
-                event.getTextChannel().sendFile(attachmentHtmlFile, attachmentHtmlFile.getName()).queue();
-            } else if (attachmentTxtFile.length() < Const.EIGHT_MEGABYTES_IN_BYTES) {
-                event.getTextChannel().sendFile(attachmentTxtFile, attachmentTxtFile.getName()).queue();
-            } else {
-                event.replyWarning("File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\r\n" +
-                        "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
-            }
-
-            if (!backupMediaService.doZip()) {
-                return;
-            }
-
-            File archive = backupMediaService.getZipWithAttachmentsFile();
-
-            if (archive == null) {
-                event.replyWarning("Zip wasn't complete. Clear tmp folder, or try tomorrow.");
-                return;
-            }
-
-            if (archive.length() < Const.EIGHT_MEGABYTES_IN_BYTES) {
-                event.getTextChannel().sendFile(backupMediaService.getZipWithAttachmentsFile(), attachmentTxtFile.getName()).queue();
-            } else {
-                event.replySuccess("Zip with uploaded media files could now be downloaded from local storage.");
-            }
-        });
+    protected void execute(SlashCommandEvent event) {
+        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
     }
 
-    private boolean processArguments(String... args) {
-        if (args.length == 0) {
-            return true;
+    private static final class Auto extends AdminCommand {
+
+        private static final String AUTO_OPTION_KEY = "auto";
+
+        private final BotSettingsManager settings;
+
+        private Auto(BotSettingsManager settings) {
+            this.settings = settings;
+            this.name = "auto";
+            this.help = "Configure automatic backup";
+            this.guildOnly = false;
+            this.options = Collections.singletonList(new OptionData(OptionType.BOOLEAN, AUTO_OPTION_KEY, "State of automatic backup").setRequired(false));
         }
 
-        try {
-            for (int i = 0; i < args.length; i++) {
-                switch (args[i]) {
-                    case "-b":
-                    case "-before":
-                        if (CommandUtils.validateBackupDateFormat(args[i + 1])) {
-                            beforeDate = (args[i + 1]);
-                        } else {
-                            return false;
-                        }
-                        break;
-                    case "-a":
-                    case "--after":
-                        if (CommandUtils.validateBackupDateFormat(args[i + 1])) {
-                            afterDate = (args[i + 1]);
-                        } else {
-                            return false;
-                        }
-                        break;
-                    case "-f":
-                    case "--force":
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            boolean currentSetting = settings.get().isAutoMediaBackup();
 
-                        /* If force is specified - do not ignore existing files  */
-                        useExistingBackup = false;
-                        break;
-                }
+            OptionMapping autoOption = event.getOption(AUTO_OPTION_KEY);
+            if (autoOption == null) {
+                event.replyFormat("Automatic backup is `%1$s`", (currentSetting) ? "ON" : "OFF").setEphemeral(true).queue();
+
+                return;
             }
-        } catch (IndexOutOfBoundsException iobe) {
-            return false;
+
+            boolean newSetting = autoOption.getAsBoolean();
+
+            if (currentSetting == newSetting) {
+                event.replyFormat("Automatic backup is `%1$s`", (currentSetting) ? "ON" : "OFF").setEphemeral(true).queue();
+
+                return;
+            }
+
+            settings.get().setAutoMediaBackup(newSetting);
+
+            log.info("Automatic backup is switched to {} by {}.", newSetting, FormatUtils.formatAuthor(event));
+            event.replyFormat("Automatic backup is `%1$s`", (newSetting) ? "ON" : "OFF").setEphemeral(true).queue();
+        }
+    }
+
+    private static final class Do extends AdminCommand {
+
+        private final ScheduledExecutorService backgroundThreadPool;
+        private final BackupMediaService backupMediaService;
+
+        private Do(ScheduledExecutorService backgroundThreadPool, BackupMediaService backupMediaService) {
+            this.backgroundThreadPool = backgroundThreadPool;
+            this.backupMediaService = backupMediaService;
+            this.name = "do";
+            this.help = "Launch media backup";
         }
 
-        return CommandUtils.validatePeriod(beforeDate, afterDate);
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            backgroundThreadPool.execute(() -> {
+                log.info("Media backup started by {}", FormatUtils.formatAuthor(event));
+                event.deferReply(true).queue();
+                backupMediaService.downloadAllAttachments((success, message) -> {
+                    if (success) {
+                        event.getHook().editOriginalFormat("%1$s Media was downloaded!", getClient().getSuccess()).queue();
+                    } else {
+                        event.getHook().editOriginalFormat("%1$s Media was not downloaded! (%2$s)", getClient().getError(), message).queue();
+                    }
+                });
+            });
+        }
+    }
+
+    private static final class Export extends AdminCommand {
+
+        private final ScheduledExecutorService backgroundThreadPool;
+        private final BackupMediaService backupMediaService;
+
+        private Export(ScheduledExecutorService backgroundThreadPool, BackupMediaService backupMediaService) {
+            this.backgroundThreadPool = backgroundThreadPool;
+            this.backupMediaService = backupMediaService;
+            this.name = "export";
+            this.help = "Export media files of the current channel to html file";
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            backgroundThreadPool.execute(() -> {
+                log.info("Media export started by {}", FormatUtils.formatAuthor(event));
+                event.deferReply(true).queue();
+                backupMediaService.exportMediaToHtmlFile((success, message, file) -> {
+                    if (success) {
+                        event.getHook().editOriginalFormat("%1$s Export is ready!", getClient().getSuccess()).addFile(file).queue();
+                    } else {
+                        event.getHook().editOriginalFormat("%1$s Export has failed! (%2$s)", getClient().getError(), message).queue();
+                    }
+                }, event.getChannel().getIdLong());
+            });
+        }
+    }
+
+    private static final class Reset extends AdminCommand {
+
+        private final BackupMediaService backupMediaService;
+
+        private Reset(BackupMediaService backupMediaService) {
+            this.backupMediaService = backupMediaService;
+            this.name = "reset";
+            this.help = "Resets database of already downloaded attachments. Necessary if local files were lost";
+            this.ownerCommand = true;
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            backupMediaService.resetDownloadedAttachments();
+            log.info("Media reset started by {}", FormatUtils.formatAuthor(event));
+            event.replyFormat("%1$s Reset has been started. For details consult logs", getClient().getSuccess()).setEphemeral(true).queue();
+        }
     }
 }

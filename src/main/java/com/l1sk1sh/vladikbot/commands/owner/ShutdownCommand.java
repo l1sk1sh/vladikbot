@@ -1,10 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.ShutdownHandler;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,9 +15,9 @@ import org.springframework.stereotype.Service;
  * - DI Spring
  * @author John Grosh
  */
+@Slf4j
 @Service
 public class ShutdownCommand extends OwnerCommand {
-    private static final Logger log = LoggerFactory.getLogger(ShutdownCommand.class);
 
     private final ShutdownHandler shutdownHandler;
 
@@ -26,14 +25,14 @@ public class ShutdownCommand extends OwnerCommand {
     public ShutdownCommand(ShutdownHandler shutdownHandler) {
         this.shutdownHandler = shutdownHandler;
         this.name = "shutdown";
-        this.help = "safely shuts down";
+        this.help = "Safely shuts down";
         this.guildOnly = false;
     }
 
     @Override
-    protected final void execute(CommandEvent event) {
+    protected final void execute(SlashCommandEvent event) {
         log.info("Bot is being shutdown by {}.", FormatUtils.formatAuthor(event));
-        event.replyWarning("Shutting down...");
+        event.reply("Shutting down...").setEphemeral(true).queue();
         shutdownHandler.shutdown();
     }
 }

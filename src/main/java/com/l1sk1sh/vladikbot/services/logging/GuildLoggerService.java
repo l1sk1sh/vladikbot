@@ -2,9 +2,11 @@ package com.l1sk1sh.vladikbot.services.logging;
 
 import com.l1sk1sh.vladikbot.services.notification.ChatNotificationService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.Const;
-import com.l1sk1sh.vladikbot.utils.*;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import com.l1sk1sh.vladikbot.utils.StringUtils;
+import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PermissionOverride;
@@ -12,22 +14,17 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.Objects;
-
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class GuildLoggerService {
-    private static final Logger log = LoggerFactory.getLogger(GuildLoggerService.class);
     private final Logger glog = LoggerFactory.getLogger("GUILD_LOGGER");
 
     private static final String EVENTS_LOG = "events.log";
@@ -114,30 +111,5 @@ public class GuildLoggerService {
 
         glog.info(notificationMessage);
         chatNotificationService.sendEmbeddedWarning(event.getGuild(), notificationMessage);
-    }
-
-    public void onAvatarUpdate(UserUpdateAvatarEvent event) {
-        String pathToAvatars = settings.get().getLogsFolder() + "avatars/" +
-                event.getUser().getName() + "_" + event.getUser().getId() + "/";
-
-        try {
-            FileUtils.createFolderIfAbsent(pathToAvatars);
-        } catch (IOException e) {
-            log.error("Failed to create avatars folder [{}]: {}", pathToAvatars, e.getLocalizedMessage());
-            return;
-        }
-
-        String avatarUrl = event.getUser().getAvatarUrl();
-        try {
-            URL url = new URL(Objects.requireNonNull(avatarUrl).replace("." + Const.FileType.gif.name(), "." + Const.FileType.png.name()));
-
-            if (!DownloadUtils.downloadAndSaveToFolder(url, pathToAvatars)) {
-                log.error("Failed to save avatar from url '{}'.", url.toString());
-            }
-        } catch (IOException e) {
-            log.error("IO error on avatar update:", e);
-        }
-
-        glog.info("User {}:{} changed avatar.", event.getUser().getName(), event.getUser().getId());
     }
 }

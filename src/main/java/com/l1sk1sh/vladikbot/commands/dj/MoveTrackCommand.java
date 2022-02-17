@@ -85,7 +85,7 @@ public class MoveTrackCommand extends DJCommand {
 
         /* Move the track */
         QueuedTrack track = queue.moveItem(from - 1, to - 1);
-        event.replyFormat("Moved **%1$s** from position `%2$d` to `%3$d`.", track.getTrack().getInfo().title, from, to).queue();
+        event.replyFormat("%1$s Moved **%2$s** from position `%3$d` to `%4$d`.", getClient().getSuccess(), track.getTrack().getInfo().title, from, to).queue();
     }
 
     private static boolean isUnavailablePosition(FairQueue<QueuedTrack> queue, int position) {

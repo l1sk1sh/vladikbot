@@ -11,7 +11,8 @@ import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.services.backup.AutoMediaBackupDaemon;
 import com.l1sk1sh.vladikbot.services.backup.AutoTextBackupDaemon;
-import com.l1sk1sh.vladikbot.services.backup.DockerService;
+import com.l1sk1sh.vladikbot.services.backup.BackupMediaService;
+import com.l1sk1sh.vladikbot.services.backup.BackupTextService;
 import com.l1sk1sh.vladikbot.services.logging.GuildLoggerService;
 import com.l1sk1sh.vladikbot.services.logging.MessageCache;
 import com.l1sk1sh.vladikbot.services.meme.MemeService;
@@ -24,6 +25,7 @@ import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.MigrationUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
@@ -36,13 +38,12 @@ import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -58,19 +59,20 @@ import java.util.Optional;
  * - DI Spring
  * @author John Grosh
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 class Listener extends ListenerAdapter {
-    private static final Logger log = LoggerFactory.getLogger(Listener.class);
 
     private final Gson gson;
     private final ShutdownHandler shutdownHandler;
     private final BotSettingsManager settings;
-    private final DockerService dockerService;
     private final PlayerManager playerManager;
     private final ReminderService reminderService;
     private final RssService rssService;
     private final MemeService memeService;
+    private final BackupTextService backupTextService;
+    private final BackupMediaService backupMediaService;
     private final AutoTextBackupDaemon autoTextBackupDaemon;
     private final AutoMediaBackupDaemon autoMediaBackupDaemon;
     private final GuildLoggerService guildLoggerService;
@@ -82,7 +84,7 @@ class Listener extends ListenerAdapter {
     private final ActivitySimulationManager activitySimulationManager;
 
     @Override
-    public void onReady(@NotNull ReadyEvent event) {
+    public void onReady(@NotNull @Nonnull ReadyEvent event) {
 
         /* Execute migrations if necessary */
         if (!FileUtils.fileOrFolderIsAbsent("./" + MigrationUtils.REPLIES_FILE_NAME)) {
@@ -163,13 +165,8 @@ class Listener extends ListenerAdapter {
             memeService.start();
         }
 
-        /* Check if Docker is running */
-        if (!dockerService.isDockerRunning()) {
-            log.warn("Docker is not running or not properly setup on current computer. All docker required features won't work.");
-            settings.get().setDockerRunning(false);
-        } else {
-            settings.get().setDockerRunning(true);
-        }
+        /* Prepare backup services */
+        backupMediaService.init();
 
         /* Initiate automatic background backup */
         if (settings.get().isAutoTextBackup() || settings.get().isAutoMediaBackup()) {
@@ -208,17 +205,17 @@ class Listener extends ListenerAdapter {
             }
         }
 
-        if (settings.get().isAutoMediaBackup() && settings.get().isDockerRunning()) {
-            autoMediaBackupDaemon.start();
+        if (settings.get().isAutoTextBackup()) {
+            autoTextBackupDaemon.start();
         }
 
-        if (settings.get().isAutoTextBackup() && settings.get().isDockerRunning()) {
-            autoTextBackupDaemon.start();
+        if (settings.get().isAutoMediaBackup()) {
+            autoMediaBackupDaemon.start();
         }
     }
 
     @Override
-    public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
+    public void onGuildMessageDelete(@Nonnull GuildMessageDeleteEvent event) {
         nowPlayingHandler.onMessageDelete(event.getGuild(), event.getMessageIdLong());
 
         if (settings.get().isLogGuildChanges()) {
@@ -227,7 +224,7 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+    public void onGuildMessageUpdate(@Nonnull GuildMessageUpdateEvent event) {
         if (event.getMessage().getAuthor().isBot()) {
             return;
         }
@@ -238,12 +235,14 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(MessageReceivedEvent event) {
+    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         Message message = event.getMessage();
 
         if (message.getAuthor().isBot()) {
             return;
         }
+
+        backupTextService.backupNewMessage(message);
 
         if (settings.get().isAutoReply()) {
             autoReplyManager.reply(message);
@@ -255,19 +254,17 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onUserUpdateAvatar(UserUpdateAvatarEvent event) {
-        if (!event.getUser().isBot() && settings.get().isLogGuildChanges()) {
-            guildLoggerService.onAvatarUpdate(event);
-        }
+    public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+        backupTextService.addReaction(event.getReaction());
     }
 
     @Override
-    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
+    public void onGuildVoiceUpdate(@Nonnull GuildVoiceUpdateEvent event) {
         aloneInVoiceHandler.onVoiceUpdate(event);
     }
 
     @Override
-    public void onShutdown(@NotNull ShutdownEvent event) {
+    public void onShutdown(@Nonnull ShutdownEvent event) {
         shutdownHandler.shutdown();
     }
 }

@@ -4,9 +4,8 @@ import com.apptastic.rssreader.Item;
 import com.l1sk1sh.vladikbot.models.NewsDiscordMessage;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -17,9 +16,9 @@ import java.util.regex.Pattern;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 final class ArticleMapper {
-    private static final Logger log = LoggerFactory.getLogger(ArticleMapper.class);
 
     private static final String EMPTY_TITLE = "Empty title";
     private static final String DESCRIPTION_CUT_ENDING = "[…]";

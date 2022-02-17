@@ -5,9 +5,8 @@ import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +15,10 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ShutdownHandler {
-    private static final Logger log = LoggerFactory.getLogger(ShutdownHandler.class);
 
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;

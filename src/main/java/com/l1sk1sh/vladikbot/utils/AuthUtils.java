@@ -1,5 +1,7 @@
 package com.l1sk1sh.vladikbot.utils;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpHeaders;
 
@@ -8,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * @author l1sk1sh
  */
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class AuthUtils {
 
     public static HttpHeaders createBasicAuthenticationHeaders(String username, String password) {

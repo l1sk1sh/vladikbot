@@ -32,7 +32,8 @@ public class SkipForceCommand extends DJCommand {
     public final void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         AudioRequestMetadata rm = Objects.requireNonNull(audioHandler).getRequestMetadata();
-        event.replyFormat("Skipped **%1$s** (requested by *%2$s*).",
+        event.replyFormat("%1$s Skipped **%2$s** (requested by *%3$s*).",
+                getClient().getSuccess(),
                 audioHandler.getPlayer().getPlayingTrack().getInfo().title,
                 (rm.getOwner() == 0L ? "(autoplay)" : "(requested by **" + rm.getUser().getUsername() + "**)")).queue();
         audioHandler.getPlayer().stopTrack();

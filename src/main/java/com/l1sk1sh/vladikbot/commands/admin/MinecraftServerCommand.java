@@ -5,26 +5,24 @@ import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.AuthUtils;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.ws.rs.core.UriBuilder;
 import java.awt.*;
 
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @Service
-public class MinecraftServerCommand extends AdminV2Command {
-    private static final Logger log = LoggerFactory.getLogger(MinecraftServerCommand.class);
+public class MinecraftServerCommand extends AdminCommand {
 
     private final BotSettingsManager settings;
 
@@ -38,7 +36,7 @@ public class MinecraftServerCommand extends AdminV2Command {
         this.restTemplate = new RestTemplate();
         this.name = "mcserver";
         this.help = "Manage this guild's minecraft server";
-        this.children = new AdminV2Command[]{
+        this.children = new AdminCommand[]{
                 new Status(),
                 new Start(),
                 new Stop()
@@ -50,7 +48,7 @@ public class MinecraftServerCommand extends AdminV2Command {
                 settings.get().getJenkinsApiUsername(),
                 settings.get().getJenkinsApiPassword());
         this.headers.setContentType(MediaType.APPLICATION_JSON);
-        this.minecraftJobUri = UriBuilder.fromUri(settings.get().getJenkinsApiHost() + "/job/minecraft-server-run/").toString();
+        this.minecraftJobUri = settings.get().getJenkinsApiHost() + "/job/minecraft-server-run/";
     }
 
     @Override
@@ -58,7 +56,7 @@ public class MinecraftServerCommand extends AdminV2Command {
         event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
     }
 
-    private class Status extends AdminV2Command {
+    private class Status extends AdminCommand {
 
         private Status() {
             this.name = "status";
@@ -94,7 +92,7 @@ public class MinecraftServerCommand extends AdminV2Command {
                     embedBuilder.addField("Last server stop result", latestBuild.getResult(), false);
                 }
 
-                event.reply(builder.setEmbeds(embedBuilder.build()).build()).queue();
+                event.reply(builder.setEmbeds(embedBuilder.build()).build()).setEphemeral(true).queue();
             } catch (RestClientException e) {
                 event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
                 log.error("Failed to process Jenkins status request.", e);
@@ -102,7 +100,7 @@ public class MinecraftServerCommand extends AdminV2Command {
         }
     }
 
-    private class Start extends AdminV2Command {
+    private class Start extends AdminCommand {
 
         private Start() {
             this.name = "start";
@@ -132,15 +130,16 @@ public class MinecraftServerCommand extends AdminV2Command {
                     return;
                 }
 
+                log.info("Minecraft server has been started by {}", FormatUtils.formatAuthor(event));
                 event.reply("Minecraft server has been launched!").queue();
             } catch (RestClientException e) {
-                event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
                 log.error("Failed to process Jenkins build request.", e);
+                event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             }
         }
     }
 
-    private class Stop extends AdminV2Command {
+    private class Stop extends AdminCommand {
 
         private Stop() {
             this.name = "stop";
@@ -179,10 +178,11 @@ public class MinecraftServerCommand extends AdminV2Command {
                     return;
                 }
 
+                log.info("Minecraft server has been stopped by {}", FormatUtils.formatAuthor(event));
                 event.reply("Minecraft server has been stopped!").queue();
             } catch (RestClientException e) {
-                event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
                 log.error("Failed to process Jenkins stop request.", e);
+                event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             }
         }
     }
@@ -195,16 +195,16 @@ public class MinecraftServerCommand extends AdminV2Command {
                 JenkinsJob.class);
 
         if (jenkinsJob.getStatusCode() != HttpStatus.OK) {
-            event.replyFormat("%1$s Failed to get correct status code: `%2$s`", getClient().getError(), jenkinsJob.getStatusCodeValue()).setEphemeral(true).queue();
             log.error("Failed to process Jenkins build request with status code {}", jenkinsJob.getStatusCode());
+            event.replyFormat("%1$s Failed to get correct status code: `%2$s`", getClient().getError(), jenkinsJob.getStatusCodeValue()).setEphemeral(true).queue();
 
             return null;
         }
 
         JenkinsJob job = jenkinsJob.getBody();
         if (job == null) {
-            event.replyFormat("%1$s Failed to get response from Jenkins.", getClient().getError()).setEphemeral(true).queue();
             log.error("Jenkins returned empty or incorrect response.");
+            event.replyFormat("%1$s Failed to get response from Jenkins.", getClient().getError()).setEphemeral(true).queue();
 
             return null;
         }

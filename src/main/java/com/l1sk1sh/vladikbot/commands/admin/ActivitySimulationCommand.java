@@ -6,12 +6,11 @@ import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +21,9 @@ import java.util.List;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @Service
-public class ActivitySimulationCommand extends AdminV2Command {
-    private static final Logger log = LoggerFactory.getLogger(ActivitySimulationCommand.class);
+public class ActivitySimulationCommand extends AdminCommand {
 
     private final BotSettingsManager settings;
     private final ActivitySimulationManager activitySimulationManager;
@@ -36,7 +35,7 @@ public class ActivitySimulationCommand extends AdminV2Command {
         this.name = "activity";
         this.help = "Activity simulation management";
         this.guildOnly = false;
-        this.children = new AdminV2Command[]{
+        this.children = new AdminCommand[]{
                 new CreateCommand(),
                 new ReadCommand(),
                 new SwitchCommand(),
@@ -49,7 +48,7 @@ public class ActivitySimulationCommand extends AdminV2Command {
         event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
     }
 
-    private class CreateCommand extends AdminV2Command {
+    private class CreateCommand extends AdminCommand {
 
         private static final String ACTION_OPTION_KEY = "action";
         private static final String ACTIVITY_OPTION_KEY = "activity";
@@ -58,7 +57,11 @@ public class ActivitySimulationCommand extends AdminV2Command {
             this.name = "create";
             this.help = "Creates new activity rule";
             List<OptionData> options = new ArrayList<>();
-            options.add(new OptionData(OptionType.STRING, ACTION_OPTION_KEY, "Action in the status").setRequired(true));
+            options.add(new OptionData(OptionType.STRING, ACTION_OPTION_KEY, "Action in the status").setRequired(true)
+                    .addChoice("Playing games", "playing")
+                    .addChoice("Listening to something", "listening")
+                    .addChoice("Watching whatever", "watching")
+            );
             options.add(new OptionData(OptionType.STRING, ACTIVITY_OPTION_KEY, "Activity of the status").setRequired(true));
             this.options = options;
         }
@@ -67,7 +70,7 @@ public class ActivitySimulationCommand extends AdminV2Command {
         protected final void execute(SlashCommandEvent event) {
             OptionMapping actionOption = event.getOption(ACTION_OPTION_KEY);
             if (actionOption == null) {
-                event.replyFormat("%1$s Please specify activity of the status. Supported actions: `[%1$s, %2$s, %3$s]`!",
+                event.replyFormat("%1$s Please specify activity of the status. Supported actions: `[%2$s, %3$s, %4$s]`!",
                         getClient().getWarning(),
                         Const.StatusAction.playing,
                         Const.StatusAction.listening,
@@ -96,7 +99,7 @@ public class ActivitySimulationCommand extends AdminV2Command {
             } else if (actionOptionString.toLowerCase().startsWith(Const.StatusAction.watching.name())) {
                 action = Const.StatusAction.watching;
             } else {
-                event.replyFormat("%1$s Action must be one of `[%1$s, %2$s, %3$s]`!",
+                event.replyFormat("%1$s Action must be one of `[%2$s, %3$s, %4$s]`!",
                         getClient().getWarning(),
                         Const.StatusAction.playing,
                         Const.StatusAction.listening,
@@ -109,11 +112,12 @@ public class ActivitySimulationCommand extends AdminV2Command {
             Activity newPair = new Activity(activityOption.getAsString(), action);
             activitySimulationManager.writeRule(newPair);
             log.info("Added new rule to ActivitySimulation: {}.", newPair);
-            event.reply("New rule was added.").setEphemeral(true).queue();
+            event.replyFormat("%1$s New rule was added.", getClient().getSuccess()).setEphemeral(true).queue();
         }
     }
 
-    private class ReadCommand extends AdminV2Command {
+    private class ReadCommand extends AdminCommand {
+
         ReadCommand() {
             this.name = "list";
             this.guildOnly = true;
@@ -139,7 +143,7 @@ public class ActivitySimulationCommand extends AdminV2Command {
         }
     }
 
-    private class SwitchCommand extends AdminV2Command {
+    private class SwitchCommand extends AdminCommand {
 
         private static final String SWITCH_OPTION_KEY = "switch";
 
@@ -179,7 +183,7 @@ public class ActivitySimulationCommand extends AdminV2Command {
         }
     }
 
-    private class DeleteCommand extends AdminV2Command {
+    private class DeleteCommand extends AdminCommand {
 
         private static final String ID_OPTION_KEY = "id";
 
@@ -200,7 +204,7 @@ public class ActivitySimulationCommand extends AdminV2Command {
 
             activitySimulationManager.deleteRule(idOption.getAsLong());
             log.info("ActivitySimulation rule with id {} was removed by {}.", idOption.getAsLong(), FormatUtils.formatAuthor(event));
-            event.replyFormat("Successfully deleted rule with id `[%1$s]`.", idOption.getAsLong()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Successfully deleted rule with id `[%2$s]`.", getClient().getSuccess(), idOption.getAsLong()).setEphemeral(true).queue();
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.utils;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.services.logging.MessageCache;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.AccessLevel;
@@ -188,10 +187,6 @@ public final class FormatUtils {
 
     public static String formatFullUser(User user) {
         return filterEveryone("**" + user.getName() + "**#" + user.getDiscriminator() + " (ID:" + user.getId() + ")");
-    }
-
-    public static String formatAuthor(CommandEvent event) {
-        return String.format("{%1$s}:[{%2$s}]", event.getAuthor().getName(), event.getAuthor().getId());
     }
 
     public static String formatAuthor(SlashCommandEvent event) {

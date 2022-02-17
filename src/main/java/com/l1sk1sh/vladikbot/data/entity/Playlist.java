@@ -20,6 +20,7 @@ import java.util.List;
 @Table(name = "playlists")
 public class Playlist {
 
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;

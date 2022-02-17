@@ -2,9 +2,8 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.network.dto.DadJoke;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -13,9 +12,9 @@ import org.springframework.web.client.RestTemplate;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @Service
 public class JokeCommand extends SlashCommand {
-    private static final Logger log = LoggerFactory.getLogger(JokeCommand.class);
 
     private final RestTemplate restTemplate;
 

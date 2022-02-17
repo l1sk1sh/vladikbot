@@ -5,9 +5,8 @@ import com.l1sk1sh.vladikbot.data.repository.ReplyRulesRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -18,10 +17,10 @@ import java.util.Random;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class AutoReplyManager {
-    private static final Logger log = LoggerFactory.getLogger(AutoReplyManager.class);
 
     public static final int MIN_REPLY_TO_LENGTH = 3;
 

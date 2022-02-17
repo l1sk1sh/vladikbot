@@ -16,12 +16,11 @@ import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.h2.tools.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -40,9 +39,9 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @SpringBootApplication
 public class VladikBot {
-    private static final Logger log = LoggerFactory.getLogger(VladikBot.class);
 
     private static JDA jda;
     private final BotSettingsManager settings;
@@ -118,27 +117,27 @@ public class VladikBot {
                         : null)
                 .addSlashCommands(
                         /* Everyone commands */
-                        pingCommand,
-                        settingsCommand,
-                        statusCommand,
-                        quoteCommand,
-                        songInfoCommand,
-                        dogFactCommand,
                         catFactCommand,
-                        dogPictureCommand,
-                        catPictureCommand,
                         catGirlPictureCommand,
-                        rollDiceCommand,
+                        catPictureCommand,
                         countryCommand,
+                        dogFactCommand,
+                        dogPictureCommand,
                         flipCoinCommand,
                         issInfoCommand,
                         jokeCommand,
+                        pingCommand,
+                        quoteCommand,
+                        rollDiceCommand,
+                        songInfoCommand,
+                        settingsCommand,
+                        statusCommand,
 
                         /* Music commands */
                         nowPlayingCommand,
                         playCommand,
-                        playPlaylistCommand,
                         playlistsCommand,
+                        playPlaylistCommand,
                         queueCommand,
                         removeCommand,
                         searchCommand,
@@ -147,49 +146,38 @@ public class VladikBot {
                         soundCloudSearchCommand,
 
                         /* Music commands DJ only */
-                        skipForceCommand,
                         moveTrackCommand,
                         pauseCommand,
                         playNextCommand,
                         repeatCommand,
+                        skipForceCommand,
                         skipToCommand,
                         stopCommand,
                         volumeCommand,
 
                         /* Administrator commands */
-                        minecraftServerCommand
-
-                        /* Owner commands */
-
-                )
-                .addCommands(
-                        /* Order of commands is important for 'help' command output */
-
-                        reminderCommand,
-                        sayCommand,
-                        permissionsCommand,
-                        backupMediaCommand,
-                        backupTextChannelCommand,
-                        emojiStatsCommand,
-                        autoReplyCommand,
                         activitySimulationCommand,
-                        newsManagementCommand,
-                        memesManagementCommand,
+                        autoReplyCommand,
+                        backupMediaCommand,
+                        backupTextCommand,
+                        emoteStatsCommand,
                         guildLoggerCommand,
-                        setNotificationChannelCommand,
+                        memesManagementCommand,
+                        minecraftServerCommand,
+                        newsManagementCommand,
+                        permissionsCommand,
+                        playlistCommand,
+                        reminderCommand,
                         setDjCommand,
+                        setNotificationChannelCommand,
                         setSkipAudioRatioCommand,
                         setTextChannelCommand,
                         setVoiceChannelCommand,
 
-                        autoPlaylistCommand,
-                        playlistCommand,
-                        clearTmpCommand,
-                        autoBackupCommand,
-                        debugCommand,
+                        /* Owner commands */
                         setAvatarCommand,
-                        setGameCommand,
                         setNameCommand,
+                        setPresenceCommand,
                         setStatusCommand,
                         shutdownCommand
                 );
@@ -233,7 +221,7 @@ public class VladikBot {
     @Bean(name = "backgroundThreadPool")
     @Scope("singleton")
     public ScheduledExecutorService backgroundThreadPool() {
-        return Executors.newScheduledThreadPool(2);
+        return Executors.newScheduledThreadPool(5);
     }
 
     @Bean(name = "backupThreadPool")
@@ -250,11 +238,11 @@ public class VladikBot {
     @Setter(onMethod = @__({@Autowired}))
     private AutoReplyCommand autoReplyCommand;
     @Setter(onMethod = @__({@Autowired}))
+    private BackupTextCommand backupTextCommand;
+    @Setter(onMethod = @__({@Autowired}))
     private BackupMediaCommand backupMediaCommand;
     @Setter(onMethod = @__({@Autowired}))
-    private BackupTextChannelCommand backupTextChannelCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private EmojiStatsCommand emojiStatsCommand;
+    private EmoteStatsCommand emoteStatsCommand;
     @Setter(onMethod = @__({@Autowired}))
     private GuildLoggerCommand guildLoggerCommand;
     @Setter(onMethod = @__({@Autowired}))
@@ -267,8 +255,6 @@ public class VladikBot {
     private MinecraftServerCommand minecraftServerCommand;
     @Setter(onMethod = @__({@Autowired}))
     private ReminderCommand reminderCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private SayCommand sayCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetDjCommand setDjCommand;
     @Setter(onMethod = @__({@Autowired}))
@@ -346,19 +332,11 @@ public class VladikBot {
     @Setter(onMethod = @__({@Autowired}))
     private SoundCloudSearchCommand soundCloudSearchCommand;
     @Setter(onMethod = @__({@Autowired}))
-    private AutoBackupCommand autoBackupCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private AutoPlaylistCommand autoPlaylistCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private ClearTmpCommand clearTmpCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private DebugCommand debugCommand;
-    @Setter(onMethod = @__({@Autowired}))
     private PlaylistCommand playlistCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetAvatarCommand setAvatarCommand;
     @Setter(onMethod = @__({@Autowired}))
-    private SetGameCommand setGameCommand;
+    private SetPresenceCommand setPresenceCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetNameCommand setNameCommand;
     @Setter(onMethod = @__({@Autowired}))

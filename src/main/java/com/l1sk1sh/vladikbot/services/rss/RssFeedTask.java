@@ -6,8 +6,7 @@ import com.l1sk1sh.vladikbot.data.entity.SentNewsArticle;
 import com.l1sk1sh.vladikbot.data.repository.SentNewsArticleRepository;
 import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.awt.*;
 import java.io.IOException;
@@ -22,9 +21,9 @@ import java.util.stream.Stream;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @RequiredArgsConstructor
 final class RssFeedTask implements Runnable {
-    private static final Logger log = LoggerFactory.getLogger(RssFeedTask.class);
 
     private static final int ARTICLE_FETCH_LIMIT = 8;
 

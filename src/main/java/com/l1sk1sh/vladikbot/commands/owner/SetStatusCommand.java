@@ -1,12 +1,16 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
-import com.jagrosh.jdautilities.command.CommandEvent;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.OnlineStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
 
 /**
  * @author l1sk1sh
@@ -15,31 +19,39 @@ import org.springframework.stereotype.Service;
  * - DI Spring
  * @author John Grosh
  */
+@Slf4j
 @Service
 public class SetStatusCommand extends OwnerCommand {
-    private static final Logger log = LoggerFactory.getLogger(SetStatusCommand.class);
+
+    private static final String STATUS_OPTION_KEY = "status";
 
     @Autowired
     public SetStatusCommand() {
         this.name = "setstatus";
-        this.help = "sets the status the bot displays";
-        this.arguments = "<status>";
+        this.help = "Sets the status the bot displays";
         this.guildOnly = false;
+        this.options = Collections.singletonList(new OptionData(OptionType.STRING, STATUS_OPTION_KEY, "New bot's status").setRequired(true));
     }
 
     @Override
-    protected final void execute(CommandEvent event) {
+    protected final void execute(SlashCommandEvent event) {
+        OptionMapping statusOption = event.getOption(STATUS_OPTION_KEY);
+        if (statusOption == null) {
+            event.replyFormat("%1$s Status is required for this command.", getClient().getWarning()).setEphemeral(true).queue();
+            return;
+        }
+
         try {
-            OnlineStatus status = OnlineStatus.fromKey(event.getArgs());
+            OnlineStatus status = OnlineStatus.fromKey(statusOption.getAsString());
             if (status == OnlineStatus.UNKNOWN) {
-                event.replyError("Please include one of the following statuses: `ONLINE`, `IDLE`, `DND`, `INVISIBLE`");
+                event.replyFormat("%1$s Please include one of the following statuses: `ONLINE`, `IDLE`, `DND`, `INVISIBLE`", getClient().getWarning()).setEphemeral(true).queue();
             } else {
                 event.getJDA().getPresence().setStatus(status);
-                event.replySuccess(String.format("Set the status to `%1$s`", status.getKey().toUpperCase()));
                 log.info("Status of bot was changed to {} by {}", status.getKey().toUpperCase(), FormatUtils.formatAuthor(event));
+                event.replyFormat("%1$s Set the status to `%2$s`", getClient().getSuccess(), status.getKey().toUpperCase()).setEphemeral(true).queue();
             }
         } catch (Exception e) {
-            event.replyError("The status could not be set!");
+            event.replyFormat("%1$s The status could not be set!", getClient().getError()).setEphemeral(true).queue();
         }
     }
 }

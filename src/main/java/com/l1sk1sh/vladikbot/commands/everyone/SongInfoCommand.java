@@ -3,14 +3,14 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.network.dto.SongInfo;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import javax.ws.rs.core.UriBuilder;
 import java.awt.*;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,9 +30,9 @@ import java.util.regex.Pattern;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @Service
 public class SongInfoCommand extends SlashCommand {
-    private static final Logger log = LoggerFactory.getLogger(SongInfoCommand.class);
 
     private static final String SONG_NAME_OPTION_KEY = "song";
 
@@ -64,13 +64,22 @@ public class SongInfoCommand extends SlashCommand {
             return;
         }
 
-        URI uri = UriBuilder.fromUri("https://itunes.apple.com")
-                .path("search")
-                .queryParam("media", "music")
-                .queryParam("lang", "en_us")
-                .queryParam("limit", "1")
-                .queryParam("term", searchQuery)
-                .build(false);
+        URI uri;
+        try {
+            URIBuilder builder = new URIBuilder("https://itunes.apple.com");
+            uri = builder
+                    .setPath("search")
+                    .setParameter("media", "music")
+                    .setParameter("lang", "en_us")
+                    .setParameter("limit", "1")
+                    .setParameter("term", searchQuery)
+                    .build();
+        } catch (URISyntaxException e) {
+            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+            log.error("Failed to build URI for iTunes.", e);
+
+            return;
+        }
 
         SongInfo songInfo;
         try {

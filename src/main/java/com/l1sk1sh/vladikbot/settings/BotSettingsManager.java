@@ -4,8 +4,7 @@ import com.google.gson.Gson;
 import com.l1sk1sh.vladikbot.utils.FileUtils;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -15,10 +14,10 @@ import java.nio.file.Files;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BotSettingsManager implements SettingsUpdateListener {
-    private static final Logger log = LoggerFactory.getLogger(BotSettingsManager.class);
 
     public static final String DEFAULT_SETTINGS_DIR = "./";
     public static final String BOT_SETTINGS_JSON = "settings_bot.json";

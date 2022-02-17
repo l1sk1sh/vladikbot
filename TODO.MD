@@ -27,14 +27,9 @@
     1. Mood scale for bot. The better the mood - better and kinder replies
     1. Add functions /feed bot/
     2. Add stats for bot 
-0. Continue using slash for commands of the bot
-0. Switch to Sl4j annotation
-0. Use https://github.com/Chew/JDA-Chewtils/tree/master/menu for menus
-0. An embedded message couldn't be switched using emoji after certain time
-0. Add bot commands reaction to default slash (Discord API updated)
 0. Add custom status to the bot (with emojis)
 0. Simplify bot specific settings usage (add wrapper to the repository)
-0. Get detailed info on discord user
-0. Make repeatable reminder
-0. Ask bot to generate invite link
 0. Fix MCServer timeonline command output
+0. Add image processing and shrinking by some 'magik' library
+0. Implement export for text backup command
+0. Use https://github.com/Chew/JDA-Chewtils/tree/master/menu for menus

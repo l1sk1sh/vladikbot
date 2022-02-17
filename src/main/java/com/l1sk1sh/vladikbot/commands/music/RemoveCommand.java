@@ -40,7 +40,7 @@ public class RemoveCommand extends MusicCommand {
         this.guildSettingsRepository = guildSettingsRepository;
         this.name = "mremove";
         this.help = "Removes a song from the queue";
-        this.options = Collections.singletonList(new OptionData(OptionType.STRING, POSITION_OPTION_KEY, "Select specific song 'by number' or 'all' songs to be removed").setRequired(false));
+        this.options = Collections.singletonList(new OptionData(OptionType.STRING, POSITION_OPTION_KEY, "Select specific song 'by number'. Use 'all' to clear queue").setRequired(false));
         this.beListening = true;
         this.bePlaying = true;
     }
@@ -61,7 +61,7 @@ public class RemoveCommand extends MusicCommand {
                 if (count == 0) {
                     event.replyFormat("%1$s You don't have any songs in the queue!", getClient().getWarning()).setEphemeral(true).queue();
                 } else {
-                    event.replyFormat("Successfully removed your %1$s entries.", count).queue();
+                    event.replyFormat("%1$s Successfully removed your %2$s entries.", getClient().getSuccess(), count).queue();
                 }
 
                 return;
@@ -99,7 +99,8 @@ public class RemoveCommand extends MusicCommand {
                 user = null;
             }
             event.replyFormat(
-                    "Removed **%1$s** from the queue (requested by *%2$s*)",
+                    "%1$s Removed **%2$s** from the queue (requested by *%3$s*)",
+                    getClient().getSuccess(),
                     queuedTrack.getTrack().getInfo().title,
                     ((user == null)
                             ? "someone"

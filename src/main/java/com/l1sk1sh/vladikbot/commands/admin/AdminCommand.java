@@ -1,6 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
-import com.jagrosh.jdautilities.command.Command;
+import com.jagrosh.jdautilities.command.SlashCommand;
 import net.dv8tion.jda.api.Permission;
 
 /**
@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.Permission;
  * - DI Spring
  * @author John Grosh
  */
-abstract class AdminCommand extends Command {
+abstract class AdminCommand extends SlashCommand {
     AdminCommand() {
         this.category = new Category("Admin", event ->
                 event.getAuthor().getIdLong() == event.getClient().getOwnerIdLong()

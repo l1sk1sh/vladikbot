@@ -36,6 +36,6 @@ public class PauseCommand extends DJCommand {
             return;
         }
         audioHandler.getPlayer().setPaused(true);
-        event.replyFormat("Paused **%1$s**.", audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
+        event.replyFormat("%1$s Paused **%2$s**.", getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
     }
 }

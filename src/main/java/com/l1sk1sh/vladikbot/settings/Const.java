@@ -47,7 +47,6 @@ public final class Const {
     public static final int STATUSES_ROTATION_FREQUENCY_IN_SECONDS = 30 * 60;
     public static final int NEWS_UPDATE_FREQUENCY_IN_SECONDS = 10 * 60;
     public static final int MEMES_UPDATE_FREQUENCY_IN_SECONDS = 60 * 60;
-    public static final int BITS_IN_BYTE = 1024;
     public static final int SECONDS_IN_MINUTES = 60;
 
     public static final String YT_SEARCH_PREFIX = "ytsearch:";
@@ -102,29 +101,6 @@ public final class Const {
         watching,
         listening,
         streaming
-    }
-
-    public enum BackupFileType {
-        CSV("Csv", FileType.csv),
-        HTML_DARK("HtmlDark", FileType.html),
-        PLAIN_TEXT("PlainText", FileType.txt),
-        HTML_LIGHT("HtmlLight", FileType.html);
-
-        private final String backupTypeName;
-        private final FileType fileType;
-
-        BackupFileType(String backupTypeName, FileType fileType) {
-            this.backupTypeName = backupTypeName;
-            this.fileType = fileType;
-        }
-
-        public String getBackupTypeName() {
-            return backupTypeName;
-        }
-
-        public FileType getFileType() {
-            return fileType;
-        }
     }
 
     public enum MatchingStrategy {

@@ -126,7 +126,7 @@ public class PlayNextCommand extends DJCommand {
         @Override
         public void noMatches() {
             if (ytsearch) {
-                event.replyFormat("%1$s  No results found for `%2$s`.",
+                event.replyFormat("%1$s No results found for `%2$s`.",
                         getClient().getWarning(), FormatUtils.filter(song)).setEphemeral(true).queue();
             } else {
                 playerManager.loadItemOrdered(event.getGuild(), Const.YT_SEARCH_PREFIX
@@ -137,10 +137,10 @@ public class PlayNextCommand extends DJCommand {
         @Override
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == FriendlyException.Severity.COMMON) {
-                event.replyFormat("%1$s  Error loading: %2$s.", getClient().getError(),
+                event.replyFormat("%1$s Error loading: %2$s.", getClient().getError(),
                         throwable.getLocalizedMessage()).setEphemeral(true).queue();
             } else {
-                event.replyFormat("%1$s  Error loading track.", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Error loading track.", getClient().getError()).setEphemeral(true).queue();
             }
         }
     }

@@ -26,7 +26,7 @@ public final class CommandUtils {
     }
 
     public static StringBuilder getListOfChildCommands(SlashCommand command, Command[] children, String nameOfParentCommand) {
-        String message = command.getClient() + " " + nameOfParentCommand + " has following commands:\r\n";
+        String message = command.getClient().getWarning() + " " + nameOfParentCommand + " has following commands:\r\n";
         return getListOfCommands(children, nameOfParentCommand, message, command.getClient());
     }
 

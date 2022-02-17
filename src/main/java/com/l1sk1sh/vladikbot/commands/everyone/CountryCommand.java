@@ -2,14 +2,13 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.network.dto.CountryInfo;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,9 +24,9 @@ import java.util.regex.Pattern;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @Service
 public class CountryCommand extends SlashCommand {
-    private static final Logger log = LoggerFactory.getLogger(CountryCommand.class);
 
     private static final String ISO_CODE_OPTION_KEY = "country";
 

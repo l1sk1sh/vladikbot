@@ -56,7 +56,7 @@ public class SkipToCommand extends DJCommand {
             return;
         }
         audioHandler.getQueue().skip(index - 1);
-        event.replyFormat("Skipped to **%1$s**.", audioHandler.getQueue().get(0).getTrack().getInfo().title).queue();
+        event.replyFormat("%1$ Skipped to **%2$s**.", getClient().getWarning(), audioHandler.getQueue().get(0).getTrack().getInfo().title).queue();
         audioHandler.getPlayer().stopTrack();
     }
 }

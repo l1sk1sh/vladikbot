@@ -33,7 +33,11 @@ public class RepeatCommand extends DJCommand {
         this.settings = settings;
         this.name = "mrepeat";
         this.help = "Re-adds music to the queue when finished";
-        this.options = Collections.singletonList(new OptionData(OptionType.STRING, REPEAT_OPTION_KEY, "Should queue be repeated").setRequired(false));
+        this.options = Collections.singletonList(new OptionData(OptionType.STRING, REPEAT_OPTION_KEY, "Should queue be repeated").setRequired(false)
+                .addChoice("Repeat all the times", "all")
+                .addChoice("Do not repeat", "off")
+                .addChoice("Repeat single time", "single")
+        );
         this.guildOnly = true;
     }
 

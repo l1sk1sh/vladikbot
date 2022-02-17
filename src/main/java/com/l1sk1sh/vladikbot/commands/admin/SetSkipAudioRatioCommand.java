@@ -2,12 +2,11 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +19,9 @@ import java.util.Collections;
  * - DI Spring
  * @author John Grosh
  */
+@Slf4j
 @Service
-public class SetSkipAudioRatioCommand extends AdminV2Command {
-    private static final Logger log = LoggerFactory.getLogger(SetSkipAudioRatioCommand.class);
+public class SetSkipAudioRatioCommand extends AdminCommand {
 
     private static final String SKIP_RATIO_OPTION_KEY = "ratio";
 
@@ -57,7 +56,7 @@ public class SetSkipAudioRatioCommand extends AdminV2Command {
 
             settings.get().setAudioSkipRatio(skipRatio / 100.0);
             log.info("Audio skip ratio has been set to {}. Set by {}.", skipRatio / 100.0, FormatUtils.formatAuthor(event));
-            event.replyFormat("Skip percentage has been set to `%1$s%` of listeners").queue();
+            event.replyFormat("Skip percentage has been set to `%1$s%` of listeners", skipRatio / 100.0).queue();
         } catch (NumberFormatException ex) {
             event.replyFormat("%1$s Please include an integer between 0 and 100 (default is 55). This number is the percentage of listening users that must vote to skip a song.", getClient().getError()).setEphemeral(true).queue();
         }

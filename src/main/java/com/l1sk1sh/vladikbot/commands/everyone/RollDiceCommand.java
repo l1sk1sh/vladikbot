@@ -28,9 +28,17 @@ public class RollDiceCommand extends SlashCommand {
     public RollDiceCommand() {
         this.random = new Random();
         this.name = "dice";
-        this.help = "Roll the dice (support optional size d4, d8, d10, d12, d20, d00)";
+        this.help = "Roll the dice (support optional size d4, d6, d8, d10, d12, d20, d00)";
         List<OptionData> options = new ArrayList<>();
-        options.add(new OptionData(OptionType.STRING, SIZE_OPTION_KEY, "Size of the single dice").setRequired(true));
+        options.add(new OptionData(OptionType.STRING, SIZE_OPTION_KEY, "Size of the single dice").setRequired(true)
+                .addChoice("4-sided dice", "d4")
+                .addChoice("6-sided dice", "d6")
+                .addChoice("8-sided dice", "d8")
+                .addChoice("10-sided dice", "d10")
+                .addChoice("12-sided dice", "d12")
+                .addChoice("20-sided dice", "d20")
+                .addChoice("100-sided dice", "d00")
+        );
         options.add(new OptionData(OptionType.INTEGER, AMOUNT_OPTION_KEY, "Number of dices").setRequired(false));
         this.options = options;
     }
@@ -39,7 +47,7 @@ public class RollDiceCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         OptionMapping sizeOption = event.getOption(SIZE_OPTION_KEY);
         if (sizeOption == null) {
-            event.replyFormat("%1$s Please add dice size into arguments. Supported sizes: d4, d8, d10, d12, d20, d00", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please add dice size into arguments. Supported sizes: d4, d6, d8, d10, d12, d20, d00", getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -49,6 +57,10 @@ public class RollDiceCommand extends SlashCommand {
             case "d4":
             case "4":
                 diceSize = 4;
+                break;
+            case "d6":
+            case "6":
+                diceSize = 6;
                 break;
             case "d8":
             case "8":
@@ -72,7 +84,7 @@ public class RollDiceCommand extends SlashCommand {
                 diceSize = 100;
                 break;
             default:
-                event.replyFormat("%1$s Dice size must be one of [d4, d8, d10, d12, d20, d00]!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Dice size must be one of [d4, d6, d8, d10, d12, d20, d00]!", getClient().getWarning()).setEphemeral(true).queue();
                 return;
         }
 

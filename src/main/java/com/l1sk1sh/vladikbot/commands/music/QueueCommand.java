@@ -98,7 +98,6 @@ public class QueueCommand extends MusicCommand {
             return;
         }
 
-
         String[] songs = new String[list.size()];
         long total = 0;
         for (int i = 0; i < list.size(); i++) {

@@ -6,12 +6,11 @@ import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +22,9 @@ import java.util.List;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @Service
-public class AutoReplyCommand extends AdminV2Command {
-    private static final Logger log = LoggerFactory.getLogger(AutoReplyCommand.class);
+public class AutoReplyCommand extends AdminCommand {
 
     private final BotSettingsManager settings;
     private final AutoReplyManager autoReplyManager;
@@ -37,7 +36,7 @@ public class AutoReplyCommand extends AdminV2Command {
         this.name = "reply";
         this.help = "Auto reply management";
         this.guildOnly = false;
-        this.children = new AdminV2Command[]{
+        this.children = new AdminCommand[]{
                 new CreateCommand(),
                 new ReadCommand(),
                 new SwitchCommand(),
@@ -52,7 +51,7 @@ public class AutoReplyCommand extends AdminV2Command {
         event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
     }
 
-    private final class CreateCommand extends AdminV2Command {
+    private final class CreateCommand extends AdminCommand {
 
         private static final String REPLY_TO_OPTION_KEY = "action";
         private static final String REPLY_WITH_OPTION_KEY = "activity";
@@ -109,11 +108,11 @@ public class AutoReplyCommand extends AdminV2Command {
             ReplyRule rule = new ReplyRule(reactTo, reactWith);
             autoReplyManager.writeRule(rule);
             log.info("Added new reply rule: {}.", rule.toString());
-            event.reply("New rule was added.").setEphemeral(true).queue();
+            event.replyFormat("%1$s New rule was added.", getClient().getSuccess()).setEphemeral(true).queue();
         }
     }
 
-    private final class ReadCommand extends AdminV2Command {
+    private final class ReadCommand extends AdminCommand {
         private static final int MAX_LIST_SIZE_TO_SHOW = 70;
 
         private ReadCommand() {
@@ -144,7 +143,7 @@ public class AutoReplyCommand extends AdminV2Command {
         }
     }
 
-    private final class SwitchCommand extends AdminV2Command {
+    private final class SwitchCommand extends AdminCommand {
 
         private static final String SWITCH_OPTION_KEY = "switch";
 
@@ -178,7 +177,7 @@ public class AutoReplyCommand extends AdminV2Command {
         }
     }
 
-    private final class DeleteCommand extends AdminV2Command {
+    private final class DeleteCommand extends AdminCommand {
 
         private static final String ID_OPTION_KEY = "id";
 
@@ -205,19 +204,22 @@ public class AutoReplyCommand extends AdminV2Command {
             } else {
                 autoReplyManager.deleteRule(rule);
                 log.info("Reply rule with id {} was removed by {}.", idOption.getAsLong(), FormatUtils.formatAuthor(event));
-                event.replyFormat("Successfully deleted rule with id `[%1$s]`.", idOption.getAsLong()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Successfully deleted rule with id `[%2$s]`.", getClient().getSuccess(), idOption.getAsLong()).setEphemeral(true).queue();
             }
         }
     }
 
-    private final class MatchCommand extends AdminV2Command {
+    private final class MatchCommand extends AdminCommand {
 
         private static final String MATCH_STRATEGY_OPTION_KEY = "match";
 
         private MatchCommand() {
             this.name = "match";
             this.help = "Either bot uses full message comparison of word by word";
-            options.add(new OptionData(OptionType.STRING, MATCH_STRATEGY_OPTION_KEY, "Select either `full` or `online`").setRequired(true));
+            options.add(new OptionData(OptionType.STRING, MATCH_STRATEGY_OPTION_KEY, "Reply mathcing strategy").setRequired(true)
+                    .addChoice("Match using full sentence", "full")
+                    .addChoice("Matching inline", "inline")
+            );
             this.guildOnly = false;
         }
 
@@ -244,11 +246,11 @@ public class AutoReplyCommand extends AdminV2Command {
 
             settings.get().setMatchingStrategy(Const.MatchingStrategy.FULL);
             log.info("Matching strategy is set to '{}' by '{}'.", strategy, FormatUtils.formatAuthor(event));
-            event.replyFormat("Changed current matching strategy to `%1$s`.", strategy.name().toLowerCase()).queue();
+            event.replyFormat("%1$s Changed current matching strategy to `%2$s`.", getClient().getSuccess(), strategy.name().toLowerCase()).queue();
         }
     }
 
-    private final class ChanceCommand extends AdminV2Command {
+    private final class ChanceCommand extends AdminCommand {
 
         private static final String CHANCE_OPTION_KEY = "chance";
 
@@ -278,7 +280,7 @@ public class AutoReplyCommand extends AdminV2Command {
                     return;
                 }
                 settings.get().setReplyChance(replyChance);
-                event.replyFormat("%1$s Reply chance is now %2$s%%", replyChance * 100).queue();
+                event.replyFormat("%1$s Reply chance is now %2$s%%", getClient().getSuccess(), replyChance * 100).queue();
             } catch (NumberFormatException nfe) {
                 event.replyFormat("%1$s Invalid number specified `[%2$s]`", getClient().getWarning(), chanceOption.getAsString()).setEphemeral(true).queue();
             }

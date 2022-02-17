@@ -10,8 +10,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,10 +28,10 @@ import java.util.stream.Collectors;
  * - Removed playlist data-class
  * @author John Grosh
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class PlaylistLoader {
-    private static final Logger log = LoggerFactory.getLogger(PlaylistLoader.class);
 
     private final BotSettingsManager settings;
     private final PlaylistRepository playlistRepository;
