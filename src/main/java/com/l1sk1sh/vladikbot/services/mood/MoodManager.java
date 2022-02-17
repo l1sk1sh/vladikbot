@@ -43,10 +43,11 @@ public class MoodManager {
     }
 
     public boolean isBrainOverloaded() {
-        return moodPoint.getX() > maxAxisValue ||
-                moodPoint.getX() < minAxisValue ||
-                moodPoint.getY() > maxAxisValue ||
-                moodPoint.getY() < minAxisValue;
+        boolean overloaded = moodPoint.getX() > maxAxisValue || moodPoint.getX() < minAxisValue || moodPoint.getY() > maxAxisValue || moodPoint.getY() < minAxisValue;
+        if (overloaded) {
+            //some logic...
+        }
+        return overloaded;
     }
 
     //TODO needs more work due to more complex logic
