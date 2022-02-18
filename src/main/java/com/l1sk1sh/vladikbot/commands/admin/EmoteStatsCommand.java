@@ -194,7 +194,7 @@ public class EmoteStatsCommand extends AdminCommand {
             EmoteStatsRecord record = result.get(i);
             printable[i] = getEmoteMentionByItsName(Objects.requireNonNull(event.getGuild()), record.getEmoteName())
                     + " #" + record.getAmount()
-                    + " by " + Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getJDA().getUserById(record.getMostActiveUserId())).getAsTag();
+                    + " by **" + Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getJDA().getUserById(record.getMostActiveUserId())).getName() + "**";
         }
 
         paginatorBuilder.addItems(printable);
