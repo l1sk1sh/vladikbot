@@ -8,6 +8,7 @@ import com.l1sk1sh.vladikbot.utils.MapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.exceptions.MissingAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -70,9 +71,13 @@ public class BackupTextService {
                     log.debug("Reading message history for guild '{}'", guild.getName());
 
                     for (TextChannel channel : guild.getTextChannels()) {
-                        MessageHistory messageHistory = channel.getHistoryFromBeginning(100).complete();
-                        readMessageHistory(messageHistory, messageHistory.size());
-                        writeMessageHistory(messageHistory);
+                        try {
+                            MessageHistory messageHistory = channel.getHistoryFromBeginning(100).complete();
+                            readMessageHistory(messageHistory, messageHistory.size());
+                            writeMessageHistory(messageHistory);
+                        } catch (MissingAccessException e) {
+                            log.warn("Channel '{}' cannot be read due to missing permission.", channel.getName(), e);
+                        }
                     }
                 }
 

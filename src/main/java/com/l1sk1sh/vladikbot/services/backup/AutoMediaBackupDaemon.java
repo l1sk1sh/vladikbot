@@ -47,6 +47,11 @@ public class AutoMediaBackupDaemon implements ScheduledTask, OnBackupCompletedLi
             return;
         }
 
+        if (settings.get().isLockedAutoBackup()) {
+            /* pool-4-thread-1 is trying to call "execute" multiple times */
+            return;
+        }
+        settings.get().setLockedAutoBackup(true);
         settings.get().setLastAutoMediaBackupTime(System.currentTimeMillis());
         log.info("Automatic media backup has started it's execution.");
         backupMediaService.downloadAllAttachments(this);
@@ -86,6 +91,7 @@ public class AutoMediaBackupDaemon implements ScheduledTask, OnBackupCompletedLi
     @Override
     public void onBackupCompleted(boolean success, String message) {
         log.info("Automatic media backup has finished it's execution with success - {} ({}).", success, message);
+        settings.get().setLockedAutoBackup(false);
         if (success) {
             notificationService.sendEmbeddedInfo(null, "Auto media backup has finished.");
         } else {

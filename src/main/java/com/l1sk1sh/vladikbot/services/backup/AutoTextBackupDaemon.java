@@ -47,6 +47,11 @@ public class AutoTextBackupDaemon implements ScheduledTask, OnBackupCompletedLis
             return;
         }
 
+        if (settings.get().isLockedAutoBackup()) {
+            /* pool-4-thread-1 is trying to call "execute" multiple times */
+            return;
+        }
+        settings.get().setLockedAutoBackup(true);
         settings.get().setLastAutoTextBackupTime(System.currentTimeMillis());
         log.info("Automatic text backup has started it's execution.");
         backupTextService.readAllChannelsHistories(this);
@@ -82,6 +87,7 @@ public class AutoTextBackupDaemon implements ScheduledTask, OnBackupCompletedLis
     @Override
     public void onBackupCompleted(boolean success, String message) {
         log.info("Automatic text backup has finished it's execution with success - {} ({}).", success, message);
+        settings.get().setLockedAutoBackup(false);
         if (success) {
             notificationService.sendEmbeddedInfo(null, "Auto text backup has finished.");
         } else {

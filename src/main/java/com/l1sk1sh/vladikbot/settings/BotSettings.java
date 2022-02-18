@@ -63,6 +63,8 @@ public class BotSettings {
     private String jenkinsApiPassword = "JENKINS_API_TOKEN";            // Set jenkins API password
 
     /* Runtime and bot specific internal configs */
+    @Setter
+    private transient boolean lockedAutoBackup = false;                 // Locks automatic backup thread
     private long lastAutoTextBackupTime = 0L;                           // Holds time of last auto text backup
     private long lastAutoMediaBackupTime = 0L;                          // Holds time of last auto media backup
 
