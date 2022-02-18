@@ -33,3 +33,4 @@
 0. Add image processing and shrinking by some 'magik' library
 0. Implement export for text backup command
 0. Use https://github.com/Chew/JDA-Chewtils/tree/master/menu for menus
+0. Add author to the reaction item and use it for emote statistics calculation

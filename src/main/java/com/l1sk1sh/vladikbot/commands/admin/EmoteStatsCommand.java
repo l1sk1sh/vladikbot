@@ -173,7 +173,7 @@ public class EmoteStatsCommand extends AdminCommand {
     private void sendStatisticsMessage(EventWaiter eventWaiter, SlashCommandEvent event, List<EmoteStatsRecord> result) {
         int startPageNumber = 1;
         Paginator.Builder paginatorBuilder = new Paginator.Builder().setColumns(1)
-                .setItemsPerPage(20)
+                .setItemsPerPage(35)
                 .showPageNumbers(true)
                 .waitOnSinglePage(false)
                 .useNumberedItems(false)
@@ -185,10 +185,12 @@ public class EmoteStatsCommand extends AdminCommand {
                     }
                 })
                 .setEventWaiter(eventWaiter)
-                .setTimeout(1, TimeUnit.MINUTES);
+                .setTimeout(5, TimeUnit.MINUTES);
 
+        log.info("reversing order...");
         result = result.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
 
+        log.info("printable...");
         String[] printable = new String[result.size()];
         for (int i = 0; i < printable.length; i++) {
             EmoteStatsRecord record = result.get(i);
@@ -197,14 +199,17 @@ public class EmoteStatsCommand extends AdminCommand {
                     + " by **" + Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getJDA().getUserById(record.getMostActiveUserId())).getName() + "**";
         }
 
+        log.info("adding items....");
         paginatorBuilder.addItems(printable);
 
+        log.info("paginator");
         Paginator paginator = paginatorBuilder
                 .setColor(Color.black)
                 .setText("Emote usage statistics for current channel:")
                 .setUsers(event.getUser())
                 .build();
 
+        log.info("paginating");
         paginator.paginate(event.getChannel(), startPageNumber);
     }
 

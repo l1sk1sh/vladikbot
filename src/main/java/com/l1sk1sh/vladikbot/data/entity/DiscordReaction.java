@@ -4,6 +4,9 @@ import lombok.*;
 
 import javax.persistence.*;
 
+/**
+ * @author l1sk1sh
+ */
 @RequiredArgsConstructor
 @NoArgsConstructor
 @Getter
