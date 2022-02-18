@@ -30,7 +30,7 @@ public class DiscordAttachment {
     @NonNull
     private String fileName;
 
-    @Column(name = "content_type", nullable = false)
+    @Column(name = "content_type")
     @NonNull
     private String contentType;
 
