@@ -27,7 +27,7 @@ public final class DateAndTimeUtils {
         return ISO8601Utils.format(new Date(timestamp));
     }
 
-    public static long getTimeNowMinusDays(long days) {
+    public static long getEpochMillisNowMinusDays(long days) {
         return System.currentTimeMillis() - days * 24 * 60 * 60 * 1000;
     }
 }

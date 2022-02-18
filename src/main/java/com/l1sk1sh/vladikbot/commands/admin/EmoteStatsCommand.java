@@ -154,7 +154,7 @@ public class EmoteStatsCommand extends AdminCommand {
                     return;
                 }
 
-                long agoTime = DateAndTimeUtils.getTimeNowMinusDays(agoOption.getAsLong());
+                long agoTime = DateAndTimeUtils.getEpochMillisNowMinusDays(agoOption.getAsLong());
 
                 event.deferReply(true).queue();
                 List<EmoteStatsRecord> result
@@ -187,31 +187,24 @@ public class EmoteStatsCommand extends AdminCommand {
                 .setEventWaiter(eventWaiter)
                 .setTimeout(5, TimeUnit.MINUTES);
 
-        log.info("reversing order...");
         result = result.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
 
-        log.info("printable...");
         String[] printable = new String[result.size()];
         for (int i = 0; i < printable.length; i++) {
             EmoteStatsRecord record = result.get(i);
-            log.info("Processing record {}", record);
-
             printable[i] = getEmoteMentionByItsName(event.getGuild(), record.getEmoteName())
                     + " #" + record.getAmount()
                     + " by " + getAuthor(event.getGuild(), record.getMostActiveUserId());
         }
 
-        log.info("adding items....");
         paginatorBuilder.addItems(printable);
 
-        log.info("paginator");
         Paginator paginator = paginatorBuilder
                 .setColor(Color.black)
                 .setText("Emote usage statistics for current channel:")
                 .setUsers(event.getUser())
                 .build();
 
-        log.info("paginating");
         paginator.paginate(event.getChannel(), startPageNumber);
     }
 
@@ -240,8 +233,6 @@ public class EmoteStatsCommand extends AdminCommand {
                 return "<:" + emoteName + ":" + emojiIdList.get(0).getId() + ">";
             }
         } catch (IllegalArgumentException ignored) {
-        } catch (Throwable e){
-            log.error("THERE IS ANOTHER", e);
         }
 
         return emoteName;

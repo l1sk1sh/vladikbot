@@ -24,7 +24,7 @@ public final class MapperUtils {
                 message.getChannel().getIdLong(),
                 message.getAuthor().getIdLong(),
                 message.getContentStripped(),
-                message.getTimeCreated().toEpochSecond(),
+                message.getTimeCreated().toEpochSecond() * 1000,
                 message.getEmotes().stream().map(emote ->
                         mapEmoteToDiscordEmote(emote, message.getIdLong())
                 ).collect(Collectors.toList()),
