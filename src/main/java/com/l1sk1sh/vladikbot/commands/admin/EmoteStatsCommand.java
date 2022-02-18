@@ -11,6 +11,7 @@ import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
@@ -23,7 +24,6 @@ import org.springframework.stereotype.Service;
 import java.awt.*;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -194,9 +194,11 @@ public class EmoteStatsCommand extends AdminCommand {
         String[] printable = new String[result.size()];
         for (int i = 0; i < printable.length; i++) {
             EmoteStatsRecord record = result.get(i);
-            printable[i] = getEmoteMentionByItsName(Objects.requireNonNull(event.getGuild()), record.getEmoteName())
+            log.info("Processing record {}", record);
+
+            printable[i] = getEmoteMentionByItsName(event.getGuild(), record.getEmoteName())
                     + " #" + record.getAmount()
-                    + " by **" + Objects.requireNonNull(Objects.requireNonNull(event.getGuild()).getJDA().getUserById(record.getMostActiveUserId())).getName() + "**";
+                    + " by " + getAuthor(event.getGuild(), record.getMostActiveUserId());
         }
 
         log.info("adding items....");
@@ -213,7 +215,24 @@ public class EmoteStatsCommand extends AdminCommand {
         paginator.paginate(event.getChannel(), startPageNumber);
     }
 
+    private String getAuthor(Guild guild, long userId) {
+        if (guild == null) {
+            return "__unknown__";
+        }
+
+        User user = guild.getJDA().getUserById(userId);
+        if (user == null) {
+            return "__unknown__";
+        }
+
+        return "**" + user.getName() + "**";
+    }
+
     private String getEmoteMentionByItsName(Guild guild, String emoteName) {
+        if (guild == null) {
+            return emoteName;
+        }
+
         try {
             List<Emote> emojiIdList = guild.getEmotesByName(emoteName, false);
 
@@ -221,6 +240,8 @@ public class EmoteStatsCommand extends AdminCommand {
                 return "<:" + emoteName + ":" + emojiIdList.get(0).getId() + ">";
             }
         } catch (IllegalArgumentException ignored) {
+        } catch (Throwable e){
+            log.error("THERE IS ANOTHER", e);
         }
 
         return emoteName;
