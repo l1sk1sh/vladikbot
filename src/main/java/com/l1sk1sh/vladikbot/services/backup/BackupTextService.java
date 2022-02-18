@@ -3,7 +3,6 @@ package com.l1sk1sh.vladikbot.services.backup;
 import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.DiscordMessage;
 import com.l1sk1sh.vladikbot.data.repository.DiscordMessagesRepository;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.MapperUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
@@ -29,19 +28,17 @@ import java.util.stream.Collectors;
 public class BackupTextService {
 
     private final ScheduledExecutorService backupThreadPool;
-    private final BotSettingsManager settings;
     private final DiscordMessagesRepository discordMessagesRepository;
 
     @Autowired
     public BackupTextService(@Qualifier("backupThreadPool") ScheduledExecutorService backupThreadPool,
-                             BotSettingsManager settings, DiscordMessagesRepository discordMessagesRepository) {
-        this.settings = settings;
+                             DiscordMessagesRepository discordMessagesRepository) {
         this.discordMessagesRepository = discordMessagesRepository;
         this.backupThreadPool = backupThreadPool;
     }
 
     public void backupNewMessage(Message newMessage) {
-        if (newMessage.getType() != MessageType.DEFAULT) {
+        if (!isMessageTypeSupported(newMessage.getType())) {
             return;
         }
         backupThreadPool.execute(() -> writeMessage(newMessage));
@@ -105,9 +102,14 @@ public class BackupTextService {
 
     private void writeMessageHistory(MessageHistory messageHistory) {
         List<DiscordMessage> messages = messageHistory.getRetrievedHistory().stream()
-                .filter(message -> message.getType() == MessageType.DEFAULT)
+                .filter(message -> isMessageTypeSupported(message.getType()))
                 .map(MapperUtils::mapMessageToDiscordMessage).collect(Collectors.toList());
 
         discordMessagesRepository.saveAll(messages);
+    }
+
+    private boolean isMessageTypeSupported(MessageType type) {
+        return type == MessageType.DEFAULT
+                || type == MessageType.INLINE_REPLY;
     }
 }
