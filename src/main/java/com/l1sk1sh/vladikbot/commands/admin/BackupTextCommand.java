@@ -6,6 +6,7 @@ import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -92,10 +93,15 @@ public class BackupTextCommand extends AdminCommand {
                 log.info("Text backup started by {}", FormatUtils.formatAuthor(event));
                 event.deferReply(true).queue();
                 backupTextService.readAllChannelsHistories((success, message) -> {
-                    if (success) {
-                        event.getHook().editOriginalFormat("%1$s Text was saved to database!", getClient().getSuccess()).queue();
-                    } else {
-                        event.getHook().editOriginalFormat("%1$s Text was not saved to database! (%2$s)", getClient().getError(), message).queue();
+                    try {
+                        if (success) {
+                            event.getHook().editOriginalFormat("%1$s Text was saved to database!", getClient().getSuccess()).queue();
+                        } else {
+                            event.getHook().editOriginalFormat("%1$s Text was not saved to database! (%2$s)", getClient().getError(), message).queue();
+                        }
+                    } catch (ErrorResponseException e) {
+                        /* When defer reply takes too long */
+                        event.getChannel().sendMessageFormat("Backup has %1$s.", success ? "finished" : "failed").queue();
                     }
                 });
             });
