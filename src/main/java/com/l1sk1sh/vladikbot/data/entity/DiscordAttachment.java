@@ -31,7 +31,6 @@ public class DiscordAttachment {
     private String fileName;
 
     @Column(name = "content_type")
-    @NonNull
     private String contentType;
 
     @Column(name = "downloaded")
