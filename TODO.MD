@@ -29,8 +29,10 @@
     2. Add stats for bot 
 0. Add custom status to the bot (with emojis)
 0. Simplify bot specific settings usage (add wrapper to the repository)
+0. Redo Settings migration and addition of new parameters (probably, implement 3d party solution)
 0. Fix MCServer timeonline command output
 0. Add image processing and shrinking by some 'magik' library
 0. Implement export for text backup command
 0. Use https://github.com/Chew/JDA-Chewtils/tree/master/menu for menus
-0. Add author to the reaction item and use it for emote statistics calculation
+0. Add an author to the reaction item and use it for emote statistics calculation
+0. Play with new buttons and popup windowses
