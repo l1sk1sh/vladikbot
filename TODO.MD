@@ -30,6 +30,8 @@
 0. Add custom status to the bot (with emojis)
 0. Simplify bot specific settings usage (add wrapper to the repository)
 0. Redo Settings migration and addition of new parameters (probably, implement 3d party solution)
+0. Migrate all bot setting into database
+0. Remove all setting for paths. Paths must be set only 'from' specific directory
 0. Fix MCServer timeonline command output
 0. Add image processing and shrinking by some 'magik' library
 0. Implement export for text backup command

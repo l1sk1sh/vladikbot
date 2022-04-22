@@ -4,7 +4,7 @@ spring:
     lazy-initialization: true
   datasource:
     platform: h2
-    url: jdbc:h2:~/vladikbot/app/database;DB_CLOSE_ON_EXIT=TRUE;AUTO_SERVER=TRUE
+    url: jdbc:h2:/usr/bin/vladikbot/app/database;DB_CLOSE_ON_EXIT=TRUE;AUTO_SERVER=TRUE
     driver-class-name: org.h2.Driver
     username: vladik
     password: password
