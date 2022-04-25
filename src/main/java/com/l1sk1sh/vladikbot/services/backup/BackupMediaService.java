@@ -116,6 +116,7 @@ public class BackupMediaService {
         try {
             if (DownloadUtils.downloadAndSaveToFile(new URL(attachment.getUrl()), channelBackupDirPath + attachment.getFileName())) {
                 attachment.setDownloaded(true);
+                discordAttachmentsRepository.save(attachment);
             } else {
                 log.warn("Failed to save attachment [{}].", attachment);
             }
