@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.meme.MemeService;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +27,11 @@ import java.util.Optional;
 @Service
 public class MemesManagementCommand extends AdminCommand {
 
-    private final BotSettingsManager settings;
     private final MemeService memeService;
     private final GuildSettingsRepository guildSettingsRepository;
 
     @Autowired
-    public MemesManagementCommand(BotSettingsManager settings, MemeService memeService, GuildSettingsRepository guildSettingsRepository) {
-        this.settings = settings;
+    public MemesManagementCommand(MemeService memeService, GuildSettingsRepository guildSettingsRepository) {
         this.memeService = memeService;
         this.guildSettingsRepository = guildSettingsRepository;
         this.name = "memes";
@@ -63,15 +60,24 @@ public class MemesManagementCommand extends AdminCommand {
 
         @Override
         protected void execute(SlashCommandEvent event) {
-            boolean currentSetting = settings.get().isSendMemes();
+            Optional<GuildSettings> settings = guildSettingsRepository.findById(Objects.requireNonNull(event.getGuild()).getIdLong());
+            boolean currentSetting = settings.map(GuildSettings::isSendMemes).orElse(false);
+            TextChannel memesChannel = settings.map(guildSettings -> guildSettings.getMemesChannel(event.getGuild())).orElse(null);
 
             OptionMapping switchOption = event.getOption(SWITCH_OPTION_KEY);
             if (switchOption == null) {
                 event.replyFormat("Memes sending is `%1$s`", (currentSetting) ? "ON" : "OFF").setEphemeral(true).queue();
+
                 return;
             }
 
             boolean newSetting = switchOption.getAsBoolean();
+
+            if (memesChannel == null && newSetting) {
+                event.replyFormat("%1$s Set memes channel first.", getClient().getWarning()).setEphemeral(true).queue();
+
+                return;
+            }
 
             if (currentSetting == newSetting) {
                 event.replyFormat("Memes sending is `%1$s`", (currentSetting) ? "ON" : "OFF").setEphemeral(true).queue();
@@ -79,7 +85,10 @@ public class MemesManagementCommand extends AdminCommand {
                 return;
             }
 
-            settings.get().setSendMemes(newSetting);
+            settings.ifPresent((guildSettings -> {
+                guildSettings.setSendMemes(newSetting);
+                guildSettingsRepository.save(settings.get());
+            }));
             if (newSetting) {
                 memeService.start();
             } else {

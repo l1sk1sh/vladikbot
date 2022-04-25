@@ -1,18 +1,15 @@
 package com.l1sk1sh.vladikbot.services.presence;
 
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.data.repository.ReplyRulesRepository;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * @author l1sk1sh
@@ -24,8 +21,8 @@ public class AutoReplyManager {
 
     public static final int MIN_REPLY_TO_LENGTH = 3;
 
-    private final BotSettingsManager settings;
     private final ReplyRulesRepository replyRulesRepository;
+    private final GuildSettingsRepository guildSettingsRepository;
     private final Random random = new Random();
     private List<ReplyRule> replyRules = new ArrayList<>();
 
@@ -43,8 +40,11 @@ public class AutoReplyManager {
             return;
         }
 
+        Optional<GuildSettings> settings = guildSettingsRepository.findById(message.getGuild().getIdLong());
+        double replyChance = settings.map(GuildSettings::getReplyChance).orElse(GuildSettings.DEFAULT_REPLY_CHANCE);
+
         /* Replying only with certain chance */
-        if (random.nextDouble() > settings.get().getReplyChance()) {
+        if (random.nextDouble() > replyChance) {
             return;
         }
 
@@ -63,13 +63,16 @@ public class AutoReplyManager {
                     continue;
                 }
 
-                if ((settings.get().getMatchingStrategy() == Const.MatchingStrategy.INLINE)
+                MatchingStrategy strategy
+                        = settings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
+
+                if ((strategy == MatchingStrategy.INLINE)
                         && message.getContentStripped().contains(singleReact)) {
                     log.trace("Inline react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
                     matchingRules.add(rule);
                 }
 
-                if ((settings.get().getMatchingStrategy() == Const.MatchingStrategy.FULL)
+                if ((strategy == MatchingStrategy.FULL)
                         && message.getContentStripped().equals(singleReact)) {
                     log.trace("Full react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
                     matchingRules.add(rule);
@@ -127,5 +130,10 @@ public class AutoReplyManager {
 
     public List<ReplyRule> getAllRules() {
         return replyRules;
+    }
+
+    public enum MatchingStrategy {
+        FULL,
+        INLINE
     }
 }

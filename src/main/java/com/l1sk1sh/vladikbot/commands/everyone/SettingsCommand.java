@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
@@ -60,6 +61,9 @@ public class SettingsCommand extends SlashCommand {
         TextChannel newsChannel = guildSettings.map(settings -> settings.getNewsChannel(event.getGuild())).orElse(null);
         TextChannel memesChannel = guildSettings.map(settings -> settings.getMemesChannel(event.getGuild())).orElse(null);
         Role djRole = guildSettings.map(settings -> settings.getDjRole(event.getGuild())).orElse(null);
+        boolean autoReply = guildSettings.map(GuildSettings::isAutoReply).orElse(false);
+        double autoReplyChance = guildSettings.map(GuildSettings::getReplyChance).orElse(GuildSettings.DEFAULT_REPLY_CHANCE);
+        AutoReplyManager.MatchingStrategy matchingStrategy = guildSettings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
 
         MessageBuilder builder = new MessageBuilder()
                 .append(Const.HEADPHONES_EMOJI + " **")
@@ -86,11 +90,11 @@ public class SettingsCommand extends SlashCommand {
                                 + "\r\nDefault Playlist: **"
                                 + ((defaultPlaylist == null) ? "None" : defaultPlaylist) + "**"
                                 + "\r\nAuto Reply: **"
-                                + (settings.get().isAutoReply() ? "on" : "off") + "**"
+                                + (autoReply ? "on" : "off") + "**"
                                 + "\r\nAuto Reply Matching Strategy: **"
-                                + (settings.get().getMatchingStrategy()) + "**"
+                                + (matchingStrategy) + "**"
                                 + "\r\nAuto Reply Chance: **"
-                                + (settings.get().getReplyChance()) + "**"
+                                + (autoReplyChance) + "**"
                                 + "\r\nActivity Simulation: **"
                                 + (settings.get().isSimulateActivity() ? "on" : "off") + "**"
                                 + "\r\nAuto text backup: **"

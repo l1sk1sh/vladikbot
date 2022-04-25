@@ -2,11 +2,15 @@ package com.l1sk1sh.vladikbot.services.rss;
 
 import com.apptastic.rssreader.Item;
 import com.apptastic.rssreader.RssReader;
+import com.l1sk1sh.vladikbot.VladikBot;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.SentNewsArticle;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.data.repository.SentNewsArticleRepository;
 import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.entities.Guild;
 
 import java.awt.*;
 import java.io.IOException;
@@ -15,6 +19,7 @@ import java.net.http.HttpTimeoutException;
 import java.nio.channels.UnresolvedAddressException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,6 +33,7 @@ final class RssFeedTask implements Runnable {
     private static final int ARTICLE_FETCH_LIMIT = 8;
 
     private final SentNewsArticleRepository sentNewsArticleRepository;
+    private final GuildSettingsRepository guildSettingsRepository;
     private final NewsNotificationService newsNotificationService;
     private final RssService.RssResource resource;
     private final String rssUrl;
@@ -72,7 +78,12 @@ final class RssFeedTask implements Runnable {
             sentNewsArticleRepository.saveAll(newSentArticles);
 
             log.info("Sending '{}' article ({}).", resource, lastAddedArticle.getLink());
-            newsNotificationService.sendNewsArticle(null, ArticleMapper.mapRssArticleToNewsMessage(lastAddedArticle, resource, resourceImageUrl), newsColor);
+            for (GuildSettings guildSettings : guildSettingsRepository.getAllBySendNewsIsTrue()) {
+                Guild guild = VladikBot.jda().getGuildById(guildSettings.getGuildId());
+                log.info("Sending '{}' to {}.", lastAddedArticle.getTitle(), Objects.requireNonNull(guild).getName());
+
+                newsNotificationService.sendNewsArticle(guild, ArticleMapper.mapRssArticleToNewsMessage(lastAddedArticle, resource, resourceImageUrl), newsColor, guildSettings.getNewsStyle());
+            }
         } catch (ConnectException | HttpTimeoutException | UnresolvedAddressException e) {
             log.warn("Failed to get {} article due to network issues.", resource);
         } catch (IOException e) {

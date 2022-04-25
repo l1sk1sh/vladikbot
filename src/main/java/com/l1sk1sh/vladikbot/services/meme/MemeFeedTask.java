@@ -1,16 +1,21 @@
 package com.l1sk1sh.vladikbot.services.meme;
 
+import com.l1sk1sh.vladikbot.VladikBot;
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.SentMeme;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.data.repository.SentMemeRepository;
 import com.l1sk1sh.vladikbot.network.dto.Meme;
 import com.l1sk1sh.vladikbot.services.notification.MemeNotificationService;
 import lombok.RequiredArgsConstructor;
+import net.dv8tion.jda.api.entities.Guild;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author l1sk1sh
@@ -21,6 +26,7 @@ class MemeFeedTask implements Runnable {
 
     private final SentMemeRepository sentMemeRepository;
     private final MemeNotificationService memeNotificationService;
+    private final GuildSettingsRepository guildSettingsRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
@@ -51,7 +57,11 @@ class MemeFeedTask implements Runnable {
         sentMemeRepository.save(new SentMeme(meme.getPostLink()));
 
         log.info("Sending '{}' article ({}).", meme.getTitle(), meme.getPostLink());
+        for (GuildSettings guildSettings : guildSettingsRepository.getAllBySendMemesIsTrue()) {
+            Guild guild = VladikBot.jda().getGuildById(guildSettings.getGuildId());
+            log.info("Sending '{}' to {}.", meme.getTitle(), Objects.requireNonNull(guild).getName());
 
-        memeNotificationService.sendMemesArticle(null, meme);
+            memeNotificationService.sendMemesArticle(guild, meme);
+        }
     }
 }

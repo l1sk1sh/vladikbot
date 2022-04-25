@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.services.meme;
 
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.data.repository.SentMemeRepository;
 import com.l1sk1sh.vladikbot.services.notification.MemeNotificationService;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,14 +23,14 @@ public class MemeService {
 
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
-    private final BotSettingsManager settings;
+    private final GuildSettingsRepository guildSettingsRepository;
     private final SentMemeRepository sentMemeRepository;
     private final MemeNotificationService memeNotificationService;
     private boolean initialized = false;
     private ScheduledFuture<?> scheduledMemeFeed;
 
     public void start() {
-        if (!settings.get().isSendMemes()) {
+        if (guildSettingsRepository.getAllBySendMemesIsTrue().isEmpty()) {
             if (initialized) {
                 stop();
             }
@@ -43,7 +43,7 @@ public class MemeService {
         }
 
         scheduledMemeFeed = frontThreadPool.scheduleWithFixedDelay(
-                new MemeFeedTask(sentMemeRepository, memeNotificationService),
+                new MemeFeedTask(sentMemeRepository, memeNotificationService, guildSettingsRepository),
                 10,
                 Const.MEMES_UPDATE_FREQUENCY_IN_SECONDS,
                 TimeUnit.SECONDS

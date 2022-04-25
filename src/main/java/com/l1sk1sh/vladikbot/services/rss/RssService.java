@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.services.rss;
 
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.data.repository.SentNewsArticleRepository;
 import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +28,12 @@ public class RssService {
     private final ScheduledExecutorService frontThreadPool;
     private final SentNewsArticleRepository sentNewsArticleRepository;
     private final NewsNotificationService newsNotificationService;
-    private final BotSettingsManager settings;
+    private final GuildSettingsRepository guildSettingsRepository;
     private final Set<ScheduledFuture<?>> scheduledRssFeeds = new HashSet<>();
     private boolean initialized = false;
 
     public void start() {
-        if (!settings.get().isSendNews()) {
+        if (guildSettingsRepository.getAllBySendNewsIsTrue().isEmpty()) {
             if (initialized) {
                 stop();
             }
@@ -48,20 +48,7 @@ public class RssService {
         scheduledRssFeeds.add(frontThreadPool.scheduleWithFixedDelay(
                 new RssFeedTask(
                         sentNewsArticleRepository,
-                        newsNotificationService,
-                        RssResource.IGN,
-                        "https://ru.ign.com/feed.xml",
-                        "https://ru.ign.com/s/ign/social_logo.png",
-                        new Color(191, 19, 19)
-                ),
-                30,
-                Const.NEWS_UPDATE_FREQUENCY_IN_SECONDS,
-                TimeUnit.SECONDS
-        ));
-
-        scheduledRssFeeds.add(frontThreadPool.scheduleWithFixedDelay(
-                new RssFeedTask(
-                        sentNewsArticleRepository,
+                        guildSettingsRepository,
                         newsNotificationService,
                         RssResource.ITC,
                         "https://itc.ua/rss",
@@ -76,6 +63,7 @@ public class RssService {
         scheduledRssFeeds.add(frontThreadPool.scheduleWithFixedDelay(
                 new RssFeedTask(
                         sentNewsArticleRepository,
+                        guildSettingsRepository,
                         newsNotificationService,
                         RssResource.GIN,
                         "https://www.gameinformer.com/news.xml",
@@ -90,6 +78,7 @@ public class RssService {
         scheduledRssFeeds.add(frontThreadPool.scheduleWithFixedDelay(
                 new RssFeedTask(
                         sentNewsArticleRepository,
+                        guildSettingsRepository,
                         newsNotificationService,
                         RssResource.DTF,
                         "https://dtf.ru/rss/all",
@@ -118,7 +107,6 @@ public class RssService {
     }
 
     public enum RssResource {
-        IGN,
         ITC,
         GIN,
         DTF

@@ -164,7 +164,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
         if (queue.isEmpty()) {
             if (!playFromDefault()) {
-                nowPlayingHandler.onTrackUpdate(guildId, null, this);
+                nowPlayingHandler.onTrackUpdate(guildId, this);
                 if (settings.get().isLeaveChannel()) {
                     closeAudioConnection();
                 }
@@ -181,7 +181,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     @Override
     public void onTrackStart(AudioPlayer player, AudioTrack track) {
         votes.clear();
-        nowPlayingHandler.onTrackUpdate(guildId, track, this);
+        nowPlayingHandler.onTrackUpdate(guildId, this);
     }
 
     /* Formatting of the message */
@@ -230,7 +230,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                     + FormatUtils.formatTimeTillHours(track.getDuration()) + "]` "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume()));
 
-            return messageBuilder.setEmbed(embedBuilder.build()).build();
+            return messageBuilder.setEmbeds(embedBuilder.build()).build();
         } else {
             return null;
         }
@@ -240,7 +240,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         Guild guild = guild(jda);
         return new MessageBuilder()
                 .setContent(FormatUtils.filter(settings.get().getSuccessEmoji() + " **Now Playing...**"))
-                .setEmbed(new EmbedBuilder()
+                .setEmbeds(new EmbedBuilder()
                         .setTitle("No music playing")
                         .setDescription(Const.STOP_EMOJI + " "
                                 + FormatUtils.progressBar(-1) + " "

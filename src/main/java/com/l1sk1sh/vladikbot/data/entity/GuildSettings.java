@@ -1,5 +1,7 @@
 package com.l1sk1sh.vladikbot.data.entity;
 
+import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
+import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -11,10 +13,7 @@ import net.dv8tion.jda.api.entities.VoiceChannel;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 /**
  * @author l1sk1sh
@@ -25,8 +24,12 @@ import javax.persistence.Table;
 @ToString
 @Entity
 @DynamicUpdate
-@Table(name = "guilds_settings")
+@Table(name = "guild_settings")
 public class GuildSettings {
+
+    public static final double DEFAULT_REPLY_CHANCE = 0.5;
+    public static final AutoReplyManager.MatchingStrategy DEFAULT_MATCHING_STRATEGY = AutoReplyManager.MatchingStrategy.INLINE;
+    public static final NewsNotificationService.NewsStyle DEFAULT_NEWS_STYLE = NewsNotificationService.NewsStyle.FULL;
 
     @Id
     @Column(name = "guild_id")
@@ -38,11 +41,36 @@ public class GuildSettings {
     @Column(name = "voice_channel_id")
     private long voiceChannelId = 0L;                           // Only one voice id for bot's music
 
+    @Column(name = "auto_reply")
+    private boolean autoReply = false;                          // Reply to incoming messages
+
+    @Column(name = "auto_reply_chance")
+    private double replyChance = DEFAULT_REPLY_CHANCE;          // Chance of reply
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "auto_reply_strategy")
+    private AutoReplyManager.MatchingStrategy matchingStrategy  // How matching of replies is done
+            = DEFAULT_MATCHING_STRATEGY;
+
+    @Column(name = "log_guild_changes")
+    private boolean logGuildChanges = false;                    // Log guild moderation events
+
     @Column(name = "notification_channel_id")
     private long notificationChannelId = 0L;                    // Use separate system notification channel for bot
 
+    @Column(name = "send_news")
+    private boolean sendNews = false;                           // Send news into this guild
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "news_style")
+    private NewsNotificationService.NewsStyle newsStyle         // Stule of news message
+            = DEFAULT_NEWS_STYLE;
+
     @Column(name = "news_channel_id")
     private long newsChannelId = 0L;                            // Use separate channel for news notifications
+
+    @Column(name = "send_memes")
+    private boolean sendMemes = false;                          // Send memes into this guild
 
     @Column(name = "memes_channel_id")
     private long memesChannelId = 0L;                           // Use separate channel for memes notifications

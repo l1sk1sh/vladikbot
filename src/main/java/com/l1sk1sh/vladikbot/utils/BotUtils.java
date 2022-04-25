@@ -1,6 +1,5 @@
 package com.l1sk1sh.vladikbot.utils;
 
-import com.l1sk1sh.vladikbot.settings.BotSettings;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -18,7 +17,6 @@ import java.net.URLConnection;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -95,15 +93,6 @@ public final class BotUtils {
 
     public static List<Permission> getGrantedAndRequiredPermissions(EnumSet<Permission> available, List<Permission> required) {
         return available.stream().filter(required::contains).collect(Collectors.toList());
-    }
-
-    public static void resetActivity(BotSettings settings, JDA jda) {
-        Activity activity = settings.getActivity() == null
-                || settings.getActivity().getName().equalsIgnoreCase("none")
-                ? null : settings.getActivity();
-        if (!Objects.equals(jda.getPresence().getActivity(), activity)) {
-            jda.getPresence().setActivity(activity);
-        }
     }
 
     private static List<TextChannel> getAllTextChannels(JDA jda) {

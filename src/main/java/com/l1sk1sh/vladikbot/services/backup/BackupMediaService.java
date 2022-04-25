@@ -52,7 +52,7 @@ public class BackupMediaService {
     }
 
     public void init() {
-        backupDirPath = settings.get().getRotationBackupFolder() + "/" + BACKUP_MEDIA_DIR + "/";
+        backupDirPath = settings.get().getWorkdir() + "/backup/" + BACKUP_MEDIA_DIR + "/";
         try {
             FileUtils.createFolderIfAbsent(backupDirPath);
         } catch (IOException e) {

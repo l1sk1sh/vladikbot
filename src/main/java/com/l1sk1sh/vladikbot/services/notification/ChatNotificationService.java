@@ -4,6 +4,7 @@ import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -15,22 +16,13 @@ import java.awt.*;
 /**
  * @author l1sk1sh
  */
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class ChatNotificationService {
+
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
-    private TextChannel notificationChannel;
-    private Guild notificationGuild;
-
-    @SuppressWarnings("unused")
-    public final void sendRawMessage(Guild guild, String message) {
-        if (isNotificationChannelMissing(guild)) {
-            return;
-        }
-
-        notificationChannel.sendMessage(message).queue();
-    }
 
     public final void sendEmbeddedInfo(Guild guild, String message) {
         sendEmbeddedWithColor(guild, message, new Color(66, 133, 244));
@@ -50,7 +42,22 @@ public class ChatNotificationService {
     }
 
     private void sendEmbeddedWithColor(Guild guild, String message, Color color) {
-        if (isNotificationChannelMissing(guild)) {
+
+        /* Falling back to maintainer guild for service messages */
+        if (guild == null) {
+            guild = VladikBot.jda().getGuildById(settings.get().getMaintainerGuildId());
+        }
+
+        if (guild == null) {
+            log.warn("Set maintainer guild for service messages.");
+            return;
+        }
+
+        Guild notificationGuild = guild;
+        TextChannel notificationChannel = guildSettingsRepository.findById(notificationGuild.getIdLong()).map(guildSettings -> guildSettings.getNotificationChannel(notificationGuild)).orElse(null);
+
+        if (notificationChannel == null) {
+            log.warn("Guild '{}' doesn't have notification channel set.", guild.getName());
             return;
         }
 
@@ -59,24 +66,6 @@ public class ChatNotificationService {
                 .setColor(color)
                 .setDescription(message);
 
-        this.notificationChannel.sendMessage(builder.setEmbed(embedBuilder.build()).build()).queue();
-    }
-
-    private boolean isNotificationChannelMissing(Guild guild) {
-        this.notificationGuild = guild;
-
-        /* In case this guild doesn't have notification channel, sending notification to maintainer */
-        if (this.notificationGuild == null) {
-            this.notificationGuild = VladikBot.jda().getGuildById(settings.get().getMaintainerGuildId());
-        }
-
-        if (this.notificationGuild == null) {
-            return true;
-        }
-
-        guildSettingsRepository.findById(notificationGuild.getIdLong()).ifPresent(
-                settings -> this.notificationChannel = settings.getNotificationChannel(notificationGuild));
-
-        return (this.notificationChannel == null);
+        notificationChannel.sendMessage(builder.setEmbeds(embedBuilder.build()).build()).queue();
     }
 }

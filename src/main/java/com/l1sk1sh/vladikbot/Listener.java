@@ -47,7 +47,6 @@ import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author l1sk1sh
@@ -98,7 +97,8 @@ class Listener extends ListenerAdapter {
         }
 
         /* Check if bot added to Guilds */
-        if (event.getJDA().getGuilds().isEmpty()) {
+        List<Guild> connectedGuilds = event.getJDA().getGuilds();
+        if (connectedGuilds.isEmpty()) {
             log.warn("This bot is not on any guilds! Use the following link to add the bot to your guilds!");
             log.warn(event.getJDA().getInviteUrl(Const.RECOMMENDED_PERMS));
         }
@@ -110,9 +110,8 @@ class Listener extends ListenerAdapter {
                 ? settings.get().getOnlineStatus() : OnlineStatus.DO_NOT_DISTURB);
 
         /* Create settings for new Guilds */
-        for (Guild guild : event.getJDA().getGuilds()) {
-            Optional<GuildSettings> settings = guildSettingsRepository.findById(guild.getIdLong());
-            if (settings.isEmpty()) {
+        for (Guild guild : connectedGuilds) {
+            if (!guildSettingsRepository.existsById(guild.getIdLong())) {
                 GuildSettings newSettings = new GuildSettings();
                 newSettings.setGuildId(guild.getIdLong());
                 guildSettingsRepository.save(newSettings);
@@ -156,12 +155,12 @@ class Listener extends ListenerAdapter {
         }
 
         /* Initiate RSS feed reader */
-        if (settings.get().isSendNews()) {
+        if (!guildSettingsRepository.getAllBySendNewsIsTrue().isEmpty()) {
             rssService.start();
         }
 
         /* Initiate memes fetcher*/
-        if (settings.get().isSendMemes()) {
+        if (!guildSettingsRepository.getAllBySendMemesIsTrue().isEmpty()) {
             memeService.start();
         }
 
@@ -218,7 +217,7 @@ class Listener extends ListenerAdapter {
     public void onGuildMessageDelete(@Nonnull GuildMessageDeleteEvent event) {
         nowPlayingHandler.onMessageDelete(event.getGuild(), event.getMessageIdLong());
 
-        if (settings.get().isLogGuildChanges()) {
+        if (!guildSettingsRepository.getAllByLogGuildChangesIsTrue().isEmpty()) {
             guildLoggerService.onMessageDelete(event);
         }
     }
@@ -229,7 +228,7 @@ class Listener extends ListenerAdapter {
             return;
         }
 
-        if (settings.get().isLogGuildChanges()) {
+        if (!guildSettingsRepository.getAllByLogGuildChangesIsTrue().isEmpty()) {
             guildLoggerService.onMessageUpdate(event);
         }
     }
@@ -244,11 +243,11 @@ class Listener extends ListenerAdapter {
 
         backupTextService.backupNewMessage(message);
 
-        if (settings.get().isAutoReply()) {
+        if (guildSettingsRepository.findById(event.getGuild().getIdLong()).map(GuildSettings::isAutoReply).orElse(false)) {
             autoReplyManager.reply(message);
         }
 
-        if (settings.get().isLogGuildChanges()) {
+        if (!guildSettingsRepository.getAllByLogGuildChangesIsTrue().isEmpty()) {
             messageCache.putMessage(message);
         }
     }

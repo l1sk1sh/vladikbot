@@ -38,7 +38,7 @@ public class GuildLoggerService {
 
         /* It might be good idea to create separate loggers for each guild, but who cares */
         System.setProperty("guild_log.name", GuildLoggerService.EVENTS_LOG);
-        System.setProperty("guild_log.path", this.settings.get().getLogsFolder());
+        System.setProperty("guild_log.path", this.settings.get().getWorkdir() + "/logs/");
         SystemUtils.resetLoggerContext();
     }
 

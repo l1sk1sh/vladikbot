@@ -110,7 +110,6 @@ public class VladikBot {
                 .setPrefix(settings.get().getPrefix())
                 .setOwnerId(Long.toString(settings.get().getOwnerId()))
                 .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
-                .setHelpWord(settings.get().getHelpWord())
                 .setLinkedCacheSize(1024)
                 .forceGuildOnly((settings.get().getForceGuildId() > 0L)
                         ? String.valueOf(settings.get().getForceGuildId())

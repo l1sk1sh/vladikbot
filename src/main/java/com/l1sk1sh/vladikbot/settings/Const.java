@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -64,6 +65,8 @@ public final class Const {
     public static final String VOLUME_70_EMOJI = "\uD83D\uDD09";    // 🔉
     public static final String VOLUME_100_EMOJI = "\uD83D\uDD0A";   // 🔊
 
+    public static final Color MEME_COLOR = new Color(255, 69, 0);
+
     public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11";
 
     public enum FileType {
@@ -101,11 +104,6 @@ public final class Const {
         watching,
         listening,
         streaming
-    }
-
-    public enum MatchingStrategy {
-        FULL,
-        INLINE
     }
 
     public static final String[] NAME_INVALID_CHARS = new String[]{":", "*", "\"", "\\", "/", "|", "<", ">"};

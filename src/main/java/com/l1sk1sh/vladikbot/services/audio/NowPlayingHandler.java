@@ -5,12 +5,9 @@ import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.Pair;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.utils.BotUtils;
-import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
@@ -19,7 +16,10 @@ import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -135,19 +135,7 @@ public class NowPlayingHandler {
     }
 
     /* "event"-based methods */
-    void onTrackUpdate(long guildId, AudioTrack track, AudioHandler audioHandler) {
-
-        /* Update bot status if applicable */
-        if (settings.get().isSongInStatus()) {
-            JDA jda = VladikBot.jda();
-
-            if (track != null && jda.getGuilds().stream()
-                    .filter(g -> Objects.requireNonNull(g.getSelfMember().getVoiceState()).inVoiceChannel()).count() <= 1) {
-                jda.getPresence().setActivity(Activity.listening(track.getInfo().title));
-            } else {
-                BotUtils.resetActivity(settings.get(), jda);
-            }
-        }
+    void onTrackUpdate(long guildId, AudioHandler audioHandler) {
 
         /* Update channel topic if applicable */
         updateTopic(guildId, audioHandler, false);

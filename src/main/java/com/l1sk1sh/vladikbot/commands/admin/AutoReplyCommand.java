@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
+import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -14,10 +14,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author l1sk1sh
@@ -26,12 +23,12 @@ import java.util.List;
 @Service
 public class AutoReplyCommand extends AdminCommand {
 
-    private final BotSettingsManager settings;
     private final AutoReplyManager autoReplyManager;
+    private final GuildSettingsRepository guildSettingsRepository;
 
     @Autowired
-    public AutoReplyCommand(BotSettingsManager settings, AutoReplyManager autoReplyManager) {
-        this.settings = settings;
+    public AutoReplyCommand(GuildSettingsRepository guildSettingsRepository, AutoReplyManager autoReplyManager) {
+        this.guildSettingsRepository = guildSettingsRepository;
         this.autoReplyManager = autoReplyManager;
         this.name = "reply";
         this.help = "Auto reply management";
@@ -155,7 +152,8 @@ public class AutoReplyCommand extends AdminCommand {
 
         @Override
         protected void execute(SlashCommandEvent event) {
-            boolean currentSetting = settings.get().isAutoReply();
+            Optional<GuildSettings> settings = guildSettingsRepository.findById(Objects.requireNonNull(event.getGuild()).getIdLong());
+            boolean currentSetting = settings.map(GuildSettings::isAutoReply).orElse(false);
 
             OptionMapping autoReplyOption = event.getOption(SWITCH_OPTION_KEY);
             if (autoReplyOption == null) {
@@ -172,7 +170,11 @@ public class AutoReplyCommand extends AdminCommand {
                 return;
             }
 
-            settings.get().setAutoReply(newSetting);
+            settings.ifPresent((guildSettings) -> {
+                guildSettings.setAutoReply(newSetting);
+                guildSettingsRepository.save(guildSettings);
+            });
+
             event.replyFormat("Auto reply is `%1$s`", (newSetting ? "ON" : "OFF")).setEphemeral(true).queue();
         }
     }
@@ -216,7 +218,7 @@ public class AutoReplyCommand extends AdminCommand {
         private MatchCommand() {
             this.name = "match";
             this.help = "Either bot uses full message comparison of word by word";
-            options.add(new OptionData(OptionType.STRING, MATCH_STRATEGY_OPTION_KEY, "Reply mathcing strategy").setRequired(true)
+            options.add(new OptionData(OptionType.STRING, MATCH_STRATEGY_OPTION_KEY, "Reply mathcing strategy").setRequired(false)
                     .addChoice("Match using full sentence", "full")
                     .addChoice("Matching inline", "inline")
             );
@@ -225,26 +227,31 @@ public class AutoReplyCommand extends AdminCommand {
 
         @Override
         protected void execute(SlashCommandEvent event) {
+            Optional<GuildSettings> settings = guildSettingsRepository.findById(Objects.requireNonNull(event.getGuild()).getIdLong());
+            AutoReplyManager.MatchingStrategy currentStrategy = settings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
+
             OptionMapping matchOption = event.getOption(MATCH_STRATEGY_OPTION_KEY);
             if (matchOption == null) {
-                event.replyFormat("%1$s Matching option should not be empty!",
-                        getClient().getWarning()
-                ).setEphemeral(true).queue();
+                event.replyFormat("Current news style is `%1$s`", currentStrategy).setEphemeral(true).queue();
 
                 return;
             }
 
             String matchingStrategy = matchOption.getAsString();
-            Const.MatchingStrategy strategy;
+            AutoReplyManager.MatchingStrategy strategy;
             try {
-                strategy = Const.MatchingStrategy.valueOf(matchingStrategy.toUpperCase());
+                strategy = AutoReplyManager.MatchingStrategy.valueOf(matchingStrategy.toUpperCase());
             } catch (IllegalArgumentException e) {
                 event.replyFormat("%1$s Specify either `full` or `inline` strategy.", getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
 
-            settings.get().setMatchingStrategy(Const.MatchingStrategy.FULL);
+            settings.ifPresent((guildSettings -> {
+                guildSettings.setMatchingStrategy(strategy);
+                guildSettingsRepository.save(guildSettings);
+            }));
+
             log.info("Matching strategy is set to '{}' by '{}'.", strategy, FormatUtils.formatAuthor(event));
             event.replyFormat("%1$s Changed current matching strategy to `%2$s`.", getClient().getSuccess(), strategy.name().toLowerCase()).queue();
         }
@@ -263,6 +270,8 @@ public class AutoReplyCommand extends AdminCommand {
 
         @Override
         protected void execute(SlashCommandEvent event) {
+            Optional<GuildSettings> settings = guildSettingsRepository.findById(Objects.requireNonNull(event.getGuild()).getIdLong());
+
             OptionMapping chanceOption = event.getOption(CHANCE_OPTION_KEY);
             if (chanceOption == null) {
                 event.replyFormat("%1$s Reply chance should not be empty!",
@@ -279,7 +288,12 @@ public class AutoReplyCommand extends AdminCommand {
 
                     return;
                 }
-                settings.get().setReplyChance(replyChance);
+
+                settings.ifPresent((guildSettings) -> {
+                    guildSettings.setReplyChance(replyChance);
+                    guildSettingsRepository.save(guildSettings);
+                });
+
                 event.replyFormat("%1$s Reply chance is now %2$s%%", getClient().getSuccess(), replyChance * 100).queue();
             } catch (NumberFormatException nfe) {
                 event.replyFormat("%1$s Invalid number specified `[%2$s]`", getClient().getWarning(), chanceOption.getAsString()).setEphemeral(true).queue();

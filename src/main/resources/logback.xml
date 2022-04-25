@@ -24,7 +24,7 @@
     <!-- Log to a file as well, including size and time based rolling -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${logs_dir:-./logs}/bot.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${logs_dir:-./app/logs}/bot.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>90</maxHistory>
         </rollingPolicy>
@@ -37,7 +37,7 @@
 
     <!-- Log specific events sent by Guild Logger -->
     <appender name="GUILD-EVENTS-FILE" class="ch.qos.logback.core.FileAppender">
-        <file>${guild_log.path:-./logs}/${guild_log.name:-events.log}</file>
+        <file>${guild_log.path:-./app/logs}/${guild_log.name:-events.log}</file>
         <append>true</append>
         <encoder>
             <charset>UTF-8</charset>
