@@ -2,7 +2,7 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.l1sk1sh.vladikbot.data.entity.EmoteStatsRun;
+import com.l1sk1sh.vladikbot.data.entity.EmoteStatsExecution;
 import com.l1sk1sh.vladikbot.data.repository.EmoteStatsRunRepository;
 import com.l1sk1sh.vladikbot.models.EmoteStatsRecord;
 import com.l1sk1sh.vladikbot.services.EmoteStatsService;
@@ -107,7 +107,7 @@ public class EmoteStatsCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             backgroundThreadPool.execute(() -> {
                 event.deferReply(true).queue();
-                EmoteStatsRun lastRun = emoteStatsRunRepository.getLastRunByChannelId(event.getChannel().getIdLong());
+                EmoteStatsExecution lastRun = emoteStatsRunRepository.getLastRunByChannelId(event.getChannel().getIdLong());
                 long lastRunTime = 0L;
                 if (lastRun != null) {
                     lastRunTime = lastRun.getLastLaunchedTime();
@@ -121,7 +121,7 @@ public class EmoteStatsCommand extends AdminCommand {
                 } else {
                     event.getHook().editOriginal(String.format("%1$s Sending result!", getClient().getSuccess())).queue();
                     sendStatisticsMessage(eventWaiter, event, result);
-                    emoteStatsRunRepository.save(new EmoteStatsRun(event.getChannel().getIdLong(), System.currentTimeMillis()));
+                    emoteStatsRunRepository.save(new EmoteStatsExecution(event.getChannel().getIdLong(), System.currentTimeMillis()));
                 }
             });
         }

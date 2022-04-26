@@ -1,6 +1,7 @@
 package com.l1sk1sh.vladikbot.data.entity;
 
 import lombok.*;
+import net.dv8tion.jda.api.entities.Message;
 
 import javax.persistence.*;
 import java.util.List;
@@ -22,15 +23,15 @@ public class ReplyRule {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "trigger", nullable = false)
+    @Column(name = "trigger", nullable = false, length = Message.MAX_CONTENT_LENGTH)
     @ElementCollection
-    @CollectionTable(name = "reply_trigger", joinColumns = @JoinColumn(name = "id"))
+    @CollectionTable(name = "reply_triggers", joinColumns = @JoinColumn(name = "id"))
     @NonNull
     private List<String> reactToList;
 
-    @Column(name = "reaction", nullable = false)
+    @Column(name = "reaction", nullable = false, length = Message.MAX_CONTENT_LENGTH)
     @ElementCollection
-    @CollectionTable(name = "reply_reaction", joinColumns = @JoinColumn(name = "id"))
+    @CollectionTable(name = "reply_reactions", joinColumns = @JoinColumn(name = "id"))
     @NonNull
     private List<String> reactWithList;
 }
