@@ -46,6 +46,8 @@ public class ReminderCommand extends AdminCommand {
 
         private static final String TIME_OPTION_KEY = "time";
         private static final String TEXT_OPTION_KEY = "text";
+        private static final String TAG_AUTHOR_OPTION_KEY = "author";
+        private static final String REPEAT_OPTION_KEY = "repeat";
 
         private CreateCommand() {
             this.name = "create";
@@ -53,6 +55,12 @@ public class ReminderCommand extends AdminCommand {
             List<OptionData> options = new ArrayList<>();
             options.add(new OptionData(OptionType.STRING, TIME_OPTION_KEY, "Time in natural language (tomorrow, 12/03/2019, etc)").setRequired(true));
             options.add(new OptionData(OptionType.STRING, TEXT_OPTION_KEY, "Reminder text").setRequired(true));
+            options.add(new OptionData(OptionType.BOOLEAN, TAG_AUTHOR_OPTION_KEY, "Tag author").setRequired(false));
+            options.add(new OptionData(OptionType.STRING, REPEAT_OPTION_KEY, "Should repeat reminder").setRequired(false)
+                    .addChoice("Repeat daily", "daily")
+                    .addChoice("Repeat weekly", "weekly")
+                    .addChoice("Repeat monthly", "monthly")
+                    .addChoice("Repeat yearly", "yearly"));
             this.options = options;
         }
 
@@ -76,15 +84,30 @@ public class ReminderCommand extends AdminCommand {
                 return;
             }
 
+            OptionMapping repeatOption = event.getOption(REPEAT_OPTION_KEY);
+            Reminder.RepeatPeriod period = null;
+            if (repeatOption != null) {
+                try {
+                    period = Reminder.RepeatPeriod.valueOf(repeatOption.getAsString().toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    event.replyFormat("%1$s Specify either `yearly`, `monthly`, `weekly` or `daily` period.", getClient().getWarning()).setEphemeral(true).queue();
+
+                    return;
+                }
+            }
+
+            OptionMapping authorOption = event.getOption(TAG_AUTHOR_OPTION_KEY);
+
+            boolean tagAuthor = (authorOption == null) || authorOption.getAsBoolean();
             boolean reminderProcessed = reminderService.processReminder(timeOption.getAsString(), textOption.getAsString(),
-                    event.getChannel().getIdLong(), event.getUser().getIdLong());
+                    event.getChannel().getIdLong(), event.getUser().getIdLong(), period, tagAuthor);
 
             if (!reminderProcessed) {
                 event.replyFormat("%1$s %2$s", getClient().getError(), reminderService.getErrorMessage()).setEphemeral(true).queue();
                 return;
             }
 
-            Reminder scheduledReminder = reminderService.getReminder();
+            Reminder scheduledReminder = reminderService.getLatestReminder();
             log.info("New reminder with id {} was added by {}.", scheduledReminder.getId(), FormatUtils.formatAuthor(event));
 
             event.replyFormat("%1$s \"%2$s\" will be reminded at %3$s",

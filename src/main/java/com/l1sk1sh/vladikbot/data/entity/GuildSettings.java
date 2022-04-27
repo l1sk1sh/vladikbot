@@ -63,7 +63,7 @@ public class GuildSettings {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "news_style")
-    private NewsNotificationService.NewsStyle newsStyle         // Stule of news message
+    private NewsNotificationService.NewsStyle newsStyle         // Style of news message
             = DEFAULT_NEWS_STYLE;
 
     @Column(name = "news_channel_id")

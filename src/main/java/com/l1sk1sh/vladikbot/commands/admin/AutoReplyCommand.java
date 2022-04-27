@@ -127,7 +127,7 @@ public class AutoReplyCommand extends AdminCommand {
             } else if (list.isEmpty()) {
                 event.replyFormat("%1$s There are no records available!", getClient().getWarning()).setEphemeral(true).queue();
             } else if (list.size() > MAX_LIST_SIZE_TO_SHOW) {
-                event.replyFormat("%1$s Current reply dictionary is too huge to be listed. Contact owner for more details.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Dictionary size: %2$s records.", getClient().getSuccess(), list.size()).setEphemeral(true).queue();
             } else {
                 String message = getClient().getSuccess() + " Acting rules:\r\n";
                 StringBuilder builder = new StringBuilder(message);

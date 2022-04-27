@@ -12,10 +12,7 @@ import org.ocpsoft.prettytime.nlp.parse.DateGroup;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -31,11 +28,11 @@ public class ReminderService {
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final ReminderRepository reminderRepository;
-    private Reminder reminder;
+    private Reminder latestReminder;
     private String errorMessage;
     private final Map<Long, ScheduledFuture<?>> scheduledReminders = new HashMap<>();
 
-    public boolean processReminder(String timeMessage, String reminderText, long channelId, long authorId) {
+    public boolean processReminder(String timeMessage, String reminderText, long channelId, long authorId, Reminder.RepeatPeriod repeatPeriod, boolean tagAuthor) {
         List<DateGroup> dates = new PrettyTimeParser().parseSyntax(timeMessage);
 
         if (dates.isEmpty()) {
@@ -44,7 +41,16 @@ public class ReminderService {
         }
 
         Date reminderDate = dates.get(0).getDates().get(0);
-        Reminder reminder = new Reminder(reminderDate, reminderText.trim(), channelId, authorId);
+        Reminder reminder = Reminder.builder()
+                .dateOfReminder(reminderDate)
+                .textOfReminder(reminderText.trim())
+                .textChannelId(channelId)
+                .tagAuthor(tagAuthor)
+                .authorId(authorId)
+                .repeat(repeatPeriod != null)
+                .repeatPeriod(repeatPeriod)
+                .build();
+
         reminderRepository.save(reminder);
 
         return scheduleReminder(reminder);
@@ -52,33 +58,14 @@ public class ReminderService {
 
     public boolean scheduleReminder(Reminder reminder) {
         log.info("Scheduling reminder '{}'", reminder);
-        this.reminder = reminder;
+        this.latestReminder = reminder;
         long delay = (reminder.getDateOfReminder().getTime() - new Date().getTime());
         if (delay < 0) {
             errorMessage = "Reminder's date should be in the future.";
             return false;
         }
 
-        Runnable remindEvent = () -> {
-            TextChannel textChannel = VladikBot.jda().getTextChannelById(reminder.getTextChannelId());
-            if (textChannel == null) {
-                log.error("Reminder's text channel ({}) is absent.", reminder.getTextChannelId());
-                reminderRepository.delete(reminder);
-                return;
-            }
-
-            User author = VladikBot.jda().getUserById(reminder.getAuthorId());
-
-            if (author == null) {
-                log.warn("Author of reminder is no long present.");
-                reminderRepository.delete(reminder);
-                return;
-            }
-
-            String reminderMessage = String.format("%1$s: \"%2$s\"", author.getAsMention(), reminder.getTextOfReminder());
-            textChannel.sendMessage(reminderMessage).queue();
-            reminderRepository.delete(reminder);
-        };
+        Runnable remindEvent = new ReminderTask(reminder, this);
 
         ScheduledFuture<?> scheduledReminder = frontThreadPool.schedule(remindEvent, delay, TimeUnit.MILLISECONDS);
         scheduledReminders.put(reminder.getId(), scheduledReminder);
@@ -90,8 +77,8 @@ public class ReminderService {
         return errorMessage;
     }
 
-    public Reminder getReminder() {
-        return reminder;
+    public Reminder getLatestReminder() {
+        return latestReminder;
     }
 
     public List<Reminder> getAllReminders() {
@@ -117,5 +104,49 @@ public class ReminderService {
         scheduled.cancel(false);
 
         return true;
+    }
+
+    @RequiredArgsConstructor
+    private class ReminderTask implements Runnable {
+
+        private final Reminder reminder;
+        private final ReminderService reminderService;
+
+        @Override
+        public void run() {
+            TextChannel textChannel = VladikBot.jda().getTextChannelById(reminder.getTextChannelId());
+            if (textChannel == null) {
+                log.error("Reminder's text channel ({}) is absent.", reminder.getTextChannelId());
+                reminderRepository.delete(reminder);
+                return;
+            }
+
+            User author = VladikBot.jda().getUserById(reminder.getAuthorId());
+            if (reminder.isTagAuthor() && author == null) {
+                log.warn("Author of reminder is no longer present.");
+                reminderRepository.delete(reminder);
+                return;
+            }
+
+            String reminderMessage;
+            if (reminder.isTagAuthor()) {
+                reminderMessage = String.format("%1$s: \"%2$s\"", Objects.requireNonNull(author).getAsMention(), reminder.getTextOfReminder());
+            } else {
+                reminderMessage = String.format("%1$s", reminder.getTextOfReminder());
+            }
+            textChannel.sendMessage(reminderMessage).queue();
+            reminderRepository.delete(reminder);
+
+            if (!reminder.isRepeat()) {
+                return;
+            }
+
+            long nextReminderTime = System.currentTimeMillis() + reminder.getRepeatPeriod().getDelay();
+
+            Reminder repeatReminder = new Reminder(reminder);
+
+            repeatReminder.getDateOfReminder().setTime(nextReminderTime);
+            reminderService.scheduleReminder(repeatReminder);
+        }
     }
 }
