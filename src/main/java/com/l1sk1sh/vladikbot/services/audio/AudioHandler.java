@@ -224,7 +224,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
             }
 
             double progress = (double) audioPlayer.getPlayingTrack().getPosition() / track.getDuration();
-            embedBuilder.setDescription((audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI)
+            embedBuilder.setDescription(getStatusEmoji()
                     + " " + FormatUtils.progressBar(progress)
                     + " `[" + FormatUtils.formatTimeTillHours(track.getPosition()) + "/"
                     + FormatUtils.formatTimeTillHours(track.getDuration()) + "]` "
@@ -259,13 +259,17 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                 title = track.getInfo().uri;
             }
             return "**" + title + "** [" + (userId == 0 ? "autoplay" : "<@" + userId + ">") + "]"
-                    + "\r\n" + (audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI) + " "
+                    + "\r\n" + getStatusEmoji() + " "
                     + "[" + FormatUtils.formatTimeTillHours(track.getDuration()) + "] "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume());
         } else {
             return "No music playing " + Const.STOP_EMOJI + " "
                     + FormatUtils.volumeIcon(audioPlayer.getVolume());
         }
+    }
+
+    private String getStatusEmoji() {
+        return audioPlayer.isPaused() ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI;
     }
 
     /* Audio Send Handler methods */
