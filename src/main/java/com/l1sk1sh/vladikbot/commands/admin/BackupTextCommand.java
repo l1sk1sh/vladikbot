@@ -100,6 +100,7 @@ public class BackupTextCommand extends AdminCommand {
                             event.getHook().editOriginalFormat("%1$s Text was not saved to database! (%2$s)", getClient().getError(), message).queue();
                         }
                     } catch (ErrorResponseException e) {
+                        log.warn("Backup took too long.");
                         /* When defer reply takes too long */
                         event.getChannel().sendMessageFormat("Backup has %1$s.", success ? "finished" : "failed").queue();
                     }

@@ -67,6 +67,11 @@ public class VladikBot {
     }
 
     public static void main(String[] args) {
+        if (!String.join("", args).contains("db.password")) {
+            System.err.println("'db.password' property must be specified as program arguments.");
+            SystemUtils.exit(1);
+        }
+
         SpringApplication.run(VladikBot.class, args);
     }
 
@@ -226,7 +231,7 @@ public class VladikBot {
     @Bean(name = "backupThreadPool")
     @Scope("singleton")
     public ScheduledExecutorService backupThreadPool() {
-        return Executors.newSingleThreadScheduledExecutor();
+        return Executors.newScheduledThreadPool(2);
     }
 
     /**

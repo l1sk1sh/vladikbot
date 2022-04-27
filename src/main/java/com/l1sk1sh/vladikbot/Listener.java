@@ -237,11 +237,11 @@ class Listener extends ListenerAdapter {
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
         Message message = event.getMessage();
 
+        backupTextService.backupNewMessage(message);
+
         if (message.getAuthor().isBot()) {
             return;
         }
-
-        backupTextService.backupNewMessage(message);
 
         if (guildSettingsRepository.findById(event.getGuild().getIdLong()).map(GuildSettings::isAutoReply).orElse(false)) {
             autoReplyManager.reply(message);

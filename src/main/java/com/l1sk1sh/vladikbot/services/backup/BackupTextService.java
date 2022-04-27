@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.exceptions.MissingAccessException;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,9 @@ public class BackupTextService {
         if (!isMessageTypeSupported(newMessage.getType())) {
             return;
         }
+
         backupThreadPool.execute(() -> writeMessage(newMessage));
+        log.trace("Added new message '{}'", newMessage.getContentStripped());
     }
 
     public void addReaction(MessageReaction reaction) {
@@ -60,6 +63,7 @@ public class BackupTextService {
 
     public void readAllChannelsHistories(OnBackupCompletedListener listener) {
         backupThreadPool.execute(() -> {
+            long startTime = System.currentTimeMillis();
             log.info("Reading channels histories...");
             JDA jda = VladikBot.jda();
 
@@ -68,12 +72,13 @@ public class BackupTextService {
                     log.debug("Reading message history for guild '{}'", guild.getName());
 
                     for (TextChannel channel : guild.getTextChannels()) {
+                        log.debug("Reading channel '{}'", channel.getName());
                         try {
                             MessageHistory messageHistory = channel.getHistoryFromBeginning(100).complete();
                             readMessageHistory(messageHistory, messageHistory.size());
                             writeMessageHistory(messageHistory);
                         } catch (MissingAccessException e) {
-                            log.warn("Channel '{}' cannot be read due to missing permission.", channel.getName(), e);
+                            log.warn("Channel '{}' cannot be read due to missing permission. {}", channel.getName(), e.getLocalizedMessage());
                         }
                     }
                 }
@@ -82,11 +87,14 @@ public class BackupTextService {
             } catch (RuntimeException e) {
                 log.error("Failed to finish complete bot backup.", e);
                 listener.onBackupCompleted(false, e.getLocalizedMessage());
+            } finally {
+                log.info("Full backup took {}", DurationFormatUtils.formatDuration(System.currentTimeMillis() - startTime, "HH:MM:SS", true));
             }
         });
     }
 
     private void readMessageHistory(MessageHistory messageHistory, int previousSize) {
+        log.trace("Reading message history with size '{}'...", previousSize);
         messageHistory.retrieveFuture(100).complete();
         int currentSize = messageHistory.getRetrievedHistory().size();
         if (currentSize == previousSize) {
@@ -101,6 +109,7 @@ public class BackupTextService {
     }
 
     private void writeMessageHistory(MessageHistory messageHistory) {
+        log.debug("Writing message history...");
         List<DiscordMessage> messages = messageHistory.getRetrievedHistory().stream()
                 .filter(message -> isMessageTypeSupported(message.getType()))
                 .map(MapperUtils::mapMessageToDiscordMessage).collect(Collectors.toList());

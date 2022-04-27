@@ -20,3 +20,6 @@ Install `Lombok` plugin and enable `annotations processing` in the settings of y
 To edit database externally (for example in DataGrip) use TCP connection: `jdbc:h2:tcp://192.168.208.1:9092/nio:./app/database`
 
 Also, it is possible to edit database in when bot is offline. For that access memory database directly (for example `jdbc:h2:~/app/database`)
+
+#### Launch configuration
+`java -Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8 -jar vladik.jar --warning-mode=all --db.password=pwd`
