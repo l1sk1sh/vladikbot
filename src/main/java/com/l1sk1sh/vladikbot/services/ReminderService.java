@@ -85,6 +85,10 @@ public class ReminderService {
         return reminderRepository.findAll();
     }
 
+    public List<Reminder> getRemindersByAuthor(long authorId) {
+        return reminderRepository.findAllByAuthorId(authorId);
+    }
+
     public boolean deleteReminder(long reminderId) {
         Reminder reminder = getAllReminders().stream().filter(r -> r.getId() == (reminderId)).findFirst().orElse(null);
 

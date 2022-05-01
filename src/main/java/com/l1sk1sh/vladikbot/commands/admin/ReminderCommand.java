@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.l1sk1sh.vladikbot.data.entity.Reminder;
 import com.l1sk1sh.vladikbot.services.ReminderService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,13 +27,13 @@ public class ReminderCommand extends AdminCommand {
     private final ReminderService reminderService;
 
     @Autowired
-    public ReminderCommand(ReminderService reminderService) {
+    public ReminderCommand(BotSettingsManager settings, ReminderService reminderService) {
         this.name = "remind";
         this.help = "Sets reminder that will be returned to you by bot at specified time";
         this.reminderService = reminderService;
         this.children = new AdminCommand[]{
                 new CreateCommand(),
-                new ReadCommand(),
+                new ReadCommand(settings),
                 new DeleteCommand()
         };
     }
@@ -119,14 +120,23 @@ public class ReminderCommand extends AdminCommand {
 
     private final class ReadCommand extends AdminCommand {
 
-        private ReadCommand() {
+        private final BotSettingsManager settings;
+
+        private ReadCommand(BotSettingsManager settings) {
+            this.settings = settings;
             this.name = "list";
             this.help = "Lists all scheduled reminders";
         }
 
         @Override
         protected void execute(SlashCommandEvent event) {
-            List<Reminder> list = reminderService.getAllReminders();
+            List<Reminder> list;
+            if (event.getUser().getIdLong() == settings.get().getOwnerId()) {
+                list = reminderService.getAllReminders();
+            } else {
+                list = reminderService.getRemindersByAuthor(event.getUser().getIdLong());
+            }
+
             if (list == null) {
                 event.replyFormat("%1$s Failed to load available reminders!", getClient().getError()).setEphemeral(true).queue();
             } else if (list.isEmpty()) {
