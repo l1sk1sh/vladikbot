@@ -45,7 +45,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -143,8 +142,8 @@ class Listener extends ListenerAdapter {
             for (Reminder reminder : reminders) {
                 boolean scheduled = reminderService.scheduleReminder(reminder);
                 if (!scheduled) {
-                    reminder.setDateOfReminder(new Date(System.currentTimeMillis() + (60 * 1000)));
-                    reminderService.scheduleReminder(reminder);
+                    log.error(reminderService.getErrorMessage());
+                    reminderService.deleteReminder(reminder.getId());
                 }
             }
         }

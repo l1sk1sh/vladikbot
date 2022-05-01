@@ -58,6 +58,12 @@ public class ReminderService {
 
     public boolean scheduleReminder(Reminder reminder) {
         log.info("Scheduling reminder '{}'", reminder);
+
+        if (scheduledReminders.containsKey(reminder.getId())) {
+            errorMessage = "Already scheduled.";
+            return false;
+        }
+
         this.latestReminder = reminder;
         long delay = (reminder.getDateOfReminder().getTime() - new Date().getTime());
         if (delay < 0) {
