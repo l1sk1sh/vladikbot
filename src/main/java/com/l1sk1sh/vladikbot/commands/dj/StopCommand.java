@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +33,6 @@ public class StopCommand extends DJCommand {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         Objects.requireNonNull(audioHandler).stopAndClear();
         event.getGuild().getAudioManager().closeAudioConnection();
-        event.replyFormat("%1$ The player has stopped and the queue has been cleared.", getClient().getSuccess()).queue();
+        event.replyFormat("%1$ The player has stopped and the queue has been cleared.", event.getClient().getSuccess()).queue();
     }
 }

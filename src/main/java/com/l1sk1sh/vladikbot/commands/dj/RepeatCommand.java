@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.AudioRepeatMode;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -58,7 +58,7 @@ public class RepeatCommand extends DJCommand {
         try {
             newSetting = AudioRepeatMode.valueOf(newStringSetting.toUpperCase());
         } catch (IllegalArgumentException e) {
-            event.replyFormat("%1$s Specify either `off`, `all` or `single` repeat mode.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Specify either `off`, `all` or `single` repeat mode.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }

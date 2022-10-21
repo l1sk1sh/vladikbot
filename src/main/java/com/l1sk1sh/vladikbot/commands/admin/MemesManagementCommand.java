@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
@@ -7,8 +8,7 @@ import com.l1sk1sh.vladikbot.services.meme.MemeService;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -44,7 +44,7 @@ public class MemesManagementCommand extends AdminCommand {
 
     @Override
     protected final void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private final class SwitchCommand extends AdminCommand {
@@ -74,7 +74,7 @@ public class MemesManagementCommand extends AdminCommand {
             boolean newSetting = switchOption.getAsBoolean();
 
             if (memesChannel == null && newSetting) {
-                event.replyFormat("%1$s Set memes channel first.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Set memes channel first.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
@@ -126,13 +126,13 @@ public class MemesManagementCommand extends AdminCommand {
 
             List<TextChannel> list = FinderUtil.findTextChannels(newChannelId, event.getGuild());
             if (list.isEmpty()) {
-                event.replyFormat("%1$s No Text Channels found matching \"%2$s\".", getClient().getWarning(), newChannelId).setEphemeral(true).queue();
+                event.replyFormat("%1$s No Text Channels found matching \"%2$s\".", event.getClient().getWarning(), newChannelId).setEphemeral(true).queue();
             } else {
                 guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(setting -> {
                     setting.setMemesChannelId(list.get(0).getIdLong());
                     guildSettingsRepository.save(setting);
                     log.info("Memes channel was set to {}. Set by {}.", list.get(0).getId(), FormatUtils.formatAuthor(event));
-                    event.replyFormat("%1$s Memes are being displayed in <#%2$s>.", getClient().getSuccess(), list.get(0).getId()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Memes are being displayed in <#%2$s>.", event.getClient().getSuccess(), list.get(0).getId()).setEphemeral(true).queue();
                 });
             }
         }

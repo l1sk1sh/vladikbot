@@ -6,9 +6,9 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ public class MemeNotificationService {
             return;
         }
 
-        MessageBuilder builder = new MessageBuilder();
+        MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(Const.MEME_COLOR)
                 .setTitle(meme.getTitle(), meme.getPostLink())

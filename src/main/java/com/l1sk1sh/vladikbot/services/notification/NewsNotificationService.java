@@ -5,9 +5,9 @@ import com.l1sk1sh.vladikbot.models.NewsDiscordMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ public class NewsNotificationService {
             return;
         }
 
-        MessageBuilder builder = new MessageBuilder();
+        MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder;
         switch (style) {
             case SHORT:

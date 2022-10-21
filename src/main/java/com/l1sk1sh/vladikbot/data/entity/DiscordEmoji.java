@@ -10,8 +10,8 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Entity
-@Table(name = "discord_emotes")
-public class DiscordEmote {
+@Table(name = "discord_emojis")
+public class DiscordEmoji {
 
     @Setter(AccessLevel.NONE)
     @Id
@@ -22,13 +22,9 @@ public class DiscordEmote {
     @NonNull
     private Long discordMessageId;
 
-    @Column(name = "emote_id", nullable = false)
+    @Column(name = "emoji_id", nullable = false)
     @NonNull
-    private Long emoteId;
-
-    @Column(name = "available", nullable = false)
-    @NonNull
-    private Boolean available;
+    private Long emojiId;
 
     @Column(name = "name", nullable = false)
     @NonNull

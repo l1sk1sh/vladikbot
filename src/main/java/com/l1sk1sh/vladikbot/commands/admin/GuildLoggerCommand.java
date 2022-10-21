@@ -1,11 +1,11 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -50,7 +50,7 @@ public class GuildLoggerCommand extends AdminCommand {
         boolean newSetting = logOption.getAsBoolean();
 
         if (notificationChannel == null && newSetting) {
-            event.replyFormat("%1$s Set notification channel first.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Set notification channel first.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }

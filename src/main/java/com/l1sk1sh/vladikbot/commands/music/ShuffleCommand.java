@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,13 +35,13 @@ public class ShuffleCommand extends MusicCommand {
         int shuffle = Objects.requireNonNull(audioHandler).getQueue().shuffle(event.getUser().getIdLong());
         switch (shuffle) {
             case 0:
-                event.replyFormat("%1$s You don't have any music in the queue to shuffle!", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s You don't have any music in the queue to shuffle!", event.getClient().getError()).setEphemeral(true).queue();
                 break;
             case 1:
-                event.replyFormat("%1$s You only have one song in the queue!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s You only have one song in the queue!", event.getClient().getWarning()).setEphemeral(true).queue();
                 break;
             default:
-                event.replyFormat("%1$s You successfully shuffled your entries.", getClient().getSuccess()).queue();
+                event.replyFormat("%1$s You successfully shuffled your entries.", event.getClient().getSuccess()).queue();
                 break;
         }
     }

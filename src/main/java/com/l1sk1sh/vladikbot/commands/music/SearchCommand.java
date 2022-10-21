@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.OrderedMenu;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
@@ -15,7 +16,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -68,7 +68,7 @@ public class SearchCommand extends MusicCommand {
     public void doCommand(SlashCommandEvent event) {
         OptionMapping searchOption = event.getOption(QUERY_OPTION_KEY);
         if (searchOption == null) {
-            event.replyFormat("%1$s Please include a search query.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include a search query.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -92,7 +92,7 @@ public class SearchCommand extends MusicCommand {
             if (settings.get().isTooLong(track)) {
                 event.replyFormat(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
-                        getClient().getWarning(),
+                        event.getClient().getWarning(),
                         FormatUtils.filter(track.getInfo().title),
                         FormatUtils.formatTimeTillHours(track.getDuration()),
                         FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)
@@ -106,7 +106,7 @@ public class SearchCommand extends MusicCommand {
 
             event.replyFormat(
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
-                    getClient().getSuccess(),
+                    event.getClient().getSuccess(),
                     FormatUtils.filter(track.getInfo().title),
                     FormatUtils.formatTimeTillHours(track.getDuration()),
                     ((position == 0) ? "to begin playing" : " to the queue at position " + position)
@@ -116,7 +116,7 @@ public class SearchCommand extends MusicCommand {
         @Override
         public void playlistLoaded(AudioPlaylist playlist) {
             builder.setColor(Objects.requireNonNull(event.getGuild()).getSelfMember().getColor())
-                    .setText(FormatUtils.filter(getClient().getSuccess()
+                    .setText(FormatUtils.filter(event.getClient().getSuccess()
                             + " Search results for `" + FormatUtils.filter(query) + "`:"))
                     .setChoices()
                     .setSelection((msg, i) ->
@@ -125,7 +125,7 @@ public class SearchCommand extends MusicCommand {
                         if (settings.get().isTooLong(track)) {
                             event.replyFormat(
                                     "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
-                                    getClient().getWarning(),
+                                    event.getClient().getWarning(),
                                     track.getInfo().title,
                                     FormatUtils.formatTimeTillHours(track.getDuration()),
                                     settings.get().getMaxTime()
@@ -139,7 +139,7 @@ public class SearchCommand extends MusicCommand {
 
                         event.replyFormat(
                                 "%1$s Added **%2$s** (`%3$s`) %4$s.",
-                                getClient().getSuccess(),
+                                event.getClient().getSuccess(),
                                 FormatUtils.filter(track.getInfo().title),
                                 FormatUtils.formatTimeTillHours(track.getDuration()),
                                 ((position == 0) ? "to begin playing" : " to the queue at position " + position)
@@ -162,17 +162,17 @@ public class SearchCommand extends MusicCommand {
 
         @Override
         public void noMatches() {
-            event.replyFormat("%1$s No results found for `%2$s`.", getClient().getWarning(), FormatUtils.filter(query)).setEphemeral(true).queue();
+            event.replyFormat("%1$s No results found for `%2$s`.", event.getClient().getWarning(), FormatUtils.filter(query)).setEphemeral(true).queue();
         }
 
         @Override
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == Severity.COMMON) {
                 event.replyFormat("%1$s Error loading: %2$s.",
-                        getClient().getError(), throwable.getLocalizedMessage()).setEphemeral(true).queue();
+                        event.getClient().getError(), throwable.getLocalizedMessage()).setEphemeral(true).queue();
             } else {
                 event.replyFormat("%1$s Error loading track.",
-                        getClient().getError()).setEphemeral(true).queue();
+                        event.getClient().getError()).setEphemeral(true).queue();
             }
         }
     }

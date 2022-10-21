@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,11 +31,11 @@ public class PauseCommand extends DJCommand {
     public final void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         if (Objects.requireNonNull(audioHandler).getPlayer().isPaused()) {
-            event.replyFormat("%1$s The player is already paused.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s The player is already paused.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
         audioHandler.getPlayer().setPaused(true);
-        event.replyFormat("%1$s Paused **%2$s**.", getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
+        event.replyFormat("%1$s Paused **%2$s**.", event.getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
     }
 }

@@ -10,10 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.PermissionOverride;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -43,7 +43,7 @@ public class GuildLoggerService {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public void onMessageDelete(GuildMessageDeleteEvent event) {
+    public void onMessageDelete(MessageDeleteEvent event) {
         MessageCache.CachedMessage oldMessage = messageCache.pullMessage(event.getGuild(), event.getMessageIdLong());
 
         if (oldMessage == null) {
@@ -74,7 +74,7 @@ public class GuildLoggerService {
     }
 
     @SuppressWarnings("DuplicatedCode")
-    public void onMessageUpdate(GuildMessageUpdateEvent event) {
+    public void onMessageUpdate(MessageUpdateEvent event) {
         Message newMessage = event.getMessage();
         MessageCache.CachedMessage oldMessage = messageCache.putMessage(newMessage);
 

@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
@@ -8,8 +9,7 @@ import com.l1sk1sh.vladikbot.services.rss.RssService;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -46,7 +46,7 @@ public class NewsManagementCommand extends AdminCommand {
 
     @Override
     protected final void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private final class SwitchCommand extends AdminCommand {
@@ -76,7 +76,7 @@ public class NewsManagementCommand extends AdminCommand {
             boolean newSetting = switchOption.getAsBoolean();
 
             if (newsChannel == null && newSetting) {
-                event.replyFormat("%1$s Set news channel first.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Set news channel first.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
@@ -128,13 +128,13 @@ public class NewsManagementCommand extends AdminCommand {
 
             List<TextChannel> list = FinderUtil.findTextChannels(newChannelId, event.getGuild());
             if (list.isEmpty()) {
-                event.replyFormat("%1$s No Text Channels found matching \"%2$s\".", getClient().getWarning(), newChannelId).setEphemeral(true).queue();
+                event.replyFormat("%1$s No Text Channels found matching \"%2$s\".", event.getClient().getWarning(), newChannelId).setEphemeral(true).queue();
             } else {
                 guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(setting -> {
                     setting.setNewsChannelId(list.get(0).getIdLong());
                     guildSettingsRepository.save(setting);
                     log.info("News channel was set to {}. Set by {}.", list.get(0).getId(), FormatUtils.formatAuthor(event));
-                    event.replyFormat("%1$s News are being displayed in <#%2$s>.", getClient().getSuccess(), list.get(0).getId()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s News are being displayed in <#%2$s>.", event.getClient().getSuccess(), list.get(0).getId()).setEphemeral(true).queue();
                 });
             }
         }
@@ -170,7 +170,7 @@ public class NewsManagementCommand extends AdminCommand {
             try {
                 style = NewsNotificationService.NewsStyle.valueOf(newsStyle.toUpperCase());
             } catch (IllegalArgumentException e) {
-                event.replyFormat("%1$s Specify either `full` or `short` style.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Specify either `full` or `short` style.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
@@ -181,7 +181,7 @@ public class NewsManagementCommand extends AdminCommand {
             }));
 
             log.info("News style is set to '{}' by '{}'.", style, FormatUtils.formatAuthor(event));
-            event.replyFormat("%1$s Changed current news style to `%2$s`.", getClient().getSuccess(), style.name().toLowerCase()).queue();
+            event.replyFormat("%1$s Changed current news style to `%2$s`.", event.getClient().getSuccess(), style.name().toLowerCase()).queue();
         }
     }
 }

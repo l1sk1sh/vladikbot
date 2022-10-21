@@ -1,6 +1,7 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
@@ -8,12 +9,11 @@ import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +47,7 @@ public class SettingsCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         Guild currentGuild = event.getGuild();
         if (currentGuild == null) {
-            event.replyFormat("%1$s This command should not be called in DMs!", getClient().getError()).queue();
+            event.replyFormat("%1$s This command should not be called in DMs!", event.getClient().getError()).queue();
 
             return;
         }
@@ -65,10 +65,10 @@ public class SettingsCommand extends SlashCommand {
         double autoReplyChance = guildSettings.map(GuildSettings::getReplyChance).orElse(GuildSettings.DEFAULT_REPLY_CHANCE);
         AutoReplyManager.MatchingStrategy matchingStrategy = guildSettings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
 
-        MessageBuilder builder = new MessageBuilder()
-                .append(Const.HEADPHONES_EMOJI + " **")
-                .append(FormatUtils.filter(event.getJDA().getSelfUser().getName()))
-                .append("** settings:");
+        MessageCreateBuilder builder = new MessageCreateBuilder()
+                .addContent(Const.HEADPHONES_EMOJI + " **")
+                .addContent(FormatUtils.filter(event.getJDA().getSelfUser().getName()))
+                .addContent("** settings:");
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setColor(new Color(244, 160, 0))
@@ -103,7 +103,7 @@ public class SettingsCommand extends SlashCommand {
                                 + (settings.get().isAutoMediaBackup() ? "on" : "off") + "**"
                 )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
-                        + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inVoiceChannel()).count()
+                        + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inAudioChannel()).count()
                         + " audio connections", null);
         event.reply(builder.setEmbeds(embedBuilder.build()).build()).setEphemeral(true).queue();
     }

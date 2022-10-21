@@ -1,11 +1,11 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ public class PermissionsCommand extends AdminCommand {
 
     @Override
     protected final void execute(SlashCommandEvent event) {
-        MessageBuilder builder = new MessageBuilder();
+        MessageCreateBuilder builder = new MessageCreateBuilder();
 
         EnumSet<Permission> apiPermissions = Objects.requireNonNull(event.getGuild()).getSelfMember().getPermissions();
         List<Permission> grantedPermissions =

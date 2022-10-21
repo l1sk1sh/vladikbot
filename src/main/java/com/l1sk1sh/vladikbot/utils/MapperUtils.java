@@ -1,14 +1,14 @@
 package com.l1sk1sh.vladikbot.utils;
 
 import com.l1sk1sh.vladikbot.data.entity.DiscordAttachment;
-import com.l1sk1sh.vladikbot.data.entity.DiscordEmote;
+import com.l1sk1sh.vladikbot.data.entity.DiscordEmoji;
 import com.l1sk1sh.vladikbot.data.entity.DiscordMessage;
 import com.l1sk1sh.vladikbot.data.entity.DiscordReaction;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
+import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
 
 import java.util.stream.Collectors;
 
@@ -25,8 +25,8 @@ public final class MapperUtils {
                 message.getAuthor().getIdLong(),
                 message.getContentStripped(),
                 message.getTimeCreated().toEpochSecond() * 1000,
-                message.getEmotes().stream().map(emote ->
-                        mapEmoteToDiscordEmote(emote, message.getIdLong())
+                message.getMentions().getCustomEmojis().stream().map(emoji ->
+                        mapEmojiToDiscordEmoji(emoji, message.getIdLong())
                 ).collect(Collectors.toList()),
                 message.getReactions().stream().map(reaction ->
                         mapMessageReactionToDiscordReaction(reaction, message.getIdLong())
@@ -37,26 +37,21 @@ public final class MapperUtils {
         );
     }
 
-    public static DiscordEmote mapEmoteToDiscordEmote(Emote emote, long messageId) {
-        return new DiscordEmote(
+    public static DiscordEmoji mapEmojiToDiscordEmoji(CustomEmoji emoji, long messageId) {
+        return new DiscordEmoji(
                 messageId,
-                emote.getIdLong(),
-                emote.isAvailable(),
-                emote.getName(),
-                emote.getAsMention(),
-                emote.getImageUrl()
+                emoji.getIdLong(),
+                emoji.getName(),
+                emoji.getAsMention(),
+                emoji.getImageUrl()
         );
     }
 
     public static DiscordReaction mapMessageReactionToDiscordReaction(MessageReaction reaction, long messageId) {
         return new DiscordReaction(
                 messageId,
-                (reaction.getReactionEmote().isEmoji())
-                        ? 0
-                        : reaction.getReactionEmote().getIdLong(),
-                (reaction.getReactionEmote().isEmoji())
-                        ? reaction.getReactionEmote().getAsCodepoints()
-                        : reaction.getReactionEmote().getName()
+                reaction.getEmoji().asCustom().getIdLong(),
+                reaction.getEmoji().asCustom().getName()
         );
     }
 

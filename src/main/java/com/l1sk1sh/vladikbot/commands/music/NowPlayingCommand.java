@@ -1,12 +1,12 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,7 @@ public class NowPlayingCommand extends MusicCommand {
     @Override
     public void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-        Message message = Objects.requireNonNull(audioHandler).getNowPlaying(event.getJDA());
+        MessageCreateData message = Objects.requireNonNull(audioHandler).getNowPlaying(event.getJDA());
         if (message == null) {
             event.reply(audioHandler.getNoMusicPlaying(event.getJDA())).queue();
             nowPlayingHandler.clearLastNPMessage(event.getGuild());

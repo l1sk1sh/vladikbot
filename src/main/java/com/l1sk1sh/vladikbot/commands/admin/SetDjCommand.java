@@ -1,12 +1,12 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.utils.FinderUtil;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -58,18 +58,18 @@ public class SetDjCommand extends AdminCommand {
                 setting.setDjRoleId(0L);
                 guildSettingsRepository.save(setting);
                 log.info("DJ role cleared. Cleared by {}.", FormatUtils.formatAuthor(event));
-                event.replyFormat("%1$s DJ role cleared.", getClient().getSuccess()).setEphemeral(true).queue();
+                event.replyFormat("%1$s DJ role cleared.", event.getClient().getSuccess()).setEphemeral(true).queue();
             });
         } else {
             List<Role> list = FinderUtil.findRoles(newDJRoleId, event.getGuild());
             if (list.isEmpty()) {
-                event.replyFormat("%1$s No Roles found matching \"%2$s\".", getClient().getWarning(), newDJRoleId).setEphemeral(true).queue();
+                event.replyFormat("%1$s No Roles found matching \"%2$s\".", event.getClient().getWarning(), newDJRoleId).setEphemeral(true).queue();
             } else {
                 guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(setting -> {
                     setting.setDjRoleId(list.get(0).getIdLong());
                     guildSettingsRepository.save(setting);
                     log.info("DJ role now available for {}. Set by {}.", list.get(0).getName(), FormatUtils.formatAuthor(event));
-                    event.replyFormat("%1$s DJ commands can now be used by users with the **%2$s** role.", getClient().getSuccess(),
+                    event.replyFormat("%1$s DJ commands can now be used by users with the **%2$s** role.", event.getClient().getSuccess(),
                             list.get(0).getName()).setEphemeral(true).queue();
                 });
             }

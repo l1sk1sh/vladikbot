@@ -25,11 +25,11 @@ public class DiscordReaction {
     @NonNull
     private Long discordMessageId;
 
-    @Column(name = "emote_id", nullable = false)
+    @Column(name = "emoji_id", nullable = false)
     @NonNull
-    private Long emoteId;
+    private Long emojiId;
 
-    @Column(name = "emote_name", nullable = false)
+    @Column(name = "emoji_name", nullable = false)
     @NonNull
     private String name;
 }

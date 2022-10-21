@@ -1,13 +1,13 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,12 +34,12 @@ public class StatusCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         Guild currentGuild = event.getGuild();
         if (currentGuild == null) {
-            event.replyFormat("%1$s This command should not be called in DMs!", getClient().getError()).queue();
+            event.replyFormat("%1$s This command should not be called in DMs!", event.getClient().getError()).queue();
 
             return;
         }
 
-        MessageBuilder builder = new MessageBuilder();
+        MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(currentGuild.getName(), null, currentGuild.getIconUrl())
                 .setColor(new Color(244, 160, 0))

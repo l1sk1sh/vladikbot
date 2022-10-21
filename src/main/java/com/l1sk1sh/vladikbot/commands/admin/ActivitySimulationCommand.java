@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.Activity;
 import com.l1sk1sh.vladikbot.services.presence.ActivitySimulationManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
@@ -7,7 +8,6 @@ import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -45,7 +45,7 @@ public class ActivitySimulationCommand extends AdminCommand {
 
     @Override
     protected final void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private class CreateCommand extends AdminCommand {
@@ -71,7 +71,7 @@ public class ActivitySimulationCommand extends AdminCommand {
             OptionMapping actionOption = event.getOption(ACTION_OPTION_KEY);
             if (actionOption == null) {
                 event.replyFormat("%1$s Please specify activity of the status. Supported actions: `[%2$s, %3$s, %4$s]`!",
-                        getClient().getWarning(),
+                        event.getClient().getWarning(),
                         Const.StatusAction.playing,
                         Const.StatusAction.listening,
                         Const.StatusAction.watching
@@ -83,7 +83,7 @@ public class ActivitySimulationCommand extends AdminCommand {
             OptionMapping activityOption = event.getOption(ACTIVITY_OPTION_KEY);
             if (activityOption == null) {
                 event.replyFormat("%1$s Status description should not be empty!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -100,7 +100,7 @@ public class ActivitySimulationCommand extends AdminCommand {
                 action = Const.StatusAction.watching;
             } else {
                 event.replyFormat("%1$s Action must be one of `[%2$s, %3$s, %4$s]`!",
-                        getClient().getWarning(),
+                        event.getClient().getWarning(),
                         Const.StatusAction.playing,
                         Const.StatusAction.listening,
                         Const.StatusAction.watching
@@ -112,7 +112,7 @@ public class ActivitySimulationCommand extends AdminCommand {
             Activity newPair = new Activity(activityOption.getAsString(), action);
             activitySimulationManager.writeRule(newPair);
             log.info("Added new rule to ActivitySimulation: {}.", newPair);
-            event.replyFormat("%1$s New rule was added.", getClient().getSuccess()).setEphemeral(true).queue();
+            event.replyFormat("%1$s New rule was added.", event.getClient().getSuccess()).setEphemeral(true).queue();
         }
     }
 
@@ -127,11 +127,11 @@ public class ActivitySimulationCommand extends AdminCommand {
         protected final void execute(SlashCommandEvent event) {
             List<Activity> list = activitySimulationManager.getAllRules();
             if (list == null) {
-                event.replyFormat("%1$s Failed to load available rules!", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to load available rules!", event.getClient().getError()).setEphemeral(true).queue();
             } else if (list.isEmpty()) {
-                event.replyFormat("%1$s There are no records available!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s There are no records available!", event.getClient().getWarning()).setEphemeral(true).queue();
             } else {
-                String message = getClient().getSuccess() + " Acting rules:\r\n";
+                String message = event.getClient().getSuccess() + " Acting rules:\r\n";
                 StringBuilder builder = new StringBuilder(message);
                 list.forEach(rule -> builder.append("`")
                         .append(rule.getId()).append(" ")
@@ -197,14 +197,14 @@ public class ActivitySimulationCommand extends AdminCommand {
         protected final void execute(SlashCommandEvent event) {
             OptionMapping idOption = event.getOption(ID_OPTION_KEY);
             if (idOption == null) {
-                event.replyFormat("%1$s Id of command is required", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Id of command is required", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
 
             activitySimulationManager.deleteRule(idOption.getAsLong());
             log.info("ActivitySimulation rule with id {} was removed by {}.", idOption.getAsLong(), FormatUtils.formatAuthor(event));
-            event.replyFormat("%1$s Successfully deleted rule with id `[%2$s]`.", getClient().getSuccess(), idOption.getAsLong()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Successfully deleted rule with id `[%2$s]`.", event.getClient().getSuccess(), idOption.getAsLong()).setEphemeral(true).queue();
         }
     }
 }

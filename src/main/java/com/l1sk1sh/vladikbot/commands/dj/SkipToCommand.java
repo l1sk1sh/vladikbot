@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -39,7 +39,7 @@ public class SkipToCommand extends DJCommand {
     public final void doCommand(SlashCommandEvent event) {
         OptionMapping positionOption = event.getOption(POSITION_OPTION_KEY);
         if (positionOption == null) {
-            event.replyFormat("%1$s Please include song's position in the queue", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include song's position in the queue", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -49,14 +49,14 @@ public class SkipToCommand extends DJCommand {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         if ((index < 1) || (index > Objects.requireNonNull(audioHandler).getQueue().size())) {
             event.replyFormat("%1$ Position must be a valid integer between 1 and %2$s!",
-                    getClient().getWarning(),
+                    event.getClient().getWarning(),
                     Objects.requireNonNull(audioHandler).getQueue().size()
             ).setEphemeral(true).queue();
 
             return;
         }
         audioHandler.getQueue().skip(index - 1);
-        event.replyFormat("%1$ Skipped to **%2$s**.", getClient().getWarning(), audioHandler.getQueue().get(0).getTrack().getInfo().title).queue();
+        event.replyFormat("%1$ Skipped to **%2$s**.", event.getClient().getWarning(), audioHandler.getQueue().get(0).getTrack().getInfo().title).queue();
         audioHandler.getPlayer().stopTrack();
     }
 }

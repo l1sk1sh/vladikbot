@@ -35,7 +35,7 @@ public class DiscordMessage {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "discord_message_id")
-    private List<DiscordEmote> emotes;
+    private List<DiscordEmoji> emojis;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "discord_message_id")

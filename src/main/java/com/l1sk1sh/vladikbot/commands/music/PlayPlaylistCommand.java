@@ -1,6 +1,7 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.Playlist;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
@@ -9,7 +10,6 @@ import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -50,7 +50,7 @@ public class PlayPlaylistCommand extends MusicCommand {
     public void doCommand(SlashCommandEvent event) {
         OptionMapping optionPlaylist = event.getOption(PLAYLIST_OPTION_NAME);
         if (optionPlaylist == null) {
-            event.replyFormat("%1$s Please include a playlist name.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include a playlist name.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -58,13 +58,13 @@ public class PlayPlaylistCommand extends MusicCommand {
         String playlistName = optionPlaylist.getAsString();
         Playlist playlist = playlistLoader.getPlaylist(playlistName);
         if (playlist == null) {
-            event.replyFormat("%1$s Could not find `%2$s` in the Playlists folder.", getClient().getError(), playlistName).setEphemeral(true).queue();
+            event.replyFormat("%1$s Could not find `%2$s` in the Playlists folder.", event.getClient().getError(), playlistName).setEphemeral(true).queue();
 
             return;
         }
 
         if (playlist.getItems().isEmpty() || (playlist.getItems() == null)) {
-            event.replyFormat("%1$s Specified playlist is empty!", getClient().getError()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Specified playlist is empty!", event.getClient().getError()).setEphemeral(true).queue();
 
             return;
         }
@@ -76,8 +76,8 @@ public class PlayPlaylistCommand extends MusicCommand {
                 (audioTrack) ->
                         Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(audioTrack, event.getUser())),
                 () -> {
-                    String errorMessage = getClient().getError() + " No tracks were loaded!";
-                    String successMessage = getClient().getSuccess()
+                    String errorMessage = event.getClient().getError() + " No tracks were loaded!";
+                    String successMessage = event.getClient().getSuccess()
                             + " Loaded **" + playlist.getTracks().size() + "** tracks!";
                     StringBuilder builder = new StringBuilder(playlist.getTracks().isEmpty()
                             ? errorMessage

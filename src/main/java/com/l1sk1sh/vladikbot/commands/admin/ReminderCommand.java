@@ -1,12 +1,12 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.Reminder;
 import com.l1sk1sh.vladikbot.services.ReminderService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -40,7 +40,7 @@ public class ReminderCommand extends AdminCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private final class CreateCommand extends AdminCommand {
@@ -70,7 +70,7 @@ public class ReminderCommand extends AdminCommand {
             OptionMapping timeOption = event.getOption(TIME_OPTION_KEY);
             if (timeOption == null) {
                 event.replyFormat("%1$s Specify time for reminder!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -79,7 +79,7 @@ public class ReminderCommand extends AdminCommand {
             OptionMapping textOption = event.getOption(TEXT_OPTION_KEY);
             if (textOption == null) {
                 event.replyFormat("%1$s Reminder text should not be empty!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -91,7 +91,7 @@ public class ReminderCommand extends AdminCommand {
                 try {
                     period = Reminder.RepeatPeriod.valueOf(repeatOption.getAsString().toUpperCase());
                 } catch (IllegalArgumentException e) {
-                    event.replyFormat("%1$s Specify either `yearly`, `monthly`, `weekly` or `daily` period.", getClient().getWarning()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Specify either `yearly`, `monthly`, `weekly` or `daily` period.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
@@ -104,7 +104,7 @@ public class ReminderCommand extends AdminCommand {
                     event.getChannel().getIdLong(), event.getUser().getIdLong(), period, tagAuthor);
 
             if (!reminderProcessed) {
-                event.replyFormat("%1$s %2$s", getClient().getError(), reminderService.getErrorMessage()).setEphemeral(true).queue();
+                event.replyFormat("%1$s %2$s", event.getClient().getError(), reminderService.getErrorMessage()).setEphemeral(true).queue();
                 return;
             }
 
@@ -112,7 +112,7 @@ public class ReminderCommand extends AdminCommand {
             log.info("New reminder with id {} was added by {}.", scheduledReminder.getId(), FormatUtils.formatAuthor(event));
 
             event.replyFormat("%1$s \"%2$s\" will be reminded at %3$s",
-                    getClient().getSuccess(),
+                    event.getClient().getSuccess(),
                     scheduledReminder.getTextOfReminder(),
                     scheduledReminder.getDateOfReminder()).setEphemeral(true).queue();
         }
@@ -138,11 +138,11 @@ public class ReminderCommand extends AdminCommand {
             }
 
             if (list == null) {
-                event.replyFormat("%1$s Failed to load available reminders!", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to load available reminders!", event.getClient().getError()).setEphemeral(true).queue();
             } else if (list.isEmpty()) {
-                event.replyFormat("%1$s Failed to load available reminders!", getClient().getSuccess()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to load available reminders!", event.getClient().getSuccess()).setEphemeral(true).queue();
             } else {
-                String message = getClient().getSuccess() + " Scheduled reminders:\r\n";
+                String message = event.getClient().getSuccess() + " Scheduled reminders:\r\n";
                 StringBuilder builder = new StringBuilder(message);
                 list.forEach(reminder -> builder.append("`").append(reminder.getDateOfReminder())
                         .append(" ").append(reminder.getTextOfReminder())
@@ -167,7 +167,7 @@ public class ReminderCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping idOption = event.getOption(ID_OPTION_KEY);
             if (idOption == null) {
-                event.replyFormat("%1$s ID is required for deletion. Use 'list' command to find ID of reminder.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s ID is required for deletion. Use 'list' command to find ID of reminder.", event.getClient().getWarning()).setEphemeral(true).queue();
                 return;
             }
             long reminderId = idOption.getAsLong();
@@ -175,12 +175,12 @@ public class ReminderCommand extends AdminCommand {
             boolean deleted = reminderService.deleteReminder(reminderId);
             if (!deleted) {
                 log.error("Failed to delete reminder: `{}`.", reminderService.getErrorMessage());
-                event.replyFormat("%1$s Unable to delete this reminder `[%2$s]`.", getClient().getError(), reminderService.getErrorMessage()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Unable to delete this reminder `[%2$s]`.", event.getClient().getError(), reminderService.getErrorMessage()).setEphemeral(true).queue();
                 return;
             }
 
             log.info("Reminder with id {} was removed by {}.", reminderId, FormatUtils.formatAuthor(event));
-            event.replyFormat("%1$s Successfully deleted reminder with id `[%2$s]`.", getClient().getSuccess(), reminderId).setEphemeral(true).queue();
+            event.replyFormat("%1$s Successfully deleted reminder with id `[%2$s]`.", event.getClient().getSuccess(), reminderId).setEphemeral(true).queue();
         }
     }
 }

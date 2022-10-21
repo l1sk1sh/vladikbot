@@ -19,8 +19,9 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
-import org.h2.tools.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -29,10 +30,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.event.EventListener;
 
-import javax.security.auth.login.LoginException;
 import java.io.IOException;
 import java.nio.charset.Charset;
-import java.sql.SQLException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -86,15 +85,6 @@ public class VladikBot {
 
         if (!System.getProperty("java.vm.name").contains("64")) {
             log.warn("It appears that you may not be using a supported Java version. Please use 64-bit java.");
-        }
-
-        try {
-            Server tcpServer = org.h2.tools.Server.createTcpServer("-tcpPort", "9092", "-tcpAllowOthers").start();
-            if (tcpServer != null) {
-                log.info("H2 TCP server has been started with port '{}' and URL '{}'", tcpServer.getPort(), tcpServer.getURL());
-            }
-        } catch (SQLException e) {
-            log.error("Failed to launch H2 server.", e);
         }
 
         try {
@@ -164,7 +154,7 @@ public class VladikBot {
                         autoReplyCommand,
                         backupMediaCommand,
                         backupTextCommand,
-                        emoteStatsCommand,
+                        emojiStatsCommand,
                         guildLoggerCommand,
                         memesManagementCommand,
                         minecraftServerCommand,
@@ -188,7 +178,7 @@ public class VladikBot {
 
         try {
             jda = JDABuilder.create(settings.get().getToken(), Const.REQUIRED_INTENTS)
-                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE, CacheFlag.EMOTE)
+                    .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE, CacheFlag.EMOJI)
                     .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.ONLINE_STATUS, CacheFlag.ROLE_TAGS)
                     .setBulkDeleteSplittingEnabled(true)
                     .addEventListeners(
@@ -197,7 +187,9 @@ public class VladikBot {
                             listener
                     )
                     .build();
-        } catch (LoginException e) {
+            // This might be required if bot is in more than 100 guilds
+            Message.suppressContentIntentWarning();
+        } catch (InvalidTokenException e) {
             log.error("Invalid username and/or password.");
             SystemUtils.exit(1);
         }
@@ -246,7 +238,7 @@ public class VladikBot {
     @Setter(onMethod = @__({@Autowired}))
     private BackupMediaCommand backupMediaCommand;
     @Setter(onMethod = @__({@Autowired}))
-    private EmoteStatsCommand emoteStatsCommand;
+    private EmojiStatsCommand emojiStatsCommand;
     @Setter(onMethod = @__({@Autowired}))
     private GuildLoggerCommand guildLoggerCommand;
     @Setter(onMethod = @__({@Autowired}))

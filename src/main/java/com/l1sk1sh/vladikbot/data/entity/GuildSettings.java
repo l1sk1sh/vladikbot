@@ -8,8 +8,8 @@ import lombok.Setter;
 import lombok.ToString;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.entities.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import org.hibernate.annotations.DynamicUpdate;
 import org.jetbrains.annotations.NotNull;
 

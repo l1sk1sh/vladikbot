@@ -10,9 +10,10 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +48,7 @@ public class NowPlayingHandler {
     }
 
     public void setLastNPMessage(Message message) {
-        lastNP.put(message.getGuild().getIdLong(), new Pair<>(message.getTextChannel().getIdLong(), message.getIdLong()));
+        lastNP.put(message.getGuild().getIdLong(), new Pair<>(message.getChannel().asTextChannel().getIdLong(), message.getIdLong()));
     }
 
     public void clearLastNPMessage(Guild guild) {
@@ -80,14 +81,14 @@ public class NowPlayingHandler {
                 continue;
             }
 
-            Message message = audioHandler.getNowPlaying(jda);
+            MessageCreateData message = audioHandler.getNowPlaying(jda);
             if (message == null) {
                 message = audioHandler.getNoMusicPlaying(jda);
                 toRemove.add(guildId);
             }
 
             try {
-                textChannel.editMessageById(pair.getValue(), message).queue(m -> {
+                textChannel.editMessageById(pair.getValue(), message.getContent()).queue(m -> {
                 }, t -> lastNP.remove(guildId));
             } catch (Exception e) {
                 toRemove.add(guildId);

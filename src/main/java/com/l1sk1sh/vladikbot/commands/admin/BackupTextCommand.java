@@ -1,11 +1,11 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.services.backup.BackupTextService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -34,7 +34,7 @@ public class BackupTextCommand extends AdminCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private static final class Auto extends AdminCommand {
@@ -95,9 +95,9 @@ public class BackupTextCommand extends AdminCommand {
                 backupTextService.readAllChannelsHistories((success, message) -> {
                     try {
                         if (success) {
-                            event.getHook().editOriginalFormat("%1$s Text was saved to database!", getClient().getSuccess()).queue();
+                            event.getHook().editOriginalFormat("%1$s Text was saved to database!", event.getClient().getSuccess()).queue();
                         } else {
-                            event.getHook().editOriginalFormat("%1$s Text was not saved to database! (%2$s)", getClient().getError(), message).queue();
+                            event.getHook().editOriginalFormat("%1$s Text was not saved to database! (%2$s)", event.getClient().getError(), message).queue();
                         }
                     } catch (ErrorResponseException e) {
                         log.warn("Backup took too long.");

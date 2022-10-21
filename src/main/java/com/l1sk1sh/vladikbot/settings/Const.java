@@ -19,8 +19,7 @@ public final class Const {
 
     public static final List<Permission> RECOMMENDED_PERMS = new ArrayList<>();
     static {
-        RECOMMENDED_PERMS.add(Permission.MESSAGE_READ);
-        RECOMMENDED_PERMS.add(Permission.MESSAGE_WRITE);
+        RECOMMENDED_PERMS.add(Permission.MESSAGE_SEND);
         RECOMMENDED_PERMS.add(Permission.MESSAGE_HISTORY);
         RECOMMENDED_PERMS.add(Permission.MESSAGE_ADD_REACTION);
         RECOMMENDED_PERMS.add(Permission.MESSAGE_EMBED_LINKS);
@@ -35,7 +34,7 @@ public final class Const {
     public static final List<GatewayIntent> REQUIRED_INTENTS = new ArrayList<>();
     static {
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_MEMBERS);
-        REQUIRED_INTENTS.add(GatewayIntent.GUILD_EMOJIS);
+        REQUIRED_INTENTS.add(GatewayIntent.GUILD_EMOJIS_AND_STICKERS);
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_VOICE_STATES);
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_PRESENCES);
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_MESSAGES);

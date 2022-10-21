@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -39,7 +39,7 @@ public class SetPresenceCommand extends OwnerCommand {
 
     @Override
     protected final void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private static final class PlayCommand extends OwnerCommand {
@@ -57,7 +57,7 @@ public class SetPresenceCommand extends OwnerCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping gameOption = event.getOption(GAME_OPTION_KEY);
             if (gameOption == null) {
-                event.replyFormat("%1$s Game is required for this command.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Game is required for this command.", event.getClient().getWarning()).setEphemeral(true).queue();
                 return;
             }
 
@@ -66,14 +66,14 @@ public class SetPresenceCommand extends OwnerCommand {
             try {
                 event.getJDA().getPresence().setActivity(game.isEmpty() ? null : Activity.playing(game));
                 event.replyFormat("%1$s **%2$s** is %3$s.",
-                        getClient().getSuccess(),
+                        event.getClient().getSuccess(),
                         event.getJDA().getSelfUser().getName(),
                         (game.isEmpty())
                                 ? "no longer playing anything."
                                 : "now playing `" + game + "`"
                 ).setEphemeral(true).queue();
             } catch (Exception e) {
-                event.replyFormat("%1$s Failed to set playing presence.", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to set playing presence.", event.getClient().getError()).setEphemeral(true).queue();
             }
         }
     }
@@ -98,7 +98,7 @@ public class SetPresenceCommand extends OwnerCommand {
             OptionMapping userOption = event.getOption(USER_OPTION_KEY);
             if (userOption == null) {
                 event.replyFormat("%1$s Specify user that streams!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -107,7 +107,7 @@ public class SetPresenceCommand extends OwnerCommand {
             OptionMapping streamOption = event.getOption(STREAM_OPTION_KEY);
             if (streamOption == null) {
                 event.replyFormat("%1$s Specify game that is being streamed!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -117,7 +117,7 @@ public class SetPresenceCommand extends OwnerCommand {
                 event.getJDA().getPresence().setActivity(Activity.streaming(streamOption.getAsString(), "https://twitch.tv/" + userOption.getAsString()));
                 event.replyFormat("%1$s **%2$s** is now streaming `%3$s`.", event.getJDA().getSelfUser().getName(), streamOption.getAsString()).setEphemeral(true).queue();
             } catch (Exception e) {
-                event.replyFormat("%1$s Failed to set streaming presence.", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to set streaming presence.", event.getClient().getError()).setEphemeral(true).queue();
             }
         }
     }
@@ -137,16 +137,16 @@ public class SetPresenceCommand extends OwnerCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping titleOption = event.getOption(TITLE_OPTION_KEY);
             if (titleOption == null) {
-                event.replyFormat("%1$s Title is required for this command.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Title is required for this command.", event.getClient().getWarning()).setEphemeral(true).queue();
                 return;
             }
 
             String title = titleOption.getAsString();
             try {
                 event.getJDA().getPresence().setActivity(Activity.listening(title));
-                event.replyFormat("%1$s **%2$s** is now listening to `%3$s`.", getClient().getSuccess(), event.getJDA().getSelfUser().getName(), title).setEphemeral(true).queue();
+                event.replyFormat("%1$s **%2$s** is now listening to `%3$s`.", event.getClient().getSuccess(), event.getJDA().getSelfUser().getName(), title).setEphemeral(true).queue();
             } catch (Exception e) {
-                event.replyFormat("%1$s Failed to set listening presence.", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to set listening presence.", event.getClient().getError()).setEphemeral(true).queue();
             }
         }
     }
@@ -166,16 +166,16 @@ public class SetPresenceCommand extends OwnerCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping titleOption = event.getOption(TITLE_OPTION_KEY);
             if (titleOption == null) {
-                event.replyFormat("%1$s Title is required for this command.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Title is required for this command.", event.getClient().getWarning()).setEphemeral(true).queue();
                 return;
             }
 
             String title = titleOption.getAsString();
             try {
                 event.getJDA().getPresence().setActivity(Activity.watching(title));
-                event.replyFormat("%1$s **%2$s** is now watching to `%3$s`.", getClient().getSuccess(), event.getJDA().getSelfUser().getName(), title).setEphemeral(true).queue();
+                event.replyFormat("%1$s **%2$s** is now watching to `%3$s`.", event.getClient().getSuccess(), event.getJDA().getSelfUser().getName(), title).setEphemeral(true).queue();
             } catch (Exception e) {
-                event.replyFormat("%1$s Failed to set watching presence.", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to set watching presence.", event.getClient().getError()).setEphemeral(true).queue();
             }
         }
     }

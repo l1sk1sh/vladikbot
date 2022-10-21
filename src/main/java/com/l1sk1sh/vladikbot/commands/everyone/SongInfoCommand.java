@@ -1,15 +1,15 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.network.dto.SongInfo;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.apache.http.client.utils.URIBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -51,7 +51,7 @@ public class SongInfoCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         OptionMapping option = event.getOption(SONG_NAME_OPTION_KEY);
         if (option == null) {
-            event.replyFormat("%1$s Please include a song name.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include a song name.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -59,7 +59,7 @@ public class SongInfoCommand extends SlashCommand {
         final String searchQuery = option.getAsString();
         final Pattern searchPattern = Pattern.compile("^[А-Яа-яA-Za-z0-9 ]++$");
         if (!searchPattern.matcher(searchQuery).matches()) {
-            event.replyFormat("%1$s Search query should contain only cyrillic or latin letters and numbers.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Search query should contain only cyrillic or latin letters and numbers.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -75,7 +75,7 @@ public class SongInfoCommand extends SlashCommand {
                     .setParameter("term", searchQuery)
                     .build();
         } catch (URISyntaxException e) {
-            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to build URI for iTunes.", e);
 
             return;
@@ -85,20 +85,20 @@ public class SongInfoCommand extends SlashCommand {
         try {
             songInfo = restTemplate.getForObject(uri, SongInfo.class);
         } catch (RestClientException e) {
-            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (songInfo == null || songInfo.getResults().length == 0) {
-            event.replyFormat("%1$s Song `%2$s` was not found.", getClient().getError(), searchQuery).setEphemeral(true).queue();
+            event.replyFormat("%1$s Song `%2$s` was not found.", event.getClient().getError(), searchQuery).setEphemeral(true).queue();
             log.error("Response body is empty.");
 
             return;
         }
 
-        MessageBuilder builder = new MessageBuilder();
+        MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(songInfo.getTrackName(), songInfo.getTrackViewUrl(), songInfo.getArtworkUrl100())
                 .setColor(new Color(20, 120, 120))

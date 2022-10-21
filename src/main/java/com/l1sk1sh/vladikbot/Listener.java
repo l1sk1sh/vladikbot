@@ -31,19 +31,18 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.VoiceChannel;
-import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.ShutdownEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
+import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Nonnull;
 import java.util.Arrays;
 import java.util.List;
 
@@ -82,7 +81,7 @@ class Listener extends ListenerAdapter {
     private final ActivitySimulationManager activitySimulationManager;
 
     @Override
-    public void onReady(@NotNull @Nonnull ReadyEvent event) {
+    public void onReady(@NotNull ReadyEvent event) {
 
         /* Execute migrations if necessary */
         if (!FileUtils.fileOrFolderIsAbsent("./" + MigrationUtils.REPLIES_FILE_NAME)) {
@@ -213,7 +212,7 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageDelete(@Nonnull GuildMessageDeleteEvent event) {
+    public void onMessageDelete(@NotNull MessageDeleteEvent event) {
         nowPlayingHandler.onMessageDelete(event.getGuild(), event.getMessageIdLong());
 
         if (!guildSettingsRepository.getAllByLogGuildChangesIsTrue().isEmpty()) {
@@ -222,7 +221,7 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildMessageUpdate(@Nonnull GuildMessageUpdateEvent event) {
+    public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
         if (event.getMessage().getAuthor().isBot()) {
             return;
         }
@@ -233,7 +232,7 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         Message message = event.getMessage();
 
         backupTextService.backupNewMessage(message);
@@ -252,17 +251,17 @@ class Listener extends ListenerAdapter {
     }
 
     @Override
-    public void onMessageReactionAdd(@Nonnull MessageReactionAddEvent event) {
+    public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
         backupTextService.addReaction(event.getReaction());
     }
 
     @Override
-    public void onGuildVoiceUpdate(@Nonnull GuildVoiceUpdateEvent event) {
+    public void onGuildVoiceUpdate(@NotNull GuildVoiceUpdateEvent event) {
         aloneInVoiceHandler.onVoiceUpdate(event);
     }
 
     @Override
-    public void onShutdown(@Nonnull ShutdownEvent event) {
+    public void onShutdown(@NotNull ShutdownEvent event) {
         shutdownHandler.shutdown();
     }
 }

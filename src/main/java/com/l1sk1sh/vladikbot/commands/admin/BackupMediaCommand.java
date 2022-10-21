@@ -1,14 +1,15 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.services.backup.BackupMediaService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,7 @@ public class BackupMediaCommand extends AdminCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private static final class Auto extends AdminCommand {
@@ -97,9 +98,9 @@ public class BackupMediaCommand extends AdminCommand {
                 event.deferReply(true).queue();
                 backupMediaService.downloadAllAttachments((success, message) -> {
                     if (success) {
-                        event.getHook().editOriginalFormat("%1$s Media was downloaded!", getClient().getSuccess()).queue();
+                        event.getHook().editOriginalFormat("%1$s Media was downloaded!", event.getClient().getSuccess()).queue();
                     } else {
-                        event.getHook().editOriginalFormat("%1$s Media was not downloaded! (%2$s)", getClient().getError(), message).queue();
+                        event.getHook().editOriginalFormat("%1$s Media was not downloaded! (%2$s)", event.getClient().getError(), message).queue();
                     }
                 });
             });
@@ -125,9 +126,9 @@ public class BackupMediaCommand extends AdminCommand {
                 event.deferReply(true).queue();
                 backupMediaService.exportMediaToHtmlFile((success, message, file) -> {
                     if (success) {
-                        event.getHook().editOriginalFormat("%1$s Export is ready!", getClient().getSuccess()).addFile(file).queue();
+                        event.getHook().editOriginalFormat("%1$s Export is ready!", event.getClient().getSuccess()).setFiles(FileUpload.fromData(file)).queue();
                     } else {
-                        event.getHook().editOriginalFormat("%1$s Export has failed! (%2$s)", getClient().getError(), message).queue();
+                        event.getHook().editOriginalFormat("%1$s Export has failed! (%2$s)", event.getClient().getError(), message).queue();
                     }
                 }, event.getChannel().getIdLong());
             });
@@ -149,7 +150,7 @@ public class BackupMediaCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             backupMediaService.resetDownloadedAttachments();
             log.info("Media reset started by {}", FormatUtils.formatAuthor(event));
-            event.replyFormat("%1$s Reset has been started. For details consult logs", getClient().getSuccess()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Reset has been started. For details consult logs", event.getClient().getSuccess()).setEphemeral(true).queue();
         }
     }
 }

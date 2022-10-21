@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
@@ -11,7 +12,6 @@ import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -50,7 +50,7 @@ public class PlayNextCommand extends DJCommand {
     public void doCommand(SlashCommandEvent event) {
         OptionMapping songOption = event.getOption(SONG_OPTION_KEY);
         if (songOption == null) {
-            event.replyFormat("%1$s Please include a song name or URL.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include a song name or URL.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -58,7 +58,7 @@ public class PlayNextCommand extends DJCommand {
         String song = songOption.getAsString();
 
         if (song.isEmpty()) {
-            event.replyFormat("%1$s Please include a song name or URL.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include a song name or URL.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -83,7 +83,7 @@ public class PlayNextCommand extends DJCommand {
             if (settings.get().isTooLong(track)) {
                 event.replyFormat(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
-                        getClient().getWarning(),
+                        event.getClient().getWarning(),
                         FormatUtils.filter(track.getInfo().title),
                         FormatUtils.formatTimeTillHours(track.getDuration()),
                         FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)
@@ -97,7 +97,7 @@ public class PlayNextCommand extends DJCommand {
 
             event.replyFormat(
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
-                    getClient().getSuccess(),
+                    event.getClient().getSuccess(),
                     FormatUtils.filter(track.getInfo().title),
                     FormatUtils.formatTimeTillHours(track.getDuration()),
                     ((position == 0) ? "to begin playing" : " to the queue at position " + position)
@@ -127,7 +127,7 @@ public class PlayNextCommand extends DJCommand {
         public void noMatches() {
             if (ytsearch) {
                 event.replyFormat("%1$s No results found for `%2$s`.",
-                        getClient().getWarning(), FormatUtils.filter(song)).setEphemeral(true).queue();
+                        event.getClient().getWarning(), FormatUtils.filter(song)).setEphemeral(true).queue();
             } else {
                 playerManager.loadItemOrdered(event.getGuild(), Const.YT_SEARCH_PREFIX
                         + song, new ResultHandler(song, event, true));
@@ -137,10 +137,10 @@ public class PlayNextCommand extends DJCommand {
         @Override
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == FriendlyException.Severity.COMMON) {
-                event.replyFormat("%1$s Error loading: %2$s.", getClient().getError(),
+                event.replyFormat("%1$s Error loading: %2$s.", event.getClient().getError(),
                         throwable.getLocalizedMessage()).setEphemeral(true).queue();
             } else {
-                event.replyFormat("%1$s Error loading track.", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Error loading track.", event.getClient().getError()).setEphemeral(true).queue();
             }
         }
     }

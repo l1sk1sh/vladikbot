@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.Playlist;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
@@ -7,7 +8,6 @@ import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -48,7 +48,7 @@ public class PlaylistCommand extends AdminCommand {
 
     @Override
     public void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private final class CreateCommand extends AdminCommand {
@@ -66,7 +66,7 @@ public class PlaylistCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
-                event.replyFormat("%1$s Playlist's name is required!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Playlist's name is required!", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
@@ -75,9 +75,9 @@ public class PlaylistCommand extends AdminCommand {
             if (playlistLoader.getPlaylist(playlistName) == null) {
                 playlistLoader.createPlaylist(playlistName);
                 log.info("Playlist {} created by {}", playlistName, FormatUtils.formatAuthor(event));
-                event.replyFormat("%1$s Successfully created playlist `%2$s`!", getClient().getSuccess(), playlistName).setEphemeral(true).queue();
+                event.replyFormat("%1$s Successfully created playlist `%2$s`!", event.getClient().getSuccess(), playlistName).setEphemeral(true).queue();
             } else {
-                event.replyFormat("%1$s Playlist `%2$s` already exists!", getClient().getWarning(), playlistName).setEphemeral(true).queue();
+                event.replyFormat("%1$s Playlist `%2$s` already exists!", event.getClient().getWarning(), playlistName).setEphemeral(true).queue();
             }
         }
     }
@@ -94,11 +94,11 @@ public class PlaylistCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             List<String> list = playlistLoader.getPlaylistNames();
             if (list == null) {
-                event.replyFormat("%1$s Failed to load available playlists!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to load available playlists!", event.getClient().getWarning()).setEphemeral(true).queue();
             } else if (list.isEmpty()) {
-                event.replyFormat("%1$s There are no playlists in the Playlists folder!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s There are no playlists in the Playlists folder!", event.getClient().getWarning()).setEphemeral(true).queue();
             } else {
-                String message = getClient().getSuccess() + " Available playlists:\r\n";
+                String message = event.getClient().getSuccess() + " Available playlists:\r\n";
                 StringBuilder builder = new StringBuilder(message);
                 list.forEach(str -> builder.append("`").append(str).append("` "));
                 event.reply(builder.toString()).setEphemeral(true).queue();
@@ -128,7 +128,7 @@ public class PlaylistCommand extends AdminCommand {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
                 event.replyFormat("%1$s Specify name of playlist!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -137,7 +137,7 @@ public class PlaylistCommand extends AdminCommand {
             OptionMapping urlOption = event.getOption(URL_OPTION_KEY);
             if (urlOption == null) {
                 event.replyFormat("%1$s Specify at least one URL of a song!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -147,7 +147,7 @@ public class PlaylistCommand extends AdminCommand {
             Playlist playlist = playlistLoader.getPlaylist(playlistName);
 
             if (playlist == null) {
-                event.replyFormat("%1$s Playlist `%2$s` doesn't exist!", getClient().getError(), playlistName).setEphemeral(true).queue();
+                event.replyFormat("%1$s Playlist `%2$s` doesn't exist!", event.getClient().getError(), playlistName).setEphemeral(true).queue();
             } else {
                 List<String> listOfUrlsToWrite = (playlist.getItems() == null)
                         ? new ArrayList<>()
@@ -166,7 +166,7 @@ public class PlaylistCommand extends AdminCommand {
 
                 playlistLoader.writePlaylist(playlistName, listOfUrlsToWrite);
                 log.info("Playlist {} updated by {}", playlistName, FormatUtils.formatAuthor(event));
-                event.replyFormat("%1$s Successfully added %2$s items to playlist `%3$s`.", getClient().getSuccess(), urls.length, playlist).setEphemeral(true).queue();
+                event.replyFormat("%1$s Successfully added %2$s items to playlist `%3$s`.", event.getClient().getSuccess(), urls.length, playlist).setEphemeral(true).queue();
             }
         }
     }
@@ -186,20 +186,20 @@ public class PlaylistCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
-                event.replyFormat("%1$s Playlist's name is required!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Playlist's name is required!", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
 
             String playlistName = nameOption.getAsString();
             if (playlistLoader.getPlaylist(playlistName) == null) {
-                event.replyFormat("%1$s Playlist `%2$s` doesn't exist!", getClient().getWarning(), playlistName).setEphemeral(true).queue();
+                event.replyFormat("%1$s Playlist `%2$s` doesn't exist!", event.getClient().getWarning(), playlistName).setEphemeral(true).queue();
             } else {
                 if (playlistLoader.deletePlaylist(playlistName)) {
                     log.info("Playlist {} deleted by {}", playlistName, FormatUtils.formatAuthor(event));
-                    event.replyFormat("%1$s Successfully deleted playlist `%2$s`", getClient().getSuccess(), playlistName).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Successfully deleted playlist `%2$s`", event.getClient().getSuccess(), playlistName).setEphemeral(true).queue();
                 } else {
-                    event.replyFormat("%1$s Unable to delete the playlist `%2$s`!", getClient().getError(), playlistName).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Unable to delete the playlist `%2$s`!", event.getClient().getError(), playlistName).setEphemeral(true).queue();
                 }
             }
         }
@@ -221,24 +221,24 @@ public class PlaylistCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
-                event.replyFormat("%1$s Playlist's name is required!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Playlist's name is required!", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
 
             String playlistName = nameOption.getAsString();
             if (playlistLoader.getPlaylist(playlistName) == null) {
-                event.replyFormat("%1$s Playlist `%2$s` doesn't exist!", getClient().getWarning(), playlistName).setEphemeral(true).queue();
+                event.replyFormat("%1$s Playlist `%2$s` doesn't exist!", event.getClient().getWarning(), playlistName).setEphemeral(true).queue();
             } else {
                 List<String> list = playlistLoader.getPlaylistNames();
                 if (list == null) {
-                    event.replyFormat("%1$s Failed to load available playlists!", getClient().getError()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Failed to load available playlists!", event.getClient().getError()).setEphemeral(true).queue();
                 } else {
                     if (playlistLoader.shuffle(playlistName)) {
                         log.info("Playlist {} shuffled by {}", playlistName, FormatUtils.formatAuthor(event));
-                        event.replyFormat("%1$s Successfully shuffled playlist `%2$s`", getClient().getSuccess(), playlistName).setEphemeral(true).queue();
+                        event.replyFormat("%1$s Successfully shuffled playlist `%2$s`", event.getClient().getSuccess(), playlistName).setEphemeral(true).queue();
                     } else {
-                        event.replyFormat("%1$s Unable to shuffle the playlist `%2$s`!", getClient().getError(), playlistName).setEphemeral(true).queue();
+                        event.replyFormat("%1$s Unable to shuffle the playlist `%2$s`!", event.getClient().getError(), playlistName).setEphemeral(true).queue();
                     }
                 }
             }
@@ -281,20 +281,20 @@ public class PlaylistCommand extends AdminCommand {
                     guildSettingsRepository.save(guildSettings);
                     String message = String.format("Cleared the default playlist for **%1$s**", event.getGuild().getName());
                     log.info("{}. Cleared by {}.", message, FormatUtils.formatAuthor(event));
-                    event.replyFormat("%1$s %2$s", getClient().getSuccess(), message).setEphemeral(true).queue();
+                    event.replyFormat("%1$s %2$s", event.getClient().getSuccess(), message).setEphemeral(true).queue();
                 });
                 return;
             }
 
             String playlistName = newPlaylist.replaceAll("\\s+", "_");
             if (playlistLoader.getPlaylist(playlistName) == null) {
-                event.replyFormat("%1$s Could not find `%2$s`!", getClient().getError(), playlistName).setEphemeral(true).queue();
+                event.replyFormat("%1$s Could not find `%2$s`!", event.getClient().getError(), playlistName).setEphemeral(true).queue();
             } else {
                 guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(guildSettings -> {
                     guildSettings.setDefaultPlaylist(playlistName);
                     guildSettingsRepository.save(guildSettings);
                     log.info("Default playlist is set to {} by {}", playlistName, FormatUtils.formatAuthor(event));
-                    event.replyFormat("%1$s The default playlist for **%2$s** is now `%3$s`", getClient().getSuccess(),
+                    event.replyFormat("%1$s The default playlist for **%2$s** is now `%3$s`", event.getClient().getSuccess(),
                             event.getGuild().getName(), playlistName).setEphemeral(true).queue();
                 });
             }

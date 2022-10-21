@@ -11,6 +11,7 @@
     1. NSFW
     1. WHO notifications API (https://www.who.int/csr/don/en/)
     1. Word of the day
+    1. Track user activity
 0. Extend reply core:
     1. Create word usage frequency and add replies accordingly
     1. Create history of replies and do not use same reply for a period
@@ -32,6 +33,7 @@
 0. Add image processing and shrinking by some 'magik' library
 0. Implement export for text backup command
 0. Use https://github.com/Chew/JDA-Chewtils/tree/master/menu for menus
-0. Add an author to the reaction item and use it for emote statistics calculation
+0. Add an author to the reaction item and use it for emoji statistics calculation
 0. Play with new buttons and popup windows
-0. Redo settings. This time do it! It is difficult to update existing file or change type of setting
+0. Redo settings. This time do it! It is difficult to update existing file or change type of settings
+0. Review Nekotina bot and all other trash

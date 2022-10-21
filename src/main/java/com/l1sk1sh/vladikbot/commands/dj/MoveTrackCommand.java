@@ -1,11 +1,11 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -47,14 +47,14 @@ public class MoveTrackCommand extends DJCommand {
     public final void doCommand(SlashCommandEvent event) {
         OptionMapping fromOption = event.getOption(FROM_OPTION_KEY);
         if (fromOption == null) {
-            event.replyFormat("%1$s Please include from index", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include from index", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
 
         OptionMapping toOption = event.getOption(TO_OPTION_KEY);
         if (toOption == null) {
-            event.replyFormat("%1$s Please include to index", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include to index", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -64,7 +64,7 @@ public class MoveTrackCommand extends DJCommand {
         int to = (int) toOption.getAsLong();
 
         if (from == to) {
-            event.replyFormat("%1$s Can't move a track to the same position", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Can't move a track to the same position", event.getClient().getWarning()).setEphemeral(true).queue();
             return;
         }
 
@@ -72,20 +72,20 @@ public class MoveTrackCommand extends DJCommand {
         AudioHandler handler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         FairQueue<QueuedTrack> queue = Objects.requireNonNull(handler).getQueue();
         if (isUnavailablePosition(queue, from)) {
-            event.replyFormat("%1$s `%2$d` is not a valid position in the queue!", getClient().getError(), from).setEphemeral(true).queue();
+            event.replyFormat("%1$s `%2$d` is not a valid position in the queue!", event.getClient().getError(), from).setEphemeral(true).queue();
 
             return;
         }
 
         if (isUnavailablePosition(queue, to)) {
-            event.replyFormat("%1$s `%2$d` is not a valid position in the queue!", getClient().getError(), to).setEphemeral(true).queue();
+            event.replyFormat("%1$s `%2$d` is not a valid position in the queue!", event.getClient().getError(), to).setEphemeral(true).queue();
 
             return;
         }
 
         /* Move the track */
         QueuedTrack track = queue.moveItem(from - 1, to - 1);
-        event.replyFormat("%1$s Moved **%2$s** from position `%3$d` to `%4$d`.", getClient().getSuccess(), track.getTrack().getInfo().title, from, to).queue();
+        event.replyFormat("%1$s Moved **%2$s** from position `%3$d` to `%4$d`.", event.getClient().getSuccess(), track.getTrack().getInfo().title, from, to).queue();
     }
 
     private static boolean isUnavailablePosition(FairQueue<QueuedTrack> queue, int position) {

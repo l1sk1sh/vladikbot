@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.models.queue;
 import com.l1sk1sh.vladikbot.models.AudioRequestMetadata;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.AudioTrackInfo;
 import lombok.Getter;
 import net.dv8tion.jda.api.entities.User;
 
@@ -33,9 +34,9 @@ public class QueuedTrack implements Queueable {
 
     @Override
     public final String toString() {
-        return "`[" + FormatUtils.formatTimeTillHours(track.getDuration()) + "]` " +
-                "**[" + track.getInfo().title + "]**" +
-                "(" + track.getInfo().uri + ")" +
-                " - <@" + track.getUserData(AudioRequestMetadata.class).getOwner() + ">";
+        String entry = "`[" + FormatUtils.formatTimeTillHours(track.getDuration()) + "]` ";
+        AudioTrackInfo trackInfo = track.getInfo();
+        entry = entry + (trackInfo.uri.startsWith("http") ? "[**" + trackInfo.title + "**](" + trackInfo.uri + ")" : "**" + trackInfo.title + "**");
+        return entry + " - <@" + track.getUserData(AudioRequestMetadata.class).getOwner() + ">";
     }
 }

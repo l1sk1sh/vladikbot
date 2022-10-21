@@ -13,8 +13,8 @@ import javax.persistence.Table;
 @Setter
 @ToString
 @Entity
-@Table(name = "emote_stats_executions")
-public class EmoteStatsExecution {
+@Table(name = "emoji_stats_executions")
+public class EmojiStatsExecution {
 
     @Id
     @Column(name = "channel_id", nullable = false)

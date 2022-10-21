@@ -1,14 +1,14 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.network.dto.CountryInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +44,7 @@ public class CountryCommand extends SlashCommand {
     protected void execute(SlashCommandEvent event) {
         OptionMapping isoCodeOption = event.getOption(ISO_CODE_OPTION_KEY);
         if (isoCodeOption == null) {
-            event.replyFormat("1$s Include country code. Example: `country usa`", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("1$s Include country code. Example: `country usa`", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -52,7 +52,7 @@ public class CountryCommand extends SlashCommand {
         String countryCode = isoCodeOption.getAsString();
         final Pattern countryCodePattern = Pattern.compile("^[A-Za-z]{2,3}$");
         if (!countryCodePattern.matcher(countryCode).matches()) {
-            event.replyFormat("1$s Country code should be exactly 2 or 3 latin letters.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("1$s Country code should be exactly 2 or 3 latin letters.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -61,14 +61,14 @@ public class CountryCommand extends SlashCommand {
         try {
             response = restTemplate.getForEntity("https://restcountries.eu/rest/v2/name/" + countryCode.toLowerCase(), CountryInfo[].class);
         } catch (RestClientException e) {
-            event.replyFormat("1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (response.getStatusCode() != HttpStatus.OK) {
-            event.replyFormat("1$s Country `%2$s` was not found.", getClient().getError(), countryCode).setEphemeral(true).queue();
+            event.replyFormat("1$s Country `%2$s` was not found.", event.getClient().getError(), countryCode).setEphemeral(true).queue();
 
             return;
         }
@@ -76,13 +76,13 @@ public class CountryCommand extends SlashCommand {
         CountryInfo countryInfo = Objects.requireNonNull(response.getBody())[0];
 
         if (countryInfo == null) {
-            event.replyFormat("1$s Country `%2$s` was not found.", getClient().getError(), countryCode).setEphemeral(true).queue();
+            event.replyFormat("1$s Country `%2$s` was not found.", event.getClient().getError(), countryCode).setEphemeral(true).queue();
             log.error("Response body is empty.");
 
             return;
         }
 
-        MessageBuilder builder = new MessageBuilder();
+        MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor(countryInfo.getName(), countryInfo.getFlag(), null)
                 .setColor(new Color(20, 120, 120))

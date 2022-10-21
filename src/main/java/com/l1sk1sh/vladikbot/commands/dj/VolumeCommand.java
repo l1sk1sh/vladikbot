@@ -1,10 +1,10 @@
 package com.l1sk1sh.vladikbot.commands.dj;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -54,7 +54,7 @@ public class VolumeCommand extends DJCommand {
         int newVolume = (int) volumeOption.getAsLong();
 
         if (newVolume < 0 || newVolume > MAX_VOLUME) {
-            event.replyFormat("%1$s Volume must be a valid integer between 0 and `%2$d`!", getClient().getWarning(), MAX_VOLUME).setEphemeral(true).queue();
+            event.replyFormat("%1$s Volume must be a valid integer between 0 and `%2$d`!", event.getClient().getWarning(), MAX_VOLUME).setEphemeral(true).queue();
         } else {
             audioHandler.getPlayer().setVolume(newVolume);
             guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(settings -> {

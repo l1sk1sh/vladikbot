@@ -11,24 +11,24 @@ import org.jetbrains.annotations.NotNull;
 @Setter
 @ToString
 @NoArgsConstructor
-public class EmoteStatsRecord implements Comparable<EmoteStatsRecord> {
-    private String emoteName;
+public class EmojiStatsRecord implements Comparable<EmojiStatsRecord> {
+    private String emojiName;
     private int amount;
     private long mostActiveUserId;
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof EmoteStatsRecord)
-                && ((EmoteStatsRecord) obj).getEmoteName().equals(this.getEmoteName());
+        return (obj instanceof EmojiStatsRecord)
+                && ((EmojiStatsRecord) obj).getEmojiName().equals(this.getEmojiName());
     }
 
     @Override
     public int hashCode() {
-        return emoteName.hashCode();
+        return emojiName.hashCode();
     }
 
     @Override
-    public int compareTo(@NotNull EmoteStatsRecord o) {
+    public int compareTo(@NotNull EmojiStatsRecord o) {
         return Integer.compare(this.getAmount(), o.getAmount());
     }
 }

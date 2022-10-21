@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
@@ -7,7 +8,6 @@ import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -45,7 +45,7 @@ public class AutoReplyCommand extends AdminCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private final class CreateCommand extends AdminCommand {
@@ -69,7 +69,7 @@ public class AutoReplyCommand extends AdminCommand {
             OptionMapping replyToOption = event.getOption(REPLY_TO_OPTION_KEY);
             if (replyToOption == null) {
                 event.replyFormat("%1$s Please enter 'reply to' words.",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -78,7 +78,7 @@ public class AutoReplyCommand extends AdminCommand {
             OptionMapping replyWithOption = event.getOption(REPLY_WITH_OPTION_KEY);
             if (replyWithOption == null) {
                 event.replyFormat("%1$s Please enter 'reply with' words.",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -95,7 +95,7 @@ public class AutoReplyCommand extends AdminCommand {
 
             if (reactTo.isEmpty() || reactWith.isEmpty()) {
                 event.replyFormat("%1$s Cannot add new reply rule due to empty words (spaces) or words that are less than %2$s character.",
-                        getClient().getWarning(),
+                        event.getClient().getWarning(),
                         AutoReplyManager.MIN_REPLY_TO_LENGTH
                 ).setEphemeral(true).queue();
 
@@ -105,7 +105,7 @@ public class AutoReplyCommand extends AdminCommand {
             ReplyRule rule = new ReplyRule(reactTo, reactWith);
             autoReplyManager.writeRule(rule);
             log.info("Added new reply rule: {}.", rule.toString());
-            event.replyFormat("%1$s New rule was added.", getClient().getSuccess()).setEphemeral(true).queue();
+            event.replyFormat("%1$s New rule was added.", event.getClient().getSuccess()).setEphemeral(true).queue();
         }
     }
 
@@ -123,13 +123,13 @@ public class AutoReplyCommand extends AdminCommand {
             List<ReplyRule> list = autoReplyManager.getAllRules();
 
             if (list == null) {
-                event.replyFormat("%1$s Failed to load available rules!", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Failed to load available rules!", event.getClient().getError()).setEphemeral(true).queue();
             } else if (list.isEmpty()) {
-                event.replyFormat("%1$s There are no records available!", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s There are no records available!", event.getClient().getWarning()).setEphemeral(true).queue();
             } else if (list.size() > MAX_LIST_SIZE_TO_SHOW) {
-                event.replyFormat("%1$s Dictionary size: %2$s records.", getClient().getSuccess(), list.size()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Dictionary size: %2$s records.", event.getClient().getSuccess(), list.size()).setEphemeral(true).queue();
             } else {
-                String message = getClient().getSuccess() + " Acting rules:\r\n";
+                String message = event.getClient().getSuccess() + " Acting rules:\r\n";
                 StringBuilder builder = new StringBuilder(message);
                 list.forEach(str -> builder.append("`")
                         .append(str)
@@ -193,7 +193,7 @@ public class AutoReplyCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             OptionMapping idOption = event.getOption(ID_OPTION_KEY);
             if (idOption == null) {
-                event.replyFormat("%1$s Id of command is required", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Id of command is required", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
@@ -202,11 +202,11 @@ public class AutoReplyCommand extends AdminCommand {
             ReplyRule rule = autoReplyManager.getRuleById(id);
 
             if (rule == null) {
-                event.replyFormat("Rule `%1$s` doesn't exist!", getClient().getWarning(), id).setEphemeral(true).queue();
+                event.replyFormat("Rule `%1$s` doesn't exist!", event.getClient().getWarning(), id).setEphemeral(true).queue();
             } else {
                 autoReplyManager.deleteRule(rule);
                 log.info("Reply rule with id {} was removed by {}.", idOption.getAsLong(), FormatUtils.formatAuthor(event));
-                event.replyFormat("%1$s Successfully deleted rule with id `[%2$s]`.", getClient().getSuccess(), idOption.getAsLong()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Successfully deleted rule with id `[%2$s]`.", event.getClient().getSuccess(), idOption.getAsLong()).setEphemeral(true).queue();
             }
         }
     }
@@ -242,7 +242,7 @@ public class AutoReplyCommand extends AdminCommand {
             try {
                 strategy = AutoReplyManager.MatchingStrategy.valueOf(matchingStrategy.toUpperCase());
             } catch (IllegalArgumentException e) {
-                event.replyFormat("%1$s Specify either `full` or `inline` strategy.", getClient().getWarning()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Specify either `full` or `inline` strategy.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                 return;
             }
@@ -253,7 +253,7 @@ public class AutoReplyCommand extends AdminCommand {
             }));
 
             log.info("Matching strategy is set to '{}' by '{}'.", strategy, FormatUtils.formatAuthor(event));
-            event.replyFormat("%1$s Changed current matching strategy to `%2$s`.", getClient().getSuccess(), strategy.name().toLowerCase()).queue();
+            event.replyFormat("%1$s Changed current matching strategy to `%2$s`.", event.getClient().getSuccess(), strategy.name().toLowerCase()).queue();
         }
     }
 
@@ -275,7 +275,7 @@ public class AutoReplyCommand extends AdminCommand {
             OptionMapping chanceOption = event.getOption(CHANCE_OPTION_KEY);
             if (chanceOption == null) {
                 event.replyFormat("%1$s Reply chance should not be empty!",
-                        getClient().getWarning()
+                        event.getClient().getWarning()
                 ).setEphemeral(true).queue();
 
                 return;
@@ -284,7 +284,7 @@ public class AutoReplyCommand extends AdminCommand {
             try {
                 double replyChance = Double.parseDouble(chanceOption.getAsString());
                 if (replyChance < 0.0 || replyChance > 1.0) {
-                    event.replyFormat("%1$s Reply chance should be in range [0.0 - 1.0]. `%2$s` given", getClient().getWarning(), replyChance).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Reply chance should be in range [0.0 - 1.0]. `%2$s` given", event.getClient().getWarning(), replyChance).setEphemeral(true).queue();
 
                     return;
                 }
@@ -294,9 +294,9 @@ public class AutoReplyCommand extends AdminCommand {
                     guildSettingsRepository.save(guildSettings);
                 });
 
-                event.replyFormat("%1$s Reply chance is now %2$s%%", getClient().getSuccess(), replyChance * 100).queue();
+                event.replyFormat("%1$s Reply chance is now %2$s%%", event.getClient().getSuccess(), replyChance * 100).queue();
             } catch (NumberFormatException nfe) {
-                event.replyFormat("%1$s Invalid number specified `[%2$s]`", getClient().getWarning(), chanceOption.getAsString()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Invalid number specified `[%2$s]`", event.getClient().getWarning(), chanceOption.getAsString()).setEphemeral(true).queue();
             }
         }
     }

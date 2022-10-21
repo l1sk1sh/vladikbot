@@ -1,9 +1,9 @@
 package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.network.dto.DogFact;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -31,14 +31,14 @@ public class DogFactCommand extends SlashCommand {
         try {
             dogFact = restTemplate.getForObject("https://dog-api.kinduff.com/api/facts?number=1", DogFact.class);
         } catch (RestClientException e) {
-            event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
 
             return;
         }
 
         if (dogFact == null) {
-            event.replyFormat("%1$s Couldn't get dog fact.", getClient().getError()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Couldn't get dog fact.", event.getClient().getError()).setEphemeral(true).queue();
             log.error("Response body is empty.");
 
             return;

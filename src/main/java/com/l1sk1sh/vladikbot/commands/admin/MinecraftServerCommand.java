@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.network.dto.JenkinsJob;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.AuthUtils;
@@ -7,8 +8,7 @@ import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -53,7 +53,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
     @Override
     protected void execute(SlashCommandEvent event) {
-        event.reply(CommandUtils.getListOfChildCommands(this, children, name).toString()).setEphemeral(true).queue();
+        event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
     private class Status extends AdminCommand {
@@ -74,16 +74,16 @@ public class MinecraftServerCommand extends AdminCommand {
                 JenkinsJob.Build latestBuild = job.getLastBuild();
 
                 if (latestBuild == null) {
-                    event.replyFormat("%1$s Server has never been launched before.", getClient().getWarning()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Server has never been launched before.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
 
-                MessageBuilder builder = new MessageBuilder();
+                MessageCreateBuilder builder = new MessageCreateBuilder();
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setAuthor("Minecraft server status", null, "https://cdn.icon-icons.com/icons2/2699/PNG/512/minecraft_logo_icon_168974.png")
                         .setColor(new Color(114, 56, 45))
-                        .addField("Server status is", (latestBuild.isBuilding()) ? getClient().getSuccess() + " **Online**" : getClient().getError() + " **Offline**", false)
+                        .addField("Server status is", (latestBuild.isBuilding()) ? event.getClient().getSuccess() + " **Online**" : event.getClient().getError() + " **Offline**", false)
                         .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(latestBuild.getTimestamp()), false)
                         .addField("Time online", FormatUtils.getReadableDuration(latestBuild.getDuration()), false)
                         .setImage("https://lh3.googleusercontent.com/proxy/rrJe5P0KT8F1TTrpx1XTq0IJ0sRKYx25ISU_RZZ_kN46euV4tdYw7wGj2I_8F9CuYXuS4CXQXPAvqYli7Y32fS1mQk05cY4Ut5rrtvNSnCcAV6gV-X5Dx8mEIScgfSYzqKGiexpU_9jKAw");
@@ -94,7 +94,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
                 event.reply(builder.setEmbeds(embedBuilder.build()).build()).setEphemeral(true).queue();
             } catch (RestClientException e) {
-                event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
                 log.error("Failed to process Jenkins status request.", e);
             }
         }
@@ -116,7 +116,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 }
 
                 if (job.getLastBuild().isBuilding() || job.getQueueItem() != null) {
-                    event.replyFormat("%1$s Server is already running.", getClient().getWarning()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Server is already running.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
@@ -125,7 +125,7 @@ public class MinecraftServerCommand extends AdminCommand {
                         (minecraftJobUri + "build", HttpMethod.POST, new HttpEntity<Void>(headers), Void.class);
 
                 if (response.getStatusCode() != HttpStatus.CREATED) {
-                    event.replyFormat("%1$s Server hasn't been started correctly: `%2$s`", getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Server hasn't been started correctly: `%2$s`", event.getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
 
                     return;
                 }
@@ -134,7 +134,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 event.reply("Minecraft server has been launched!").queue();
             } catch (RestClientException e) {
                 log.error("Failed to process Jenkins build request.", e);
-                event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             }
         }
     }
@@ -155,7 +155,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 }
 
                 if (!job.getLastBuild().isBuilding()) {
-                    event.replyFormat("%1$s Server is already stopped.", getClient().getWarning()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Server is already stopped.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
@@ -163,7 +163,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 JenkinsJob.Build latestBuild = job.getLastBuild();
 
                 if (latestBuild == null) {
-                    event.replyFormat("%1$s Server has never been launched before.", getClient().getWarning()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Server has never been launched before.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
@@ -173,7 +173,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
                 if (response.getStatusCode() != HttpStatus.OK
                         || response.getStatusCode() != HttpStatus.FOUND) {
-                    event.replyFormat("%1$s Server hasn't been stopped correctly: `%2$s`", getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Server hasn't been stopped correctly: `%2$s`", event.getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
 
                     return;
                 }
@@ -182,7 +182,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 event.reply("Minecraft server has been stopped!").queue();
             } catch (RestClientException e) {
                 log.error("Failed to process Jenkins stop request.", e);
-                event.replyFormat("%1$s Error occurred: `%2$s`", getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             }
         }
     }
@@ -196,7 +196,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
         if (jenkinsJob.getStatusCode() != HttpStatus.OK) {
             log.error("Failed to process Jenkins build request with status code {}", jenkinsJob.getStatusCode());
-            event.replyFormat("%1$s Failed to get correct status code: `%2$s`", getClient().getError(), jenkinsJob.getStatusCodeValue()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Failed to get correct status code: `%2$s`", event.getClient().getError(), jenkinsJob.getStatusCodeValue()).setEphemeral(true).queue();
 
             return null;
         }
@@ -204,7 +204,7 @@ public class MinecraftServerCommand extends AdminCommand {
         JenkinsJob job = jenkinsJob.getBody();
         if (job == null) {
             log.error("Jenkins returned empty or incorrect response.");
-            event.replyFormat("%1$s Failed to get response from Jenkins.", getClient().getError()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Failed to get response from Jenkins.", event.getClient().getError()).setEphemeral(true).queue();
 
             return null;
         }

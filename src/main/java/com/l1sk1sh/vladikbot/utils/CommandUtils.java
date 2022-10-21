@@ -3,10 +3,11 @@ package com.l1sk1sh.vladikbot.utils;
 import com.jagrosh.jdautilities.command.Command;
 import com.jagrosh.jdautilities.command.CommandClient;
 import com.jagrosh.jdautilities.command.CommandEvent;
-import com.jagrosh.jdautilities.command.SlashCommand;
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -25,9 +26,9 @@ public final class CommandUtils {
         return getListOfCommands(children, nameOfParentCommand, message, event.getClient());
     }
 
-    public static StringBuilder getListOfChildCommands(SlashCommand command, Command[] children, String nameOfParentCommand) {
-        String message = command.getClient().getWarning() + " " + nameOfParentCommand + " has following commands:\r\n";
-        return getListOfCommands(children, nameOfParentCommand, message, command.getClient());
+    public static StringBuilder getListOfChildCommands(SlashCommandEvent event, Command[] children, String nameOfParentCommand) {
+        String message = event.getClient().getWarning() + " " + nameOfParentCommand + " has following commands:\r\n";
+        return getListOfCommands(children, nameOfParentCommand, message, event.getClient());
     }
 
     @NotNull
@@ -55,7 +56,7 @@ public final class CommandUtils {
                     "File is too big! Max file-size is 8 MiB for normal and 50 MiB for nitro users!\r\n" +
                             "Limit executed command with period: --before <mm/dd/yy> --after <mm/dd/yy>");
         } else {
-            event.getTextChannel().sendFile(exportedFile, exportedFile.getName()).queue();
+            event.getTextChannel().sendFiles(FileUpload.fromData(exportedFile, exportedFile.getName())).queue();
         }
     }
 

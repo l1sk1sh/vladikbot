@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
@@ -7,7 +8,6 @@ import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -49,7 +49,7 @@ public class RemoveCommand extends MusicCommand {
     public final void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         if (Objects.requireNonNull(audioHandler).getQueue().isEmpty()) {
-            event.replyFormat("%1$s  There is nothing in the queue!", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s  There is nothing in the queue!", event.getClient().getWarning()).setEphemeral(true).queue();
             return;
         }
 
@@ -59,9 +59,9 @@ public class RemoveCommand extends MusicCommand {
             if (positionOption.getAsString().equalsIgnoreCase(POSITION_ALL_KEY)) {
                 int count = audioHandler.getQueue().removeAll(event.getUser().getIdLong());
                 if (count == 0) {
-                    event.replyFormat("%1$s You don't have any songs in the queue!", getClient().getWarning()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s You don't have any songs in the queue!", event.getClient().getWarning()).setEphemeral(true).queue();
                 } else {
-                    event.replyFormat("%1$s Successfully removed your %2$s entries.", getClient().getSuccess(), count).queue();
+                    event.replyFormat("%1$s Successfully removed your %2$s entries.", event.getClient().getSuccess(), count).queue();
                 }
 
                 return;
@@ -74,7 +74,7 @@ public class RemoveCommand extends MusicCommand {
         }
 
         if ((position < 1) || (position > audioHandler.getQueue().size())) {
-            event.replyFormat("%1$s Position must be a valid integer between 1 and %2$s!", getClient().getError(),
+            event.replyFormat("%1$s Position must be a valid integer between 1 and %2$s!", event.getClient().getError(),
                     audioHandler.getQueue().size()).setEphemeral(true).queue();
 
             return;
@@ -100,14 +100,14 @@ public class RemoveCommand extends MusicCommand {
             }
             event.replyFormat(
                     "%1$s Removed **%2$s** from the queue (requested by *%3$s*)",
-                    getClient().getSuccess(),
+                    event.getClient().getSuccess(),
                     queuedTrack.getTrack().getInfo().title,
                     ((user == null)
                             ? "someone"
                             : user.getName())
             ).queue();
         } else {
-            event.replyFormat("%1$s You cannot remove **%2$s** because you didn't add it!", getClient().getError(),
+            event.replyFormat("%1$s You cannot remove **%2$s** because you didn't add it!", event.getClient().getError(),
                     queuedTrack.getTrack().getInfo().title).setEphemeral(true).queue();
         }
     }

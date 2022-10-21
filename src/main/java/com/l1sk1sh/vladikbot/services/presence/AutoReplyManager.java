@@ -31,11 +31,11 @@ public class AutoReplyManager {
     }
 
     public void reply(Message message) {
-        if (message.getMentionedMembers().contains(message.getGuild().getSelfMember())) {
+        if (message.getMentions().getMembers().contains(message.getGuild().getSelfMember())) {
             if (!replyRules.isEmpty()) {
                 ReplyRule randomRule = replyRules.get(random.nextInt(replyRules.size()));
                 String randomReply = randomRule.getReactWithList().get(random.nextInt(randomRule.getReactWithList().size()));
-                message.getTextChannel().sendMessage(randomReply).queue();
+                message.getChannel().asTextChannel().sendMessage(randomReply).queue();
             }
             return;
         }
@@ -99,7 +99,7 @@ public class AutoReplyManager {
         }
 
         log.trace("Sending reply to '{}' with '{}'.", message.toString(), chosenRule);
-        message.getTextChannel().sendMessage(
+        message.getChannel().asTextChannel().sendMessage(
                 chosenRule.getReactWithList().get(
                         random.nextInt(chosenRule.getReactWithList().size()))
         ).queue();

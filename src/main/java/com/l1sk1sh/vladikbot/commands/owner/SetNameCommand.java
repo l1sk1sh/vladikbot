@@ -1,8 +1,8 @@
 package com.l1sk1sh.vladikbot.commands.owner;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -37,7 +37,7 @@ public class SetNameCommand extends OwnerCommand {
     protected final void execute(SlashCommandEvent event) {
         OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
         if (nameOption == null) {
-            event.replyFormat("%1$s Name is required for this command.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Name is required for this command.", event.getClient().getWarning()).setEphemeral(true).queue();
             return;
         }
 
@@ -47,11 +47,11 @@ public class SetNameCommand extends OwnerCommand {
             String oldName = event.getJDA().getSelfUser().getName();
             event.getJDA().getSelfUser().getManager().setName(newName).complete(false);
             log.info("Name of bot was changed to {} by {}", nameOption, FormatUtils.formatAuthor(event));
-            event.replyFormat("%1$s Name changed from `%2$s` to `%3$s`.", getClient().getSuccess(), oldName, newName).setEphemeral(true).queue();
+            event.replyFormat("%1$s Name changed from `%2$s` to `%3$s`.", event.getClient().getSuccess(), oldName, newName).setEphemeral(true).queue();
         } catch (RateLimitedException e) {
-            event.replyFormat("%1$s Name can only be changed twice per hour!", getClient().getError()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Name can only be changed twice per hour!", event.getClient().getError()).setEphemeral(true).queue();
         } catch (Exception e) {
-            event.replyFormat("%1$s That name is not valid!", getClient().getError()).setEphemeral(true).queue();
+            event.replyFormat("%1$s That name is not valid!", event.getClient().getError()).setEphemeral(true).queue();
         }
     }
 }

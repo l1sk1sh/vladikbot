@@ -1,5 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.music;
 
+import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.ButtonMenu;
 import com.l1sk1sh.vladikbot.commands.dj.DJCommand;
@@ -17,7 +18,6 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -65,7 +65,7 @@ public class PlayCommand extends DJCommand {
     public void doCommand(SlashCommandEvent event) {
         OptionMapping songOption = event.getOption(SONG_OPTION_KEY);
         if (songOption == null) {
-            event.replyFormat("%1$s Please include a song name or URL.", getClient().getWarning()).setEphemeral(true).queue();
+            event.replyFormat("%1$s Please include a song name or URL.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
@@ -80,16 +80,16 @@ public class PlayCommand extends DJCommand {
                     event.replyFormat("Resumed **%1$s**.",
                             audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
                 } else {
-                    event.replyFormat("%1$s Only DJs can unpause the player!", getClient().getWarning()).setEphemeral(true).queue();
+                    event.replyFormat("%1$s Only DJs can unpause the player!", event.getClient().getWarning()).setEphemeral(true).queue();
                 }
 
                 return;
             }
 
-            String reply = getClient().getWarning() + " Play Command:\r\n"
+            String reply = event.getClient().getWarning() + " Play Command:\r\n"
                     + "`" + name + " <song title>` - plays the first result from Youtube\r\n"
                     + "`" + name + " <URL>` - plays the provided song, playlist or stream\r\n"
-                    + CommandUtils.getListOfChildCommands(this, children, name).toString();
+                    + CommandUtils.getListOfChildCommands(event, children, name).toString();
             event.reply(reply).setEphemeral(true).queue();
 
             return;
@@ -114,7 +114,7 @@ public class PlayCommand extends DJCommand {
             if (settings.get().isTooLong(track)) {
                 event.getHook().editOriginalFormat(
                         "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
-                        getClient().getWarning(),
+                        event.getClient().getWarning(),
                         FormatUtils.filter(track.getInfo().title),
                         FormatUtils.formatTimeTillHours(track.getDuration()),
                         FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)
@@ -128,7 +128,7 @@ public class PlayCommand extends DJCommand {
 
             String addMessage = FormatUtils.filter(String.format(
                     "%1$s Added **%2$s** (`%3$s`) %4$s.",
-                    getClient().getSuccess(),
+                    event.getClient().getSuccess(),
                     track.getInfo().title,
                     FormatUtils.formatTimeTillHours(track.getDuration()),
                     ((position == 0) ? "to begin playing" : " to the queue at position " + position))
@@ -141,7 +141,7 @@ public class PlayCommand extends DJCommand {
                 new ButtonMenu.Builder().setText(String.format(
                         "%1$s \r\n %2$s  This track has a playlist of **%3$s** tracks attached. Select %4$s to load playlist.",
                         addMessage,
-                        getClient().getWarning(),
+                        event.getClient().getWarning(),
                         playlist.getTracks().size(),
                         Const.LOAD_EMOJI))
                         .setChoices(Const.LOAD_EMOJI, Const.CANCEL_EMOJI)
@@ -152,7 +152,7 @@ public class PlayCommand extends DJCommand {
                             if (re.getName().equals(Const.LOAD_EMOJI)) {
                                 event.replyFormat("%1$s \r\n %2$s Loaded **%3$s** additional tracks!",
                                         addMessage,
-                                        getClient().getSuccess(),
+                                        event.getClient().getSuccess(),
                                         loadPlaylist(playlist, track)
                                 ).queue();
                             } else {
@@ -200,19 +200,19 @@ public class PlayCommand extends DJCommand {
                 if (count == 0) {
                     event.replyFormat(
                             "%1$s All entries in this playlist %2$s were longer than the allowed maximum (`%3$s`).",
-                            getClient().getWarning(),
+                            event.getClient().getWarning(),
                             FormatUtils.filter((playlist.getName() == null) ? "" : "(**" + playlist.getName() + "**)"),
                             settings.get().getMaxTime()
                     ).queue();
                 } else {
                     event.replyFormat(
                             "%1$s Found %2$s with `%3$s` entries; added to the queue! %4$s",
-                            getClient().getSuccess(),
+                            event.getClient().getSuccess(),
                             FormatUtils.filter((playlist.getName() == null) ? "a playlist" : "playlist **" + playlist.getName() + "**"),
                             playlist.getTracks().size(),
                             ((count < playlist.getTracks().size())
                                     ? String.format("\r\n%1$s Tracks longer than the allowed maximum (`%2$s`) have been omitted.",
-                                    getClient().getWarning(),
+                                    event.getClient().getWarning(),
                                     settings.get().getMaxTime())
                                     : "")
                     ).queue();
@@ -224,7 +224,7 @@ public class PlayCommand extends DJCommand {
         public void noMatches() {
             if (ytsearch) {
                 event.replyFormat("%1$s No results found for `%2$s`.",
-                        getClient().getWarning(), FormatUtils.filter(song)).setEphemeral(true).queue();
+                        event.getClient().getWarning(), FormatUtils.filter(song)).setEphemeral(true).queue();
             } else {
                 playerManager.loadItemOrdered(event.getGuild(), Const.YT_SEARCH_PREFIX
                         + song, new ResultHandler(song, event, true));
@@ -234,10 +234,10 @@ public class PlayCommand extends DJCommand {
         @Override
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == Severity.COMMON) {
-                event.replyFormat("%1$s Error loading: %2$s.", getClient().getError(),
+                event.replyFormat("%1$s Error loading: %2$s.", event.getClient().getError(),
                         throwable.getLocalizedMessage()).setEphemeral(true).queue();
             } else {
-                event.replyFormat("%1$s Error loading track.", getClient().getError()).setEphemeral(true).queue();
+                event.replyFormat("%1$s Error loading track.", event.getClient().getError()).setEphemeral(true).queue();
             }
         }
     }
