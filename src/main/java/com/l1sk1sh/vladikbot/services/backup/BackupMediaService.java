@@ -84,7 +84,8 @@ public class BackupMediaService {
                                     = discordAttachmentsRepository.getAllNotDownloadedByChannelId(channel.getIdLong());
 
                             if (channelAttachments == null || channelAttachments.isEmpty()) {
-                                throw new EntityNotFoundException();
+                                log.info("Channel {} doesn't have not saved attachments.", channel.getName());
+                                continue;
                             }
 
                             for (DiscordAttachment attachment : channelAttachments) {

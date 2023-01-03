@@ -40,6 +40,7 @@ public final class Const {
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_MESSAGES);
         REQUIRED_INTENTS.add(GatewayIntent.GUILD_MESSAGE_REACTIONS);
         REQUIRED_INTENTS.add(GatewayIntent.DIRECT_MESSAGES);
+        REQUIRED_INTENTS.add(GatewayIntent.MESSAGE_CONTENT);
     }
 
     public static final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
