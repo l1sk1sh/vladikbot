@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.exceptions.MissingAccessException;
+import net.dv8tion.jda.api.exceptions.InsufficientPermissionException;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -78,7 +78,7 @@ public class BackupTextService {
                             MessageHistory messageHistory = channel.getHistoryFromBeginning(100).complete();
                             readMessageHistory(messageHistory, messageHistory.size());
                             writeMessageHistory(messageHistory);
-                        } catch (MissingAccessException e) {
+                        } catch (InsufficientPermissionException e) {
                             log.warn("Channel '{}' cannot be read due to missing permission. {}", channel.getName(), e.getLocalizedMessage());
                         }
                     }
