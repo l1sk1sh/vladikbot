@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageReaction;
 import net.dv8tion.jda.api.entities.emoji.CustomEmoji;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 
 import java.util.stream.Collectors;
 
@@ -50,8 +51,10 @@ public final class MapperUtils {
     public static DiscordReaction mapMessageReactionToDiscordReaction(MessageReaction reaction, long messageId) {
         return new DiscordReaction(
                 messageId,
-                reaction.getEmoji().asCustom().getIdLong(),
-                reaction.getEmoji().asCustom().getName()
+                reaction.getEmoji().getType().equals(Emoji.Type.CUSTOM)
+                        ? reaction.getEmoji().asCustom().getIdLong()
+                        : Long.parseLong(reaction.getEmoji().asUnicode().getAsCodepoints()),
+                reaction.getEmoji().getName()
         );
     }
 
