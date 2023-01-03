@@ -87,7 +87,7 @@ public class EmojiStatsService {
             }
 
             List<AuthorEmojiCompoundKey> reactionsEmojiKeys = message.getReactions().stream()
-                    .filter(reaction -> reaction.getEmojiId() != 0)
+                    .filter(reaction -> !reaction.getEmojiId().isBlank())
                     .map(reaction -> new AuthorEmojiCompoundKey(message.getAuthorId(), reaction.getName()))
                     .collect(Collectors.toList());
 

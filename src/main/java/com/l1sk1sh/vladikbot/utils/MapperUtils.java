@@ -52,8 +52,8 @@ public final class MapperUtils {
         return new DiscordReaction(
                 messageId,
                 reaction.getEmoji().getType().equals(Emoji.Type.CUSTOM)
-                        ? reaction.getEmoji().asCustom().getIdLong()
-                        : Long.parseLong(reaction.getEmoji().asUnicode().getAsCodepoints()),
+                        ? String.valueOf(reaction.getEmoji().asCustom().getIdLong())
+                        : reaction.getEmoji().asUnicode().getAsCodepoints(),
                 reaction.getEmoji().getName()
         );
     }

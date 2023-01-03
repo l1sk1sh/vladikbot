@@ -27,7 +27,7 @@ public class DiscordReaction {
 
     @Column(name = "emoji_id", nullable = false)
     @NonNull
-    private Long emojiId;
+    private String emojiId;
 
     @Column(name = "emoji_name", nullable = false)
     @NonNull
