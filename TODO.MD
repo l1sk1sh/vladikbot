@@ -12,6 +12,8 @@
     1. WHO notifications API (https://www.who.int/csr/don/en/)
     1. Word of the day
     1. Track user activity
+    1. Add panorama news
+    1. Add news limit by keywords for certain news researches
 0. Extend reply core:
     1. Create word usage frequency and add replies accordingly
     1. Create history of replies and do not use same reply for a period

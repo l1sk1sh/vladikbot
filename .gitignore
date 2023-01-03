@@ -26,3 +26,4 @@ manifest.mf
 
 # Local files
 app/
+*.db

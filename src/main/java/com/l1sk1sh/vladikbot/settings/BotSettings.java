@@ -21,7 +21,6 @@ public class BotSettings {
     @Setter
     private transient SettingsUpdateListener listener;
 
-    /* Finish all paths with file system separator! */
     private String token = "MY_BOT_TOKEN";                              // Bot token taken from discord developer portal
     private long ownerId = 0L;                                          // Id of the person, who is hosting the bot
     private long maintainerGuildId = 0L;                                // Id of Guild that will be used to maintaining notifications
