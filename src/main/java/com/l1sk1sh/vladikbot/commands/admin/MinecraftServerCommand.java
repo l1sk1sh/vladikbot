@@ -48,7 +48,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 settings.get().getJenkinsApiUsername(),
                 settings.get().getJenkinsApiPassword());
         this.headers.setContentType(MediaType.APPLICATION_JSON);
-        this.minecraftJobUri = settings.get().getJenkinsApiHost() + "/job/minecraft-server-run/";
+        this.minecraftJobUri = settings.get().getJenkinsApiHost() + "/job/minecraft-server/";
     }
 
     @Override
