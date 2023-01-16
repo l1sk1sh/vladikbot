@@ -79,14 +79,22 @@ public class MinecraftServerCommand extends AdminCommand {
                     return;
                 }
 
+                long duration = latestBuild.getDuration();
+                long startTime = latestBuild.getTimestamp();
+
                 MessageCreateBuilder builder = new MessageCreateBuilder();
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setAuthor("Minecraft server status", null, "https://cdn.icon-icons.com/icons2/2699/PNG/512/minecraft_logo_icon_168974.png")
                         .setColor(new Color(114, 56, 45))
                         .addField("Server status is", (latestBuild.isBuilding()) ? event.getClient().getSuccess() + " **Online**" : event.getClient().getError() + " **Offline**", false)
-                        .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(latestBuild.getTimestamp()), false)
-                        .addField("Time online", FormatUtils.getReadableDuration(latestBuild.getDuration()), false)
+                        .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(startTime), false)
                         .setImage("https://lh3.googleusercontent.com/proxy/rrJe5P0KT8F1TTrpx1XTq0IJ0sRKYx25ISU_RZZ_kN46euV4tdYw7wGj2I_8F9CuYXuS4CXQXPAvqYli7Y32fS1mQk05cY4Ut5rrtvNSnCcAV6gV-X5Dx8mEIScgfSYzqKGiexpU_9jKAw");
+
+                if (duration > 0) {
+                    embedBuilder.addField("Time online", FormatUtils.getReadableDuration(duration), false);
+                } else {
+                    embedBuilder.addField("Time online", FormatUtils.getReadableDuration(System.currentTimeMillis() - startTime), false);
+                }
 
                 if (!latestBuild.isBuilding()) {
                     embedBuilder.addField("Last server stop result", latestBuild.getResult(), false);
@@ -124,7 +132,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 ResponseEntity<Void> response = restTemplate.exchange
                         (minecraftJobUri + "build", HttpMethod.POST, new HttpEntity<Void>(headers), Void.class);
 
-                if (response.getStatusCode() != HttpStatus.CREATED) {
+                if (response.getStatusCode() != HttpStatus.CREATED && response.getStatusCode() != HttpStatus.FOUND) {
                     event.replyFormat("%1$s Server hasn't been started correctly: `%2$s`", event.getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
 
                     return;
@@ -171,8 +179,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 ResponseEntity<Void> response = restTemplate.exchange
                         (minecraftJobUri + "/" + latestBuild.getId() + "/stop", HttpMethod.POST, new HttpEntity<Void>(headers), Void.class);
 
-                if (response.getStatusCode() != HttpStatus.OK
-                        || response.getStatusCode() != HttpStatus.FOUND) {
+                if (response.getStatusCode() != HttpStatus.OK && response.getStatusCode() != HttpStatus.FOUND) {
                     event.replyFormat("%1$s Server hasn't been stopped correctly: `%2$s`", event.getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
 
                     return;
