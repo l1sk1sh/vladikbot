@@ -39,10 +39,10 @@ public class NowPlayingCommand extends MusicCommand {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         MessageCreateData message = Objects.requireNonNull(audioHandler).getNowPlaying(event.getJDA());
         if (message == null) {
-            event.reply(audioHandler.getNoMusicPlaying(event.getJDA())).queue();
+            event.reply(audioHandler.getNoMusicPlaying(event.getJDA())).setEphemeral(true).queue();
             nowPlayingHandler.clearLastNPMessage(event.getGuild());
         } else {
-            event.reply(message).queue();
+            event.reply(message).setEphemeral(true).queue();
             nowPlayingHandler.setLastNPMessage(event.getHook().retrieveOriginal().complete());
         }
     }

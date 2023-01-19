@@ -89,7 +89,7 @@ public class QueueCommand extends MusicCommand {
                     .setContent(event.getClient().getWarning() + " There is no music in the queue!")
                     .setEmbeds((nowp == null ? nonowp : nowp).getEmbeds().get(0)).build();
 
-            event.reply(built).queue();
+            event.reply(built).setEphemeral(true).queue();
 
             if (nowp != null) {
                 nowPlayingHandler.setLastNPMessage(event.getHook().retrieveOriginal().complete());
@@ -113,7 +113,7 @@ public class QueueCommand extends MusicCommand {
                 .setColor(event.getGuild().getSelfMember().getColor())
         ;
 
-        event.replyFormat("%1$s Loading...", settings.get().getLoadingEmoji()).queue();
+        event.replyFormat("%1$s Loading...", settings.get().getLoadingEmoji()).setEphemeral(true).queue();
         builder.build().paginate(event.getHook().retrieveOriginal().complete(), pagenum);
     }
 
