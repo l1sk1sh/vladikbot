@@ -48,7 +48,7 @@ public class SkipToCommand extends DJCommand {
 
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         if ((index < 1) || (index > Objects.requireNonNull(audioHandler).getQueue().size())) {
-            event.replyFormat("%1$ Position must be a valid integer between 1 and %2$s!",
+            event.replyFormat("%1$s Position must be a valid integer between 1 and %2$s!",
                     event.getClient().getWarning(),
                     Objects.requireNonNull(audioHandler).getQueue().size()
             ).setEphemeral(true).queue();
@@ -56,7 +56,7 @@ public class SkipToCommand extends DJCommand {
             return;
         }
         audioHandler.getQueue().skip(index - 1);
-        event.replyFormat("%1$ Skipped to **%2$s**.", event.getClient().getWarning(), audioHandler.getQueue().get(0).getTrack().getInfo().title).queue();
+        event.replyFormat("%1$s Skipped to **%2$s**.", event.getClient().getWarning(), audioHandler.getQueue().get(0).getTrack().getInfo().title).queue();
         audioHandler.getPlayer().stopTrack();
     }
 }
