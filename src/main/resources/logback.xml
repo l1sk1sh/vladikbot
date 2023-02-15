@@ -68,7 +68,7 @@
     <!-- Possible options are: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF -->
     <root level="${ROOT_LOG_LEVEL}">
         <appender-ref ref="ASYNC"/>
-        <!-- To use enable this mode pass -Dcolor to jvm -->
+        <!-- To use enable this mode pass -Djenkins to jvm -->
         <if condition='isDefined("jenkins")'>
             <then>
                 <appender-ref ref="JENKINS"/>

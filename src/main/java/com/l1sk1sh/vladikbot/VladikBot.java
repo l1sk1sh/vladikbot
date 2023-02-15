@@ -77,9 +77,9 @@ public class VladikBot {
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         Charset defaultCharset = Charset.defaultCharset();
-        String utf9canonical = "utf-8";
+        String utf8canonical = "utf-8";
 
-        if (!defaultCharset.toString().equalsIgnoreCase(utf9canonical)) {
+        if (!defaultCharset.toString().equalsIgnoreCase(utf8canonical)) {
             log.warn("Default charset is '{}'. Consider changing to 'UTF-8' by setting JVM options '-Dconsole.encoding=UTF-8 -Dfile.encoding=UTF-8'.", defaultCharset);
         }
 
@@ -156,6 +156,7 @@ public class VladikBot {
                         backupTextCommand,
                         emojiStatsCommand,
                         guildLoggerCommand,
+                        ipCommand,
                         memesManagementCommand,
                         minecraftServerCommand,
                         newsManagementCommand,
@@ -241,6 +242,8 @@ public class VladikBot {
     private EmojiStatsCommand emojiStatsCommand;
     @Setter(onMethod = @__({@Autowired}))
     private GuildLoggerCommand guildLoggerCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private IPCommand ipCommand;
     @Setter(onMethod = @__({@Autowired}))
     private MemesManagementCommand memesManagementCommand;
     @Setter(onMethod = @__({@Autowired}))
