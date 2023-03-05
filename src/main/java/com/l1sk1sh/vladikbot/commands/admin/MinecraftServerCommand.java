@@ -8,14 +8,21 @@ import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionMapping;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
+import java.time.Duration;
+import java.util.Collections;
 
 /**
  * @author l1sk1sh
@@ -29,6 +36,7 @@ public class MinecraftServerCommand extends AdminCommand {
     private final RestTemplate restTemplate;
     private HttpHeaders headers;
     private String minecraftJobUri;
+    private String minecraftRconJobUri;
 
     @Autowired
     public MinecraftServerCommand(BotSettingsManager settings) {
@@ -39,7 +47,8 @@ public class MinecraftServerCommand extends AdminCommand {
         this.children = new AdminCommand[]{
                 new Status(),
                 new Start(),
-                new Stop()
+                new Stop(),
+                new RCON()
         };
     }
 
@@ -47,8 +56,8 @@ public class MinecraftServerCommand extends AdminCommand {
         this.headers = AuthUtils.createBasicAuthenticationHeaders(
                 settings.get().getJenkinsApiUsername(),
                 settings.get().getJenkinsApiPassword());
-        this.headers.setContentType(MediaType.APPLICATION_JSON);
         this.minecraftJobUri = settings.get().getJenkinsApiHost() + "/job/minecraft-server/";
+        this.minecraftRconJobUri = settings.get().getJenkinsApiHost() + "/job/minecraft-server-command/";
     }
 
     @Override
@@ -66,13 +75,12 @@ public class MinecraftServerCommand extends AdminCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             try {
-                JenkinsJob job = getJobStatus(event);
+                JenkinsJob job = getServerJobStatus(event);
                 if (job == null) {
                     return;
                 }
 
                 JenkinsJob.Build latestBuild = job.getLastBuild();
-
                 if (latestBuild == null) {
                     event.replyFormat("%1$s Server has never been launched before.", event.getClient().getWarning()).setEphemeral(true).queue();
 
@@ -118,7 +126,7 @@ public class MinecraftServerCommand extends AdminCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             try {
-                JenkinsJob job = getJobStatus(event);
+                JenkinsJob job = getServerJobStatus(event);
                 if (job == null) {
                     return;
                 }
@@ -129,6 +137,7 @@ public class MinecraftServerCommand extends AdminCommand {
                     return;
                 }
 
+                headers.setContentType(MediaType.APPLICATION_JSON);
                 ResponseEntity<Void> response = restTemplate.exchange
                         (minecraftJobUri + "build", HttpMethod.POST, new HttpEntity<Void>(headers), Void.class);
 
@@ -157,7 +166,7 @@ public class MinecraftServerCommand extends AdminCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             try {
-                JenkinsJob job = getJobStatus(event);
+                JenkinsJob job = getServerJobStatus(event);
                 if (job == null) {
                     return;
                 }
@@ -169,13 +178,13 @@ public class MinecraftServerCommand extends AdminCommand {
                 }
 
                 JenkinsJob.Build latestBuild = job.getLastBuild();
-
                 if (latestBuild == null) {
                     event.replyFormat("%1$s Server has never been launched before.", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
 
+                headers.setContentType(MediaType.APPLICATION_JSON);
                 ResponseEntity<Void> response = restTemplate.exchange
                         (minecraftJobUri + "/" + latestBuild.getId() + "/stop", HttpMethod.POST, new HttpEntity<Void>(headers), Void.class);
 
@@ -194,12 +203,86 @@ public class MinecraftServerCommand extends AdminCommand {
         }
     }
 
-    private JenkinsJob getJobStatus(SlashCommandEvent event) throws RestClientException {
+    private class RCON extends AdminCommand {
+
+        private static final String COMMAND_OPTION_KEY = "command";
+
+        private RCON() {
+            this.name = "rcon";
+            this.help = "Send RCON command to the server";
+            this.ownerCommand = true; // Rewrite access level
+            this.options = Collections.singletonList(new OptionData(OptionType.STRING, COMMAND_OPTION_KEY, "RCON command to execute").setRequired(true));
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            try {
+                if (settings.get().getOwnerId() != event.getUser().getIdLong()) {
+                    return;
+                }
+
+                OptionMapping commandOption = event.getOption(COMMAND_OPTION_KEY);
+                if (commandOption == null) {
+                    event.replyFormat("%1$s Command must be specified.", event.getClient().getWarning()).setEphemeral(true).queue();
+                    return;
+                }
+
+                event.deferReply(true).queue();
+
+                String rconCommand = commandOption.getAsString();
+                MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+                map.add("COMMAND", rconCommand);
+
+                headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+                HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+                ResponseEntity<Void> buildResponse = restTemplate.exchange
+                        (minecraftRconJobUri + "buildWithParameters", HttpMethod.POST, request, Void.class);
+
+                if (buildResponse.getStatusCode() != HttpStatus.CREATED && buildResponse.getStatusCode() != HttpStatus.FOUND) {
+                    event.getHook().editOriginalFormat("%1$s Command hasn't been processed correctly: `%2$s`", event.getClient().getWarning(), buildResponse.getStatusCode()).queue();
+
+                    return;
+                }
+
+                try {
+                    // There is no workaround for that - Jenkins can't keep up with next console request and serves previous build instead
+                    Thread.sleep(Duration.ofSeconds(15).toMillis());
+                } catch (InterruptedException e) {
+                    event.getHook().editOriginalFormat("%1$s Sleep has failed.", event.getClient().getError()).queue();
+
+                    return;
+                }
+
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                ResponseEntity<String> consoleResponse = restTemplate.exchange
+                        (minecraftRconJobUri + "lastBuild/consoleText", HttpMethod.GET, new HttpEntity<Void>(headers), String.class);
+
+                if (consoleResponse.getStatusCode() != HttpStatus.OK) {
+                    event.getHook().editOriginalFormat("%1$s Console wasn't fetched correctly: `%2$s`", event.getClient().getWarning(), buildResponse.getStatusCode()).queue();
+
+                    return;
+                }
+
+                event.getHook().editOriginalFormat("```%1$s```", consoleResponse.getBody()).queue();
+            } catch (RestClientException e) {
+                event.getHook().editOriginalFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).queue();
+                log.error("Failed to process Jenkins status request.", e);
+            }
+        }
+    }
+
+    private JenkinsJob getServerJobStatus(SlashCommandEvent event) throws RestClientException {
+        headers.setContentType(MediaType.APPLICATION_JSON);
         ResponseEntity<JenkinsJob> jenkinsJob = restTemplate.exchange(
                 minecraftJobUri + "api/json?depth=1",
                 HttpMethod.GET,
                 new HttpEntity<JenkinsJob>(headers),
                 JenkinsJob.class);
+
+        return handleJobStatus(jenkinsJob, event);
+    }
+
+    private JenkinsJob handleJobStatus(ResponseEntity<JenkinsJob> jenkinsJob, SlashCommandEvent event) throws RestClientException {
 
         if (jenkinsJob.getStatusCode() != HttpStatus.OK) {
             log.error("Failed to process Jenkins build request with status code {}", jenkinsJob.getStatusCode());
