@@ -106,9 +106,10 @@ public class VladikBot {
                 .setOwnerId(Long.toString(settings.get().getOwnerId()))
                 .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
                 .setLinkedCacheSize(1024)
-                .forceGuildOnly((settings.get().getForceGuildId() > 0L)
+                // Use this forcing only during development
+                /*.forceGuildOnly((settings.get().getForceGuildId() > 0L)
                         ? String.valueOf(settings.get().getForceGuildId())
-                        : null)
+                        : null)*/
                 .addSlashCommands(
                         /* Everyone commands */
                         catFactCommand,
