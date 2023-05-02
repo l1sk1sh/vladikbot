@@ -56,6 +56,7 @@ public class PlayPlaylistCommand extends MusicCommand {
         }
 
         String playlistName = optionPlaylist.getAsString();
+        playlistName = playlistName.replaceAll("[*?|/\":<>]", "");
         Playlist playlist = playlistLoader.getPlaylist(playlistName);
         if (playlist == null) {
             event.replyFormat("%1$s Could not find `%2$s` in the Playlists folder.", event.getClient().getError(), playlistName).setEphemeral(true).queue();

@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.exceptions.ErrorResponseException;
 import net.dv8tion.jda.api.exceptions.InvalidTokenException;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -194,6 +195,10 @@ public class VladikBot {
         } catch (InvalidTokenException e) {
             log.error("Invalid username and/or password.");
             SystemUtils.exit(1);
+        } catch (ErrorResponseException e) {
+            log.error("Invalid response returned when attempting to connect. " +
+                    "Please make sure you're connected to the internet");
+            System.exit(1);
         }
     }
 
