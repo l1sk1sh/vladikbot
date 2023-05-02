@@ -2,11 +2,12 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.entity.ReplyReaction;
 import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
+import com.l1sk1sh.vladikbot.data.entity.ReplyTrigger;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
-import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -35,10 +36,7 @@ public class AutoReplyCommand extends AdminCommand {
         this.guildOnly = false;
         this.children = new AdminCommand[]{
                 new CreateCommand(),
-                new ReadCommand(),
                 new SwitchCommand(),
-                new DeleteCommand(),
-                new MatchCommand(),
                 new ChanceCommand()
         };
     }
@@ -102,41 +100,11 @@ public class AutoReplyCommand extends AdminCommand {
                 return;
             }
 
-            ReplyRule rule = new ReplyRule(reactTo, reactWith);
+            // TODO Iterate list or remove list at all
+            ReplyRule rule = new ReplyRule(new ReplyTrigger(reactTo.get(0)), new ReplyReaction(reactWith.get(0)));
             autoReplyManager.writeRule(rule);
             log.info("Added new reply rule: {}.", rule.toString());
             event.replyFormat("%1$s New rule was added.", event.getClient().getSuccess()).setEphemeral(true).queue();
-        }
-    }
-
-    private final class ReadCommand extends AdminCommand {
-        private static final int MAX_LIST_SIZE_TO_SHOW = 70;
-
-        private ReadCommand() {
-            this.name = "list";
-            this.help = "Lists all available rules";
-            this.guildOnly = true;
-        }
-
-        @Override
-        protected void execute(SlashCommandEvent event) {
-            List<ReplyRule> list = autoReplyManager.getAllRules();
-
-            if (list == null) {
-                event.replyFormat("%1$s Failed to load available rules!", event.getClient().getError()).setEphemeral(true).queue();
-            } else if (list.isEmpty()) {
-                event.replyFormat("%1$s There are no records available!", event.getClient().getWarning()).setEphemeral(true).queue();
-            } else if (list.size() > MAX_LIST_SIZE_TO_SHOW) {
-                event.replyFormat("%1$s Dictionary size: %2$s records.", event.getClient().getSuccess(), list.size()).setEphemeral(true).queue();
-            } else {
-                String message = event.getClient().getSuccess() + " Acting rules:\r\n";
-                StringBuilder builder = new StringBuilder(message);
-                list.forEach(str -> builder.append("`")
-                        .append(str)
-                        .append("`")
-                        .append("\r\n"));
-                event.reply(builder.toString()).setEphemeral(true).queue();
-            }
         }
     }
 
@@ -176,84 +144,6 @@ public class AutoReplyCommand extends AdminCommand {
             });
 
             event.replyFormat("Auto reply is `%1$s`", (newSetting ? "ON" : "OFF")).setEphemeral(true).queue();
-        }
-    }
-
-    private final class DeleteCommand extends AdminCommand {
-
-        private static final String ID_OPTION_KEY = "id";
-
-        private DeleteCommand() {
-            this.name = "delete";
-            this.help = "Deletes an existing rule";
-            this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, ID_OPTION_KEY, "Id of the rule to be deleted").setRequired(true));
-        }
-
-        @Override
-        protected void execute(SlashCommandEvent event) {
-            OptionMapping idOption = event.getOption(ID_OPTION_KEY);
-            if (idOption == null) {
-                event.replyFormat("%1$s Id of command is required", event.getClient().getWarning()).setEphemeral(true).queue();
-
-                return;
-            }
-
-            long id = idOption.getAsLong();
-            ReplyRule rule = autoReplyManager.getRuleById(id);
-
-            if (rule == null) {
-                event.replyFormat("Rule `%1$s` doesn't exist!", event.getClient().getWarning(), id).setEphemeral(true).queue();
-            } else {
-                autoReplyManager.deleteRule(rule);
-                log.info("Reply rule with id {} was removed by {}.", idOption.getAsLong(), FormatUtils.formatAuthor(event));
-                event.replyFormat("%1$s Successfully deleted rule with id `[%2$s]`.", event.getClient().getSuccess(), idOption.getAsLong()).setEphemeral(true).queue();
-            }
-        }
-    }
-
-    private final class MatchCommand extends AdminCommand {
-
-        private static final String MATCH_STRATEGY_OPTION_KEY = "match";
-
-        private MatchCommand() {
-            this.name = "match";
-            this.help = "Either bot uses full message comparison of word by word";
-            options.add(new OptionData(OptionType.STRING, MATCH_STRATEGY_OPTION_KEY, "Reply mathcing strategy").setRequired(false)
-                    .addChoice("Match using full sentence", "full")
-                    .addChoice("Matching inline", "inline")
-            );
-            this.guildOnly = false;
-        }
-
-        @Override
-        protected void execute(SlashCommandEvent event) {
-            Optional<GuildSettings> settings = guildSettingsRepository.findById(Objects.requireNonNull(event.getGuild()).getIdLong());
-            AutoReplyManager.MatchingStrategy currentStrategy = settings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
-
-            OptionMapping matchOption = event.getOption(MATCH_STRATEGY_OPTION_KEY);
-            if (matchOption == null) {
-                event.replyFormat("Current news style is `%1$s`", currentStrategy).setEphemeral(true).queue();
-
-                return;
-            }
-
-            String matchingStrategy = matchOption.getAsString();
-            AutoReplyManager.MatchingStrategy strategy;
-            try {
-                strategy = AutoReplyManager.MatchingStrategy.valueOf(matchingStrategy.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                event.replyFormat("%1$s Specify either `full` or `inline` strategy.", event.getClient().getWarning()).setEphemeral(true).queue();
-
-                return;
-            }
-
-            settings.ifPresent((guildSettings -> {
-                guildSettings.setMatchingStrategy(strategy);
-                guildSettingsRepository.save(guildSettings);
-            }));
-
-            log.info("Matching strategy is set to '{}' by '{}'.", strategy, FormatUtils.formatAuthor(event));
-            event.replyFormat("%1$s Changed current matching strategy to `%2$s`.", event.getClient().getSuccess(), strategy.name().toLowerCase()).queue();
         }
     }
 
