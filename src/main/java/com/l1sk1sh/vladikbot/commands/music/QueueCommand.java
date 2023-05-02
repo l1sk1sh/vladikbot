@@ -80,11 +80,11 @@ public class QueueCommand extends MusicCommand {
             pagenum = (int) pagenumOption.getAsLong();
         }
 
-        AudioHandler ah = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-        List<QueuedTrack> list = Objects.requireNonNull(ah).getQueue().getList();
+        AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
+        List<QueuedTrack> list = Objects.requireNonNull(audioHandler).getQueue().getList();
         if (list.isEmpty()) {
-            MessageCreateData nowp = ah.getNowPlaying(event.getJDA());
-            MessageCreateData nonowp = ah.getNoMusicPlaying(event.getJDA());
+            MessageCreateData nowp = audioHandler.getNowPlaying(event.getJDA());
+            MessageCreateData nonowp = audioHandler.getNoMusicPlaying(event.getJDA());
             MessageCreateData built = new MessageCreateBuilder()
                     .setContent(event.getClient().getWarning() + " There is no music in the queue!")
                     .setEmbeds((nowp == null ? nonowp : nowp).getEmbeds().get(0)).build();
@@ -98,6 +98,8 @@ public class QueueCommand extends MusicCommand {
             return;
         }
 
+        event.deferReply(true).setEphemeral(false).queue();
+
         String[] songs = new String[list.size()];
         long total = 0;
         for (int i = 0; i < list.size(); i++) {
@@ -106,14 +108,14 @@ public class QueueCommand extends MusicCommand {
         }
 
         long fintotal = total;
-        builder.setText((i1, i2) -> getQueueTitle(ah, event.getClient().getSuccess(), songs.length, fintotal,
+        builder.setText((i1, i2) -> getQueueTitle(audioHandler, event.getClient().getSuccess(), songs.length, fintotal,
                 settings.get().getRepeat()))
                 .setItems(songs)
                 .setUsers(event.getUser())
                 .setColor(event.getGuild().getSelfMember().getColor())
         ;
 
-        event.replyFormat("%1$s Loading...", settings.get().getLoadingEmoji()).setEphemeral(true).queue();
+        // TODO This keeps message "Bot is thinking..." of deferred reply
         builder.build().paginate(event.getHook().retrieveOriginal().complete(), pagenum);
     }
 

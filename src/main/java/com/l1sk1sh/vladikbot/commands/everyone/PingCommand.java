@@ -25,10 +25,10 @@ public class PingCommand extends SlashCommand {
         event.deferReply(true).queue();
 
         Message message = event.getHook().retrieveOriginal().complete();
-        event.getHook().editOriginal(
-                String.format("Ping: %1$sms | Websocket: %2$sms",
-                        message.getTimeCreated().until(message.getTimeCreated(), ChronoUnit.MILLIS),
-                        event.getJDA().getGatewayPing())
+        event.getHook().editOriginalFormat(
+                "Ping: %1$sms | Websocket: %2$sms",
+                message.getTimeCreated().until(message.getTimeCreated(), ChronoUnit.MILLIS),
+                event.getJDA().getGatewayPing()
         ).queue();
     }
 }

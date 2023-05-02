@@ -40,3 +40,4 @@
 0. Redo settings. This time do it! It is difficult to update existing file or change type of settings
 0. Review Nekotina bot and all other trash
 0. Research what exactly are new 'menus' provided by the API
+0. Rewrite all pagination and menus to new format of buttons

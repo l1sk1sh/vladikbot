@@ -77,9 +77,9 @@ public class EmojiStatsCommand extends AdminCommand {
                         = emojiStatsService.getEmojiStatisticsByTotalUsageAmount(event.getChannel().getIdLong());
 
                 if (result.isEmpty()) {
-                    event.getHook().editOriginal(String.format("%1$s Result is empty!", event.getClient().getError())).queue();
+                    event.getHook().editOriginalFormat("%1$s Result is empty!", event.getClient().getError()).queue();
                 } else {
-                    event.getHook().editOriginal(String.format("%1$s Sending result!", event.getClient().getSuccess())).queue();
+                    event.getHook().editOriginalFormat("%1$s Sending result!", event.getClient().getSuccess()).queue();
                     sendStatisticsMessage(eventWaiter, event, result);
                 }
             });
@@ -117,9 +117,9 @@ public class EmojiStatsCommand extends AdminCommand {
                         = emojiStatsService.getEmojiStatisticsByTotalUsageAmountSince(event.getChannel().getIdLong(), lastRunTime);
 
                 if (result.isEmpty()) {
-                    event.getHook().editOriginal(String.format("%1$s Result is empty!", event.getClient().getError())).queue();
+                    event.getHook().editOriginalFormat("%1$s Result is empty!", event.getClient().getError()).queue();
                 } else {
-                    event.getHook().editOriginal(String.format("%1$s Sending result!", event.getClient().getSuccess())).queue();
+                    event.getHook().editOriginalFormat("%1$s Sending result!", event.getClient().getSuccess()).queue();
                     sendStatisticsMessage(eventWaiter, event, result);
                     emojiStatsRunRepository.save(new EmojiStatsExecution(event.getChannel().getIdLong(), System.currentTimeMillis()));
                 }
@@ -161,9 +161,9 @@ public class EmojiStatsCommand extends AdminCommand {
                         = emojiStatsService.getEmojiStatisticsByTotalUsageAmountSince(event.getChannel().getIdLong(), agoTime);
 
                 if (result.isEmpty()) {
-                    event.getHook().editOriginal(String.format("%1$s Result is empty!", event.getClient().getError())).queue();
+                    event.getHook().editOriginalFormat("%1$s Result is empty!", event.getClient().getError()).queue();
                 } else {
-                    event.getHook().editOriginal(String.format("%1$s Sending result!", event.getClient().getSuccess())).queue();
+                    event.getHook().editOriginalFormat("%1$s Sending result!", event.getClient().getSuccess()).queue();
                     sendStatisticsMessage(eventWaiter, event, result);
                 }
             });

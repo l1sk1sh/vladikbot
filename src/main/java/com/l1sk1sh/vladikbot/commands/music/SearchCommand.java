@@ -74,6 +74,8 @@ public class SearchCommand extends MusicCommand {
         }
         String query = searchOption.getAsString();
 
+        event.deferReply(true).setEphemeral(false).queue();
+
         playerManager.loadItemOrdered(event.getGuild(), searchPrefix + query, new ResultHandler(query, event));
     }
 
@@ -90,13 +92,13 @@ public class SearchCommand extends MusicCommand {
         @Override
         public void trackLoaded(AudioTrack track) {
             if (settings.get().isTooLong(track)) {
-                event.replyFormat(
-                        "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
-                        event.getClient().getWarning(),
-                        FormatUtils.filter(track.getInfo().title),
-                        FormatUtils.formatTimeTillHours(track.getDuration()),
-                        FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)
-                ).setEphemeral(true).queue();
+                event.getHook().editOriginal(
+                        String.format("%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
+                                event.getClient().getWarning(),
+                                FormatUtils.filter(track.getInfo().title),
+                                FormatUtils.formatTimeTillHours(track.getDuration()),
+                                FormatUtils.formatTimeTillHours(settings.get().getMaxSeconds() * 1000)
+                        )).queue();
 
                 return;
             }
@@ -104,13 +106,13 @@ public class SearchCommand extends MusicCommand {
             AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
             int position = Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getUser())) + 1;
 
-            event.replyFormat(
-                    "%1$s Added **%2$s** (`%3$s`) %4$s.",
-                    event.getClient().getSuccess(),
-                    FormatUtils.filter(track.getInfo().title),
-                    FormatUtils.formatTimeTillHours(track.getDuration()),
-                    ((position == 0) ? "to begin playing" : " to the queue at position " + position)
-            ).queue();
+            event.getHook().editOriginal(
+                    String.format("%1$s Added **%2$s** (`%3$s`) %4$s.",
+                            event.getClient().getSuccess(),
+                            FormatUtils.filter(track.getInfo().title),
+                            FormatUtils.formatTimeTillHours(track.getDuration()),
+                            ((position == 0) ? "to begin playing" : " to the queue at position " + position)
+                    )).queue();
         }
 
         @Override
@@ -123,13 +125,13 @@ public class SearchCommand extends MusicCommand {
                     {
                         AudioTrack track = playlist.getTracks().get(i - 1);
                         if (settings.get().isTooLong(track)) {
-                            event.replyFormat(
+                            event.getHook().editOriginalFormat(
                                     "%1$s This track (**%2$s**) is longer than the allowed maximum: `%3$s` > `%4$s`.",
                                     event.getClient().getWarning(),
                                     track.getInfo().title,
                                     FormatUtils.formatTimeTillHours(track.getDuration()),
                                     settings.get().getMaxTime()
-                            ).setEphemeral(true).queue();
+                            ).queue();
 
                             return;
                         }
@@ -137,7 +139,7 @@ public class SearchCommand extends MusicCommand {
                         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                         int position = Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getUser())) + 1;
 
-                        event.replyFormat(
+                        event.getHook().editOriginalFormat(
                                 "%1$s Added **%2$s** (`%3$s`) %4$s.",
                                 event.getClient().getSuccess(),
                                 FormatUtils.filter(track.getInfo().title),
@@ -156,23 +158,22 @@ public class SearchCommand extends MusicCommand {
                         + track.getInfo().title + "**](" + track.getInfo().uri + ")");
             }
 
-            event.replyFormat("%1$s Loading...", settings.get().getLoadingEmoji()).queue();
             builder.build().display(event.getHook().retrieveOriginal().complete());
         }
 
         @Override
         public void noMatches() {
-            event.replyFormat("%1$s No results found for `%2$s`.", event.getClient().getWarning(), FormatUtils.filter(query)).setEphemeral(true).queue();
+            event.getHook().editOriginalFormat("%1$s No results found for `%2$s`.", event.getClient().getWarning(), FormatUtils.filter(query)).queue();
         }
 
         @Override
         public void loadFailed(FriendlyException throwable) {
             if (throwable.severity == Severity.COMMON) {
-                event.replyFormat("%1$s Error loading: %2$s.",
-                        event.getClient().getError(), throwable.getLocalizedMessage()).setEphemeral(true).queue();
+                event.getHook().editOriginalFormat("%1$s Error loading: %2$s.",
+                        event.getClient().getError(), throwable.getLocalizedMessage()).queue();
             } else {
-                event.replyFormat("%1$s Error loading track.",
-                        event.getClient().getError()).setEphemeral(true).queue();
+                event.getHook().editOriginalFormat("%1$s Error loading track.",
+                        event.getClient().getError()).queue();
             }
         }
     }

@@ -22,7 +22,7 @@ public class SoundCloudSearchCommand extends SearchCommand {
     @Autowired
     public SoundCloudSearchCommand(EventWaiter eventWaiter, GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager, BotSettingsManager settings) {
         super(eventWaiter, guildSettingsRepository, playerManager, settings);
-        this.name = "msearchsoundcloud";
+        this.name = "msearch_soundcloud";
         this.help = "Searches Soundcloud for a provided query";
         this.searchPrefix = Const.SC_SEARCH_PREFIX;
     }
