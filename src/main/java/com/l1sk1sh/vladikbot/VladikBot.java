@@ -107,7 +107,7 @@ public class VladikBot {
                 .setOwnerId(Long.toString(settings.get().getOwnerId()))
                 .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
                 .setLinkedCacheSize(1024)
-                // Use this forcing only during development
+                // Use this forcing during development only
                 /*.forceGuildOnly((settings.get().getForceGuildId() > 0L)
                         ? String.valueOf(settings.get().getForceGuildId())
                         : null)*/
@@ -115,6 +115,7 @@ public class VladikBot {
                         /* Everyone commands */
                         catFactCommand,
                         catGirlPictureCommand,
+                        waifuPictureCommand,
                         catPictureCommand,
                         countryCommand,
                         dogFactCommand,
@@ -292,6 +293,8 @@ public class VladikBot {
     private CatPictureCommand catPictureCommand;
     @Setter(onMethod = @__({@Autowired}))
     private CatGirlPictureCommand catGirlPictureCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private WaifuPictureCommand waifuPictureCommand;
     @Setter(onMethod = @__({@Autowired}))
     private CountryCommand countryCommand;
     @Setter(onMethod = @__({@Autowired}))

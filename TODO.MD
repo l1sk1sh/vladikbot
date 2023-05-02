@@ -3,6 +3,8 @@
     1. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
     1. `whois [user mention]` - Get user information
     1. `saypm` - Send a private message to the user
+    1. `image?` - Generate image using AI generator with input params
+    1. `kill user` - Send message that brutally kills user
 0. Rework news module:
     1. Gaming news
     1. Major world news

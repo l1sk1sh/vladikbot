@@ -50,7 +50,6 @@ public class CatPictureCommand extends SlashCommand {
 
         MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setAuthor("Meow!", null, null)
                 .setColor(new Color(20, 120, 120))
                 .setImage(catPictures[0].getUrl());
 

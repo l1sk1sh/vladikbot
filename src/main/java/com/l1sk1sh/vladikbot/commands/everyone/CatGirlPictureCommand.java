@@ -15,7 +15,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author not l1sk1sh
@@ -37,7 +38,33 @@ public class CatGirlPictureCommand extends SlashCommand {
         this.restTemplate = new RestTemplate();
         this.name = "catgirl";
         this.help = "Get a random catgirl picture";
-        this.options = Collections.singletonList(new OptionData(OptionType.STRING, TAG_OPTION_KEY, "Picture tag ;3").setRequired(false));
+        List<OptionData> options = new ArrayList<>();
+        options.add(new OptionData(OptionType.STRING, TAG_OPTION_KEY, "Picture tag ;3").setRequired(false)
+                .addChoice("smug", "smug")
+                .addChoice("baka", "baka")
+                .addChoice("tickle", "tickle")
+                .addChoice("slap", "slap")
+                .addChoice("poke", "poke")
+                .addChoice("pat", "pat")
+                .addChoice("neko", "neko")
+                .addChoice("nekoGif", "nekoGif")
+                .addChoice("meow", "meow")
+                .addChoice("lizard", "lizard")
+                .addChoice("kiss", "kiss")
+                .addChoice("hug", "hug")
+                .addChoice("foxGirl", "foxGirl")
+                .addChoice("feed", "feed")
+                .addChoice("cuddle", "cuddle")
+                .addChoice("kemonomimi", "kemonomimi")
+                .addChoice("holo", "holo")
+                .addChoice("woof", "woof")
+                .addChoice("wallpaper", "wallpaper")
+                .addChoice("goose", "goose")
+                .addChoice("gecg", "gecg")
+                .addChoice("avatar", "avatar")
+                .addChoice("waifu", "waifu")
+        );
+        this.options = options;
     }
 
     @Override
@@ -74,7 +101,6 @@ public class CatGirlPictureCommand extends SlashCommand {
 
         MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setAuthor("Nyan!", null, null)
                 .setColor(new Color(20, 120, 120))
                 .setImage(catGirlPictureUrl);
 

@@ -50,7 +50,6 @@ public class DogPictureCommand extends SlashCommand {
 
         MessageCreateBuilder builder = new MessageCreateBuilder();
         EmbedBuilder embedBuilder = new EmbedBuilder()
-                .setAuthor("Woof!", null, null)
                 .setColor(new Color(20, 120, 120))
                 .setImage(dogPicture.getPicture());
 
