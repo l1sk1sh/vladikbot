@@ -2,10 +2,7 @@ package com.l1sk1sh.vladikbot.data.entity;
 
 import lombok.*;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @RequiredArgsConstructor
 @NoArgsConstructor
@@ -13,8 +10,8 @@ import javax.persistence.Table;
 @Setter
 @ToString
 @Entity
-@Table(name = "emoji_stats_executions")
-public class EmojiStatsExecution {
+@Table(name = "stats_executions")
+public class StatsExecution {
 
     @Id
     @Column(name = "channel_id", nullable = false)
@@ -24,4 +21,12 @@ public class EmojiStatsExecution {
     @Column(name = "last_launched_time", nullable = false)
     @NonNull
     private Long lastLaunchedTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private Type type = Type.MESSAGE;
+
+    public enum Type {
+        EMOJI, MESSAGE
+    }
 }

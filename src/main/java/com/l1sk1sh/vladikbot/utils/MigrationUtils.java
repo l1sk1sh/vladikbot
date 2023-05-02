@@ -75,7 +75,7 @@ public final class MigrationUtils {
         private List<String> reactWithList;
 
         public ReplyRule asEntity() {
-            return new ReplyRule(reactToList, reactWithList);
+            return new ReplyRule(); // TODO Finish rule migration
         }
     }
 

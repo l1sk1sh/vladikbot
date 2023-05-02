@@ -156,7 +156,8 @@ public class VladikBot {
                         autoReplyCommand,
                         backupMediaCommand,
                         backupTextCommand,
-                        emojiStatsCommand,
+                        statsEmojiCommand,
+                        statsMessageCommand,
                         guildLoggerCommand,
                         ipCommand,
                         memesManagementCommand,
@@ -245,7 +246,9 @@ public class VladikBot {
     @Setter(onMethod = @__({@Autowired}))
     private BackupMediaCommand backupMediaCommand;
     @Setter(onMethod = @__({@Autowired}))
-    private EmojiStatsCommand emojiStatsCommand;
+    private StatsEmojiCommand statsEmojiCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private StatsMessageCommand statsMessageCommand;
     @Setter(onMethod = @__({@Autowired}))
     private GuildLoggerCommand guildLoggerCommand;
     @Setter(onMethod = @__({@Autowired}))

@@ -1,9 +1,13 @@
 package com.l1sk1sh.vladikbot.services.presence;
 
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
+import com.l1sk1sh.vladikbot.data.entity.ReplyReaction;
 import com.l1sk1sh.vladikbot.data.entity.ReplyRule;
+import com.l1sk1sh.vladikbot.data.entity.ReplyTrigger;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.data.repository.ReplyReactionsRepository;
 import com.l1sk1sh.vladikbot.data.repository.ReplyRulesRepository;
+import com.l1sk1sh.vladikbot.data.repository.ReplyTriggersRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Message;
@@ -22,6 +26,8 @@ public class AutoReplyManager {
     public static final int MIN_REPLY_TO_LENGTH = 3;
 
     private final ReplyRulesRepository replyRulesRepository;
+    private final ReplyTriggersRepository replyTriggersRepository;
+    private final ReplyReactionsRepository replyReactionsRepository;
     private final GuildSettingsRepository guildSettingsRepository;
     private final Random random = new Random();
     private List<ReplyRule> replyRules = new ArrayList<>();
@@ -34,7 +40,7 @@ public class AutoReplyManager {
         if (message.getMentions().getMembers().contains(message.getGuild().getSelfMember())) {
             if (!replyRules.isEmpty()) {
                 ReplyRule randomRule = replyRules.get(random.nextInt(replyRules.size()));
-                String randomReply = randomRule.getReactWithList().get(random.nextInt(randomRule.getReactWithList().size()));
+                String randomReply = randomRule.getReaction().getReaction();
                 message.getChannel().asTextChannel().sendMessage(randomReply).queue();
             }
             return;
@@ -53,30 +59,18 @@ public class AutoReplyManager {
 
         List<ReplyRule> toRemoveRules = new ArrayList<>();
         for (ReplyRule rule : replyRules) {
-            List<String> reactToList = rule.getReactToList();
+            String trigger = rule.getTrigger().getTrigger();
 
-            for (String singleReact : reactToList) {
-                if (singleReact.length() < MIN_REPLY_TO_LENGTH) {
-                    toRemoveRules.add(rule);
-                    log.trace("Rule {} will be removed due to shortness.", rule);
+            if (trigger.length() < MIN_REPLY_TO_LENGTH) {
+                toRemoveRules.add(rule);
+                log.trace("Rule {} will be removed due to shortness.", rule);
 
-                    continue;
-                }
+                continue;
+            }
 
-                MatchingStrategy strategy
-                        = settings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
-
-                if ((strategy == MatchingStrategy.INLINE)
-                        && message.getContentStripped().contains(singleReact)) {
-                    log.trace("Inline react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
-                    matchingRules.add(rule);
-                }
-
-                if ((strategy == MatchingStrategy.FULL)
-                        && message.getContentStripped().equals(singleReact)) {
-                    log.trace("Full react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
-                    matchingRules.add(rule);
-                }
+            if (message.getContentStripped().toLowerCase().contains(trigger.toLowerCase())) {
+                log.trace("React to trigger '{}' that was found in '{}'.", trigger, message.toString());
+                matchingRules.add(rule);
             }
         }
 
@@ -100,25 +94,43 @@ public class AutoReplyManager {
 
         log.trace("Sending reply to '{}' with '{}'.", message.toString(), chosenRule);
         message.getChannel().asTextChannel().sendMessage(
-                chosenRule.getReactWithList().get(
-                        random.nextInt(chosenRule.getReactWithList().size()))
+                chosenRule.getReaction().getReaction()
         ).queue();
-    }
-
-    public ReplyRule getRuleById(long id) {
-        for (ReplyRule rule : replyRules) {
-            if (rule.getId() == id) {
-                return rule;
-            }
-        }
-
-        return null;
     }
 
     public void writeRule(ReplyRule rule) {
         log.debug("Writing new reply rule '{}'.", rule);
 
-        replyRules.add(replyRulesRepository.save(rule));
+        ReplyReaction savedReaction;
+        savedReaction = replyReactionsRepository.findByReaction(rule.getReaction().getReaction());
+        if (savedReaction == null) {
+            savedReaction = replyReactionsRepository.save(rule.getReaction());
+        }
+
+        ReplyTrigger savedTrigger;
+        savedTrigger = replyTriggersRepository.findByTrigger(rule.getTrigger().getTrigger());
+        if (savedTrigger == null) {
+            savedTrigger = replyTriggersRepository.save(rule.getTrigger());
+        }
+
+        ReplyRule savedRule = null;
+
+        /* In case both reactions already exist check if same rule already exist */
+        if (savedReaction.getId() > 0L && savedTrigger.getId() > 0L) {
+            savedRule = replyRulesRepository.getByReactionAndTrigger(savedReaction, savedTrigger);
+        }
+
+        if (savedRule != null) {
+            log.warn("Rule {}:{} already exists", rule.getReaction().getId(), rule.getTrigger().getId());
+            return;
+        }
+
+        savedRule = replyRulesRepository.save(new ReplyRule(savedTrigger, savedReaction));
+        replyRules.add(savedRule);
+    }
+
+    public void filterRules() {
+        // TODO
     }
 
     public void deleteRule(ReplyRule rule) {
@@ -126,14 +138,5 @@ public class AutoReplyManager {
         replyRulesRepository.delete(rule);
         replyRules.stream().filter(r -> r.getId() == rule.getId()).findFirst()
                 .ifPresent(runtimeActivity -> replyRules.remove(runtimeActivity));
-    }
-
-    public List<ReplyRule> getAllRules() {
-        return replyRules;
-    }
-
-    public enum MatchingStrategy {
-        FULL,
-        INLINE
     }
 }

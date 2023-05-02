@@ -3,16 +3,15 @@ package com.l1sk1sh.vladikbot.commands.admin;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.jagrosh.jdautilities.menu.Paginator;
-import com.l1sk1sh.vladikbot.data.entity.EmojiStatsExecution;
-import com.l1sk1sh.vladikbot.data.repository.EmojiStatsRunRepository;
-import com.l1sk1sh.vladikbot.models.EmojiStatsRecord;
-import com.l1sk1sh.vladikbot.services.EmojiStatsService;
+import com.l1sk1sh.vladikbot.data.entity.StatsExecution;
+import com.l1sk1sh.vladikbot.data.repository.StatsRunRepository;
+import com.l1sk1sh.vladikbot.models.MessageStatsRecord;
+import com.l1sk1sh.vladikbot.services.stats.MessageStatsService;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
-import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -33,19 +32,20 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-public class EmojiStatsCommand extends AdminCommand {
+public class StatsMessageCommand extends AdminCommand {
 
     @Autowired
-    public EmojiStatsCommand(@Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
-                             EventWaiter eventWaiter, EmojiStatsService emojiStatsService,
-                             EmojiStatsRunRepository emojiStatsRunRepository) {
-        this.name = "emojistats";
-        this.help = "Calculates emojis statistics for current channel within selectable periods";
+    public StatsMessageCommand(@Qualifier("backgroundThreadPool") ScheduledExecutorService backgroundThreadPool,
+                               EventWaiter eventWaiter, MessageStatsService messageStatsService,
+                               StatsRunRepository statsRunRepository) {
+        this.name = "stats_message";
+        this.help = "Calculates message statistics for current channel within selectable periods";
         this.guildOnly = true;
         this.children = new AdminCommand[]{
-                new Total(backgroundThreadPool, emojiStatsService, eventWaiter),
-                new LastTime(backgroundThreadPool, emojiStatsService, eventWaiter, emojiStatsRunRepository),
-                new Ago(backgroundThreadPool, emojiStatsService, eventWaiter)
+                new Total(backgroundThreadPool, messageStatsService, eventWaiter),
+                new TotalReactions(backgroundThreadPool, messageStatsService, eventWaiter),
+                new LastTime(backgroundThreadPool, messageStatsService, eventWaiter, statsRunRepository),
+                new Ago(backgroundThreadPool, messageStatsService, eventWaiter)
         };
     }
 
@@ -57,14 +57,14 @@ public class EmojiStatsCommand extends AdminCommand {
     private final class Total extends AdminCommand {
 
         private final ScheduledExecutorService backgroundThreadPool;
-        private final EmojiStatsService emojiStatsService;
+        private final MessageStatsService messageStatsService;
         private final EventWaiter eventWaiter;
 
         private Total(ScheduledExecutorService backgroundThreadPool,
-                      EmojiStatsService emojiStatsService, EventWaiter eventWaiter) {
+                      MessageStatsService messageStatsService, EventWaiter eventWaiter) {
             this.backgroundThreadPool = backgroundThreadPool;
             this.eventWaiter = eventWaiter;
-            this.emojiStatsService = emojiStatsService;
+            this.messageStatsService = messageStatsService;
             this.name = "total";
             this.help = "Calculate total statistics for current channel";
         }
@@ -73,8 +73,40 @@ public class EmojiStatsCommand extends AdminCommand {
         protected void execute(SlashCommandEvent event) {
             backgroundThreadPool.execute(() -> {
                 event.deferReply(true).queue();
-                List<EmojiStatsRecord> result
-                        = emojiStatsService.getEmojiStatisticsByTotalUsageAmount(event.getChannel().getIdLong());
+                List<MessageStatsRecord> result
+                        = messageStatsService.getMessageStatisticsByTotalUsageAmountPerAuthor(event.getChannel().getIdLong());
+
+                if (result.isEmpty()) {
+                    event.getHook().editOriginal(String.format("%1$s Result is empty!", event.getClient().getError())).queue();
+                } else {
+                    event.getHook().editOriginal(String.format("%1$s Sending result!", event.getClient().getSuccess())).queue();
+                    sendStatisticsMessage(eventWaiter, event, result);
+                }
+            });
+        }
+    }
+
+    private final class TotalReactions extends AdminCommand {
+
+        private final ScheduledExecutorService backgroundThreadPool;
+        private final MessageStatsService messageStatsService;
+        private final EventWaiter eventWaiter;
+
+        private TotalReactions(ScheduledExecutorService backgroundThreadPool,
+                               MessageStatsService messageStatsService, EventWaiter eventWaiter) {
+            this.backgroundThreadPool = backgroundThreadPool;
+            this.eventWaiter = eventWaiter;
+            this.messageStatsService = messageStatsService;
+            this.name = "total_reactions";
+            this.help = "Calculate total statistics by reactions";
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            backgroundThreadPool.execute(() -> {
+                event.deferReply(true).queue();
+                List<MessageStatsRecord> result
+                        = messageStatsService.getMessageStatisticsByTotalReactions();
 
                 if (result.isEmpty()) {
                     event.getHook().editOriginal(String.format("%1$s Result is empty!", event.getClient().getError())).queue();
@@ -89,39 +121,39 @@ public class EmojiStatsCommand extends AdminCommand {
     private final class LastTime extends AdminCommand {
 
         private final ScheduledExecutorService backgroundThreadPool;
-        private final EmojiStatsRunRepository emojiStatsRunRepository;
-        private final EmojiStatsService emojiStatsService;
+        private final StatsRunRepository statsRunRepository;
+        private final MessageStatsService messageStatsService;
         private final EventWaiter eventWaiter;
 
-        private LastTime(ScheduledExecutorService backgroundThreadPool, EmojiStatsService emojiStatsService,
-                         EventWaiter eventWaiter, EmojiStatsRunRepository emojiStatsRunRepository) {
+        private LastTime(ScheduledExecutorService backgroundThreadPool, MessageStatsService messageStatsService,
+                         EventWaiter eventWaiter, StatsRunRepository statsRunRepository) {
             this.backgroundThreadPool = backgroundThreadPool;
             this.eventWaiter = eventWaiter;
-            this.emojiStatsRunRepository = emojiStatsRunRepository;
-            this.emojiStatsService = emojiStatsService;
+            this.statsRunRepository = statsRunRepository;
+            this.messageStatsService = messageStatsService;
             this.name = "last";
-            this.help = "Calculate statistics for current channel since last emoji calculation time";
+            this.help = "Calculate statistics for current channel since last message calculation time";
         }
 
         @Override
         protected void execute(SlashCommandEvent event) {
             backgroundThreadPool.execute(() -> {
                 event.deferReply(true).queue();
-                EmojiStatsExecution lastRun = emojiStatsRunRepository.getLastRunByChannelId(event.getChannel().getIdLong());
+                StatsExecution lastRun = statsRunRepository.getLastRunByChannelIdAndType(event.getChannel().getIdLong(), StatsExecution.Type.MESSAGE);
                 long lastRunTime = 0L;
                 if (lastRun != null) {
                     lastRunTime = lastRun.getLastLaunchedTime();
                 }
 
-                List<EmojiStatsRecord> result
-                        = emojiStatsService.getEmojiStatisticsByTotalUsageAmountSince(event.getChannel().getIdLong(), lastRunTime);
+                List<MessageStatsRecord> result
+                        = messageStatsService.getMessageStatisticsByTotalUsageAmountPerAuthorSince(event.getChannel().getIdLong(), lastRunTime);
 
                 if (result.isEmpty()) {
                     event.getHook().editOriginal(String.format("%1$s Result is empty!", event.getClient().getError())).queue();
                 } else {
                     event.getHook().editOriginal(String.format("%1$s Sending result!", event.getClient().getSuccess())).queue();
                     sendStatisticsMessage(eventWaiter, event, result);
-                    emojiStatsRunRepository.save(new EmojiStatsExecution(event.getChannel().getIdLong(), System.currentTimeMillis()));
+                    statsRunRepository.save(new StatsExecution(event.getChannel().getIdLong(), System.currentTimeMillis()));
                 }
             });
         }
@@ -132,14 +164,14 @@ public class EmojiStatsCommand extends AdminCommand {
         private static final String AGO_OPTION_KEY = "ago";
 
         private final ScheduledExecutorService backgroundThreadPool;
-        private final EmojiStatsService emojiStatsService;
+        private final MessageStatsService messageStatsService;
         private final EventWaiter eventWaiter;
 
         private Ago(ScheduledExecutorService backgroundThreadPool,
-                    EmojiStatsService emojiStatsService, EventWaiter eventWaiter) {
+                    MessageStatsService messageStatsService, EventWaiter eventWaiter) {
             this.backgroundThreadPool = backgroundThreadPool;
             this.eventWaiter = eventWaiter;
-            this.emojiStatsService = emojiStatsService;
+            this.messageStatsService = messageStatsService;
             this.name = "since";
             this.help = "Calculate statistics for current channel for number of days ago";
             this.options = Collections.singletonList(new OptionData(OptionType.INTEGER, AGO_OPTION_KEY, "Days ago").setRequired(true));
@@ -157,8 +189,8 @@ public class EmojiStatsCommand extends AdminCommand {
                 long agoTime = DateAndTimeUtils.getEpochMillisNowMinusDays(agoOption.getAsLong());
 
                 event.deferReply(true).queue();
-                List<EmojiStatsRecord> result
-                        = emojiStatsService.getEmojiStatisticsByTotalUsageAmountSince(event.getChannel().getIdLong(), agoTime);
+                List<MessageStatsRecord> result
+                        = messageStatsService.getMessageStatisticsByTotalUsageAmountPerAuthorSince(event.getChannel().getIdLong(), agoTime);
 
                 if (result.isEmpty()) {
                     event.getHook().editOriginal(String.format("%1$s Result is empty!", event.getClient().getError())).queue();
@@ -170,10 +202,10 @@ public class EmojiStatsCommand extends AdminCommand {
         }
     }
 
-    private void sendStatisticsMessage(EventWaiter eventWaiter, SlashCommandEvent event, List<EmojiStatsRecord> result) {
+    private void sendStatisticsMessage(EventWaiter eventWaiter, SlashCommandEvent event, List<MessageStatsRecord> result) {
         int startPageNumber = 1;
         Paginator.Builder paginatorBuilder = new Paginator.Builder().setColumns(1)
-                .setItemsPerPage(35)
+                .setItemsPerPage(30)
                 .showPageNumbers(true)
                 .waitOnSinglePage(false)
                 .useNumberedItems(false)
@@ -191,17 +223,18 @@ public class EmojiStatsCommand extends AdminCommand {
 
         String[] printable = new String[result.size()];
         for (int i = 0; i < printable.length; i++) {
-            EmojiStatsRecord record = result.get(i);
-            printable[i] = getEmojiMentionByItsName(event.getGuild(), record.getEmojiName())
+            MessageStatsRecord record = result.get(i);
+            printable[i] = "`" + record.getMessage() + "`"
                     + " #" + record.getAmount()
-                    + " by " + getAuthor(event.getGuild(), record.getMostActiveUserId());
+                    + " by " + getAuthor(event.getGuild(), record.getMostActiveUserId())
+                    + "\n";
         }
 
         paginatorBuilder.addItems(printable);
 
         Paginator paginator = paginatorBuilder
                 .setColor(Color.black)
-                .setText("Emoji usage statistics for current channel:")
+                .setText("Message usage statistics for current channel:")
                 .setUsers(event.getUser())
                 .build();
 
@@ -219,22 +252,5 @@ public class EmojiStatsCommand extends AdminCommand {
         }
 
         return "**" + user.getName() + "**";
-    }
-
-    private String getEmojiMentionByItsName(Guild guild, String emojiName) {
-        if (guild == null) {
-            return emojiName;
-        }
-
-        try {
-            List<RichCustomEmoji> emojiIdList = guild.getEmojisByName(emojiName, false);
-
-            if (!emojiIdList.isEmpty()) {
-                return "<:" + emojiName + ":" + emojiIdList.get(0).getId() + ">";
-            }
-        } catch (IllegalArgumentException ignored) {
-        }
-
-        return emojiName;
     }
 }

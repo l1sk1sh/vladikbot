@@ -45,7 +45,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
             Optional<GuildSettings> guildSettings = guildSettingsRepository.findById(guild.getIdLong());
             int volume = guildSettings.map(GuildSettings::getVolume).orElse(50);
 
-            AudioPlayer player = createPlayer();
+            AudioPlayer player = super.createPlayer();
             player.setVolume(volume);
             audioHandler = new AudioHandler(frontThreadPool, this, guild, player, settings, guildSettings.orElse(null), playlistLoader, nowPlayingHandler);
             player.addListener(audioHandler);

@@ -4,7 +4,6 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
-import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
@@ -63,7 +62,6 @@ public class SettingsCommand extends SlashCommand {
         Role djRole = guildSettings.map(settings -> settings.getDjRole(event.getGuild())).orElse(null);
         boolean autoReply = guildSettings.map(GuildSettings::isAutoReply).orElse(false);
         double autoReplyChance = guildSettings.map(GuildSettings::getReplyChance).orElse(GuildSettings.DEFAULT_REPLY_CHANCE);
-        AutoReplyManager.MatchingStrategy matchingStrategy = guildSettings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
 
         MessageCreateBuilder builder = new MessageCreateBuilder()
                 .addContent(Const.HEADPHONES_EMOJI + " **")
@@ -91,8 +89,6 @@ public class SettingsCommand extends SlashCommand {
                                 + ((defaultPlaylist == null) ? "None" : defaultPlaylist) + "**"
                                 + "\r\nAuto Reply: **"
                                 + (autoReply ? "on" : "off") + "**"
-                                + "\r\nAuto Reply Matching Strategy: **"
-                                + (matchingStrategy) + "**"
                                 + "\r\nAuto Reply Chance: **"
                                 + (autoReplyChance) + "**"
                                 + "\r\nActivity Simulation: **"

@@ -1,4 +1,4 @@
-package com.l1sk1sh.vladikbot.services;
+package com.l1sk1sh.vladikbot.services.stats;
 
 import com.l1sk1sh.vladikbot.data.entity.DiscordEmoji;
 import com.l1sk1sh.vladikbot.data.entity.DiscordMessage;
@@ -7,7 +7,6 @@ import com.l1sk1sh.vladikbot.data.repository.DiscordEmojisRepository;
 import com.l1sk1sh.vladikbot.data.repository.DiscordMessagesRepository;
 import com.l1sk1sh.vladikbot.data.repository.DiscordReactionsRepository;
 import com.l1sk1sh.vladikbot.models.EmojiStatsRecord;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,15 +23,13 @@ import java.util.stream.Collectors;
 @Service
 public class EmojiStatsService {
 
-    private final BotSettingsManager settings;
     private final DiscordEmojisRepository discordEmojisRepository;
     private final DiscordMessagesRepository discordMessagesRepository;
     private final DiscordReactionsRepository discordReactionsRepository;
 
     @Autowired
-    public EmojiStatsService(BotSettingsManager settings, DiscordEmojisRepository discordEmojisRepository,
+    public EmojiStatsService(DiscordEmojisRepository discordEmojisRepository,
                              DiscordMessagesRepository discordMessagesRepository, DiscordReactionsRepository discordReactionsRepository) {
-        this.settings = settings;
         this.discordEmojisRepository = discordEmojisRepository;
         this.discordMessagesRepository = discordMessagesRepository;
         this.discordReactionsRepository = discordReactionsRepository;

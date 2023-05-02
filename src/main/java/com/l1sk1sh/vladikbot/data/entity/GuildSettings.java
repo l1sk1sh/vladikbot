@@ -1,7 +1,6 @@
 package com.l1sk1sh.vladikbot.data.entity;
 
 import com.l1sk1sh.vladikbot.services.notification.NewsNotificationService;
-import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,7 +27,6 @@ import javax.persistence.*;
 public class GuildSettings {
 
     public static final double DEFAULT_REPLY_CHANCE = 0.5;
-    public static final AutoReplyManager.MatchingStrategy DEFAULT_MATCHING_STRATEGY = AutoReplyManager.MatchingStrategy.INLINE;
     public static final NewsNotificationService.NewsStyle DEFAULT_NEWS_STYLE = NewsNotificationService.NewsStyle.FULL;
 
     @Id
@@ -46,11 +44,6 @@ public class GuildSettings {
 
     @Column(name = "auto_reply_chance")
     private double replyChance = DEFAULT_REPLY_CHANCE;          // Chance of reply
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "auto_reply_strategy")
-    private AutoReplyManager.MatchingStrategy matchingStrategy  // How matching of replies is done
-            = DEFAULT_MATCHING_STRATEGY;
 
     @Column(name = "log_guild_changes")
     private boolean logGuildChanges = false;                    // Log guild moderation events
