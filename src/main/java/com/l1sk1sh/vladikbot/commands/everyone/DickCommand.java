@@ -6,13 +6,16 @@ import com.l1sk1sh.vladikbot.data.entity.Dick;
 import com.l1sk1sh.vladikbot.services.dick.DickService;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.Comparator;
 
 /**
@@ -141,28 +144,30 @@ public class DickCommand extends SlashCommand {
                     continue;
                 }
 
-                if (dick.getSize() == 0) {
-                    dickList.append(position)
-                            .append(". \t`")
-                            .append(user.getName())
-                            .append("`\t")
-                            .append("без пісюньця ")
-                            .append(SMIRKING)
-                            .append("\r\n");
-                    continue;
-                }
-
                 dickList.append(position)
                         .append(". \t`")
-                        .append(user.getName())
-                        .append("`\t")
-                        .append(" - ")
-                        .append(dick.getSize())
-                        .append("см")
-                        .append("\r\n");
+                        .append(user.getEffectiveName())
+                        .append("`\t");
+
+                if (dick.getSize() == 0) {
+                    dickList.append("без пісюньця ")
+                            .append(SMIRKING)
+                            .append("\r\n");
+                } else {
+                    dickList.append(" - ")
+                            .append(dick.getSize())
+                            .append("см")
+                            .append("\r\n");
+                }
             }
 
-            event.replyFormat(dickList.toString()).queue();
+            MessageCreateBuilder builder = new MessageCreateBuilder();
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setTitle(EGGPLANT + " Герої пісюнів")
+                    .setColor(new Color(138, 0, 198))
+                    .setDescription(dickList.toString());
+
+            event.reply(builder.setEmbeds(embedBuilder.build()).build()).queue();
         }
     }
 
