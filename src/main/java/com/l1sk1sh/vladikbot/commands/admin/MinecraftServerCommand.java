@@ -99,9 +99,9 @@ public class MinecraftServerCommand extends AdminCommand {
                         .setImage("https://lh3.googleusercontent.com/proxy/rrJe5P0KT8F1TTrpx1XTq0IJ0sRKYx25ISU_RZZ_kN46euV4tdYw7wGj2I_8F9CuYXuS4CXQXPAvqYli7Y32fS1mQk05cY4Ut5rrtvNSnCcAV6gV-X5Dx8mEIScgfSYzqKGiexpU_9jKAw");
 
                 if (duration > 0) {
-                    embedBuilder.addField("Time online", FormatUtils.getReadableDuration(duration), false);
+                    embedBuilder.addField("Time online", FormatUtils.getReadableMMSSDuration(duration), false);
                 } else {
-                    embedBuilder.addField("Time online", FormatUtils.getReadableDuration(System.currentTimeMillis() - startTime), false);
+                    embedBuilder.addField("Time online", FormatUtils.getReadableMMSSDuration(System.currentTimeMillis() - startTime), false);
                 }
 
                 if (!latestBuild.isBuilding()) {

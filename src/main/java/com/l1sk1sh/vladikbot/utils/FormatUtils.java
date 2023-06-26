@@ -148,7 +148,7 @@ public final class FormatUtils {
         return SimpleDateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG, Locale.UK).format(timestamp);
     }
 
-    public static String getReadableDuration(long duration) {
+    public static String getReadableMMSSDuration(long duration) {
         SimpleDateFormat formatter = new SimpleDateFormat("mm:ss");
 
         return formatter.format(new Date(duration));
