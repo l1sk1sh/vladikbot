@@ -108,9 +108,9 @@ public class VladikBot {
                 .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
                 .setLinkedCacheSize(1024)
                 // Use this forcing during development only
-                .forceGuildOnly((settings.get().getForceGuildId() > 0L)
+                /*.forceGuildOnly((settings.get().getForceGuildId() > 0L)
                         ? String.valueOf(settings.get().getForceGuildId())
-                        : null)
+                        : null)*/
                 .addSlashCommands(
                         /* Everyone commands */
                         catFactCommand,
