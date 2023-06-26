@@ -8,6 +8,7 @@ import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -58,12 +59,13 @@ public class DickCommand extends SlashCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             Guild guild = event.getGuild();
-            if (guild == null) {
+            Member author = event.getMember();
+            if (guild == null || author == null) {
                 log.warn("Command has been called not from guild.");
                 return;
             }
 
-            boolean registered = dickService.register(event.getClient().getOwnerIdLong(), guild.getIdLong());
+            boolean registered = dickService.register(author.getIdLong(), guild.getIdLong());
             if (registered) {
                 event.replyFormat("У тебе з'явився пісюн! %1$s", EGGPLANT).queue();
                 return;
@@ -86,12 +88,13 @@ public class DickCommand extends SlashCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             Guild guild = event.getGuild();
-            if (guild == null) {
+            Member author = event.getMember();
+            if (guild == null || author == null) {
                 log.warn("Command has been called not from guild.");
                 return;
             }
 
-            boolean unregistered = dickService.unregister(event.getClient().getOwnerIdLong(), guild.getIdLong());
+            boolean unregistered = dickService.unregister(author.getIdLong(), guild.getIdLong());
             if (unregistered) {
                 event.replyFormat("%1$s Пісюн засох, прощавай", DISAPPOINTED).queue();
                 return;
@@ -176,12 +179,13 @@ public class DickCommand extends SlashCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             Guild guild = event.getGuild();
-            if (guild == null) {
+            Member author = event.getMember();
+            if (guild == null || author == null) {
                 log.warn("Command has been called not from guild.");
                 return;
             }
 
-            DickService.DickResults result = dickService.grow(event.getClient().getOwnerIdLong(), guild.getIdLong());
+            DickService.DickResults result = dickService.grow(author.getIdLong(), guild.getIdLong());
 
             switch (result) {
                 case absent:
