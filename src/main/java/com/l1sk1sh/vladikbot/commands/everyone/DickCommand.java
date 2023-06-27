@@ -2,8 +2,10 @@ package com.l1sk1sh.vladikbot.commands.everyone;
 
 import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
+import com.jagrosh.jdautilities.command.UserContextMenuEvent;
 import com.l1sk1sh.vladikbot.data.entity.Dick;
 import com.l1sk1sh.vladikbot.services.dick.DickService;
+import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -11,6 +13,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,12 +35,12 @@ public class DickCommand extends SlashCommand {
     private static final String UNAMUSED = "\uD83D\uDE12";
 
     @Autowired
-    public DickCommand(DickService dickService) {
+    public DickCommand(DickService dickService, BotSettingsManager settings) {
         this.name = "dick";
         this.help = "Хочеш побачити пісюна?";
         this.guildOnly = true;
         this.children = new SlashCommand[]{
-                new Grow(dickService),
+                new Grow(dickService, settings),
                 new Register(dickService),
                 new Unregister(dickService),
                 new List(dickService)
@@ -47,6 +50,14 @@ public class DickCommand extends SlashCommand {
     @Override
     protected void execute(SlashCommandEvent event) {
         event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
+    }
+
+    /**
+     * Used externally by context menu.
+     * Just pipes context menu into the command's logic
+     */
+    public void callDickGrow(UserContextMenuEvent event) {
+        ((Grow) this.children[0]).executeContext(event);
     }
 
     private static final class Register extends SlashCommand {
@@ -174,15 +185,25 @@ public class DickCommand extends SlashCommand {
     private static final class Grow extends SlashCommand {
 
         private final DickService dickService;
+        private final BotSettingsManager settings;
 
-        private Grow(DickService dickService) {
+        private Grow(DickService dickService, BotSettingsManager settings) {
             this.dickService = dickService;
+            this.settings = settings;
             this.name = "grow";
             this.help = "Трошки піднатужитись і ..!";
         }
 
         @Override
         protected void execute(SlashCommandEvent event) {
+            doCommand(event);
+        }
+
+        public void executeContext(UserContextMenuEvent event) {
+            doCommand(event);
+        }
+
+        private void doCommand(GenericCommandInteractionEvent event) {
             Guild guild = event.getGuild();
             Member author = event.getMember();
             if (guild == null || author == null) {
@@ -194,7 +215,7 @@ public class DickCommand extends SlashCommand {
 
             switch (result) {
                 case absent:
-                    event.replyFormat("У тебе немає пісюна %1$s", event.getClient().getWarning()).queue();
+                    event.replyFormat("У тебе немає пісюна %1$s", settings.get().getWarningEmoji()).queue();
                     break;
                 case grow:
                     event.replyFormat("Твій пісюн виріс на **%1$sсм** і тепер він **%2$sсм**", result.getChange(), result.getSize()).queue();

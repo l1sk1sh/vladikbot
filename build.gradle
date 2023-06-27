@@ -54,7 +54,7 @@ tasks.composeUp {
 dependencies {
     implementation 'net.dv8tion:JDA:5.0.0-beta.11'
     implementation 'pw.chew:jda-chewtils:2.0-SNAPSHOT'
-    implementation 'com.github.walkyst:lavaplayer-fork:1.4.1'
+    implementation 'com.github.walkyst:lavaplayer-fork:1.4.2'
     implementation 'com.github.aikaterna:lavaplayer-natives:original-SNAPSHOT'
 
     implementation 'org.springframework.boot:spring-boot-starter'

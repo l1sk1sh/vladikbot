@@ -7,6 +7,7 @@ import com.l1sk1sh.vladikbot.commands.dj.*;
 import com.l1sk1sh.vladikbot.commands.everyone.*;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
+import com.l1sk1sh.vladikbot.contexts.DickContextMenu;
 import com.l1sk1sh.vladikbot.services.audio.AloneInVoiceHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
@@ -111,6 +112,9 @@ public class VladikBot {
                 /*.forceGuildOnly((settings.get().getForceGuildId() > 0L)
                         ? String.valueOf(settings.get().getForceGuildId())
                         : null)*/
+                .addContextMenus(
+                        dickContextMenu
+                )
                 .addSlashCommands(
                         /* Everyone commands */
                         catFactCommand,
@@ -237,6 +241,8 @@ public class VladikBot {
     /**
      * Commands used in the Bot
      */
+    @Setter(onMethod = @__({@Autowired}))
+    private DickContextMenu dickContextMenu;
     @Setter(onMethod = @__({@Autowired}))
     private ActivitySimulationCommand activitySimulationCommand;
     @Setter(onMethod = @__({@Autowired}))

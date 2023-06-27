@@ -30,7 +30,6 @@ public class PlayPlaylistCommand extends MusicCommand {
 
     private static final String PLAYLIST_OPTION_NAME = "playlist";
 
-    private final BotSettingsManager settings;
     private final PlaylistLoader playlistLoader;
 
     @Autowired
@@ -38,7 +37,6 @@ public class PlayPlaylistCommand extends MusicCommand {
                                PlaylistLoader playlistLoader, BotSettingsManager settings) {
         super(guildSettingsRepository, playerManager);
         this.playlistLoader = playlistLoader;
-        this.settings = settings;
         this.name = "mplay_playlist";
         this.help = "Plays the provided playlist";
         this.options = Collections.singletonList(new OptionData(OptionType.STRING, PLAYLIST_OPTION_NAME, "Playlist to be played next").setRequired(true));
@@ -70,6 +68,8 @@ public class PlayPlaylistCommand extends MusicCommand {
             return;
         }
 
+        event.deferReply().queue();
+
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
         playlistLoader.loadTracksIntoPlaylist(
                 playlist,
@@ -98,7 +98,7 @@ public class PlayPlaylistCommand extends MusicCommand {
                         str = str.substring(0, 1994) + " (...)";
                     }
 
-                    event.reply(FormatUtils.filter(str)).setEphemeral(!playlist.getTracks().isEmpty()).queue();
+                    event.getHook().editOriginalFormat(FormatUtils.filter(str)).queue();
                 }
         );
     }

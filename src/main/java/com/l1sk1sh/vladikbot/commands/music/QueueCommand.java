@@ -13,6 +13,7 @@ import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
@@ -59,7 +60,7 @@ public class QueueCommand extends MusicCommand {
                 .setColumns(1)
                 .setFinalAction(m -> {
                     try {
-                        m.clearReactions().queue();
+                        m.delete().queue();
                     } catch (PermissionException ignored) {
                     }
                 })
@@ -115,8 +116,9 @@ public class QueueCommand extends MusicCommand {
                 .setColor(event.getGuild().getSelfMember().getColor())
         ;
 
-        // TODO This keeps message "Bot is thinking..." of deferred reply
-        builder.build().paginate(event.getHook().retrieveOriginal().complete(), pagenum);
+        Message message = event.getHook().retrieveOriginal().complete();
+        event.getHook().editOriginalFormat(Const.LOADING_SYMBOL).complete(); // Required to remove "is thinking"
+        builder.build().paginate(message, pagenum);
     }
 
     private String getQueueTitle(AudioHandler audioPlayer, String success, int songslength, long total, AudioRepeatMode repeatmode) {
@@ -124,7 +126,7 @@ public class QueueCommand extends MusicCommand {
         if (audioPlayer.getPlayer().getPlayingTrack() != null) {
             stringBuilder.append(audioPlayer.getPlayer().isPaused()
                     ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI).append(" **")
-                    .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\r\n");
+                    .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\r\n\r\n");
         }
 
         return FormatUtils.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)

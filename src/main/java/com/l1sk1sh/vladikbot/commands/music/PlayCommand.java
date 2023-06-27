@@ -161,7 +161,7 @@ public class PlayCommand extends DJCommand {
                         }).setFinalAction(m ->
                 {
                     try {
-                        m.clearReactions().queue();
+                        m.delete().queue();
                     } catch (PermissionException ignored) {
                     }
                 }).build().display(event.getMessageChannel());

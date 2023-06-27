@@ -85,26 +85,26 @@ public class GuildSettings {
     private int volume = 50;                                    // Sets volume of the bot
 
     public final TextChannel getTextChannel(@NotNull Guild guild) {
-        return guild.getTextChannelById(textChannelId);
+        return guild.getTextChannelById(getTextChannelId());
     }
 
     public final VoiceChannel getVoiceChannel(@NotNull Guild guild) {
-        return guild.getVoiceChannelById(voiceChannelId);
+        return guild.getVoiceChannelById(getVoiceChannelId());
     }
 
     public final TextChannel getNotificationChannel(@NotNull Guild guild) {
-        return guild.getTextChannelById(notificationChannelId);
+        return guild.getTextChannelById(getNotificationChannelId());
     }
 
     public final TextChannel getNewsChannel(@NotNull Guild guild) {
-        return guild.getTextChannelById(newsChannelId);
+        return guild.getTextChannelById(getNewsChannelId());
     }
 
     public final TextChannel getMemesChannel(@NotNull Guild guild) {
-        return guild.getTextChannelById(memesChannelId);
+        return guild.getTextChannelById(getMemesChannelId());
     }
 
     public final Role getDjRole(@NotNull Guild guild) {
-        return guild.getRoleById(djRoleId);
+        return guild.getRoleById(getDjRoleId());
     }
 }

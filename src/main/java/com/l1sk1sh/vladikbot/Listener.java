@@ -123,6 +123,7 @@ class Listener extends ListenerAdapter {
                 VoiceChannel vc = guildSettingsRepository.getOne(guild.getIdLong()).getVoiceChannel(guild);
                 if (defaultPlaylist != null && vc != null && playerManager.setUpHandler(guild).playFromDefault()) {
                     guild.getAudioManager().openAudioConnection(vc);
+                    guild.getAudioManager().setSelfDeafened(true);
                 }
             } catch (Exception ignored) {
             }
@@ -252,6 +253,10 @@ class Listener extends ListenerAdapter {
 
     @Override
     public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
+        if (event.getUser() == null || event.getUser().isBot()) {
+            return;
+        }
+
         backupTextService.addReaction(event.getReaction());
     }
 

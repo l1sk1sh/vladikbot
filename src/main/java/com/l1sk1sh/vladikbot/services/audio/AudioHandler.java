@@ -13,9 +13,11 @@ import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioTrack;
+import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
@@ -34,6 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * - Reformatted code
  * @author John Grosh
  */
+@Slf4j
 public class AudioHandler extends AudioEventAdapter implements AudioSendHandler {
 
     private final ScheduledExecutorService frontThreadPool;
@@ -182,6 +185,18 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     public void onTrackStart(AudioPlayer player, AudioTrack track) {
         votes.clear();
         nowPlayingHandler.onTrackUpdate(guildId, this);
+    }
+
+    @Override
+    public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
+        log.warn("Track exception {}.", track.getInfo(), exception);
+        super.onTrackException(player, track, exception);
+    }
+
+    @Override
+    public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
+        log.warn("Track stuck {}.", track.getInfo());
+        super.onTrackStuck(player, track, thresholdMs);
     }
 
     /* Formatting of the message */

@@ -64,6 +64,7 @@ public final class Const {
     public static final String VOLUME_30_EMOJI = "\uD83D\uDD08";    // 🔈
     public static final String VOLUME_70_EMOJI = "\uD83D\uDD09";    // 🔉
     public static final String VOLUME_100_EMOJI = "\uD83D\uDD0A";   // 🔊
+    public static final String LOADING_SYMBOL = "\u21BA";           // ↺
 
     public static final Color MEME_COLOR = new Color(255, 69, 0);
 

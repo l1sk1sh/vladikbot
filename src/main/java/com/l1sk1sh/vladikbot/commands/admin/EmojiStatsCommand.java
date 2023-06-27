@@ -179,9 +179,8 @@ public class EmojiStatsCommand extends AdminCommand {
                 .useNumberedItems(false)
                 .setFinalAction(m -> {
                     try {
-                        m.clearReactions().queue();
-                    } catch (PermissionException ex) {
                         m.delete().queue();
+                    } catch (PermissionException ignored) {
                     }
                 })
                 .setEventWaiter(eventWaiter)

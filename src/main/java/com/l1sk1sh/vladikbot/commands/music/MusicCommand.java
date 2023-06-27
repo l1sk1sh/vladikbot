@@ -103,6 +103,7 @@ public abstract class MusicCommand extends SlashCommand {
             if (!event.getGuild().getSelfMember().getVoiceState().inAudioChannel()) {
                 try {
                     event.getGuild().getAudioManager().openAudioConnection(userState.getChannel());
+                    event.getGuild().getAudioManager().setSelfDeafened(true);
                 } catch (PermissionException ex) {
                     event.replyFormat("%1$s Unable to connect to %2$s!",
                             event.getClient().getWarning(),

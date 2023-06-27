@@ -15,7 +15,9 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException.Severity;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -34,6 +36,7 @@ import java.util.concurrent.TimeUnit;
  * - Moving to JDA-Chewtils
  * @author John Grosh
  */
+@Slf4j
 @Service
 public class SearchCommand extends MusicCommand {
 
@@ -139,13 +142,14 @@ public class SearchCommand extends MusicCommand {
                         AudioHandler audioHandler = (AudioHandler) event.getGuild().getAudioManager().getSendingHandler();
                         int position = Objects.requireNonNull(audioHandler).addTrack(new QueuedTrack(track, event.getUser())) + 1;
 
-                        event.getHook().editOriginalFormat(
+                        /* Sending new message to the channel as old one is removed by OrderedMenu */
+                        event.getTextChannel().sendMessageFormat(
                                 "%1$s Added **%2$s** (`%3$s`) %4$s.",
                                 event.getClient().getSuccess(),
                                 FormatUtils.filter(track.getInfo().title),
                                 FormatUtils.formatTimeTillHours(track.getDuration()),
                                 ((position == 0) ? "to begin playing" : " to the queue at position " + position)
-                        ).queue();
+                        ).complete();
                     })
                     .setCancel((msg) -> {
                     })
@@ -158,7 +162,10 @@ public class SearchCommand extends MusicCommand {
                         + track.getInfo().title + "**](" + track.getInfo().uri + ")");
             }
 
-            builder.build().display(event.getHook().retrieveOriginal().complete());
+            log.debug("Fuck me here");
+            Message message = event.getHook().retrieveOriginal().complete();
+            event.getHook().editOriginalFormat(Const.LOADING_SYMBOL).complete(); // Required to remove "is thinking"
+            builder.build().display(message);
         }
 
         @Override

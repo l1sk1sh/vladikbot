@@ -36,10 +36,12 @@
 0. Fix MCServer timeonline command output
 0. Add image processing and shrinking by some 'magik' library
 0. Implement export for text backup command
-0. Use https://github.com/Chew/JDA-Chewtils/tree/master/menu for menus
 0. Add an author to the reaction item and use it for emoji statistics calculation
 0. Play with new buttons and popup windows
 0. Redo settings. This time do it! It is difficult to update existing file or change type of settings
 0. Review Nekotina bot and all other trash
 0. Research what exactly are new 'menus' provided by the API
 0. Rewrite all pagination and menus to new format of buttons
+0. Play a bit more with context menus - it is really cool
+0. Go ahead and play with https://jda.wiki/using-jda/interactions
+0. Research https://github.com/lavalink-devs/Lavalink for better music
