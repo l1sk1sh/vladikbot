@@ -134,7 +134,6 @@ public class VladikBot {
                         /* Music commands */
                         nowPlayingCommand,
                         playCommand,
-                        playlistsCommand,
                         playPlaylistCommand,
                         queueCommand,
                         removeCommand,
@@ -328,8 +327,6 @@ public class VladikBot {
     private PlayCommand playCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PlayPlaylistCommand playPlaylistCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private PlaylistsCommand playlistsCommand;
     @Setter(onMethod = @__({@Autowired}))
     private QueueCommand queueCommand;
     @Setter(onMethod = @__({@Autowired}))

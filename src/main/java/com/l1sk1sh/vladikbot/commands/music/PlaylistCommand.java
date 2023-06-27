@@ -1,9 +1,10 @@
-package com.l1sk1sh.vladikbot.commands.admin;
+package com.l1sk1sh.vladikbot.commands.music;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.Playlist;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
 import com.l1sk1sh.vladikbot.services.audio.PlaylistLoader;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
@@ -26,36 +27,38 @@ import java.util.*;
  */
 @Slf4j
 @Service
-public class PlaylistCommand extends AdminCommand {
+public class PlaylistCommand extends MusicCommand {
 
     private final PlaylistLoader playlistLoader;
 
     @Autowired
-    public PlaylistCommand(GuildSettingsRepository guildSettingsRepository, PlaylistLoader playlistLoader) {
+    public PlaylistCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager, PlaylistLoader playlistLoader) {
+        super(guildSettingsRepository, playerManager);
         this.playlistLoader = playlistLoader;
-        this.name = "playlist";
+        this.name = "mplaylist";
         this.help = "Playlist management";
         this.guildOnly = false;
-        this.children = new AdminCommand[]{
-                new ReadCommand(),
-                new UpdateCommand(),
-                new DeleteCommand(),
-                new CreateCommand(),
-                new ShuffleCommand(),
-                new DefaultListCommand(playlistLoader, guildSettingsRepository)
+        this.children = new MusicCommand[]{
+                new ReadCommand(guildSettingsRepository, playerManager),
+                new UpdateCommand(guildSettingsRepository, playerManager),
+                new DeleteCommand(guildSettingsRepository, playerManager),
+                new CreateCommand(guildSettingsRepository, playerManager),
+                new ShuffleCommand(guildSettingsRepository, playerManager),
+                new DefaultListCommand(guildSettingsRepository, playerManager, playlistLoader)
         };
     }
 
     @Override
-    public void execute(SlashCommandEvent event) {
+    public void doCommand(SlashCommandEvent event) {
         event.reply(CommandUtils.getListOfChildCommands(event, children, name).toString()).setEphemeral(true).queue();
     }
 
-    private final class CreateCommand extends AdminCommand {
+    private final class CreateCommand extends MusicCommand {
 
         private static final String NAME_OPTION_KEY = "name";
 
-        private CreateCommand() {
+        private CreateCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+            super(guildSettingsRepository, playerManager);
             this.name = "create";
             this.help = "Makes a new playlist";
             this.guildOnly = false;
@@ -63,7 +66,7 @@ public class PlaylistCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doCommand(SlashCommandEvent event) {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
                 event.replyFormat("%1$s Playlist's name is required!", event.getClient().getWarning()).setEphemeral(true).queue();
@@ -82,16 +85,17 @@ public class PlaylistCommand extends AdminCommand {
         }
     }
 
-    private final class ReadCommand extends AdminCommand {
+    private final class ReadCommand extends MusicCommand {
 
-        private ReadCommand() {
+        private ReadCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+            super(guildSettingsRepository, playerManager);
             this.name = "list";
             this.help = "Lists all available playlists";
             this.guildOnly = true;
         }
 
         @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doCommand(SlashCommandEvent event) {
             List<String> list = playlistLoader.getPlaylistNames();
             if (list == null) {
                 event.replyFormat("%1$s Failed to load available playlists!", event.getClient().getWarning()).setEphemeral(true).queue();
@@ -106,14 +110,15 @@ public class PlaylistCommand extends AdminCommand {
         }
     }
 
-    private final class UpdateCommand extends AdminCommand {
+    private final class UpdateCommand extends MusicCommand {
 
         private static final String URL_SEPARATOR = "\\|";
 
         private static final String NAME_OPTION_KEY = "name";
         private static final String URL_OPTION_KEY = "url";
 
-        private UpdateCommand() {
+        private UpdateCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+            super(guildSettingsRepository, playerManager);
             this.name = "update";
             this.help = "Appends songs to an existing playlist";
             this.guildOnly = false;
@@ -124,7 +129,7 @@ public class PlaylistCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doCommand(SlashCommandEvent event) {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
                 event.replyFormat("%1$s Specify name of playlist!",
@@ -166,16 +171,17 @@ public class PlaylistCommand extends AdminCommand {
 
                 playlistLoader.writePlaylist(playlistName, listOfUrlsToWrite);
                 log.info("Playlist {} updated by {}", playlistName, FormatUtils.formatAuthor(event));
-                event.replyFormat("%1$s Successfully added %2$s items to playlist `%3$s`.", event.getClient().getSuccess(), urls.length, playlist).setEphemeral(true).queue();
+                event.replyFormat("%1$s Successfully added %2$s items to playlist `%3$s`.", event.getClient().getSuccess(), urls.length, playlist.getName()).setEphemeral(true).queue();
             }
         }
     }
 
-    private final class DeleteCommand extends AdminCommand {
+    private final class DeleteCommand extends MusicCommand {
 
         private static final String NAME_OPTION_KEY = "name";
 
-        private DeleteCommand() {
+        private DeleteCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+            super(guildSettingsRepository, playerManager);
             this.name = "delete";
             this.help = "Deletes an existing playlist";
             this.guildOnly = false;
@@ -183,7 +189,7 @@ public class PlaylistCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doCommand(SlashCommandEvent event) {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
                 event.replyFormat("%1$s Playlist's name is required!", event.getClient().getWarning()).setEphemeral(true).queue();
@@ -206,11 +212,12 @@ public class PlaylistCommand extends AdminCommand {
 
     }
 
-    private final class ShuffleCommand extends AdminCommand {
+    private final class ShuffleCommand extends MusicCommand {
 
         private static final String NAME_OPTION_KEY = "name";
 
-        private ShuffleCommand() {
+        private ShuffleCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
+            super(guildSettingsRepository, playerManager);
             this.name = "shuffle";
             this.help = "Shuffles specified playlist";
             this.guildOnly = false;
@@ -218,7 +225,7 @@ public class PlaylistCommand extends AdminCommand {
         }
 
         @Override
-        protected void execute(SlashCommandEvent event) {
+        protected void doCommand(SlashCommandEvent event) {
             OptionMapping nameOption = event.getOption(NAME_OPTION_KEY);
             if (nameOption == null) {
                 event.replyFormat("%1$s Playlist's name is required!", event.getClient().getWarning()).setEphemeral(true).queue();
@@ -245,14 +252,15 @@ public class PlaylistCommand extends AdminCommand {
         }
     }
 
-    private static final class DefaultListCommand extends AdminCommand {
+    private static final class DefaultListCommand extends MusicCommand {
 
         private static final String PLAYLIST_OPTION_KEY = "playlist";
 
         private final PlaylistLoader playlistLoader;
         private final GuildSettingsRepository guildSettingsRepository;
 
-        public DefaultListCommand(PlaylistLoader playlistLoader, GuildSettingsRepository guildSettingsRepository) {
+        public DefaultListCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager, PlaylistLoader playlistLoader) {
+            super(guildSettingsRepository, playerManager);
             this.playlistLoader = playlistLoader;
             this.guildSettingsRepository = guildSettingsRepository;
             this.name = "default";
@@ -262,7 +270,7 @@ public class PlaylistCommand extends AdminCommand {
         }
 
         @Override
-        public final void execute(SlashCommandEvent event) {
+        public final void doCommand(SlashCommandEvent event) {
             Optional<GuildSettings> settings = guildSettingsRepository.findById(Objects.requireNonNull(event.getGuild()).getIdLong());
             String currentPlaylist = settings.map(GuildSettings::getDefaultPlaylist).orElse(null);
 
