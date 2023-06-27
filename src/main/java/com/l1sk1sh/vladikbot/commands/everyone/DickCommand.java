@@ -133,7 +133,7 @@ public class DickCommand extends SlashCommand {
                 return;
             }
 
-            dicks.sort(Comparator.comparingInt(Dick::getSize));
+            dicks.sort(Comparator.comparingInt(Dick::getSize).reversed());
 
             StringBuilder dickList = new StringBuilder();
 
