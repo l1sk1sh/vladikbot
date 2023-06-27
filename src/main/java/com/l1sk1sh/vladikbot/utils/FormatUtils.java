@@ -10,6 +10,7 @@ import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -149,9 +150,7 @@ public final class FormatUtils {
     }
 
     public static String getReadableMMSSDuration(long duration) {
-        SimpleDateFormat formatter = new SimpleDateFormat("mm:ss");
-
-        return formatter.format(new Date(duration));
+        return DurationFormatUtils.formatDuration(duration, "mm:ss");
     }
 
     public static String getNormalizedCurrentDate() {

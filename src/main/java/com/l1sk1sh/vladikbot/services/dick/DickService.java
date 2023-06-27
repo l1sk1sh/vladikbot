@@ -7,9 +7,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.time.DateUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -21,8 +21,6 @@ import java.util.Random;
 @Slf4j
 @Service
 public class DickService {
-
-    private static final SimpleDateFormat formatter = new SimpleDateFormat("h годин та mm хв.");
 
     private final DickRepository dickRepository;
     private final Random random = new Random();
@@ -69,10 +67,10 @@ public class DickService {
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         Date tomorrow = DateUtils.addDays(calendar.getTime(), 1);
-
         DateUtils.setMinutes(tomorrow, 0);
+
         long difference = tomorrow.getTime() - now.getTime();
-        return formatter.format(new Date(difference));
+        return DurationFormatUtils.formatDuration(difference, "H год. та mm хв.");
     }
 
     public DickResults grow(long authorId, long guildId) {
