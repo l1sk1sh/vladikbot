@@ -107,8 +107,8 @@ public class DickService {
             result.setNextTime(nextTime);
             return result;
 
-        } else if (chance < 44_00) { // < 44%
-            int shrinkSize = random.nextInt(8) + 1;
+        } else if (chance < 34_00) { // < 34%
+            int shrinkSize = random.nextInt(5) + 1;
             int currentSize = registeredDick.getSize();
             int newSize;
             if (currentSize < shrinkSize) {
