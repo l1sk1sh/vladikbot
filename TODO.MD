@@ -33,6 +33,7 @@
     1. Add functions /feed bot/
     1. Add stats for bot 
 0. Add custom status to the bot (with emojis)
+0. Update mechanism with 'dick' chances - add increasing probability for loosers
 0. Fix MCServer timeonline command output
 0. Add image processing and shrinking by some 'magik' library
 0. Implement export for text backup command
