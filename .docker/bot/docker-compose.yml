@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   bot:
-    build: ./bot/
+    build: ./
     image: bot:latest
     container_name: bot
     working_dir: /app
