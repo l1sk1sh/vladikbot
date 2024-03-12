@@ -52,9 +52,9 @@ tasks.composeUp {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.11'
+    implementation 'net.dv8tion:JDA:5.0.0-beta.21'
     implementation 'pw.chew:jda-chewtils:2.0-SNAPSHOT'
-    implementation 'dev.arbjerg:lavaplayer:2.0.1'
+    implementation 'dev.arbjerg:lavaplayer:2.1.1'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
