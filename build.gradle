@@ -19,6 +19,7 @@ repositories {
     maven { url "https://m2.chew.pro/releases" }
     maven { url "https://m2.chew.pro/snapshots" }
     maven { url 'https://m2.dv8tion.net/releases' }
+    maven { url 'https://maven.lavalink.dev/snapshots' }
 }
 
 group 'сom.l1sk1sh'
@@ -54,7 +55,7 @@ tasks.composeUp {
 dependencies {
     implementation 'net.dv8tion:JDA:5.0.0-beta.21'
     implementation 'pw.chew:jda-chewtils:2.0-SNAPSHOT'
-    implementation 'dev.arbjerg:lavaplayer:2.1.1'
+    implementation 'dev.arbjerg:lavaplayer:0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT' // TODO Update to stable
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
