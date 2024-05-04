@@ -1,12 +1,16 @@
 #### ToDo List
 1. Add age restricted token to lavaplayer
-2. Add commands
+2. Code review
+   1. Code analysis
+   2. Bump dependencies
+   3. Inspect all "unused" suppression
+3. Add commands
     1. `slots` - Spin the slots and win the jackpot! ...or lose everything. [Example](https://www.javacodegeeks.com/2014/08/programming-a-simple-slot-machine-game-using-java.html) - implement with memory for credits, etc
     2. `whois [user mention]` - Get user information
     3. `saypm` - Send a private message to the user
     4. `image?` - Generate image using AI generator with input params
     5. `kill user` - Send message that brutally kills user
-3. Rework news module:
+4. Rework news module:
     1. Gaming news
     2. Major world news
     3. Major local news
@@ -17,7 +21,7 @@
     8. Track user activity
     9. Add panorama news
     10. Add news limit by keywords for certain news researches
-4. Extend reply core:
+5. Extend reply core:
     1. Create word usage frequency and add replies accordingly
     2. Create history of replies and do not use same reply for a period
     3. Create a dictionary of forbidden words (to avoid replies to "yes" "okay" "etc")
@@ -26,24 +30,24 @@
     6. Limit bot's replying to specific channels or add blacklisted channels
     7. Use actual emoji, not ids (:emoji:)
     8. Ignore commands "~" in replies
-5. Create a dynamic dictionary:
+6. Create a dynamic dictionary:
     1. Create different dictionaries for different trigger situations
     2. Dictionary should have specific ranking that changes
     3. Value of reply should be calculated according to amount of emoji reactions
     4. Mood scale for the bot. The better the mood - better and kinder replies
     5. Add functions /feed bot/
     6. Add stats for bot 
-6. Add custom status to the bot (with emojis)
-7. Update mechanism with 'dick' chances - add increasing probability for loosers
-8. Add image processing and shrinking by some 'magik' library
-9. Implement export for text backup command
-10. Add an author to the reaction item and use it for emoji statistics calculation
-11. Play with new buttons and popup windows
-12. Redo settings. This time do it! It is difficult to update existing file or change type of settings
-13. Review Nekotina bot and all other trash
-14. Research what exactly are new 'menus' provided by the API
-15. Rewrite all pagination and menus to new format of buttons
-16. Play a bit more with context menus - it is really cool
-17. Go ahead and play with https://jda.wiki/using-jda/interactions
-18. Research https://github.com/lavalink-devs/Lavalink for better music
-19. Add context menu with "try my commands"
+7. Add custom status to the bot (with emojis)
+8. Update mechanism with 'dick' chances - add increasing probability for loosers
+9. Add image processing and shrinking by some 'magik' library
+10. Implement export for text backup command
+11. Add an author to the reaction item and use it for emoji statistics calculation
+12. Play with new buttons and popup windows
+13. Redo settings. This time do it! It is difficult to update existing file or change type of settings
+14. Review Nekotina bot and all other trash
+15. Research what exactly are new 'menus' provided by the API
+16. Rewrite all pagination and menus to new format of buttons
+17. Play a bit more with context menus - it is really cool
+18. Go ahead and play with https://jda.wiki/using-jda/interactions
+19. Research https://github.com/lavalink-devs/Lavalink for better music
+20. Add context menu with "try my commands"
