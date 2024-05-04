@@ -38,7 +38,6 @@ public class NowPlayingHandler {
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final BotSettingsManager settings;
-    private final GuildSettingsRepository guildSettingsRepository;
     private final Map<Long, Pair<Long, Long>> lastNP; /* guild -> channel, message */
 
     public void init() {
@@ -96,50 +95,6 @@ public class NowPlayingHandler {
         }
 
         toRemove.forEach(lastNP::remove);
-    }
-
-    public void updateTopic(long guildId, AudioHandler audioHandler, boolean wait) {
-        JDA jda = VladikBot.jda();
-        Guild guild = jda.getGuildById(guildId);
-        if (guild == null) {
-            return;
-        }
-
-        Optional<GuildSettings> settings = guildSettingsRepository.findById(guild.getIdLong());
-        TextChannel textChannel = settings.map(guildSettings -> guildSettings.getTextChannel(guild)).orElse(null);
-
-        if (textChannel != null && guild.getSelfMember().hasPermission(textChannel, Permission.MANAGE_CHANNEL)) {
-            String otherText;
-            String topic = textChannel.getTopic();
-            if (topic == null || topic.isEmpty()) {
-                otherText = "\u200B";
-            } else if (topic.contains("\u200B")) {
-                otherText = topic.substring(topic.lastIndexOf("\u200B"));
-            } else {
-                otherText = "\u200B\r\n " + topic;
-            }
-
-            String text = audioHandler.getTopicFormat(jda) + otherText;
-            if (!text.equals(topic)) {
-                try {
-                    /*
-                     * Normally here if 'wait' was false, we'd want to queue, however,
-                     * new discord ratelimits specifically limiting changing channel topics
-                     * mean we don't want a backlog of changes piling up, so if we hit a
-                     * ratelimit, we just won't change the topic this time
-                     */
-                    textChannel.getManager().setTopic(text).complete(wait);
-                } catch (PermissionException | RateLimitedException ignored) {
-                }
-            }
-        }
-    }
-
-    /* "event"-based methods */
-    void onTrackUpdate(long guildId, AudioHandler audioHandler) {
-
-        /* Update channel topic if applicable */
-        updateTopic(guildId, audioHandler, false);
     }
 
     public void onMessageDelete(Guild guild, long messageId) {

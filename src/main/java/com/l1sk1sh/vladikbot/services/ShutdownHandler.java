@@ -26,7 +26,6 @@ public class ShutdownHandler {
     private final ScheduledExecutorService backgroundThreadPool;
     @Qualifier("backupThreadPool")
     private final ScheduledExecutorService backupThreadPool;
-    private final NowPlayingHandler nowPlayingHandler;
 
     private boolean shuttingDown = false;
 
@@ -47,7 +46,6 @@ public class ShutdownHandler {
                 if (audioHandler != null) {
                     audioHandler.stopAndClear();
                     audioHandler.getPlayer().destroy();
-                    nowPlayingHandler.updateTopic(g.getIdLong(), audioHandler, true);
                 }
             });
 

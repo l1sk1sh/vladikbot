@@ -75,6 +75,7 @@ public class PlaylistCommand extends MusicCommand {
             }
 
             String playlistName = nameOption.getAsString();
+            playlistName = playlistName.replaceAll("\\s+", "_").replaceAll("[*?|/\":<>]", "");
             if (playlistLoader.getPlaylist(playlistName) == null) {
                 playlistLoader.createPlaylist(playlistName);
                 log.info("Playlist {} created by {}", playlistName, FormatUtils.formatAuthor(event));

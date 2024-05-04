@@ -167,7 +167,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
         if (queue.isEmpty()) {
             if (!playFromDefault()) {
-                nowPlayingHandler.onTrackUpdate(guildId, this);
                 if (settings.get().isLeaveChannel()) {
                     closeAudioConnection();
                 }
@@ -184,7 +183,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     @Override
     public void onTrackStart(AudioPlayer player, AudioTrack track) {
         votes.clear();
-        nowPlayingHandler.onTrackUpdate(guildId, this);
     }
 
     @Override
@@ -262,25 +260,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
                                 + FormatUtils.volumeIcon(audioPlayer.getVolume()))
                         .setColor(guild.getSelfMember().getColor())
                         .build()).build();
-    }
-
-    String getTopicFormat(JDA jda) {
-        if (isMusicPlaying(jda)) {
-            long userId = getRequestMetadata().getOwner();
-            AudioTrack track = audioPlayer.getPlayingTrack();
-            String title = track.getInfo().title;
-
-            if (title == null || title.equals("Unknown Title")) {
-                title = track.getInfo().uri;
-            }
-            return "**" + title + "** [" + (userId == 0 ? "autoplay" : "<@" + userId + ">") + "]"
-                    + "\r\n" + getStatusEmoji() + " "
-                    + "[" + FormatUtils.formatTimeTillHours(track.getDuration()) + "] "
-                    + FormatUtils.volumeIcon(audioPlayer.getVolume());
-        } else {
-            return "No music playing " + Const.STOP_EMOJI + " "
-                    + FormatUtils.volumeIcon(audioPlayer.getVolume());
-        }
     }
 
     private String getStatusEmoji() {

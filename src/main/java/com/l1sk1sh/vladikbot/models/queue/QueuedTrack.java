@@ -24,12 +24,12 @@ public class QueuedTrack implements Queueable {
 
     public QueuedTrack(AudioTrack track, AudioRequestMetadata rm) {
         this.track = track;
-        this.track.setUserData(rm);
+        this.track.setUserData(rm == null ? AudioRequestMetadata.EMPTY : rm);
     }
 
     @Override
     public final long getIdentifier() {
-        return track.getUserData(AudioRequestMetadata.class).getOwner();
+        return track.getUserData() == null ? 0L : track.getUserData(AudioRequestMetadata.class).getOwner();
     }
 
     @Override
