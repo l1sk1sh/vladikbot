@@ -74,11 +74,11 @@ public class PlayCommand extends DJCommand {
 
         if (song.isEmpty()) {
             AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-            if (Objects.requireNonNull(audioHandler).getPlayer().getPlayingTrack() != null && audioHandler.getPlayer().isPaused()) {
+            if (Objects.requireNonNull(audioHandler).getAudioPlayer().getPlayingTrack() != null && audioHandler.getAudioPlayer().isPaused()) {
                 if (super.checkDJPermission(event)) {
-                    audioHandler.getPlayer().setPaused(false);
+                    audioHandler.getAudioPlayer().setPaused(false);
                     event.replyFormat("Resumed **%1$s**.",
-                            audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
+                            audioHandler.getAudioPlayer().getPlayingTrack().getInfo().title).queue();
                 } else {
                     event.replyFormat("%1$s Only DJs can unpause the player!", event.getClient().getWarning()).setEphemeral(true).queue();
                 }
@@ -89,7 +89,7 @@ public class PlayCommand extends DJCommand {
             String reply = event.getClient().getWarning() + " Play Command:\r\n"
                     + "`" + name + " <song title>` - plays the first result from Youtube\r\n"
                     + "`" + name + " <URL>` - plays the provided song, playlist or stream\r\n"
-                    + CommandUtils.getListOfChildCommands(event, children, name).toString();
+                    + CommandUtils.getListOfChildCommands(event, children, name);
             event.reply(reply).setEphemeral(true).queue();
 
             return;
@@ -109,7 +109,6 @@ public class PlayCommand extends DJCommand {
             this.ytsearch = ytsearch;
         }
 
-        @SuppressWarnings("DuplicatedCode")
         private void loadSingle(AudioTrack track, AudioPlaylist playlist) {
             if (settings.get().isTooLong(track)) {
                 event.getHook().editOriginalFormat(

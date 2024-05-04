@@ -18,7 +18,6 @@ public class DogFactCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public DogFactCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "dogfact";

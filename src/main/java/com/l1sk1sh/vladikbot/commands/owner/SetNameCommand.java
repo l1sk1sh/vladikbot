@@ -25,7 +25,6 @@ public class SetNameCommand extends OwnerCommand {
 
     private static final String NAME_OPTION_KEY = "name";
 
-    @Autowired
     public SetNameCommand() {
         this.name = "setname";
         this.help = "Sets the name of the bot";

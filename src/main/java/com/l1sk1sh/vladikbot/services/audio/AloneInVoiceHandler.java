@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 @Order
 public class AloneInVoiceHandler {
 
+    @SuppressWarnings("SpringQualifierCopyableLombok") // See lombok.config
     @Qualifier("backgroundThreadPool")
     private final ScheduledExecutorService backgroundThreadPool;
     private final BotSettingsManager settings;

@@ -21,7 +21,6 @@ import java.util.Objects;
 @Service
 public class PermissionsCommand extends AdminCommand {
 
-    @Autowired
     public PermissionsCommand() {
         this.name = "permissions";
         this.help = "Shows available and missing bot permissions";

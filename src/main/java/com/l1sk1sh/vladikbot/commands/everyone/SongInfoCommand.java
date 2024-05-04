@@ -38,7 +38,6 @@ public class SongInfoCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public SongInfoCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "songinfo";

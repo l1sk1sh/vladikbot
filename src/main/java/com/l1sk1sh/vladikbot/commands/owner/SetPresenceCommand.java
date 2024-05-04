@@ -24,7 +24,6 @@ import java.util.List;
 @Service
 public class SetPresenceCommand extends OwnerCommand {
 
-    @Autowired
     public SetPresenceCommand() {
         this.name = "setpresence";
         this.help = "Sets the presence of the bot";

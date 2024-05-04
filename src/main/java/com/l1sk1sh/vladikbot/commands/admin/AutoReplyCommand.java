@@ -104,7 +104,7 @@ public class AutoReplyCommand extends AdminCommand {
 
             ReplyRule rule = new ReplyRule(reactTo, reactWith);
             autoReplyManager.writeRule(rule);
-            log.info("Added new reply rule: {}.", rule.toString());
+            log.info("Added new reply rule: {}.", rule);
             event.replyFormat("%1$s New rule was added.", event.getClient().getSuccess()).setEphemeral(true).queue();
         }
     }

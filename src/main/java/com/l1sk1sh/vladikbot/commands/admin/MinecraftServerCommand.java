@@ -178,6 +178,7 @@ public class MinecraftServerCommand extends AdminCommand {
                 }
 
                 JenkinsJob.Build latestBuild = job.getLastBuild();
+                //noinspection ConstantValue
                 if (latestBuild == null) {
                     event.replyFormat("%1$s Server has never been launched before.", event.getClient().getWarning()).setEphemeral(true).queue();
 

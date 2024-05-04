@@ -24,15 +24,13 @@ import java.util.stream.Collectors;
 @Service
 public class EmojiStatsService {
 
-    private final BotSettingsManager settings;
     private final DiscordEmojisRepository discordEmojisRepository;
     private final DiscordMessagesRepository discordMessagesRepository;
     private final DiscordReactionsRepository discordReactionsRepository;
 
     @Autowired
-    public EmojiStatsService(BotSettingsManager settings, DiscordEmojisRepository discordEmojisRepository,
+    public EmojiStatsService(DiscordEmojisRepository discordEmojisRepository,
                              DiscordMessagesRepository discordMessagesRepository, DiscordReactionsRepository discordReactionsRepository) {
-        this.settings = settings;
         this.discordEmojisRepository = discordEmojisRepository;
         this.discordMessagesRepository = discordMessagesRepository;
         this.discordReactionsRepository = discordReactionsRepository;

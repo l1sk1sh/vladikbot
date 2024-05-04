@@ -123,10 +123,10 @@ public class QueueCommand extends MusicCommand {
 
     private String getQueueTitle(AudioHandler audioPlayer, String success, int songslength, long total, AudioRepeatMode repeatmode) {
         StringBuilder stringBuilder = new StringBuilder();
-        if (audioPlayer.getPlayer().getPlayingTrack() != null) {
-            stringBuilder.append(audioPlayer.getPlayer().isPaused()
+        if (audioPlayer.getAudioPlayer().getPlayingTrack() != null) {
+            stringBuilder.append(audioPlayer.getAudioPlayer().isPaused()
                     ? Const.PAUSE_EMOJI : Const.PLAY_EMOJI).append(" **")
-                    .append(audioPlayer.getPlayer().getPlayingTrack().getInfo().title).append("**\r\n\r\n");
+                    .append(audioPlayer.getAudioPlayer().getPlayingTrack().getInfo().title).append("**\r\n\r\n");
         }
 
         return FormatUtils.filter(stringBuilder.append(success).append(" Current Queue | ").append(songslength)

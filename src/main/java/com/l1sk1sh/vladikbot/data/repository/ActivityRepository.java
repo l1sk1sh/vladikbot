@@ -9,5 +9,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface ActivityRepository extends JpaRepository<Activity, Long> {
-    Activity getActivityByActivityName(String activityName);
 }

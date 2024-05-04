@@ -14,7 +14,6 @@ import java.time.temporal.ChronoUnit;
 @Service
 public class PingCommand extends SlashCommand {
 
-    @Autowired
     public PingCommand() {
         this.name = "ping";
         this.help = "Checks the bot's latency";

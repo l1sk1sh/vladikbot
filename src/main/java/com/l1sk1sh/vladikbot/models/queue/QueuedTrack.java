@@ -13,9 +13,9 @@ import net.dv8tion.jda.api.entities.User;
  * - Reformatted code
  * @author John Grosh
  */
+@Getter
 public class QueuedTrack implements Queueable {
 
-    @Getter
     private final AudioTrack track;
 
     public QueuedTrack(AudioTrack track, User owner) {

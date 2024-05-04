@@ -68,13 +68,13 @@ public class AutoReplyManager {
 
                 if ((strategy == MatchingStrategy.INLINE)
                         && message.getContentStripped().contains(singleReact)) {
-                    log.trace("Inline react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
+                    log.trace("Inline react to trigger '{}' that was found in '{}'.", singleReact, message);
                     matchingRules.add(rule);
                 }
 
                 if ((strategy == MatchingStrategy.FULL)
                         && message.getContentStripped().equals(singleReact)) {
-                    log.trace("Full react to trigger '{}' that was found in '{}'.", singleReact, message.toString());
+                    log.trace("Full react to trigger '{}' that was found in '{}'.", singleReact, message);
                     matchingRules.add(rule);
                 }
             }
@@ -87,7 +87,7 @@ public class AutoReplyManager {
         }
 
         if (matchingRules.isEmpty()) {
-            log.trace("Matching rules are empty for message '{}'. No reply.", message.toString());
+            log.trace("Matching rules are empty for message '{}'. No reply.", message);
 
             return;
         }
@@ -98,7 +98,7 @@ public class AutoReplyManager {
             chosenRule = matchingRules.get(0);
         }
 
-        log.trace("Sending reply to '{}' with '{}'.", message.toString(), chosenRule);
+        log.trace("Sending reply to '{}' with '{}'.", message, chosenRule);
         message.getChannel().asTextChannel().sendMessage(
                 chosenRule.getReactWithList().get(
                         random.nextInt(chosenRule.getReactWithList().size()))

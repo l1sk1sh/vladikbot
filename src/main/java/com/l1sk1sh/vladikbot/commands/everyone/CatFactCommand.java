@@ -18,7 +18,6 @@ public class CatFactCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public CatFactCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "catfact";

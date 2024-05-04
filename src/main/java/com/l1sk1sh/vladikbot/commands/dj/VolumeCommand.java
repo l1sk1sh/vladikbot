@@ -42,7 +42,7 @@ public class VolumeCommand extends DJCommand {
     @Override
     public final void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-        int currentVolume = Objects.requireNonNull(audioHandler).getPlayer().getVolume();
+        int currentVolume = Objects.requireNonNull(audioHandler).getAudioPlayer().getVolume();
 
         OptionMapping volumeOption = event.getOption(VOLUME_OPTION_KEY);
         if (volumeOption == null) {
@@ -56,7 +56,7 @@ public class VolumeCommand extends DJCommand {
         if (newVolume < 0 || newVolume > MAX_VOLUME) {
             event.replyFormat("%1$s Volume must be a valid integer between 0 and `%2$d`!", event.getClient().getWarning(), MAX_VOLUME).setEphemeral(true).queue();
         } else {
-            audioHandler.getPlayer().setVolume(newVolume);
+            audioHandler.getAudioPlayer().setVolume(newVolume);
             guildSettingsRepository.findById(event.getGuild().getIdLong()).ifPresent(settings -> {
                 settings.setVolume(newVolume);
                 guildSettingsRepository.save(settings);

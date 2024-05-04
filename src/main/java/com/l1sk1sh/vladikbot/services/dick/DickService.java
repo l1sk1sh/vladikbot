@@ -90,7 +90,7 @@ public class DickService {
 
         long now = System.currentTimeMillis();
         int chance = random.nextInt(100_00);
-        log.info("Updating {} with chance {}", registeredDick.toString(), chance);
+        log.info("Updating {} with chance {}", registeredDick, chance);
 
         if (chance < 1) { // < 0.01%
             registeredDick.setSize(0);
@@ -140,6 +140,7 @@ public class DickService {
         }
     }
 
+    @SuppressWarnings({"LombokGetterMayBeUsed", "LombokSetterMayBeUsed"})
     public enum DickResults {
         absent,
         already,

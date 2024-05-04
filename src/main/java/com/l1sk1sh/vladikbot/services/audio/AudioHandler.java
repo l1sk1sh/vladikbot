@@ -17,6 +17,7 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
@@ -44,11 +45,13 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     private final GuildSettings guildSettings;
     private final PlaylistLoader playlistLoader;
     private final PlayerManager playerManager;
+    @Getter
     private final AudioPlayer audioPlayer;
-    private final NowPlayingHandler nowPlayingHandler;
 
+    @Getter
     private final FairQueue<QueuedTrack> queue = new FairQueue<>();
     private final List<AudioTrack> defaultQueue = new LinkedList<>();
+    @Getter
     private final Set<Long> votes = new HashSet<>();
 
     private final long guildId;
@@ -56,7 +59,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     private AudioFrame lastFrame;
 
     AudioHandler(ScheduledExecutorService frontThreadPool, PlayerManager playerManager, Guild guild, AudioPlayer player,
-                 BotSettingsManager settings, GuildSettings guildSettings, PlaylistLoader playlistLoader, NowPlayingHandler nowPlayingHandler) {
+                 BotSettingsManager settings, GuildSettings guildSettings, PlaylistLoader playlistLoader) {
         this.frontThreadPool = frontThreadPool;
         this.playerManager = playerManager;
         this.audioPlayer = player;
@@ -64,7 +67,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         this.settings = settings;
         this.guildSettings = guildSettings;
         this.playlistLoader = playlistLoader;
-        this.nowPlayingHandler = nowPlayingHandler;
     }
 
     public int addTrackToFront(QueuedTrack queuedTrack) {
@@ -86,10 +88,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         }
     }
 
-    public FairQueue<QueuedTrack> getQueue() {
-        return queue;
-    }
-
     public void stopAndClear() {
         queue.clear();
         defaultQueue.clear();
@@ -98,14 +96,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
     public boolean isMusicPlaying(JDA jda) {
         return Objects.requireNonNull(Objects.requireNonNull(guild(jda).getSelfMember().getVoiceState())).inAudioChannel() && audioPlayer.getPlayingTrack() != null;
-    }
-
-    public Set<Long> getVotes() {
-        return votes;
-    }
-
-    public AudioPlayer getPlayer() {
-        return audioPlayer;
     }
 
     public AudioRequestMetadata getRequestMetadata() {
@@ -127,7 +117,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         }
 
         Playlist playlist = playlistLoader.getPlaylist(guildSettings.getDefaultPlaylist());
-        if (playlist == null || playlist.getItems().isEmpty() || (playlist.getItems() == null)) {
+        if (playlist == null || playlist.getItems().isEmpty()) {
             return false;
         }
 
@@ -213,11 +203,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
                 User user = guild.getJDA().getUserById(rm.getUser().getId());
                 if (user == null) {
-                    embedBuilder.setAuthor(rm.getUser().getUsername() + "#" + rm.getUser().getDiscrim(),
+                    embedBuilder.setAuthor(rm.getUser().getUsername(),
                             null,
                             rm.getUser().getAvatar());
                 } else {
-                    embedBuilder.setAuthor(user.getName() + "#" + user.getDiscriminator(),
+                    embedBuilder.setAuthor(user.getName(),
                             null, user.getEffectiveAvatarUrl());
                 }
             }

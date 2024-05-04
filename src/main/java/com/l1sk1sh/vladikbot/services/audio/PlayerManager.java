@@ -26,10 +26,10 @@ import java.util.concurrent.ScheduledExecutorService;
 @Service
 public class PlayerManager extends DefaultAudioPlayerManager {
 
+    @SuppressWarnings("SpringQualifierCopyableLombok") // See lombok.config
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final PlaylistLoader playlistLoader;
-    private final NowPlayingHandler nowPlayingHandler;
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
 
@@ -47,7 +47,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
 
             AudioPlayer player = createPlayer();
             player.setVolume(volume);
-            audioHandler = new AudioHandler(frontThreadPool, this, guild, player, settings, guildSettings.orElse(null), playlistLoader, nowPlayingHandler);
+            audioHandler = new AudioHandler(frontThreadPool, this, guild, player, settings, guildSettings.orElse(null), playlistLoader);
             player.addListener(audioHandler);
             guild.getAudioManager().setSendingHandler(audioHandler);
         } else {

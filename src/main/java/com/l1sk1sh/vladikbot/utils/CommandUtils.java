@@ -21,11 +21,6 @@ import java.util.Date;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class CommandUtils {
 
-    public static StringBuilder getListOfChildCommands(CommandEvent event, Command[] children, String nameOfParentCommand) {
-        String message = event.getClient().getWarning() + " " + nameOfParentCommand + " has following commands:\r\n";
-        return getListOfCommands(children, nameOfParentCommand, message, event.getClient());
-    }
-
     public static StringBuilder getListOfChildCommands(SlashCommandEvent event, Command[] children, String nameOfParentCommand) {
         String message = event.getClient().getWarning() + " " + nameOfParentCommand + " has following commands:\r\n";
         return getListOfCommands(children, nameOfParentCommand, message, event.getClient());

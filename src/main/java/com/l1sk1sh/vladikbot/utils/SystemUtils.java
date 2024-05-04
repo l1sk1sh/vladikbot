@@ -73,6 +73,7 @@ public final class SystemUtils {
         } catch (JoranException e) {
 
             /* StatusPrinter will try to log this */
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
         StatusPrinter.printInCaseOfErrorsOrWarnings(lc);

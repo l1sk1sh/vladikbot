@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class RssService {
 
+    @SuppressWarnings("SpringQualifierCopyableLombok") // See lombok.config
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final SentNewsArticleRepository sentNewsArticleRepository;

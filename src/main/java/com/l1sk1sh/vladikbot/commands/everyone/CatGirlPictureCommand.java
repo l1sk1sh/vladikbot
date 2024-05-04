@@ -33,7 +33,6 @@ public class CatGirlPictureCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public CatGirlPictureCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "catgirl";

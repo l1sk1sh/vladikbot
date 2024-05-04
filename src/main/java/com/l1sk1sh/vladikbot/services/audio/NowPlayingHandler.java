@@ -1,25 +1,20 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
 import com.l1sk1sh.vladikbot.VladikBot;
-import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
-import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.models.Pair;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.exceptions.PermissionException;
-import net.dv8tion.jda.api.exceptions.RateLimitedException;
 import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,12 +28,13 @@ import java.util.concurrent.TimeUnit;
  */
 @RequiredArgsConstructor
 @Service
+@SuppressWarnings("SpringQualifierCopyableLombok") // See lombok.config
 public class NowPlayingHandler {
 
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final BotSettingsManager settings;
-    private final Map<Long, Pair<Long, Long>> lastNP; /* guild -> channel, message */
+    private final Map<Long, Pair<Long, Long>> lastNP = new HashMap<>(); /* guild -> channel, message */
 
     public void init() {
         if (!settings.get().isNpImages()) {

@@ -62,7 +62,7 @@ public class PlayPlaylistCommand extends MusicCommand {
             return;
         }
 
-        if (playlist.getItems().isEmpty() || (playlist.getItems() == null)) {
+        if (playlist.getItems().isEmpty()) {
             event.replyFormat("%1$s Specified playlist is empty!", event.getClient().getError()).setEphemeral(true).queue();
 
             return;

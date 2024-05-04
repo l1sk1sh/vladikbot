@@ -104,7 +104,7 @@ public final class Const {
         playing,
         watching,
         listening,
-        streaming
+        // streaming // TODO Add streaming activity
     }
 
     public static final String[] NAME_INVALID_CHARS = new String[]{":", "*", "\"", "\\", "/", "|", "<", ">"};

@@ -78,7 +78,6 @@ public class PlayNextCommand extends DJCommand {
             this.ytsearch = ytsearch;
         }
 
-        @SuppressWarnings("DuplicatedCode")
         private void loadSingle(AudioTrack track) {
             if (settings.get().isTooLong(track)) {
                 event.replyFormat(

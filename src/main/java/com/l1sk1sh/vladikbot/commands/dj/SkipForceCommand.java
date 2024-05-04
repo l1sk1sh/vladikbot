@@ -34,8 +34,8 @@ public class SkipForceCommand extends DJCommand {
         AudioRequestMetadata rm = Objects.requireNonNull(audioHandler).getRequestMetadata();
         event.replyFormat("%1$s Skipped **%2$s** (requested by *%3$s*).",
                 event.getClient().getSuccess(),
-                audioHandler.getPlayer().getPlayingTrack().getInfo().title,
+                audioHandler.getAudioPlayer().getPlayingTrack().getInfo().title,
                 (rm.getOwner() == 0L ? "(autoplay)" : "(requested by **" + rm.getUser().getUsername() + "**)")).queue();
-        audioHandler.getPlayer().stopTrack();
+        audioHandler.getAudioPlayer().stopTrack();
     }
 }

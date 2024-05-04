@@ -20,7 +20,6 @@ public class QuoteCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public QuoteCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "quote";

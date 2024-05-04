@@ -25,7 +25,6 @@ public class SetStatusCommand extends OwnerCommand {
 
     private static final String STATUS_OPTION_KEY = "status";
 
-    @Autowired
     public SetStatusCommand() {
         this.name = "setstatus";
         this.help = "Sets the status the bot displays";

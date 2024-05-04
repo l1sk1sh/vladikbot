@@ -22,7 +22,6 @@ public class CatPictureCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public CatPictureCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "cat";

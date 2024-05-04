@@ -100,6 +100,7 @@ public final class BotUtils {
                 .map(Guild::getTextChannels).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unused")
     public static List<TextChannel> getAvailableTextChannels(JDA jda) {
         return getAllTextChannels(jda).stream().filter(textChannel ->
                 textChannel.getMembers().stream().anyMatch(

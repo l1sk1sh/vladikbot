@@ -9,7 +9,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author l1sk1sh
  */
-@SuppressWarnings("unused")
 @Getter
 @Setter
 @RequiredArgsConstructor
@@ -19,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @ToString
 @Entity
 @Table(name = "reminders")
-public class Reminder implements Cloneable {
+public class Reminder {
 
     @Setter(AccessLevel.NONE)
     @Id
@@ -65,6 +64,7 @@ public class Reminder implements Cloneable {
         this.authorId = copyFrom.authorId;
     }
 
+    @Getter
     @RequiredArgsConstructor
     public enum RepeatPeriod {
         DAILY(TimeUnit.DAYS.toMillis(1)),
@@ -72,7 +72,6 @@ public class Reminder implements Cloneable {
         MONTHLY(TimeUnit.DAYS.toMillis(30)),
         YEARLY(TimeUnit.DAYS.toMillis(365));
 
-        @Getter
         private final long delay;
     }
 }

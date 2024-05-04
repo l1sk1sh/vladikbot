@@ -22,7 +22,6 @@ public class DogPictureCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public DogPictureCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "dog";

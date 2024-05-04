@@ -30,12 +30,12 @@ public class PauseCommand extends DJCommand {
     @Override
     public final void doCommand(SlashCommandEvent event) {
         AudioHandler audioHandler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-        if (Objects.requireNonNull(audioHandler).getPlayer().isPaused()) {
+        if (Objects.requireNonNull(audioHandler).getAudioPlayer().isPaused()) {
             event.replyFormat("%1$s The player is already paused.", event.getClient().getWarning()).setEphemeral(true).queue();
 
             return;
         }
-        audioHandler.getPlayer().setPaused(true);
-        event.replyFormat("%1$s Paused **%2$s**.", event.getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
+        audioHandler.getAudioPlayer().setPaused(true);
+        event.replyFormat("%1$s Paused **%2$s**.", event.getClient().getSuccess(), audioHandler.getAudioPlayer().getPlayingTrack().getInfo().title).queue();
     }
 }

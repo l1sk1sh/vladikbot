@@ -271,7 +271,7 @@ public class PlaylistCommand extends MusicCommand {
         }
 
         @Override
-        public final void doCommand(SlashCommandEvent event) {
+        public void doCommand(SlashCommandEvent event) {
             Optional<GuildSettings> settings = guildSettingsRepository.findById(Objects.requireNonNull(event.getGuild()).getIdLong());
             String currentPlaylist = settings.map(GuildSettings::getDefaultPlaylist).orElse(null);
 

@@ -32,7 +32,6 @@ public class WaifuPictureCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public WaifuPictureCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "waifu";

@@ -22,7 +22,6 @@ public class ISSInfoCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public ISSInfoCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "space";

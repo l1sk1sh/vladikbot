@@ -91,7 +91,6 @@ public class SearchCommand extends MusicCommand {
             this.event = event;
         }
 
-        @SuppressWarnings("DuplicatedCode")
         @Override
         public void trackLoaded(AudioTrack track) {
             if (settings.get().isTooLong(track)) {

@@ -24,7 +24,6 @@ public class RollDiceCommand extends SlashCommand {
 
     private final Random random;
 
-    @Autowired
     public RollDiceCommand() {
         this.random = new Random();
         this.name = "dice";

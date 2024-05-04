@@ -28,7 +28,6 @@ public class SetAvatarCommand extends OwnerCommand {
 
     private static final String URL_OPTION_KEY = "url";
 
-    @Autowired
     public SetAvatarCommand() {
         this.name = "setavatar";
         this.help = "sets the avatar of the bot";

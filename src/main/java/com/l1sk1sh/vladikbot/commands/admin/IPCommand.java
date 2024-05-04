@@ -16,7 +16,6 @@ import java.net.URL;
 @Service
 public class IPCommand extends AdminCommand {
 
-    @Autowired
     public IPCommand() {
         this.name = "ip";
         this.help = "Shows bot's local IPs";

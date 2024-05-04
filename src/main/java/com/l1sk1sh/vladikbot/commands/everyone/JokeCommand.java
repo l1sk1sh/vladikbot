@@ -18,7 +18,6 @@ public class JokeCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public JokeCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "joke";

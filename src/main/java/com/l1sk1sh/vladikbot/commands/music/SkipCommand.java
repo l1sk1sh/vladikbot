@@ -40,8 +40,8 @@ public class SkipCommand extends MusicCommand {
         AudioRequestMetadata rm = Objects.requireNonNull(audioHandler).getRequestMetadata();
         if (event.getUser().getIdLong() == rm.getOwner()) {
             event.replyFormat("%1$s Skipped **%2$s**.",
-                    event.getClient().getSuccess(), audioHandler.getPlayer().getPlayingTrack().getInfo().title).queue();
-            audioHandler.getPlayer().stopTrack();
+                    event.getClient().getSuccess(), audioHandler.getAudioPlayer().getPlayingTrack().getInfo().title).queue();
+            audioHandler.getAudioPlayer().stopTrack();
         } else {
             int listeners = (int) Objects.requireNonNull(Objects.requireNonNull(event.getGuild().getSelfMember().getVoiceState()).getChannel()).getMembers().stream()
                     .filter(member -> !member.getUser().isBot() && !Objects.requireNonNull(member.getVoiceState()).isDeafened()).count();
@@ -62,13 +62,13 @@ public class SkipCommand extends MusicCommand {
             if (skippers >= required) {
                 message += String.format("\r\n%1$s Skipped **%2$s**%3$s.",
                         event.getClient().getSuccess(),
-                        audioHandler.getPlayer().getPlayingTrack().getInfo().title,
+                        audioHandler.getAudioPlayer().getPlayingTrack().getInfo().title,
                         (rm.getOwner() == 0L
                                 ? "(autoplay)"
                                 : "(requested by **" + rm.getUser().getUsername() + "**)")
                 );
 
-                audioHandler.getPlayer().stopTrack();
+                audioHandler.getAudioPlayer().stopTrack();
             }
             event.reply(message).queue();
         }

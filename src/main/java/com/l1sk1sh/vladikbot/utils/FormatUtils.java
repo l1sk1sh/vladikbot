@@ -79,6 +79,7 @@ public final class FormatUtils {
         return Const.VOLUME_100_EMOJI;
     }
 
+    @SuppressWarnings({"unused"})
     public static String listOfTextChannels(List<TextChannel> list, String query) {
         final int textChannelsListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
@@ -94,7 +95,7 @@ public final class FormatUtils {
         return out.toString();
     }
 
-    @SuppressWarnings("DuplicatedCode")
+    @SuppressWarnings({"DuplicatedCode", "unused"})
     public static String listOfVoiceChannels(List<VoiceChannel> list, String query) {
         final int voiceChannelsListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple voice channels found matching \"" + query + "\":");
@@ -110,7 +111,7 @@ public final class FormatUtils {
         return out.toString();
     }
 
-    @SuppressWarnings("DuplicatedCode")
+    @SuppressWarnings({"DuplicatedCode", "unused"})
     public static String listOfRoles(List<Role> list, String query) {
         final int rolesListLimit = 6;
         StringBuilder out = new StringBuilder(" Multiple text channels found matching \"" + query + "\":");
@@ -128,8 +129,8 @@ public final class FormatUtils {
 
     public static String filter(String input) {
         return input.replace("\u202E", "")
-                .replace("@everyone", "@\u0435veryone") /* cyrillic letter e */
-                .replace("@here", "@h\u0435re") /* cyrillic letter e */
+                .replace("@everyone", "@еveryone") /* cyrillic letter e */
+                .replace("@here", "@hеre") /* cyrillic letter e */
                 .trim();
     }
 
@@ -153,6 +154,7 @@ public final class FormatUtils {
         return DurationFormatUtils.formatDuration(duration, "mm:ss");
     }
 
+    @SuppressWarnings({"unused"})
     public static String getNormalizedCurrentDate() {
         Date date = Calendar.getInstance().getTime();
         DateFormat dateFormat = new SimpleDateFormat("dd_MM_yyyy");
@@ -162,21 +164,21 @@ public final class FormatUtils {
 
     public static String filterEveryone(String input) {
         return input.replace("\u202E", "") // RTL override
-                .replace("@everyone", "@\u0435veryone") // cyrillic e
-                .replace("@here", "@h\u0435re") // cyrillic e
-                .replace("discord.gg/", "dis\u0441ord.gg/"); // cyrillic c
+                .replace("@everyone", "@еveryone") // cyrillic e
+                .replace("@here", "@hеre") // cyrillic e
+                .replace("discord.gg/", "disсord.gg/"); // cyrillic c
     }
 
     public static String formatMessage(Message message) {
         StringBuilder sb = new StringBuilder(message.getContentRaw());
         message.getAttachments().forEach(att -> sb.append("\n").append(att.getUrl()));
-        return sb.length() > 2048 ? sb.toString().substring(0, 2040) : sb.toString();
+        return sb.length() > 2048 ? sb.substring(0, 2040) : sb.toString();
     }
 
     public static String formatMessage(MessageCache.CachedMessage message) {
         StringBuilder sb = new StringBuilder(message.getContent());
         message.getAttachments().forEach(att -> sb.append("\n").append(att.getUrl()));
-        return sb.length() > 2048 ? sb.toString().substring(0, 2040) : sb.toString();
+        return sb.length() > 2048 ? sb.substring(0, 2040) : sb.toString();
     }
 
     public static String formatCachedMessageFullUser(MessageCache.CachedMessage msg) {

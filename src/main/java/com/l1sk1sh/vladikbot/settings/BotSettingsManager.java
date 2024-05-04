@@ -36,7 +36,7 @@ public class BotSettingsManager implements SettingsUpdateListener {
                     Files.readAllLines(botConfigFile.toPath()).stream()
                             .map(String::trim)
                             .filter(s -> !s.startsWith("#") && !s.isEmpty())
-                            .reduce((a, b) -> a += b)
+                            .reduce((a, b) -> a + b)
                             .orElse(""),
                     BotSettings.class
             );

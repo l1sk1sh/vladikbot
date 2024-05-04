@@ -3,6 +3,7 @@ package com.l1sk1sh.vladikbot.services;
 import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.data.entity.Reminder;
 import com.l1sk1sh.vladikbot.data.repository.ReminderRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.User;
@@ -25,10 +26,13 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ReminderService {
 
+    @SuppressWarnings("SpringQualifierCopyableLombok") // See lombok.config
     @Qualifier("frontThreadPool")
     private final ScheduledExecutorService frontThreadPool;
     private final ReminderRepository reminderRepository;
+    @Getter
     private Reminder latestReminder;
+    @Getter
     private String errorMessage;
     private final Map<Long, ScheduledFuture<?>> scheduledReminders = new HashMap<>();
 
@@ -77,14 +81,6 @@ public class ReminderService {
         scheduledReminders.put(reminder.getId(), scheduledReminder);
 
         return true;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public Reminder getLatestReminder() {
-        return latestReminder;
     }
 
     public List<Reminder> getAllReminders() {

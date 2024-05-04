@@ -2,7 +2,6 @@ package com.l1sk1sh.vladikbot.services;
 
 import com.l1sk1sh.vladikbot.VladikBot;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
-import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.utils.SystemUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +17,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@SuppressWarnings("SpringQualifierCopyableLombok") // See lombok.config
 public class ShutdownHandler {
 
     @Qualifier("frontThreadPool")
@@ -45,7 +45,7 @@ public class ShutdownHandler {
                 AudioHandler audioHandler = (AudioHandler) g.getAudioManager().getSendingHandler();
                 if (audioHandler != null) {
                     audioHandler.stopAndClear();
-                    audioHandler.getPlayer().destroy();
+                    audioHandler.getAudioPlayer().destroy();
                 }
             });
 

@@ -32,7 +32,6 @@ public class CountryCommand extends SlashCommand {
 
     private final RestTemplate restTemplate;
 
-    @Autowired
     public CountryCommand() {
         this.restTemplate = new RestTemplate();
         this.name = "country";

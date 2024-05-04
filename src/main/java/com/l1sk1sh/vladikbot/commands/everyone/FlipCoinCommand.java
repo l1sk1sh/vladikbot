@@ -15,7 +15,6 @@ public class FlipCoinCommand extends SlashCommand {
 
     private final Random random;
 
-    @Autowired
     public FlipCoinCommand() {
         this.random = new Random();
         this.name = "flip";
