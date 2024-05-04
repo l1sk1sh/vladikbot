@@ -60,7 +60,7 @@ public class MessageCache {
         @Getter(AccessLevel.NONE)
         private final long id;
         private final long channel, guild;
-        private final String content, username, discriminator;
+        private final String content, username;
         private final User author;
         private final List<Attachment> attachments;
 
@@ -69,7 +69,6 @@ public class MessageCache {
             id = message.getIdLong();
             author = message.getAuthor();
             username = message.getAuthor().getName();
-            discriminator = message.getAuthor().getDiscriminator();
             channel = message.getChannel().getIdLong();
             guild = message.getGuild().getIdLong();
             attachments = message.getAttachments();

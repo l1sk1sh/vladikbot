@@ -180,7 +180,7 @@ public final class FormatUtils {
     }
 
     public static String formatCachedMessageFullUser(MessageCache.CachedMessage msg) {
-        return filterEveryone("**" + msg.getUsername() + "**#" + msg.getDiscriminator() + " (ID:" + msg.getAuthor().getId() + ")");
+        return filterEveryone("**" + msg.getUsername() + "** (ID:" + msg.getAuthor().getId() + ")");
     }
 
     @SuppressWarnings("unused")
