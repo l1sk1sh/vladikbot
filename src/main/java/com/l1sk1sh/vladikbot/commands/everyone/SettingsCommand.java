@@ -4,6 +4,7 @@ import com.jagrosh.jdautilities.command.SlashCommand;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.models.queue.QueueType;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
@@ -64,6 +65,7 @@ public class SettingsCommand extends SlashCommand {
         boolean autoReply = guildSettings.map(GuildSettings::isAutoReply).orElse(false);
         double autoReplyChance = guildSettings.map(GuildSettings::getReplyChance).orElse(GuildSettings.DEFAULT_REPLY_CHANCE);
         AutoReplyManager.MatchingStrategy matchingStrategy = guildSettings.map(GuildSettings::getMatchingStrategy).orElse(GuildSettings.DEFAULT_MATCHING_STRATEGY);
+        QueueType queueType = settings.get().getQueueType();
 
         MessageCreateBuilder builder = new MessageCreateBuilder()
                 .addContent(Const.HEADPHONES_EMOJI + " **")
@@ -101,6 +103,8 @@ public class SettingsCommand extends SlashCommand {
                                 + (settings.get().isAutoTextBackup() ? "on" : "off") + "**"
                                 + "\r\nAuto media backup: **"
                                 + (settings.get().isAutoMediaBackup() ? "on" : "off") + "**"
+                                + "\r\nQueue Type: **"
+                                + queueType.getUserFriendlyName() + "**"
                 )
                 .setFooter(event.getJDA().getGuilds().size() + " servers | "
                         + event.getJDA().getGuilds().stream().filter(g -> g.getSelfMember().getVoiceState().inAudioChannel()).count()

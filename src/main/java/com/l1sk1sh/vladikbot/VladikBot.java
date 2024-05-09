@@ -8,6 +8,7 @@ import com.l1sk1sh.vladikbot.commands.everyone.*;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.contexts.DickContextMenu;
+import com.l1sk1sh.vladikbot.models.queue.QueueType;
 import com.l1sk1sh.vladikbot.services.audio.AloneInVoiceHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
@@ -168,6 +169,7 @@ public class VladikBot {
                         minecraftServerCommand,
                         newsManagementCommand,
                         permissionsCommand,
+                        queueTypeCommand,
                         playlistCommand,
                         reminderCommand,
                         setDjCommand,
@@ -262,6 +264,8 @@ public class VladikBot {
     private NewsManagementCommand newsManagementCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PermissionsCommand permissionsCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private QueueTypeCommand queueTypeCommand;
     @Setter(onMethod = @__({@Autowired}))
     private MinecraftServerCommand minecraftServerCommand;
     @Setter(onMethod = @__({@Autowired}))

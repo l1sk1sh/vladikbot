@@ -2,6 +2,7 @@ package com.l1sk1sh.vladikbot.commands.dj;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.models.queue.AbstractQueue;
 import com.l1sk1sh.vladikbot.models.queue.FairQueue;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.services.audio.AudioHandler;
@@ -70,7 +71,7 @@ public class MoveTrackCommand extends DJCommand {
 
         /* Validate that 'from' and 'to' are available */
         AudioHandler handler = (AudioHandler) Objects.requireNonNull(event.getGuild()).getAudioManager().getSendingHandler();
-        FairQueue<QueuedTrack> queue = Objects.requireNonNull(handler).getQueue();
+        AbstractQueue<QueuedTrack> queue = Objects.requireNonNull(handler).getQueue();
         if (isUnavailablePosition(queue, from)) {
             event.replyFormat("%1$s `%2$d` is not a valid position in the queue!", event.getClient().getError(), from).setEphemeral(true).queue();
 
@@ -88,7 +89,7 @@ public class MoveTrackCommand extends DJCommand {
         event.replyFormat("%1$s Moved **%2$s** from position `%3$d` to `%4$d`.", event.getClient().getSuccess(), track.getTrack().getInfo().title, from, to).queue();
     }
 
-    private static boolean isUnavailablePosition(FairQueue<QueuedTrack> queue, int position) {
+    private static boolean isUnavailablePosition(AbstractQueue<QueuedTrack> queue, int position) {
         return (position < 1 || position > queue.size());
     }
 }

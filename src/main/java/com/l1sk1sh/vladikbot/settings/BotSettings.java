@@ -1,6 +1,7 @@
 package com.l1sk1sh.vladikbot.settings;
 
 import com.l1sk1sh.vladikbot.models.AudioRepeatMode;
+import com.l1sk1sh.vladikbot.models.queue.QueueType;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -39,6 +40,7 @@ public class BotSettings {
     private boolean leaveChannel = true;                                // Leave channel if no one is listening
     private boolean npImages = true;                                    // Display search images
     private AudioRepeatMode repeat = AudioRepeatMode.OFF;               // Current repeat mode
+    private QueueType queueType = QueueType.FAIR;                       // Queue type
     private double audioSkipRatio = 0.55;                               // Voting ratio to skip current song
     private boolean simulateActivity = false;                           // If bot should change statuses by himself
     private boolean autoTextBackup = true;                              // Automatically create backups of all available chats
@@ -71,6 +73,11 @@ public class BotSettings {
 
     public final void setRepeat(AudioRepeatMode repeat) {
         this.repeat = repeat;
+        listener.onSettingsUpdated();
+    }
+
+    public final void setQueueType(QueueType type) {
+        this.queueType = type;
         listener.onSettingsUpdated();
     }
 

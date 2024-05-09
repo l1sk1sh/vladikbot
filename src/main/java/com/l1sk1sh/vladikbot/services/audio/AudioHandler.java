@@ -5,7 +5,8 @@ import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.entity.Playlist;
 import com.l1sk1sh.vladikbot.models.AudioRepeatMode;
 import com.l1sk1sh.vladikbot.models.AudioRequestMetadata;
-import com.l1sk1sh.vladikbot.models.queue.FairQueue;
+import com.l1sk1sh.vladikbot.models.queue.AbstractQueue;
+import com.l1sk1sh.vladikbot.models.queue.QueueType;
 import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
@@ -48,8 +49,6 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     @Getter
     private final AudioPlayer audioPlayer;
 
-    @Getter
-    private final FairQueue<QueuedTrack> queue = new FairQueue<>();
     private final List<AudioTrack> defaultQueue = new LinkedList<>();
     @Getter
     private final Set<Long> votes = new HashSet<>();
@@ -57,6 +56,8 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     private final long guildId;
 
     private AudioFrame lastFrame;
+    @Getter
+    private AbstractQueue<QueuedTrack> queue;
 
     AudioHandler(ScheduledExecutorService frontThreadPool, PlayerManager playerManager, Guild guild, AudioPlayer player,
                  BotSettingsManager settings, GuildSettings guildSettings, PlaylistLoader playlistLoader) {
@@ -67,6 +68,12 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         this.settings = settings;
         this.guildSettings = guildSettings;
         this.playlistLoader = playlistLoader;
+
+        this.setQueueType(settings.get().getQueueType());
+    }
+
+    public void setQueueType(QueueType type) {
+        queue = type.createInstance(queue);
     }
 
     public int addTrackToFront(QueuedTrack queuedTrack) {
