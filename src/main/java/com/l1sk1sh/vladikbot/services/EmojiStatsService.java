@@ -7,7 +7,6 @@ import com.l1sk1sh.vladikbot.data.repository.DiscordEmojisRepository;
 import com.l1sk1sh.vladikbot.data.repository.DiscordMessagesRepository;
 import com.l1sk1sh.vladikbot.data.repository.DiscordReactionsRepository;
 import com.l1sk1sh.vladikbot.models.EmojiStatsRecord;
-import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;

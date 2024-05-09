@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 /**
  * @author l1sk1sh
  */
+@SuppressWarnings("unused")
 @Slf4j
 @RequiredArgsConstructor
 @Service

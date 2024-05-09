@@ -53,9 +53,9 @@ public final class Const {
     public static final String YT_SEARCH_PREFIX = "ytsearch:";
     public static final String SC_SEARCH_PREFIX = "scsearch:";
 
-    public static final String PLAY_EMOJI = "\u25B6";               // ▶
-    public static final String PAUSE_EMOJI = "\u23F8";              // ⏸
-    public static final String STOP_EMOJI = "\u23F9";               // ⏹
+    public static final String PLAY_EMOJI = "▶";               // ▶
+    public static final String PAUSE_EMOJI = "⏸";              // ⏸
+    public static final String STOP_EMOJI = "⏹";               // ⏹
     public static final String PROGRESS_EMOJI = "\uD83D\uDD18";     // 🔘
     public static final String HEADPHONES_EMOJI = "\uD83C\uDFA7";   // 🎧
     public static final String LOAD_EMOJI = "\uD83D\uDCE5";         // 📥
@@ -64,7 +64,7 @@ public final class Const {
     public static final String VOLUME_30_EMOJI = "\uD83D\uDD08";    // 🔈
     public static final String VOLUME_70_EMOJI = "\uD83D\uDD09";    // 🔉
     public static final String VOLUME_100_EMOJI = "\uD83D\uDD0A";   // 🔊
-    public static final String LOADING_SYMBOL = "\u21BA";           // ↺
+    public static final String LOADING_SYMBOL = "↺";           // ↺
 
     public static final Color MEME_COLOR = new Color(255, 69, 0);
 

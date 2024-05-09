@@ -6,7 +6,6 @@ import com.l1sk1sh.vladikbot.network.dto.ISSInfo;
 import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -49,7 +48,7 @@ public class ISSInfoCommand extends SlashCommand {
 
         ISSInfo.Astronauts astronauts;
         try {
-            astronauts = restTemplate.getForObject("http://api.open-notify.org/astros.json", ISSInfo.Astronauts.class);
+            astronauts = restTemplate.getForObject("https://api.open-notify.org/astros.json", ISSInfo.Astronauts.class);
         } catch (RestClientException e) {
             event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             log.error("Failed to consume API.", e);
@@ -64,6 +63,7 @@ public class ISSInfoCommand extends SlashCommand {
         }
 
         MessageCreateBuilder builder = new MessageCreateBuilder();
+        @SuppressWarnings("HttpUrlsUsage")
         EmbedBuilder embedBuilder = new EmbedBuilder()
                 .setAuthor("ISS info", null, "https://www.stickpng.com/assets/images/58429400a6515b1e0ad75acc.png")
                 .setColor(new Color(20, 120, 100))

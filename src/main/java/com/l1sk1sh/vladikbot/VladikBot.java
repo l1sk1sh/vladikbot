@@ -178,7 +178,6 @@ public class VladikBot {
 
                         /* Owner commands */
                         setAvatarCommand,
-                        setNameCommand,
                         setPresenceCommand,
                         setStatusCommand,
                         shutdownCommand
@@ -351,8 +350,6 @@ public class VladikBot {
     private SetAvatarCommand setAvatarCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetPresenceCommand setPresenceCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private SetNameCommand setNameCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetStatusCommand setStatusCommand;
     @Setter(onMethod = @__({@Autowired}))

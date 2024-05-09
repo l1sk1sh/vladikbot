@@ -53,6 +53,7 @@ public class BackupMediaCommand extends AdminCommand {
             this.options = Collections.singletonList(new OptionData(OptionType.BOOLEAN, AUTO_OPTION_KEY, "State of automatic backup").setRequired(false));
         }
 
+        @SuppressWarnings("DuplicatedCode")
         @Override
         protected void execute(SlashCommandEvent event) {
             boolean currentSetting = settings.get().isAutoMediaBackup();

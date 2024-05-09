@@ -35,7 +35,7 @@ class MemeFeedTask implements Runnable {
 
         Meme meme;
         try {
-            meme = restTemplate.getForObject("http://meme-api.herokuapp.com/gimme", Meme.class);
+            meme = restTemplate.getForObject("https://meme-api.com/gimme", Meme.class);
         } catch (RestClientException e) {
             log.error("Failed to get meme.", e);
             return;

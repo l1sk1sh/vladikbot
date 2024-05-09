@@ -137,6 +137,8 @@ public class PlayCommand extends DJCommand {
                     || !event.getGuild().getSelfMember().hasPermission(event.getTextChannel(), Permission.MESSAGE_ADD_REACTION)) {
                 event.reply(addMessage).queue();
             } else {
+                // This option almost never being used, so no reason updating it
+                //noinspection deprecation
                 new ButtonMenu.Builder().setText(String.format(
                         "%1$s \r\n %2$s  This track has a playlist of **%3$s** tracks attached. Select %4$s to load playlist.",
                         addMessage,

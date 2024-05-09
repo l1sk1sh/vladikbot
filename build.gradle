@@ -53,14 +53,14 @@ tasks.composeUp {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.21'
+    implementation 'net.dv8tion:JDA:5.0.0-beta.23'
     implementation 'pw.chew:jda-chewtils:2.0-SNAPSHOT'
-    implementation 'dev.arbjerg:lavaplayer:0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT' // TODO Update to stable
+    implementation 'dev.arbjerg:lavaplayer:2.1.2'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'com.h2database:h2:1.4.200'
+    implementation 'com.h2database:h2:1.4.200' // Has to be updated along with Spring
 
     implementation 'com.google.code.gson:gson:2.8.9'
     implementation 'org.zeroturnaround:zt-zip:1.14'
@@ -69,7 +69,7 @@ dependencies {
     implementation 'ch.qos.logback:logback-classic:1.2.13'
     implementation 'org.fusesource.jansi:jansi:2.4.0'
 
-    implementation 'com.opencsv:opencsv:5.5.2'
+    implementation 'com.opencsv:opencsv:5.9'
     implementation 'org.jsoup:jsoup:1.15.3'
     implementation 'com.github.w3stling:rssreader:v2.5.0'
 
@@ -86,7 +86,7 @@ afterEvaluate {
     bootJar.finalizedBy(copyExecutableJar)
 }
 
-task copyExecutableJar {
+tasks.register('copyExecutableJar') {
     doLast {
         copy {
             from "$rootDir/build/libs"

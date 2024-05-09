@@ -1,7 +1,6 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -25,7 +24,7 @@ public class IPCommand extends AdminCommand {
     @Override
     protected final void execute(SlashCommandEvent event) {
         try {
-            URL checkIP = new URL("http://checkip.amazonaws.com");
+            URL checkIP = new URL("https://checkip.amazonaws.com");
 
             try (BufferedReader in = new BufferedReader(new InputStreamReader(
                     checkIP.openStream()))) {

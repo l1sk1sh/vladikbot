@@ -25,6 +25,7 @@ public class AudioRequestMetadata {
         return user == null ? 0L : user.id;
     }
 
+    @SuppressWarnings("unused")
     @Getter
     @RequiredArgsConstructor
     public static class RequestInfo {

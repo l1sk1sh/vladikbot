@@ -32,27 +32,22 @@ public class NewsNotificationService {
         }
 
         MessageCreateBuilder builder = new MessageCreateBuilder();
-        EmbedBuilder embedBuilder;
-        switch (style) {
-            case SHORT:
-                embedBuilder = new EmbedBuilder()
-                        .setTitle(message.getTitle(), message.getArticleUrl());
-                break;
-            case FULL:
+        @SuppressWarnings("SwitchStatementWithTooFewBranches")
+        EmbedBuilder embedBuilder = switch (style) {
+            case SHORT -> new EmbedBuilder()
+                    .setTitle(message.getTitle(), message.getArticleUrl());
 
-                /* Falls through */
-            default:
-                embedBuilder = new EmbedBuilder()
-                        .setColor(color)
-                        .setTitle(message.getTitle(), message.getArticleUrl())
-                        .setDescription(message.getDescription())
-                        .setImage(message.getImageUrl())
-                        .setFooter(
-                                String.format("%1$s", message.getPublicationDate().toString()),
-                                message.getResourceImageUrl()
-                        );
-                break;
-        }
+            /* Falls through */
+            default -> new EmbedBuilder()
+                    .setColor(color)
+                    .setTitle(message.getTitle(), message.getArticleUrl())
+                    .setDescription(message.getDescription())
+                    .setImage(message.getImageUrl())
+                    .setFooter(
+                            String.format("%1$s", message.getPublicationDate().toString()),
+                            message.getResourceImageUrl()
+                    );
+        };
 
         newsChannel.sendMessage(builder.setEmbeds(embedBuilder.build()).build()).queue();
     }

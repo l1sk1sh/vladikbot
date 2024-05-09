@@ -52,3 +52,4 @@
 19. Go ahead and play with https://jda.wiki/using-jda/interactions
 20. Research https://github.com/lavalink-devs/Lavalink for better music
 21. Add context menu with "try my commands"
+22. Finish CSV export command and use CsvParsedDiscordMessage

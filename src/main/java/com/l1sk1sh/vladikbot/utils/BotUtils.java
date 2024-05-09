@@ -3,18 +3,14 @@ package com.l1sk1sh.vladikbot.utils;
 import com.l1sk1sh.vladikbot.settings.Const;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,19 +89,5 @@ public final class BotUtils {
 
     public static List<Permission> getGrantedAndRequiredPermissions(EnumSet<Permission> available, List<Permission> required) {
         return available.stream().filter(required::contains).collect(Collectors.toList());
-    }
-
-    private static List<TextChannel> getAllTextChannels(JDA jda) {
-        return jda.getGuilds().stream()
-                .map(Guild::getTextChannels).flatMap(Collection::stream).collect(Collectors.toList());
-    }
-
-    @SuppressWarnings("unused")
-    public static List<TextChannel> getAvailableTextChannels(JDA jda) {
-        return getAllTextChannels(jda).stream().filter(textChannel ->
-                textChannel.getMembers().stream().anyMatch(
-                        member -> member.getUser().getAsTag().equals(jda.getSelfUser().getAsTag())
-                )
-        ).collect(Collectors.toList());
     }
 }
