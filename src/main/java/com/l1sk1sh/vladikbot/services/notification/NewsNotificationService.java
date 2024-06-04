@@ -32,22 +32,20 @@ public class NewsNotificationService {
         }
 
         MessageCreateBuilder builder = new MessageCreateBuilder();
-        @SuppressWarnings("SwitchStatementWithTooFewBranches")
-        EmbedBuilder embedBuilder = switch (style) {
-            case SHORT -> new EmbedBuilder()
-                    .setTitle(message.getTitle(), message.getArticleUrl());
+        EmbedBuilder embedBuilder = new EmbedBuilder()
+                .setColor(color)
+                .setTitle(message.getTitle(), message.getArticleUrl())
+                .setDescription(message.getDescription())
+                .setImage(message.getImageUrl())
+                .setFooter(
+                        String.format("%1$s", message.getPublicationDate().toString()),
+                        message.getResourceImageUrl()
+                );
 
-            /* Falls through */
-            default -> new EmbedBuilder()
-                    .setColor(color)
-                    .setTitle(message.getTitle(), message.getArticleUrl())
-                    .setDescription(message.getDescription())
-                    .setImage(message.getImageUrl())
-                    .setFooter(
-                            String.format("%1$s", message.getPublicationDate().toString()),
-                            message.getResourceImageUrl()
-                    );
-        };
+        if (style == NewsStyle.SHORT) {
+            embedBuilder = new EmbedBuilder()
+                    .setTitle(message.getTitle(), message.getArticleUrl());
+        }
 
         newsChannel.sendMessage(builder.setEmbeds(embedBuilder.build()).build()).queue();
     }
