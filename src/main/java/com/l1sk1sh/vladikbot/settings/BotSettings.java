@@ -54,6 +54,7 @@ public class BotSettings {
     private String jenkinsApiPassword = "JENKINS_API_TOKEN";            // Set jenkins API password
     private long lastAutoTextBackupTime = 0L;                           // Holds time of last auto text backup
     private long lastAutoMediaBackupTime = 0L;                          // Holds time of last auto media backup
+    private String botPublicIP = "";                                    // Holds public IP that might be used to access local servers
 
     /* Runtime and bot specific internal configs */
     @Setter
@@ -128,6 +129,11 @@ public class BotSettings {
 
     public void setLastAutoMediaBackupTime(long lastAutoMediaBackupTime) {
         this.lastAutoMediaBackupTime = lastAutoMediaBackupTime;
+        listener.onSettingsUpdated();
+    }
+
+    public void setBotPublicIP(String ip) {
+        this.botPublicIP = ip;
         listener.onSettingsUpdated();
     }
 
@@ -208,5 +214,8 @@ public class BotSettings {
         }
         /* lastAutoTextBackupTime - not setting */
         /* lastAutoMediaBackupTime - not setting */
+        if (this.botPublicIP == null) {
+            this.botPublicIP = defSettings.botPublicIP;
+        }
     }
 }

@@ -110,9 +110,9 @@ public class VladikBot {
                 .setEmojis(settings.get().getSuccessEmoji(), settings.get().getWarningEmoji(), settings.get().getErrorEmoji())
                 .setLinkedCacheSize(1024)
                 // Use this forcing during development only
-                /*.forceGuildOnly((settings.get().getForceGuildId() > 0L)
+                .forceGuildOnly((settings.get().getForceGuildId() > 0L)
                         ? String.valueOf(settings.get().getForceGuildId())
-                        : null)*/
+                        : null)
                 .addContextMenus(
                         dickContextMenu
                 )
@@ -163,6 +163,7 @@ public class VladikBot {
                         backupTextCommand,
                         emojiStatsCommand,
                         guildLoggerCommand,
+                        ipCommand,
                         memesManagementCommand,
                         minecraftServerCommand,
                         newsManagementCommand,
@@ -179,6 +180,7 @@ public class VladikBot {
 
                         /* Owner commands */
                         setAvatarCommand,
+                        setIPCommand,
                         setPresenceCommand,
                         setStatusCommand,
                         shutdownCommand
@@ -255,6 +257,8 @@ public class VladikBot {
     private EmojiStatsCommand emojiStatsCommand;
     @Setter(onMethod = @__({@Autowired}))
     private GuildLoggerCommand guildLoggerCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private IPCommand ipCommand;
     @Setter(onMethod = @__({@Autowired}))
     private MemesManagementCommand memesManagementCommand;
     @Setter(onMethod = @__({@Autowired}))
@@ -349,6 +353,8 @@ public class VladikBot {
     private PlaylistCommand playlistCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetAvatarCommand setAvatarCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private SetIPCommand setIPCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetPresenceCommand setPresenceCommand;
     @Setter(onMethod = @__({@Autowired}))
