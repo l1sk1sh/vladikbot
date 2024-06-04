@@ -140,4 +140,73 @@ public class BotSettings {
         final float trackDurationDivider = 1000f;
         return (maxSeconds > 0) && (Math.round(track.getDuration() / trackDurationDivider) > maxSeconds);
     }
+
+    public final void updateMissingValues() {
+        BotSettings defSettings = new BotSettings(listener);
+        if (this.token == null) {
+            this.token = defSettings.token;
+        }
+        /* ownerId - not setting */
+        /* maintainerGuildId - not setting */
+        /* forceGuildId - not setting */
+        if (this.workdir == null) {
+            this.workdir = defSettings.workdir;
+        }
+        if (this.prefix == null) {
+            this.prefix = defSettings.prefix;
+        }
+        if (this.successEmoji == null) {
+            this.successEmoji = defSettings.successEmoji;
+        }
+        if (this.warningEmoji == null) {
+            this.warningEmoji = defSettings.warningEmoji;
+        }
+        if (this.errorEmoji == null) {
+            this.errorEmoji = defSettings.errorEmoji;
+        }
+        if (this.loadingEmoji == null) {
+            this.loadingEmoji = defSettings.loadingEmoji;
+        }
+        if (this.searchingEmoji == null) {
+            this.searchingEmoji = defSettings.searchingEmoji;
+        }
+        if (this.activity == null) {
+            this.activity = defSettings.activity;
+        }
+        if (this.onlineStatus == null) {
+            this.onlineStatus = defSettings.onlineStatus;
+        }
+        if (this.searchingEmoji == null) {
+            this.searchingEmoji = defSettings.searchingEmoji;
+        }
+        /* maxSeconds - not setting */
+        /* aloneTimeUntilStop - not setting */
+        /* leaveChannel - not setting */
+        /* npImages - not setting */
+        if (this.repeat == null) {
+            this.repeat = defSettings.repeat;
+        }
+        if (this.queueType == null) {
+            this.queueType = defSettings.queueType;
+        }
+        /* audioSkipRatio - not setting */
+        /* simulateActivity - not setting */
+        /* autoTextBackup - not setting */
+        /* autoMediaBackup - not setting */
+        /* targetHourForAutoTextBackup - not setting */
+        /* targetHourForAutoMediaBackup - not setting */
+        /* delayDaysForAutoTextBackup - not setting */
+        /* delayDaysForAutoMediaBackup - not setting */
+        if (this.jenkinsApiHost == null) {
+            this.jenkinsApiHost = defSettings.jenkinsApiHost;
+        }
+        if (this.jenkinsApiUsername == null) {
+            this.jenkinsApiUsername = defSettings.jenkinsApiUsername;
+        }
+        if (this.jenkinsApiPassword == null) {
+            this.jenkinsApiPassword = defSettings.jenkinsApiPassword;
+        }
+        /* lastAutoTextBackupTime - not setting */
+        /* lastAutoMediaBackupTime - not setting */
+    }
 }

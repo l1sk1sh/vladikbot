@@ -120,7 +120,7 @@ public class ActivitySimulationCommand extends AdminCommand {
 
         ReadCommand() {
             this.name = "list";
-            this.guildOnly = true;
+            this.help = "Shows list of available activity rules";
         }
 
         @Override

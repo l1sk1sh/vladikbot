@@ -39,7 +39,6 @@ public class SettingsCommand extends SlashCommand {
         this.settings = settings;
         this.name = "settings";
         this.help = "Shows the bots settings";
-        this.guildOnly = true;
         this.guildSettingsRepository = guildSettingsRepository;
     }
 

@@ -39,7 +39,6 @@ public abstract class MusicCommand extends SlashCommand {
     protected MusicCommand(GuildSettingsRepository guildSettingsRepository, PlayerManager playerManager) {
         this.guildSettingsRepository = guildSettingsRepository;
         this.playerManager = playerManager;
-        this.guildOnly = true;
         this.category = new Category("Music");
     }
 

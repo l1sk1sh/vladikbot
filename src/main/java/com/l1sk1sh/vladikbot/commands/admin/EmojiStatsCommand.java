@@ -41,7 +41,6 @@ public class EmojiStatsCommand extends AdminCommand {
                              EmojiStatsRunRepository emojiStatsRunRepository) {
         this.name = "emojistats";
         this.help = "Calculates emojis statistics for current channel within selectable periods";
-        this.guildOnly = true;
         this.children = new AdminCommand[]{
                 new Total(backgroundThreadPool, emojiStatsService, eventWaiter),
                 new LastTime(backgroundThreadPool, emojiStatsService, eventWaiter, emojiStatsRunRepository),

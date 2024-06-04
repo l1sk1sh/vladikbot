@@ -27,7 +27,6 @@ public class StatusCommand extends SlashCommand {
         this.settings = settings;
         this.name = "status";
         this.help = "Shows status of the current server";
-        this.guildOnly = true;
     }
 
     @Override

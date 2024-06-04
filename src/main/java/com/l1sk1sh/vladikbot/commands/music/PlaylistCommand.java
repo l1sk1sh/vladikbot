@@ -92,7 +92,6 @@ public class PlaylistCommand extends MusicCommand {
             super(guildSettingsRepository, playerManager);
             this.name = "list";
             this.help = "Lists all available playlists";
-            this.guildOnly = true;
         }
 
         @Override
@@ -266,7 +265,6 @@ public class PlaylistCommand extends MusicCommand {
             this.guildSettingsRepository = guildSettingsRepository;
             this.name = "default";
             this.help = "Sets the default playlist for the server";
-            this.guildOnly = true;
             this.options = Collections.singletonList(new OptionData(OptionType.STRING, PLAYLIST_OPTION_KEY, "Playlist's name. Set 'none' to remove one").setRequired(false));
         }
 

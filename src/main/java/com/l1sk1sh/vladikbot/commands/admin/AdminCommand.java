@@ -16,6 +16,5 @@ abstract class AdminCommand extends SlashCommand {
                 event.getAuthor().getIdLong() == event.getClient().getOwnerIdLong()
                         || event.getGuild() == null
                         || event.getMember().hasPermission(Permission.MANAGE_CHANNEL));
-        this.guildOnly = true;
     }
 }

@@ -38,7 +38,6 @@ public class DickCommand extends SlashCommand {
     public DickCommand(DickService dickService, BotSettingsManager settings) {
         this.name = "dick";
         this.help = "Хочеш побачити пісюна?";
-        this.guildOnly = true;
         this.children = new SlashCommand[]{
                 new Grow(dickService, settings),
                 new Register(dickService),

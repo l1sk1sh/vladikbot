@@ -38,7 +38,6 @@ public class RepeatCommand extends DJCommand {
                 .addChoice("Do not repeat", "off")
                 .addChoice("Repeat single time", "single")
         );
-        this.guildOnly = true;
     }
 
     /* Override MusicCommand's execute because we don't actually care where this is used */

@@ -115,7 +115,6 @@ public class AutoReplyCommand extends AdminCommand {
         private ReadCommand() {
             this.name = "list";
             this.help = "Lists all available rules";
-            this.guildOnly = true;
         }
 
         @Override

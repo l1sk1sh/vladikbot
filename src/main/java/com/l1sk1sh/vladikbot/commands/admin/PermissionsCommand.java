@@ -23,7 +23,6 @@ public class PermissionsCommand extends AdminCommand {
     public PermissionsCommand() {
         this.name = "permissions";
         this.help = "Shows available and missing bot permissions";
-        this.guildOnly = true;
     }
 
     @Override

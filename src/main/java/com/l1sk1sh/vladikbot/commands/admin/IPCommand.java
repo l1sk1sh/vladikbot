@@ -18,7 +18,6 @@ public class IPCommand extends AdminCommand {
     public IPCommand() {
         this.name = "ip";
         this.help = "Shows bot's local IPs";
-        this.guildOnly = true;
     }
 
     @Override

@@ -41,6 +41,7 @@ public class BotSettingsManager implements SettingsUpdateListener {
                     BotSettings.class
             );
             this.botSettings.setListener(this);
+            this.botSettings.updateMissingValues();
         }
     }
 

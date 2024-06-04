@@ -168,6 +168,7 @@ public class VladikBot {
                         minecraftServerCommand,
                         newsManagementCommand,
                         permissionsCommand,
+                        privateMessageCommand,
                         queueTypeCommand,
                         playlistCommand,
                         reminderCommand,
@@ -208,7 +209,7 @@ public class VladikBot {
     }
 
     /**
-     * Should be called only after initialization, that is done later then beans initialization.
+     * Should be called only after initialization, that is done later than beans initialization.
      */
     public static JDA jda() {
         return jda;
@@ -263,6 +264,8 @@ public class VladikBot {
     private NewsManagementCommand newsManagementCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PermissionsCommand permissionsCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private PrivateMessageCommand privateMessageCommand;
     @Setter(onMethod = @__({@Autowired}))
     private QueueTypeCommand queueTypeCommand;
     @Setter(onMethod = @__({@Autowired}))
