@@ -163,7 +163,6 @@ public class VladikBot {
                         backupTextCommand,
                         emojiStatsCommand,
                         guildLoggerCommand,
-                        ipCommand,
                         memesManagementCommand,
                         minecraftServerCommand,
                         newsManagementCommand,
@@ -256,8 +255,6 @@ public class VladikBot {
     private EmojiStatsCommand emojiStatsCommand;
     @Setter(onMethod = @__({@Autowired}))
     private GuildLoggerCommand guildLoggerCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private IPCommand ipCommand;
     @Setter(onMethod = @__({@Autowired}))
     private MemesManagementCommand memesManagementCommand;
     @Setter(onMethod = @__({@Autowired}))
