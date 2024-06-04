@@ -26,8 +26,9 @@ public interface DiscordAttachmentsRepository extends JpaRepository<DiscordAttac
             "JOIN DiscordMessage msg " +
             "ON att.discordMessageId = msg.id " +
             "WHERE msg.channelId = :channelId " +
-            "AND att.downloaded = false")
-    List<DiscordAttachment> getAllNotDownloadedByChannelId(@Param("channelId") long channelId);
+            "AND att.downloaded = false " +
+            "AND att.downloadFailed = false")
+    List<DiscordAttachment> getAllNotDownloadedAndNotFailedByChannelId(@Param("channelId") long channelId);
 
     @Query("UPDATE DiscordAttachment SET downloaded = false")
     void resetAllDownloadedAttachments();

@@ -19,11 +19,11 @@ repositories {
     maven { url "https://m2.chew.pro/releases" }
     maven { url "https://m2.chew.pro/snapshots" }
     maven { url 'https://m2.dv8tion.net/releases' }
-    maven { url 'https://maven.lavalink.dev/snapshots' }
+    maven { url 'https://maven.lavalink.dev/releases' }
 }
 
 group 'сom.l1sk1sh'
-version '2.0.0.alpha'
+version '2.1.0.alpha'
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
@@ -53,9 +53,10 @@ tasks.composeUp {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.23'
+    implementation 'net.dv8tion:JDA:5.0.0-beta.24'
     implementation 'pw.chew:jda-chewtils:2.0-SNAPSHOT'
-    implementation 'dev.arbjerg:lavaplayer:0eaeee195f0315b2617587aa3537fa202df07ddc-SNAPSHOT' // TODO Update to stable
+    implementation 'dev.arbjerg:lavaplayer:2.1.2'
+    implementation 'dev.lavalink.youtube:v2:1.3.0'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -67,6 +68,7 @@ dependencies {
 
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'ch.qos.logback:logback-classic:1.2.13'
+    implementation 'ch.qos.logback:logback-core:1.2.13'
     implementation 'org.fusesource.jansi:jansi:2.4.0'
 
     implementation 'com.opencsv:opencsv:5.9'

@@ -65,6 +65,7 @@ public final class MapperUtils {
                 attachment.getUrl(),
                 attachment.getFileName(),
                 attachment.getContentType(),
+                false,
                 false
         );
     }

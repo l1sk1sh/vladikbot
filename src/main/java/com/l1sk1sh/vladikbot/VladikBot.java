@@ -127,7 +127,6 @@ public class VladikBot {
                         dogFactCommand,
                         dogPictureCommand,
                         flipCoinCommand,
-                        issInfoCommand,
                         jokeCommand,
                         pingCommand,
                         quoteCommand,
@@ -314,8 +313,6 @@ public class VladikBot {
     private DogPictureCommand dogPictureCommand;
     @Setter(onMethod = @__({@Autowired}))
     private FlipCoinCommand flipCoinCommand;
-    @Setter(onMethod = @__({@Autowired}))
-    private ISSInfoCommand issInfoCommand;
     @Setter(onMethod = @__({@Autowired}))
     private JokeCommand jokeCommand;
     @Setter(onMethod = @__({@Autowired}))

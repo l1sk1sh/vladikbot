@@ -81,7 +81,7 @@ public class BackupMediaService {
 
                         try {
                             List<DiscordAttachment> channelAttachments
-                                    = discordAttachmentsRepository.getAllNotDownloadedByChannelId(channel.getIdLong());
+                                    = discordAttachmentsRepository.getAllNotDownloadedAndNotFailedByChannelId(channel.getIdLong());
 
                             if (channelAttachments == null || channelAttachments.isEmpty()) {
                                 log.info("Channel {} doesn't have not saved attachments.", channel.getName());
@@ -117,10 +117,11 @@ public class BackupMediaService {
         try {
             if (DownloadUtils.downloadAndSaveToFile(new URL(attachment.getUrl()), channelBackupDirPath + attachment.getFileName())) {
                 attachment.setDownloaded(true);
-                discordAttachmentsRepository.save(attachment);
             } else {
                 log.warn("Failed to save attachment [{}].", attachment);
+                attachment.setDownloadFailed(true);
             }
+            discordAttachmentsRepository.save(attachment);
         } catch (InvalidPathException | MalformedURLException e) {
             log.warn("Failed to save attachment [{}] due to invalid path or url.", attachment, e);
         } catch (IOException e) {
