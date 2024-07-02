@@ -11,17 +11,23 @@ import com.l1sk1sh.vladikbot.models.EmojiStatsRecord;
 import com.l1sk1sh.vladikbot.services.EmojiStatsService;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.DateAndTimeUtils;
+import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -182,15 +188,18 @@ public class EmojiStatsCommand extends AdminCommand {
         }
 
         List<Page> pages = new ArrayList<>();
-        int chunk = 5;
+        int chunk = 30;
         for (int i = 0; i < printable.length; i += chunk) {
             String[] page = Arrays.copyOfRange(printable, i, Math.min(printable.length, i + chunk));
             StringBuilder sbs = new StringBuilder();
             Arrays.stream(page).forEach(pageRaw -> sbs.append(pageRaw).append("\n"));
-            pages.add(InteractPage.of(sbs.toString()));
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setColor(new Color(109, 234, 114))
+                    .appendDescription(sbs.toString());
+            pages.add(InteractPage.of(embedBuilder.build()));
         }
 
-        event.getMessageChannel().sendMessage((String) pages.get(0).getContent())
+        event.getChannel().sendMessageEmbeds((MessageEmbed) pages.get(0).getContent())
                 .queue(success -> Pages.paginate(success, pages, true));
     }
 
