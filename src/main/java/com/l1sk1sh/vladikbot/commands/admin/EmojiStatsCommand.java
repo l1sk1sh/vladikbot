@@ -1,8 +1,10 @@
 package com.l1sk1sh.vladikbot.commands.admin;
 
+import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.InteractPage;
+import com.github.ygimenez.model.Page;
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
-import com.jagrosh.jdautilities.menu.Paginator;
 import com.l1sk1sh.vladikbot.data.entity.EmojiStatsExecution;
 import com.l1sk1sh.vladikbot.data.repository.EmojiStatsRunRepository;
 import com.l1sk1sh.vladikbot.models.EmojiStatsRecord;
@@ -13,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.entities.emoji.RichCustomEmoji;
-import net.dv8tion.jda.api.exceptions.PermissionException;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -21,11 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -79,7 +80,7 @@ public class EmojiStatsCommand extends AdminCommand {
                     event.getHook().editOriginalFormat("%1$s Result is empty!", event.getClient().getError()).queue();
                 } else {
                     event.getHook().editOriginalFormat("%1$s Sending result!", event.getClient().getSuccess()).queue();
-                    sendStatisticsMessage(eventWaiter, event, result);
+                    sendStatisticsMessage(event, result);
                 }
             });
         }
@@ -119,7 +120,7 @@ public class EmojiStatsCommand extends AdminCommand {
                     event.getHook().editOriginalFormat("%1$s Result is empty!", event.getClient().getError()).queue();
                 } else {
                     event.getHook().editOriginalFormat("%1$s Sending result!", event.getClient().getSuccess()).queue();
-                    sendStatisticsMessage(eventWaiter, event, result);
+                    sendStatisticsMessage(event, result);
                     emojiStatsRunRepository.save(new EmojiStatsExecution(event.getChannel().getIdLong(), System.currentTimeMillis()));
                 }
             });
@@ -163,28 +164,13 @@ public class EmojiStatsCommand extends AdminCommand {
                     event.getHook().editOriginalFormat("%1$s Result is empty!", event.getClient().getError()).queue();
                 } else {
                     event.getHook().editOriginalFormat("%1$s Sending result!", event.getClient().getSuccess()).queue();
-                    sendStatisticsMessage(eventWaiter, event, result);
+                    sendStatisticsMessage(event, result);
                 }
             });
         }
     }
 
-    private void sendStatisticsMessage(EventWaiter eventWaiter, SlashCommandEvent event, List<EmojiStatsRecord> result) {
-        int startPageNumber = 1;
-        Paginator.Builder paginatorBuilder = new Paginator.Builder().setColumns(1)
-                .setItemsPerPage(35)
-                .showPageNumbers(true)
-                .waitOnSinglePage(false)
-                .useNumberedItems(false)
-                .setFinalAction(m -> {
-                    try {
-                        m.delete().queue();
-                    } catch (PermissionException ignored) {
-                    }
-                })
-                .setEventWaiter(eventWaiter)
-                .setTimeout(5, TimeUnit.MINUTES);
-
+    private void sendStatisticsMessage(SlashCommandEvent event, List<EmojiStatsRecord> result) {
         result = result.stream().sorted(Collections.reverseOrder()).collect(Collectors.toList());
 
         String[] printable = new String[result.size()];
@@ -195,15 +181,17 @@ public class EmojiStatsCommand extends AdminCommand {
                     + " by " + getAuthor(event.getGuild(), record.getMostActiveUserId());
         }
 
-        paginatorBuilder.addItems(printable);
+        List<Page> pages = new ArrayList<>();
+        int chunk = 5;
+        for (int i = 0; i < printable.length; i += chunk) {
+            String[] page = Arrays.copyOfRange(printable, i, Math.min(printable.length, i + chunk));
+            StringBuilder sbs = new StringBuilder();
+            Arrays.stream(page).forEach(pageRaw -> sbs.append(pageRaw).append("\n"));
+            pages.add(InteractPage.of(sbs.toString()));
+        }
 
-        Paginator paginator = paginatorBuilder
-                .setColor(Color.black)
-                .setText("Emoji usage statistics for current channel:")
-                .setUsers(event.getUser())
-                .build();
-
-        paginator.paginate(event.getChannel(), startPageNumber);
+        event.getMessageChannel().sendMessage((String) pages.get(0).getContent())
+                .queue(success -> Pages.paginate(success, pages, true));
     }
 
     private String getAuthor(Guild guild, long userId) {

@@ -1,5 +1,6 @@
 #### ToDo List
-1. Play with new buttons and popup windows
+1. Play with new buttons and popup windows and REDO all pagination to buttons
+   1. https://github.com/ygimenez/Pagination-Utils
 2. Research what exactly are new 'menus' provided by the API
 3. Rewrite all pagination and menus to new format of buttons
 4. Add commands

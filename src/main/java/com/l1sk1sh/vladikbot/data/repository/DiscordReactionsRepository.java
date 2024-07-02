@@ -20,7 +20,7 @@ public interface DiscordReactionsRepository extends JpaRepository<DiscordEmoji, 
             "JOIN DiscordMessage msg " +
             "ON rect.discordMessageId = msg.id " +
             "WHERE msg.channelId = :channelId " +
-            "AND rect.emojiId > 0")
+            "AND rect.emojiId IS NOT NULL ")
     List<DiscordReaction> getAllEmojisByChannelId(@Param("channelId") long channelId);
 
     @Query("SELECT rect " +
@@ -28,7 +28,7 @@ public interface DiscordReactionsRepository extends JpaRepository<DiscordEmoji, 
             "JOIN DiscordMessage msg " +
             "ON rect.discordMessageId = msg.id " +
             "WHERE msg.channelId = :channelId " +
-            "AND rect.emojiId > 0 " +
+            "AND rect.emojiId IS NOT NULL " +
             "AND msg.createdTime >= :after")
     List<DiscordReaction> getAllByChannelIdAndAfter(@Param("channelId") long channelId, @Param("after") long after);
 }

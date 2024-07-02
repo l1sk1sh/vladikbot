@@ -1,5 +1,9 @@
 package com.l1sk1sh.vladikbot;
 
+import com.github.ygimenez.exception.InvalidHandlerException;
+import com.github.ygimenez.method.Pages;
+import com.github.ygimenez.model.Paginator;
+import com.github.ygimenez.model.PaginatorBuilder;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
 import com.l1sk1sh.vladikbot.commands.admin.*;
@@ -199,8 +203,16 @@ public class VladikBot {
                     .build();
             // This might be required if bot is in more than 100 guilds
             Message.suppressContentIntentWarning();
+            PaginatorBuilder.createPaginator(jda)
+                    .shouldEventLock(true)
+                    .setDeleteOnCancel(true)
+                    .shouldRemoveOnReact(false)
+                    .activate();
         } catch (InvalidTokenException e) {
             log.error("Invalid username and/or password.");
+            SystemUtils.exit(1);
+        } catch (InvalidHandlerException e) {
+            log.error("Pagination could not be started.");
             SystemUtils.exit(1);
         } catch (ErrorResponseException e) {
             log.error("Invalid response returned when attempting to connect. " +
