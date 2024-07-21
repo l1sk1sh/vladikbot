@@ -7,10 +7,7 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
-import dev.lavalink.youtube.clients.Android;
-import dev.lavalink.youtube.clients.Music;
-import dev.lavalink.youtube.clients.TvHtml5Embedded;
-import dev.lavalink.youtube.clients.Web;
+import dev.lavalink.youtube.clients.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,8 +35,20 @@ public class PlayerManager extends DefaultAudioPlayerManager {
     private final GuildSettingsRepository guildSettingsRepository;
 
     public final void init() {
+        ClientOptions androidClientOptions = new ClientOptions();
+        androidClientOptions.setPlayback(false);
+
         /* Consult https://github.com/lavalink-devs/youtube-source for details */
-        this.registerSourceManager(new YoutubeAudioSourceManager(true, new Music(), new Web(), new Android(), new TvHtml5Embedded()));
+        YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(true,
+                new Music(),
+                new Web(),
+                new Android(androidClientOptions),
+                new AndroidTestsuite(androidClientOptions),
+                new AndroidLite(androidClientOptions),
+                new MediaConnect(),
+                new Ios(),
+                new TvHtml5Embedded());
+        this.registerSourceManager(youtube);
         this.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
         source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
     }
