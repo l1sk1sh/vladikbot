@@ -57,7 +57,7 @@ dependencies {
     implementation 'pw.chew:jda-chewtils:2.0-SNAPSHOT'
     implementation 'com.github.ygimenez:Pagination-Utils:4.0.6'
     implementation 'dev.arbjerg:lavaplayer:2.2.1'
-    implementation 'dev.lavalink.youtube:v2:1.4.0'
+    implementation 'dev.lavalink.youtube:v2:1.6.0'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
