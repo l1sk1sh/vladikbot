@@ -53,11 +53,11 @@ tasks.composeUp {
 }
 
 dependencies {
-    implementation 'net.dv8tion:JDA:5.0.0-beta.24'
-    implementation 'pw.chew:jda-chewtils:2.0-SNAPSHOT'
+    implementation 'net.dv8tion:JDA:5.2.1'
+    implementation 'pw.chew:jda-chewtils:2.0'
     implementation 'com.github.ygimenez:Pagination-Utils:4.0.6'
-    implementation 'dev.arbjerg:lavaplayer:2.2.1'
-    implementation 'dev.lavalink.youtube:v2:1.6.0'
+    implementation 'dev.arbjerg:lavaplayer:2.2.2'
+    implementation 'dev.lavalink.youtube:v2:1.8.3'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
