@@ -29,7 +29,7 @@ import java.util.Collections;
  */
 @Slf4j
 @Service
-public class MinecraftServerCommand extends AdminCommand {
+public class PZServerCommand extends AdminCommand {
 
     private final BotSettingsManager settings;
 
@@ -39,11 +39,11 @@ public class MinecraftServerCommand extends AdminCommand {
     private String minecraftRconJobUri;
 
     @Autowired
-    public MinecraftServerCommand(BotSettingsManager settings) {
+    public PZServerCommand(BotSettingsManager settings) {
         this.settings = settings;
         this.restTemplate = new RestTemplate();
-        this.name = "mcserver";
-        this.help = "Manage this guild's minecraft server";
+        this.name = "pzserver";
+        this.help = "Manage this guild's project zomboid server";
         this.children = new AdminCommand[]{
                 new Status(),
                 new Start(),
@@ -56,8 +56,8 @@ public class MinecraftServerCommand extends AdminCommand {
         this.headers = AuthUtils.createBasicAuthenticationHeaders(
                 settings.get().getJenkinsApiUsername(),
                 settings.get().getJenkinsApiPassword());
-        this.minecraftJobUri = settings.get().getJenkinsApiHost() + "/job/minecraft-server/";
-        this.minecraftRconJobUri = settings.get().getJenkinsApiHost() + "/job/minecraft-server-command/";
+        this.minecraftJobUri = settings.get().getJenkinsApiHost() + "/job/project-zomboid-server/";
+        this.minecraftRconJobUri = settings.get().getJenkinsApiHost() + "/job/project-zomboid-server-command/";
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
         private Status() {
             this.name = "status";
-            this.help = "Get current status of the minecraft server";
+            this.help = "Get current status of the project zomboid server";
         }
 
         @Override
@@ -92,7 +92,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
                 MessageCreateBuilder builder = new MessageCreateBuilder();
                 EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setAuthor("Minecraft server status", null, "https://cdn.icon-icons.com/icons2/2699/PNG/512/minecraft_logo_icon_168974.png")
+                        .setAuthor("Project Zomboid server status", null, "https://cdn2.steamgriddb.com/icon_thumb/30999ce1f0a35aeff9a456e4487f9924.png")
                         .setColor(new Color(114, 56, 45))
                         .addField("Server status is", (latestBuild.isBuilding()) ? event.getClient().getSuccess() + " **Online**" : event.getClient().getError() + " **Offline**", false)
                         .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(startTime), false);
@@ -119,7 +119,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
         private Start() {
             this.name = "start";
-            this.help = "Start minecraft server";
+            this.help = "Start project zomboid server";
         }
 
         @Override
@@ -146,8 +146,8 @@ public class MinecraftServerCommand extends AdminCommand {
                     return;
                 }
 
-                log.info("Minecraft server has been started by {}", FormatUtils.formatAuthor(event));
-                event.reply("Minecraft server has been launched!").queue();
+                log.info("Project zomboid server has been started by {}", FormatUtils.formatAuthor(event));
+                event.reply("Project zomboid server has been launched!").queue();
             } catch (RestClientException e) {
                 log.error("Failed to process Jenkins build request.", e);
                 event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
@@ -159,7 +159,7 @@ public class MinecraftServerCommand extends AdminCommand {
 
         private Stop() {
             this.name = "stop";
-            this.help = "Stop minecraft server";
+            this.help = "Stop project zomboid server";
         }
 
         @Override
@@ -194,8 +194,8 @@ public class MinecraftServerCommand extends AdminCommand {
                     return;
                 }
 
-                log.info("Minecraft server has been stopped by {}", FormatUtils.formatAuthor(event));
-                event.reply("Minecraft server has been stopped!").queue();
+                log.info("Project zomboid server has been stopped by {}", FormatUtils.formatAuthor(event));
+                event.reply("Project zomboid server has been stopped!").queue();
             } catch (RestClientException e) {
                 log.error("Failed to process Jenkins stop request.", e);
                 event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();

@@ -107,6 +107,7 @@ public class VladikBot {
         autoReplyManager.init();
         guildLoggerService.init();
         minecraftServerCommand.init();
+        pzServerCommand.init();
 
         CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                 .setPrefix(settings.get().getPrefix())
@@ -170,6 +171,7 @@ public class VladikBot {
                         ipCommand,
                         memesManagementCommand,
                         minecraftServerCommand,
+                        pzServerCommand,
                         newsManagementCommand,
                         permissionsCommand,
                         privateMessageCommand,
@@ -283,6 +285,8 @@ public class VladikBot {
     private QueueTypeCommand queueTypeCommand;
     @Setter(onMethod = @__({@Autowired}))
     private MinecraftServerCommand minecraftServerCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private PZServerCommand pzServerCommand;
     @Setter(onMethod = @__({@Autowired}))
     private ReminderCommand reminderCommand;
     @Setter(onMethod = @__({@Autowired}))
