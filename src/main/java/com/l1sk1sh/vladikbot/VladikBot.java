@@ -1,8 +1,6 @@
 package com.l1sk1sh.vladikbot;
 
 import com.github.ygimenez.exception.InvalidHandlerException;
-import com.github.ygimenez.method.Pages;
-import com.github.ygimenez.model.Paginator;
 import com.github.ygimenez.model.PaginatorBuilder;
 import com.jagrosh.jdautilities.command.CommandClientBuilder;
 import com.jagrosh.jdautilities.commons.waiter.EventWaiter;
@@ -12,10 +10,10 @@ import com.l1sk1sh.vladikbot.commands.everyone.*;
 import com.l1sk1sh.vladikbot.commands.music.*;
 import com.l1sk1sh.vladikbot.commands.owner.*;
 import com.l1sk1sh.vladikbot.contexts.DickContextMenu;
-import com.l1sk1sh.vladikbot.models.queue.QueueType;
 import com.l1sk1sh.vladikbot.services.audio.AloneInVoiceHandler;
 import com.l1sk1sh.vladikbot.services.audio.NowPlayingHandler;
 import com.l1sk1sh.vladikbot.services.audio.PlayerManager;
+import com.l1sk1sh.vladikbot.services.jenkins.JenkinsCommandsService;
 import com.l1sk1sh.vladikbot.services.logging.GuildLoggerService;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
@@ -66,6 +64,8 @@ public class VladikBot {
     private AutoReplyManager autoReplyManager;
     @Setter(onMethod = @__({@Autowired}))
     private GuildLoggerService guildLoggerService;
+    @Setter(onMethod = @__({@Autowired}))
+    private JenkinsCommandsService jenkinsCommandsService;
 
     @Autowired
     public VladikBot(BotSettingsManager settings) {
@@ -106,8 +106,7 @@ public class VladikBot {
         aloneInVoiceHandler.init();
         autoReplyManager.init();
         guildLoggerService.init();
-        minecraftServerCommand.init();
-        pzServerCommand.init();
+        jenkinsCommandsService.init();
 
         CommandClientBuilder commandClientBuilder = new CommandClientBuilder()
                 .setPrefix(settings.get().getPrefix())

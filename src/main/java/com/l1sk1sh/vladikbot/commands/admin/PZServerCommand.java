@@ -2,8 +2,8 @@ package com.l1sk1sh.vladikbot.commands.admin;
 
 import com.jagrosh.jdautilities.command.SlashCommandEvent;
 import com.l1sk1sh.vladikbot.network.dto.JenkinsJob;
+import com.l1sk1sh.vladikbot.services.jenkins.JenkinsCommandsService;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
-import com.l1sk1sh.vladikbot.utils.AuthUtils;
 import com.l1sk1sh.vladikbot.utils.CommandUtils;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -13,15 +13,12 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestClientException;
-import org.springframework.web.client.RestTemplate;
 
 import java.awt.*;
-import java.time.Duration;
 import java.util.Collections;
 
 /**
@@ -30,34 +27,25 @@ import java.util.Collections;
 @Slf4j
 @Service
 public class PZServerCommand extends AdminCommand {
-
     private final BotSettingsManager settings;
 
-    private final RestTemplate restTemplate;
-    private HttpHeaders headers;
-    private String minecraftJobUri;
-    private String minecraftRconJobUri;
+    private final JenkinsCommandsService jenkins;
+    private static final String SERVER_JOB_NAME = "project-zomboid-server";
+    private static final String RCON_JOB_NAME = "project-zomboid-server-command";
 
     @Autowired
-    public PZServerCommand(BotSettingsManager settings) {
+    public PZServerCommand(BotSettingsManager settings, JenkinsCommandsService jenkins) {
         this.settings = settings;
-        this.restTemplate = new RestTemplate();
+        this.jenkins = jenkins;
         this.name = "pzserver";
         this.help = "Manage this guild's project zomboid server";
         this.children = new AdminCommand[]{
                 new Status(),
                 new Start(),
                 new Stop(),
+                new ForceStop(),
                 new RCON()
         };
-    }
-
-    public void init() {
-        this.headers = AuthUtils.createBasicAuthenticationHeaders(
-                settings.get().getJenkinsApiUsername(),
-                settings.get().getJenkinsApiPassword());
-        this.minecraftJobUri = settings.get().getJenkinsApiHost() + "/job/project-zomboid-server/";
-        this.minecraftRconJobUri = settings.get().getJenkinsApiHost() + "/job/project-zomboid-server-command/";
     }
 
     @Override
@@ -75,8 +63,10 @@ public class PZServerCommand extends AdminCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             try {
-                JenkinsJob job = getServerJobStatus(event);
+                JenkinsJob job = jenkins.getJenkinsJobStatus(SERVER_JOB_NAME);
                 if (job == null) {
+                    event.replyFormat("%1$s Failed to get response from Jenkins.", event.getClient().getError()).setEphemeral(true).queue();
+
                     return;
                 }
 
@@ -87,20 +77,16 @@ public class PZServerCommand extends AdminCommand {
                     return;
                 }
 
-                long duration = latestBuild.getDuration();
-                long startTime = latestBuild.getTimestamp();
-
                 MessageCreateBuilder builder = new MessageCreateBuilder();
                 EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setAuthor("Project Zomboid server status", null, "https://cdn2.steamgriddb.com/icon_thumb/30999ce1f0a35aeff9a456e4487f9924.png")
                         .setColor(new Color(114, 56, 45))
                         .addField("Server status is", (latestBuild.isBuilding()) ? event.getClient().getSuccess() + " **Online**" : event.getClient().getError() + " **Offline**", false)
-                        .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(startTime), false);
+                        .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(latestBuild.getTimestamp()), false);
 
-                if (duration > 0) {
-                    embedBuilder.addField("Time online", FormatUtils.getReadableMMSSDuration(duration), false);
-                } else {
-                    embedBuilder.addField("Time online", FormatUtils.getReadableMMSSDuration(System.currentTimeMillis() - startTime), false);
+                if (latestBuild.getReadableDuration() != null) {
+                    embedBuilder.addField("Time online", latestBuild.getReadableDuration(),
+                            false);
                 }
 
                 if (!latestBuild.isBuilding()) {
@@ -125,29 +111,22 @@ public class PZServerCommand extends AdminCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             try {
-                JenkinsJob job = getServerJobStatus(event);
-                if (job == null) {
-                    return;
-                }
-
-                if (job.getLastBuild().isBuilding() || job.getQueueItem() != null) {
-                    event.replyFormat("%1$s Server is already running.", event.getClient().getWarning()).setEphemeral(true).queue();
+                boolean success = jenkins.startAndCheckStatusOfJenkinsJob(SERVER_JOB_NAME);
+                String errorMessage = jenkins.getErrorMessage();
+                if (!success) {
+                    event.replyFormat("%1$s %2$s", event.getClient().getError(), errorMessage).setEphemeral(true).queue();
 
                     return;
-                }
-
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                ResponseEntity<Void> response = restTemplate.exchange
-                        (minecraftJobUri + "build", HttpMethod.POST, new HttpEntity<Void>(headers), Void.class);
-
-                if (response.getStatusCode() != HttpStatus.CREATED && response.getStatusCode() != HttpStatus.FOUND) {
-                    event.replyFormat("%1$s Server hasn't been started correctly: `%2$s`", event.getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
+                } else if (errorMessage != null) {
+                    event.replyFormat("%1$s %2$s", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
 
                 log.info("Project zomboid server has been started by {}", FormatUtils.formatAuthor(event));
-                event.reply("Project zomboid server has been launched!").queue();
+                event.reply("Project zomboid server has been launched!" +
+                        "\nIt takes up to 5 minutes to properly start a server. " +
+                        "Use 'status' command to verify that it is really running.").queue();
             } catch (RestClientException e) {
                 log.error("Failed to process Jenkins build request.", e);
                 event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
@@ -159,37 +138,65 @@ public class PZServerCommand extends AdminCommand {
 
         private Stop() {
             this.name = "stop";
-            this.help = "Stop project zomboid server";
+            this.help = "Stop project zomboid server with progress saving";
         }
 
         @Override
         protected void execute(SlashCommandEvent event) {
             try {
-                JenkinsJob job = getServerJobStatus(event);
-                if (job == null) {
-                    return;
-                }
+                event.deferReply(true).queue();
 
-                if (!job.getLastBuild().isBuilding()) {
-                    event.replyFormat("%1$s Server is already stopped.", event.getClient().getWarning()).setEphemeral(true).queue();
+                MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+                map.add("COMMAND", "quit");
 
-                    return;
-                }
+                String consoleLog = jenkins.buildJobWithParametersAndWaitForConsole(RCON_JOB_NAME, map);
 
-                JenkinsJob.Build latestBuild = job.getLastBuild();
-                //noinspection ConstantValue
-                if (latestBuild == null) {
-                    event.replyFormat("%1$s Server has never been launched before.", event.getClient().getWarning()).setEphemeral(true).queue();
+                if (consoleLog == null) {
+                    event.getHook().editOriginalFormat("%1$s %2$s", event.getClient().getWarning(), jenkins.getErrorMessage()).queue();
 
                     return;
                 }
 
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                ResponseEntity<Void> response = restTemplate.exchange
-                        (minecraftJobUri + "/" + latestBuild.getId() + "/stop", HttpMethod.POST, new HttpEntity<Void>(headers), Void.class);
+                if (consoleLog.contains("Quit\n" +
+                        "Finished: SUCCESS")) {
+                    event.getHook().editOriginalFormat("%1$s Server has been stopped and saved.", event.getClient().getSuccess()).queue();
 
-                if (response.getStatusCode() != HttpStatus.OK && response.getStatusCode() != HttpStatus.FOUND) {
-                    event.replyFormat("%1$s Server hasn't been stopped correctly: `%2$s`", event.getClient().getWarning(), response.getStatusCode()).setEphemeral(true).queue();
+                    return;
+                }
+
+                event.getHook().editOriginalFormat("%1$s It is possible that server has not been stopped properly. " +
+                                "Consult logs:\n```%2$s```",
+                        event.getClient().getWarning(), consoleLog).queue();
+            } catch (RestClientException e) {
+                log.error("Failed to process Jenkins stop request.", e);
+                event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
+            }
+        }
+    }
+
+    private class ForceStop extends AdminCommand {
+
+        private ForceStop() {
+            this.name = "stop_force";
+            this.help = "Kills project zomboid server. Use in cases when simple 'stop' command doesn't work";
+            this.ownerCommand = true; // Rewrite access level
+        }
+
+        @Override
+        protected void execute(SlashCommandEvent event) {
+            try {
+                if (settings.get().getOwnerId() != event.getUser().getIdLong()) {
+                    return;
+                }
+
+                boolean success = jenkins.stopAndCheckStatusOfJenkinsJob(SERVER_JOB_NAME);
+                String errorMessage = jenkins.getErrorMessage();
+                if (!success) {
+                    event.replyFormat("%1$s %2$s", event.getClient().getError(), errorMessage).setEphemeral(true).queue();
+
+                    return;
+                } else if (errorMessage != null) {
+                    event.replyFormat("%1$s %2$s", event.getClient().getWarning()).setEphemeral(true).queue();
 
                     return;
                 }
@@ -197,7 +204,7 @@ public class PZServerCommand extends AdminCommand {
                 log.info("Project zomboid server has been stopped by {}", FormatUtils.formatAuthor(event));
                 event.reply("Project zomboid server has been stopped!").queue();
             } catch (RestClientException e) {
-                log.error("Failed to process Jenkins stop request.", e);
+                log.error("Failed to process Jenkins kill request.", e);
                 event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
             }
         }
@@ -233,72 +240,19 @@ public class PZServerCommand extends AdminCommand {
                 MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
                 map.add("COMMAND", rconCommand);
 
-                headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-                HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-                ResponseEntity<Void> buildResponse = restTemplate.exchange
-                        (minecraftRconJobUri + "buildWithParameters", HttpMethod.POST, request, Void.class);
+                String consoleLog = jenkins.buildJobWithParametersAndWaitForConsole(RCON_JOB_NAME, map);
 
-                if (buildResponse.getStatusCode() != HttpStatus.CREATED && buildResponse.getStatusCode() != HttpStatus.FOUND) {
-                    event.getHook().editOriginalFormat("%1$s Command hasn't been processed correctly: `%2$s`", event.getClient().getWarning(), buildResponse.getStatusCode()).queue();
+                if (consoleLog == null) {
+                    event.getHook().editOriginalFormat("%1$s %2$s", event.getClient().getWarning(), jenkins.getErrorMessage()).queue();
 
                     return;
                 }
 
-                try {
-                    // There is no workaround for that - Jenkins can't keep up with next console request and serves previous build instead
-                    Thread.sleep(Duration.ofSeconds(15).toMillis());
-                } catch (InterruptedException e) {
-                    event.getHook().editOriginalFormat("%1$s Sleep has failed.", event.getClient().getError()).queue();
-
-                    return;
-                }
-
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                ResponseEntity<String> consoleResponse = restTemplate.exchange
-                        (minecraftRconJobUri + "lastBuild/consoleText", HttpMethod.GET, new HttpEntity<Void>(headers), String.class);
-
-                if (consoleResponse.getStatusCode() != HttpStatus.OK) {
-                    event.getHook().editOriginalFormat("%1$s Console wasn't fetched correctly: `%2$s`", event.getClient().getWarning(), buildResponse.getStatusCode()).queue();
-
-                    return;
-                }
-
-                event.getHook().editOriginalFormat("```%1$s```", consoleResponse.getBody()).queue();
+                event.getHook().editOriginalFormat("```%1$s```", consoleLog).queue();
             } catch (RestClientException e) {
                 event.getHook().editOriginalFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).queue();
                 log.error("Failed to process Jenkins status request.", e);
             }
         }
-    }
-
-    private JenkinsJob getServerJobStatus(SlashCommandEvent event) throws RestClientException {
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        ResponseEntity<JenkinsJob> jenkinsJob = restTemplate.exchange(
-                minecraftJobUri + "api/json?depth=1",
-                HttpMethod.GET,
-                new HttpEntity<JenkinsJob>(headers),
-                JenkinsJob.class);
-
-        return handleJobStatus(jenkinsJob, event);
-    }
-
-    private JenkinsJob handleJobStatus(ResponseEntity<JenkinsJob> jenkinsJob, SlashCommandEvent event) throws RestClientException {
-
-        if (jenkinsJob.getStatusCode() != HttpStatus.OK) {
-            log.error("Failed to process Jenkins build request with status code {}", jenkinsJob.getStatusCode());
-            event.replyFormat("%1$s Failed to get correct status code: `%2$s`", event.getClient().getError(), jenkinsJob.getStatusCodeValue()).setEphemeral(true).queue();
-
-            return null;
-        }
-
-        JenkinsJob job = jenkinsJob.getBody();
-        if (job == null) {
-            log.error("Jenkins returned empty or incorrect response.");
-            event.replyFormat("%1$s Failed to get response from Jenkins.", event.getClient().getError()).setEphemeral(true).queue();
-
-            return null;
-        }
-
-        return job;
     }
 }
