@@ -43,10 +43,9 @@ public class PlayerManager extends DefaultAudioPlayerManager {
                 new Music(),
                 new Web(),
                 new WebEmbedded(),
-                new AndroidTestsuite(androidClientOptions),
-                new AndroidLite(androidClientOptions),
                 new AndroidMusic(androidClientOptions),
-                new MediaConnect(),
+                new AndroidVr(androidClientOptions),
+                new Tv(),
                 new Ios(),
                 new TvHtml5Embedded());
         this.registerSourceManager(youtube);
