@@ -20,6 +20,7 @@ repositories {
     maven { url "https://m2.chew.pro/snapshots" }
     maven { url 'https://m2.dv8tion.net/releases' }
     maven { url 'https://maven.lavalink.dev/releases' }
+    maven { url 'https://maven.topi.wtf/releases' }
 }
 
 group 'сom.l1sk1sh'
@@ -58,6 +59,8 @@ dependencies {
     implementation 'com.github.ygimenez:Pagination-Utils:4.0.6'
     implementation 'dev.arbjerg:lavaplayer:2.2.2'
     implementation 'dev.lavalink.youtube:v2:1.11.1'
+    implementation 'com.github.topi314.lavasrc:lavasrc:4.3.0'
+    implementation 'com.github.topi314.lavasrc:lavasrc-protocol:4.3.0'
 
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'

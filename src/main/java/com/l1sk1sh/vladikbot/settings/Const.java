@@ -52,6 +52,7 @@ public final class Const {
 
     public static final String YT_SEARCH_PREFIX = "ytsearch:";
     public static final String SC_SEARCH_PREFIX = "scsearch:";
+    public static final String SP_SEARCH_PREFIX = "spsearch:";
 
     public static final String PLAY_EMOJI = "▶";               // ▶
     public static final String PAUSE_EMOJI = "⏸";              // ⏸

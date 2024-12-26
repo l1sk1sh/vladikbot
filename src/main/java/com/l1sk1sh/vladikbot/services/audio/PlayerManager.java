@@ -1,5 +1,7 @@
 package com.l1sk1sh.vladikbot.services.audio;
 
+import com.github.topi314.lavasrc.mirror.DefaultMirroringAudioTrackResolver;
+import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
@@ -35,10 +37,16 @@ public class PlayerManager extends DefaultAudioPlayerManager {
     private final GuildSettingsRepository guildSettingsRepository;
 
     public final void init() {
+        this.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
+
+        initYoutube();
+        initSpotify();
+    }
+
+    /* Consult https://github.com/lavalink-devs/youtube-source for details */
+    private void initYoutube() {
         ClientOptions androidClientOptions = new ClientOptions();
         androidClientOptions.setPlayback(false);
-
-        /* Consult https://github.com/lavalink-devs/youtube-source for details */
         YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(true,
                 new Music(),
                 new Web(),
@@ -49,8 +57,19 @@ public class PlayerManager extends DefaultAudioPlayerManager {
                 new Ios(),
                 new TvHtml5Embedded());
         this.registerSourceManager(youtube);
-        this.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
         source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
+    }
+
+    /* Consult https://github.com/topi314/LavaSrc for details */
+    private void initSpotify() {
+        SpotifySourceManager spotify = new SpotifySourceManager(
+                settings.get().getSpClientId(),
+                settings.get().getSpClientSecret(),
+                settings.get().getSpDc(),
+                settings.get().getSpCountryCode(),
+                (playerManager) -> this,
+                new DefaultMirroringAudioTrackResolver(null));
+        this.registerSourceManager(spotify);
     }
 
     public final AudioHandler setUpHandler(Guild guild) {

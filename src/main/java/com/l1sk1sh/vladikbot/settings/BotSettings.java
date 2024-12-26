@@ -55,6 +55,10 @@ public class BotSettings {
     private long lastAutoTextBackupTime = 0L;                           // Holds time of last auto text backup
     private long lastAutoMediaBackupTime = 0L;                          // Holds time of last auto media backup
     private String botPublicIP = "";                                    // Holds public IP that might be used to access local servers
+    private String spClientId = "";                                     // Holds Spotify App Client ID
+    private String spClientSecret = "";                                 // Holds Spotify App Client Secret
+    private String spDc = "";                                           // Holds Spotify User sp_dc cookie
+    private String spCountryCode = "DE";                                // Holds Spotify User Country
 
     /* Runtime and bot specific internal configs */
     @Setter
@@ -216,6 +220,18 @@ public class BotSettings {
         /* lastAutoMediaBackupTime - not setting */
         if (this.botPublicIP == null) {
             this.botPublicIP = defSettings.botPublicIP;
+        }
+        if (this.spClientId == null) {
+            this.spClientId = defSettings.spClientId;
+        }
+        if (this.spClientSecret == null) {
+            this.spClientSecret = defSettings.spClientSecret;
+        }
+        if (this.spCountryCode == null) {
+            this.spCountryCode = defSettings.spCountryCode;
+        }
+        if (this.spDc == null) {
+            this.spDc = defSettings.spDc;
         }
     }
 }

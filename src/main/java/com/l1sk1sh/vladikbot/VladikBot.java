@@ -149,6 +149,7 @@ public class VladikBot {
                         shuffleCommand,
                         skipCommand,
                         soundCloudSearchCommand,
+                        spotifySearchCommand,
 
                         /* Music commands DJ only */
                         moveTrackCommand,
@@ -364,6 +365,8 @@ public class VladikBot {
     private SkipCommand skipCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SoundCloudSearchCommand soundCloudSearchCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private SpotifySearchCommand spotifySearchCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PlaylistCommand playlistCommand;
     @Setter(onMethod = @__({@Autowired}))
