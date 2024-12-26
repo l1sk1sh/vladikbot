@@ -161,7 +161,6 @@ public class SearchCommand extends MusicCommand {
                         + track.getInfo().title + "**](" + track.getInfo().uri + ")");
             }
 
-            log.debug("Fuck me here");
             Message message = event.getHook().retrieveOriginal().complete();
             event.getHook().editOriginalFormat(Const.LOADING_SYMBOL).complete(); // Required to remove "is thinking"
             builder.build().display(message);

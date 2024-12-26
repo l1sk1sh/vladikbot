@@ -36,7 +36,7 @@ public class QueuedTrack implements Queueable {
     public final String toString() {
         String entry = "`[" + FormatUtils.formatTimeTillHours(track.getDuration()) + "]` ";
         AudioTrackInfo trackInfo = track.getInfo();
-        entry = entry + (trackInfo.uri.startsWith("http") ? "[**" + trackInfo.title + "**](" + trackInfo.uri + ")" : "**" + trackInfo.title + "**");
+        entry = entry + (trackInfo.uri.startsWith("http") ? "[**" + trackInfo.title + "**](<" + trackInfo.uri + ">)" : "**" + trackInfo.title + "**");
         return entry + " - <@" + track.getUserData(AudioRequestMetadata.class).getOwner() + ">";
     }
 }
