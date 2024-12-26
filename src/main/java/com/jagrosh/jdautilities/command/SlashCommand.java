@@ -230,25 +230,29 @@ public abstract class SlashCommand extends Command {
     }
 
     public String getCooldownKey(SlashCommandEvent event) {
-        return switch (this.cooldownScope) {
-            case USER -> this.cooldownScope.genKey(this.name, event.getUser().getIdLong());
-            case USER_GUILD ->
-                    event.getGuild() != null ? this.cooldownScope.genKey(this.name, event.getUser().getIdLong(), event.getGuild().getIdLong()) : CooldownScope.USER_CHANNEL.genKey(this.name, event.getUser().getIdLong(), event.getChannel().getIdLong());
-            case USER_CHANNEL ->
-                    this.cooldownScope.genKey(this.name, event.getUser().getIdLong(), event.getChannel().getIdLong());
-            case GUILD ->
-                    event.getGuild() != null ? this.cooldownScope.genKey(this.name, event.getGuild().getIdLong()) : CooldownScope.CHANNEL.genKey(this.name, event.getChannel().getIdLong());
-            case CHANNEL -> this.cooldownScope.genKey(this.name, event.getChannel().getIdLong());
-            case SHARD -> {
+        //noinspection EnhancedSwitchMigration
+        switch (this.cooldownScope) {
+            case USER:
+                return this.cooldownScope.genKey(this.name, event.getUser().getIdLong());
+            case USER_GUILD:
+                return event.getGuild() != null ? this.cooldownScope.genKey(this.name, event.getUser().getIdLong(), event.getGuild().getIdLong()) : CooldownScope.USER_CHANNEL.genKey(this.name, event.getUser().getIdLong(), event.getChannel().getIdLong());
+            case USER_CHANNEL:
+                return this.cooldownScope.genKey(this.name, event.getUser().getIdLong(), event.getChannel().getIdLong());
+            case GUILD:
+                return event.getGuild() != null ? this.cooldownScope.genKey(this.name, event.getGuild().getIdLong()) : CooldownScope.CHANNEL.genKey(this.name, event.getChannel().getIdLong());
+            case CHANNEL:
+                return this.cooldownScope.genKey(this.name, event.getChannel().getIdLong());
+            case SHARD:
                 event.getJDA().getShardInfo();
-                yield this.cooldownScope.genKey(this.name, event.getJDA().getShardInfo().getShardId());
-            }
-            case USER_SHARD -> {
+                return this.cooldownScope.genKey(this.name, event.getJDA().getShardInfo().getShardId());
+            case USER_SHARD:
                 event.getJDA().getShardInfo();
-                yield this.cooldownScope.genKey(this.name, event.getUser().getIdLong(), event.getJDA().getShardInfo().getShardId());
-            }
-            case GLOBAL -> this.cooldownScope.genKey(this.name, 0L);
-        };
+                return this.cooldownScope.genKey(this.name, event.getUser().getIdLong(), event.getJDA().getShardInfo().getShardId());
+            case GLOBAL:
+                return this.cooldownScope.genKey(this.name, 0L);
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
     public String getCooldownError(SlashCommandEvent event, int remaining, CommandClient client) {
