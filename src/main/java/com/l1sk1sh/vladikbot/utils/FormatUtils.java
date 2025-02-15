@@ -185,7 +185,6 @@ public final class FormatUtils {
         return filterEveryone("**" + msg.getUsername() + "** (ID:" + msg.getAuthor().getId() + ")");
     }
 
-    @SuppressWarnings("deprecation")
     public static String formatFullUser(User user) {
         return filterEveryone("**" + user.getName() + "**#" + user.getDiscriminator() + " (ID:" + user.getId() + ")");
     }
