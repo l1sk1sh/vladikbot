@@ -5,9 +5,13 @@ import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
+import com.sedmelluq.discord.lavaplayer.player.AudioConfiguration;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerOptions;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.track.InternalAudioTrack;
+import com.sedmelluq.discord.lavaplayer.track.TrackStateListener;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.clients.*;
 import lombok.RequiredArgsConstructor;
@@ -47,7 +51,10 @@ public class PlayerManager extends DefaultAudioPlayerManager {
     private void initYoutube() {
         ClientOptions androidClientOptions = new ClientOptions();
         androidClientOptions.setPlayback(false);
-        YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(true,
+        YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(
+                true,
+                true,
+                true,
                 new Music(),
                 new Web(),
                 new WebEmbedded(),

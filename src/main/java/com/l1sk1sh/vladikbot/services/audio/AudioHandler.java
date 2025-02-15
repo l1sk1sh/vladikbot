@@ -11,12 +11,15 @@ import com.l1sk1sh.vladikbot.models.queue.QueuedTrack;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.FormatUtils;
+import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
+import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.AudioFrame;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
 import dev.lavalink.youtube.track.YoutubeAudioTrack;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +57,8 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     private final Set<Long> votes = new HashSet<>();
 
     private final long guildId;
+
+    private boolean processingFallbackTrack = false;
 
     private AudioFrame lastFrame;
     @Getter
@@ -163,6 +168,11 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
         }
 
         if (queue.isEmpty()) {
+            /* Wait until fallback processing is complete to prevent voice channel leaving on empty queue */
+            if (processingFallbackTrack) {
+                return;
+            }
+
             if (!playFromDefault()) {
                 if (settings.get().isLeaveChannel()) {
                     closeAudioConnection();
@@ -185,6 +195,7 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         log.warn("Track exception {}.", track.getInfo(), exception);
+        attemptFallbackFromYoutubeToSpotify(player, track);
         super.onTrackException(player, track, exception);
     }
 
@@ -192,6 +203,16 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
     public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
         log.warn("Track stuck {}.", track.getInfo());
         super.onTrackStuck(player, track, thresholdMs);
+    }
+
+    private void attemptFallbackFromYoutubeToSpotify(AudioPlayer player, AudioTrack track) {
+        if (track.getSourceManager() instanceof YoutubeAudioSourceManager) {
+            processingFallbackTrack = true;
+            playerManager.loadItem(
+                    Const.SP_SEARCH_PREFIX + track.getInfo().title,
+                    new FallbackTrackResultHandler(this, player, track, AudioTrackEndReason.LOAD_FAILED)
+            );
+        }
     }
 
     /* Formatting of the message */
@@ -303,5 +324,60 @@ public class AudioHandler extends AudioEventAdapter implements AudioSendHandler 
 
     private Guild guild(JDA jda) {
         return jda.getGuildById(guildId);
+    }
+
+    protected void fallbackLoaded() {
+        this.processingFallbackTrack = false;
+    }
+
+    protected void fallbackFailed(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+        this.processingFallbackTrack = false;
+        this.onTrackEnd(player, track, endReason);
+    }
+
+    private static final class FallbackTrackResultHandler implements AudioLoadResultHandler {
+
+        private final AudioHandler handler;
+        private final AudioPlayer player;
+        private final AudioTrack track;
+        private final AudioTrackEndReason endReason;
+
+        private FallbackTrackResultHandler(AudioHandler handler, AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+            this.handler = handler;
+            this.player = player;
+            this.track = track;
+            this.endReason = endReason;
+        }
+
+        @Override
+        public void trackLoaded(AudioTrack track) {
+            log.debug("trackLoaded {}", track);
+            User user = (track.getUserData() instanceof User) ? (User) track.getUserData() : null;
+            handler.addTrackToFront(new QueuedTrack(track, user));
+
+            handler.fallbackLoaded();
+        }
+
+        @Override
+        public void playlistLoaded(AudioPlaylist playlist) {
+            log.debug("playlistLoaded {}", playlist.getTracks().size());
+            AudioTrack track = playlist.getTracks().get(0);
+            User user = (track.getUserData() instanceof User) ? (User) track.getUserData() : null;
+            handler.addTrackToFront(new QueuedTrack(track, user));
+
+            handler.fallbackLoaded();
+        }
+
+        @Override
+        public void noMatches() {
+            log.debug("noMatches");
+            handler.fallbackFailed(player, track, endReason);
+        }
+
+        @Override
+        public void loadFailed(FriendlyException exception) {
+            log.debug("loadFailed", exception);
+            handler.fallbackFailed(player, track, endReason);
+        }
     }
 }

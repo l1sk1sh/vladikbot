@@ -65,6 +65,7 @@
     <logger name="com.sedmelluq.discord.lavaplayer" level="WARN"/>
     <logger name="com.sedmelluq.lava" level="WARN"/>
     <logger name="dev.lavalink.youtube" level="INFO"/>
+    <logger name="com.github.topi314.lavasrc" level="INFO"/>
 
     <!-- Here you can set the base log level. If DEBUG is too chatty for you, you can use INFO -->
     <!-- Possible options are: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF -->
