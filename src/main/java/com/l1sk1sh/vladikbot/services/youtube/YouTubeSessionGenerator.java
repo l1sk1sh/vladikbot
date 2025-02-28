@@ -71,7 +71,7 @@ public class YouTubeSessionGenerator {
             settings.get().setYtPoToken(poToken);
             log.info("'po_token' updated");
         } else {
-            log.warn("'visitor_data' is missing in console log");
+            log.warn("'po_token' is missing in console log");
         }
 
         if (poToken != null && visitorData != null) {
