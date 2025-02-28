@@ -100,6 +100,16 @@ public class JenkinsCommandsService {
         return stopJenkinsJob(jobName, latestBuild.getId());
     }
 
+    public String buildJobAndWaitForConsole(String jobName) throws RestClientException {
+        errorMessage = null;
+
+        if (!buildJenkinsJob(jobName)) {
+            return null;
+        }
+
+        return waitAndReadConsoleForJob(jobName);
+    }
+
     public String buildJobWithParametersAndWaitForConsole(String jobName, MultiValueMap<String, String> parameters) throws RestClientException {
         errorMessage = null;
 
@@ -107,6 +117,10 @@ public class JenkinsCommandsService {
             return null;
         }
 
+        return waitAndReadConsoleForJob(jobName);
+    }
+
+    private String waitAndReadConsoleForJob(String jobName) {
         try {
             // There is no workaround for that - Jenkins can't keep up with next console request and serves previous build instead
             Thread.sleep(Duration.ofSeconds(15).toMillis());

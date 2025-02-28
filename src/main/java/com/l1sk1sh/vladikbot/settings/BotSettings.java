@@ -59,6 +59,8 @@ public class BotSettings {
     private String spClientSecret = "";                                 // Holds Spotify App Client Secret
     private String spDc = "";                                           // Holds Spotify User sp_dc cookie
     private String spCountryCode = "DE";                                // Holds Spotify User Country
+    private String ytPoToken = "";                                      // Holds YouTube po_token
+    private String ytVisitorData = "";                                  // Holds YouTube visitor_data
 
     /* Runtime and bot specific internal configs */
     @Setter
@@ -138,6 +140,16 @@ public class BotSettings {
 
     public void setBotPublicIP(String ip) {
         this.botPublicIP = ip;
+        listener.onSettingsUpdated();
+    }
+
+    public void setYtPoToken(String poToken) {
+        this.ytPoToken = poToken;
+        listener.onSettingsUpdated();
+    }
+
+    public void setYtVisitorData(String visitorData) {
+        this.ytVisitorData = visitorData;
         listener.onSettingsUpdated();
     }
 
@@ -232,6 +244,12 @@ public class BotSettings {
         }
         if (this.spDc == null) {
             this.spDc = defSettings.spDc;
+        }
+        if (this.ytPoToken == null) {
+            this.ytPoToken = defSettings.ytPoToken;
+        }
+        if (this.ytVisitorData == null) {
+            this.ytVisitorData = defSettings.ytVisitorData;
         }
     }
 }

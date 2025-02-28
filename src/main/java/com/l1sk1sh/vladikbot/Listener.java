@@ -19,6 +19,7 @@ import com.l1sk1sh.vladikbot.services.meme.MemeService;
 import com.l1sk1sh.vladikbot.services.presence.ActivitySimulationManager;
 import com.l1sk1sh.vladikbot.services.presence.AutoReplyManager;
 import com.l1sk1sh.vladikbot.services.rss.RssService;
+import com.l1sk1sh.vladikbot.services.youtube.YouTubeSessionGenerator;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.settings.Const;
 import com.l1sk1sh.vladikbot.utils.BotUtils;
@@ -79,6 +80,7 @@ class Listener extends ListenerAdapter {
     private final AutoReplyManager autoReplyManager;
     private final GuildSettingsRepository guildSettingsRepository;
     private final ActivitySimulationManager activitySimulationManager;
+    private final YouTubeSessionGenerator youTubeSessionGenerator;
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
@@ -210,6 +212,9 @@ class Listener extends ListenerAdapter {
         if (settings.get().isAutoMediaBackup()) {
             autoMediaBackupDaemon.start();
         }
+
+        /* Set tokens from YouTube session generator */
+        youTubeSessionGenerator.fetchAndSetYtSession();
     }
 
     @Override
