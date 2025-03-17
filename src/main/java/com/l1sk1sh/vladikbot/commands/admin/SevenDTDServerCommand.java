@@ -26,19 +26,19 @@ import java.util.Collections;
  */
 @Slf4j
 @Service
-public class PZServerCommand extends AdminCommand {
+public class SevenDTDServerCommand extends AdminCommand {
     private final BotSettingsManager settings;
 
     private final JenkinsCommandsService jenkins;
-    private static final String SERVER_JOB_NAME = "project-zomboid-server";
-    private static final String RCON_JOB_NAME = "project-zomboid-server-command";
+    private static final String SERVER_JOB_NAME = "7daystodie-server";
+    private static final String RCON_JOB_NAME = "7daystodie-server-command";
 
     @Autowired
-    public PZServerCommand(BotSettingsManager settings, JenkinsCommandsService jenkins) {
+    public SevenDTDServerCommand(BotSettingsManager settings, JenkinsCommandsService jenkins) {
         this.settings = settings;
         this.jenkins = jenkins;
-        this.name = "pzserver";
-        this.help = "Manage this guild's project zomboid server";
+        this.name = "7dtdserver";
+        this.help = "Manage this guild's 7dtd server";
         this.children = new AdminCommand[]{
                 new Status(),
                 new Start(),
@@ -57,7 +57,7 @@ public class PZServerCommand extends AdminCommand {
 
         private Status() {
             this.name = "status";
-            this.help = "Get current status of the project zomboid server";
+            this.help = "Get current status of the 7 days to die server";
         }
 
         @Override
@@ -79,8 +79,8 @@ public class PZServerCommand extends AdminCommand {
 
                 MessageCreateBuilder builder = new MessageCreateBuilder();
                 EmbedBuilder embedBuilder = new EmbedBuilder()
-                        .setAuthor("Project Zomboid server status", null, "https://cdn2.steamgriddb.com/icon_thumb/30999ce1f0a35aeff9a456e4487f9924.png")
-                        .setColor(new Color(114, 56, 45))
+                        .setAuthor("7 days to die server status", null, "https://cdn2.steamgriddb.com/icon/cab8961422e0f17f3795d82388e9204b/32/256x256.png")
+                        .setColor(new Color(229, 63, 26))
                         .addField("Server status is", (latestBuild.isBuilding()) ? event.getClient().getSuccess() + " **Online**" : event.getClient().getError() + " **Offline**", false)
                         .addField("Last time started", FormatUtils.getDateAndTimeFromTimestamp(latestBuild.getTimestamp()), false);
 
@@ -105,7 +105,7 @@ public class PZServerCommand extends AdminCommand {
 
         private Start() {
             this.name = "start";
-            this.help = "Start project zomboid server";
+            this.help = "Start 7 days to die server";
         }
 
         @Override
@@ -114,7 +114,7 @@ public class PZServerCommand extends AdminCommand {
                 boolean otherServerRunning = jenkins.isAnyGameServerRunning();
                 if (otherServerRunning) {
                     event.replyFormat("%1$s %2$s", event.getClient().getWarning(),
-                                    "Cannot start project zomboid server as another server is running at the moment")
+                                    "Cannot start 7 days to die server as another server is running at the moment")
                             .setEphemeral(true).queue();
 
                     return;
@@ -132,8 +132,8 @@ public class PZServerCommand extends AdminCommand {
                     return;
                 }
 
-                log.info("Project zomboid server has been started by {}", FormatUtils.formatAuthor(event));
-                event.reply("Project zomboid server has been launched!" +
+                log.info("7 days to die server has been started by {}", FormatUtils.formatAuthor(event));
+                event.reply("7 days to die server has been launched!" +
                         "\nIt takes up to 5 minutes to properly start a server. " +
                         "Use 'status' command to verify that it is really running.").queue();
             } catch (RestClientException e) {
@@ -147,7 +147,7 @@ public class PZServerCommand extends AdminCommand {
 
         private Stop() {
             this.name = "stop";
-            this.help = "Stop project zomboid server with progress saving";
+            this.help = "Stop 7 days to die server with progress saving";
         }
 
         @Override
@@ -156,7 +156,7 @@ public class PZServerCommand extends AdminCommand {
                 event.deferReply(true).queue();
 
                 MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-                map.add("COMMAND", "quit");
+                map.add("COMMAND", "shutdown");
 
                 String consoleLog = jenkins.buildJobWithParametersAndWaitForConsole(RCON_JOB_NAME, map);
 
@@ -187,7 +187,7 @@ public class PZServerCommand extends AdminCommand {
 
         private ForceStop() {
             this.name = "stop_force";
-            this.help = "Kills project zomboid server. Use in cases when simple 'stop' command doesn't work";
+            this.help = "Kills 7 days to die server. Use in cases when simple 'stop' command doesn't work";
             this.ownerCommand = true; // Rewrite access level
         }
 
@@ -210,8 +210,8 @@ public class PZServerCommand extends AdminCommand {
                     return;
                 }
 
-                log.info("Project zomboid server has been stopped by {}", FormatUtils.formatAuthor(event));
-                event.reply("Project zomboid server has been stopped!").queue();
+                log.info("7 days to die server has been stopped by {}", FormatUtils.formatAuthor(event));
+                event.reply("7 days to die server has been stopped!").queue();
             } catch (RestClientException e) {
                 log.error("Failed to process Jenkins kill request.", e);
                 event.replyFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).setEphemeral(true).queue();
@@ -257,7 +257,7 @@ public class PZServerCommand extends AdminCommand {
                     return;
                 }
 
-                event.getHook().editOriginalFormat("```%1$s```", consoleLog).queue();
+                event.getHook().editOriginalFormat("%1$s", consoleLog).queue();
             } catch (RestClientException e) {
                 event.getHook().editOriginalFormat("%1$s Error occurred: `%2$s`", event.getClient().getError(), e.getLocalizedMessage()).queue();
                 log.error("Failed to process Jenkins status request.", e);

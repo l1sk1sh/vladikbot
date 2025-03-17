@@ -1,6 +1,7 @@
 package com.l1sk1sh.vladikbot.services.jenkins;
 
 import com.l1sk1sh.vladikbot.network.dto.JenkinsJob;
+import com.l1sk1sh.vladikbot.network.dto.JenkinsJobsList;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.l1sk1sh.vladikbot.utils.AuthUtils;
 import lombok.Getter;
@@ -214,5 +215,26 @@ public class JenkinsCommandsService {
         }
 
         return job;
+    }
+
+    public boolean isAnyGameServerRunning() throws RestClientException {
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<JenkinsJobsList> response = restTemplate.exchange
+                (jenkinsHost + "/api/json?tree=jobs[name]", HttpMethod.GET, new HttpEntity<JenkinsJobsList>(headers), JenkinsJobsList.class);
+
+        if (response.getStatusCode() != HttpStatus.OK) {
+            log.error("Failed to verify if any server is running: {}", response.getStatusCode());
+
+            return false;
+        }
+
+        JenkinsJobsList jobs = response.getBody();
+        if (jobs == null) {
+            log.error("Failed to verify if any server is running: {}", "null body");
+
+            return false;
+        }
+
+        return jobs.getJobs().stream().anyMatch((job) -> job.getName().contains("server"));
     }
 }

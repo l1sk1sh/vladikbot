@@ -111,6 +111,15 @@ public class MinecraftServerCommand extends AdminCommand {
         @Override
         protected void execute(SlashCommandEvent event) {
             try {
+                boolean otherServerRunning = jenkins.isAnyGameServerRunning();
+                if (otherServerRunning) {
+                    event.replyFormat("%1$s %2$s", event.getClient().getWarning(),
+                            "Cannot start minecraft server as another server is running at the moment")
+                            .setEphemeral(true).queue();
+
+                    return;
+                }
+
                 boolean success = jenkins.startAndCheckStatusOfJenkinsJob(SERVER_JOB_NAME);
                 String errorMessage = jenkins.getErrorMessage();
                 if (!success) {

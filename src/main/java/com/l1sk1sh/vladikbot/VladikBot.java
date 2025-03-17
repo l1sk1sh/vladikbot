@@ -172,6 +172,7 @@ public class VladikBot {
                         memesManagementCommand,
                         minecraftServerCommand,
                         pzServerCommand,
+                        sevenDTDServerCommand,
                         newsManagementCommand,
                         permissionsCommand,
                         privateMessageCommand,
@@ -287,6 +288,8 @@ public class VladikBot {
     private MinecraftServerCommand minecraftServerCommand;
     @Setter(onMethod = @__({@Autowired}))
     private PZServerCommand pzServerCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private SevenDTDServerCommand sevenDTDServerCommand;
     @Setter(onMethod = @__({@Autowired}))
     private ReminderCommand reminderCommand;
     @Setter(onMethod = @__({@Autowired}))
