@@ -19,5 +19,10 @@ public class JenkinsJobsList {
     @Getter
     public static class JobDescription {
         private String name;
+        private String color;
+
+        public boolean isRunning() {
+            return color.contains("_anime");
+        }
     }
 }

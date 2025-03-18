@@ -220,7 +220,7 @@ public class JenkinsCommandsService {
     public boolean isAnyGameServerRunning() throws RestClientException {
         headers.setContentType(MediaType.APPLICATION_JSON);
         ResponseEntity<JenkinsJobsList> response = restTemplate.exchange
-                (jenkinsHost + "/api/json?tree=jobs[name]", HttpMethod.GET, new HttpEntity<JenkinsJobsList>(headers), JenkinsJobsList.class);
+                (jenkinsHost + "/api/json?tree=jobs[name,color]", HttpMethod.GET, new HttpEntity<JenkinsJobsList>(headers), JenkinsJobsList.class);
 
         if (response.getStatusCode() != HttpStatus.OK) {
             log.error("Failed to verify if any server is running: {}", response.getStatusCode());
@@ -235,6 +235,6 @@ public class JenkinsCommandsService {
             return false;
         }
 
-        return jobs.getJobs().stream().anyMatch((job) -> job.getName().contains("server"));
+        return jobs.getJobs().stream().anyMatch((job) -> job.getName().contains("server") && job.isRunning());
     }
 }
