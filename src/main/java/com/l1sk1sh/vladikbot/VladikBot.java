@@ -190,6 +190,7 @@ public class VladikBot {
                         setIPCommand,
                         setPresenceCommand,
                         setStatusCommand,
+                        restartCommand,
                         shutdownCommand
                 );
 
@@ -380,6 +381,8 @@ public class VladikBot {
     private SetPresenceCommand setPresenceCommand;
     @Setter(onMethod = @__({@Autowired}))
     private SetStatusCommand setStatusCommand;
+    @Setter(onMethod = @__({@Autowired}))
+    private RestartCommand restartCommand;
     @Setter(onMethod = @__({@Autowired}))
     private ShutdownCommand shutdownCommand;
 }

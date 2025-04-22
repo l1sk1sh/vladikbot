@@ -74,6 +74,19 @@ public class JenkinsCommandsService {
         return buildJenkinsJob(jobName);
     }
 
+    public boolean queueAndCheckStatusOfJenkinsJob(String jobName) {
+        errorMessage = null;
+
+        JenkinsJob job = getJenkinsJobStatus(jobName);
+        if (job == null) {
+            errorMessage = "Failed to get response from Jenkins.";
+
+            return false;
+        }
+
+        return buildJenkinsJob(jobName);
+    }
+
     public boolean stopAndCheckStatusOfJenkinsJob(String jobName) {
         errorMessage = null;
 
