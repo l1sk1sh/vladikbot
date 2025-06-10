@@ -23,6 +23,11 @@ repositories {
     maven { url 'https://maven.topi.wtf/releases' }
 }
 
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
 group 'сom.l1sk1sh'
 version '2.1.0.alpha'
 
@@ -58,7 +63,7 @@ dependencies {
     implementation 'pw.chew:jda-chewtils:2.0'
     implementation 'com.github.ygimenez:Pagination-Utils:4.0.6'
     implementation 'dev.arbjerg:lavaplayer:2.2.3'
-    implementation 'dev.lavalink.youtube:v2:1.13.2'
+    implementation 'dev.lavalink.youtube:v2:1.13.3'
     implementation 'com.github.topi314.lavasrc:lavasrc:4.3.0'
     implementation 'com.github.topi314.lavasrc:lavasrc-protocol:4.3.0'
 
