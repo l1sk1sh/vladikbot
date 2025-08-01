@@ -57,7 +57,7 @@ dependencies {
     implementation 'net.dv8tion:JDA:5.2.1'
     implementation 'pw.chew:jda-chewtils:2.0'
     implementation 'com.github.ygimenez:Pagination-Utils:4.0.6'
-    implementation 'dev.arbjerg:lavaplayer:2.2.3'
+    implementation 'dev.arbjerg:lavaplayer:2.2.4'
     implementation 'dev.lavalink.youtube:v2:1.13.3'
     implementation 'com.github.topi314.lavasrc:lavasrc:4.3.0'
     implementation 'com.github.topi314.lavasrc:lavasrc-protocol:4.3.0'
