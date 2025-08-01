@@ -23,11 +23,6 @@ repositories {
     maven { url 'https://maven.topi.wtf/releases' }
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
 group 'сom.l1sk1sh'
 version '2.1.0.alpha'
 
