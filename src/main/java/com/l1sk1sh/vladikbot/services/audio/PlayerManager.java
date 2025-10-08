@@ -63,7 +63,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
 
         // https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-oauth-tokens
         String refreshToken = settings.get().getYtRefreshToken();
-        if (refreshToken.isEmpty()) {
+        if (refreshToken != null && refreshToken.isEmpty()) {
             refreshToken = null;
         }
         youtube.useOauth2(refreshToken, refreshToken != null);
