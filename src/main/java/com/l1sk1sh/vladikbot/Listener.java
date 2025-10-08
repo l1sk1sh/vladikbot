@@ -213,8 +213,11 @@ class Listener extends ListenerAdapter {
             autoMediaBackupDaemon.start();
         }
 
-        /* Set tokens from YouTube session generator */
-        youTubeSessionGenerator.fetchAndSetYtSession();
+        /* Set tokens from YouTube session generator if OAuth2 is not used */
+        if (settings.get().getYtRefreshToken() == null 
+            || settings.get().getYtRefreshToken().isEmpty()) {
+            youTubeSessionGenerator.fetchAndSetYtSession();
+        }
     }
 
     @Override

@@ -61,6 +61,7 @@ public class BotSettings {
     private String spCountryCode = "DE";                                // Holds Spotify User Country
     private String ytPoToken = "";                                      // Holds YouTube po_token
     private String ytVisitorData = "";                                  // Holds YouTube visitor_data
+    private String ytRefreshToken = "";                                 // Holds YouTube refresh_token
 
     /* Runtime and bot specific internal configs */
     @Setter

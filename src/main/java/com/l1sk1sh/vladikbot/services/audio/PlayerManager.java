@@ -51,14 +51,23 @@ public class PlayerManager extends DefaultAudioPlayerManager {
                 true,
                 true,
                 true,
-                new Music(),
-                new Web(),
-                new WebEmbedded(),
-                new AndroidMusic(androidClientOptions),
-                new AndroidVr(androidClientOptions),
+                new TvHtml5Embedded(),
                 new Tv(),
-                new Ios(),
-                new TvHtml5Embedded());
+                new Web(),
+                new Music(),
+                new WebEmbedded()
+                // new AndroidMusic(androidClientOptions),
+                // new AndroidVr(androidClientOptions),
+                // new Ios()
+                );
+
+        // https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-oauth-tokens
+        String refreshToken = settings.get().getYtRefreshToken();
+        if (refreshToken.isEmpty()) {
+            refreshToken = null;
+        }
+        youtube.useOauth2(refreshToken, refreshToken != null);
+        
         this.registerSourceManager(youtube);
         source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
     }
