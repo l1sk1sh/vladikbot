@@ -4,11 +4,13 @@ import com.github.topi314.lavasrc.mirror.DefaultMirroringAudioTrackResolver;
 import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
 import com.l1sk1sh.vladikbot.data.entity.GuildSettings;
 import com.l1sk1sh.vladikbot.data.repository.GuildSettingsRepository;
+import com.l1sk1sh.vladikbot.services.youtube.YouTubeIPRotator;
 import com.l1sk1sh.vladikbot.settings.BotSettingsManager;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.soundcloud.SoundCloudAudioSourceManager;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import dev.lavalink.youtube.YoutubeSourceOptions;
 import dev.lavalink.youtube.clients.*;
 import lombok.RequiredArgsConstructor;
 import net.dv8tion.jda.api.entities.Guild;
@@ -20,9 +22,9 @@ import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author l1sk1sh
- * Changes from original source:
- * - Reformatted code
- * - DI Spring
+ *         Changes from original source:
+ *         - Reformatted code
+ *         - DI Spring
  * @author John Grosh
  */
 @RequiredArgsConstructor
@@ -35,6 +37,7 @@ public class PlayerManager extends DefaultAudioPlayerManager {
     private final PlaylistLoader playlistLoader;
     private final BotSettingsManager settings;
     private final GuildSettingsRepository guildSettingsRepository;
+    private final YouTubeIPRotator ytIPRotator;
 
     public final void init() {
         this.registerSourceManager(SoundCloudAudioSourceManager.createDefault());
@@ -47,19 +50,23 @@ public class PlayerManager extends DefaultAudioPlayerManager {
     private void initYoutube() {
         ClientOptions androidClientOptions = new ClientOptions();
         androidClientOptions.setPlayback(false);
-        YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(
-                true,
-                true,
-                true,
+
+        YoutubeSourceOptions options = new YoutubeSourceOptions()
+                .setAllowSearch(true)
+                .setAllowDirectVideoIds(true)
+                .setAllowDirectPlaylistIds(true)
+                .setRemoteCipher("https://cipher.kikkia.dev", null, null);
+
+        YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(options,
                 new TvHtml5Embedded(),
                 new Tv(),
                 new Web(),
                 new Music(),
                 new WebEmbedded()
-                // new AndroidMusic(androidClientOptions),
-                // new AndroidVr(androidClientOptions),
-                // new Ios()
-                );
+        // new AndroidMusic(androidClientOptions),
+        // new AndroidVr(androidClientOptions),
+        // new Ios()
+        );
 
         // https://github.com/lavalink-devs/youtube-source?tab=readme-ov-file#using-oauth-tokens
         String refreshToken = settings.get().getYtRefreshToken();
@@ -67,7 +74,10 @@ public class PlayerManager extends DefaultAudioPlayerManager {
             refreshToken = null;
         }
         youtube.useOauth2(refreshToken, refreshToken != null);
-        
+
+        // https://github.com/lavalink-devs/youtube-source/issues/13
+        ytIPRotator.setRoutePlannerIfAvailable(youtube.getHttpInterfaceManager());
+
         this.registerSourceManager(youtube);
         source(YoutubeAudioSourceManager.class).setPlaylistPageCount(10);
     }
@@ -92,7 +102,8 @@ public class PlayerManager extends DefaultAudioPlayerManager {
 
             AudioPlayer player = createPlayer();
             player.setVolume(volume);
-            audioHandler = new AudioHandler(frontThreadPool, this, guild, player, settings, guildSettings.orElse(null), playlistLoader);
+            audioHandler = new AudioHandler(frontThreadPool, this, guild, player, settings, guildSettings.orElse(null),
+                    playlistLoader);
             player.addListener(audioHandler);
             guild.getAudioManager().setSendingHandler(audioHandler);
         } else {

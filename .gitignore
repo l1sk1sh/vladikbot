@@ -11,6 +11,7 @@
 out/
 build/
 logs/
+bin/
 
 # Generated config files
 manifest.mf
