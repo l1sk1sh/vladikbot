@@ -58,7 +58,6 @@ public class PlayerManager extends DefaultAudioPlayerManager {
                 .setRemoteCipher("https://cipher.kikkia.dev", null, null);
 
         YoutubeAudioSourceManager youtube = new YoutubeAudioSourceManager(options,
-                new TvHtml5Embedded(),
                 new Tv(),
                 new Web(),
                 new Music(),
